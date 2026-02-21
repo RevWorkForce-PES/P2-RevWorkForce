@@ -109,7 +109,167 @@ Brief description of changes
 - No new warnings
 ```
 
-### Responding to Reviews
+## Code Style Guidelines
+
+### Java Code Style
+#### 1) Variables
+- Use meaningful variable names in camelCase
+- Avoid single-letter names
+```java
+String employeeId = "EMP001";  //  Good
+String e = "EMP001";           //  Bad
+```
+
+#### 2) Constants
+- Use UPPER_SNAKE_CASE
+- Declare as `public static final`
+```java
+public static final int MAX_LEAVE_DAYS = 30;
+public static final String DEFAULT_ROLE = "EMPLOYEE";
+```
+
+#### 4) Methods
+- Use camelCase
+- Method names should start with a verb
+- Keep methods small and focused (SRP - Single Responsibility Principle)
+
+```java
+
+public void calculateLeaveBalance() { }
+```
+
+#### 5) Classes in PascalCase
+- Use PascalCase
+- Use nouns
+- Class names should be meaningful
+```java
+
+public class EmployeeService { }
+
+public class LeaveRequestController { }
+```
+
+- Controller → `EmployeeController`
+- Service → `EmployeeService`
+- Repository → `EmployeeRepository`
+- DTO → `EmployeeRequest`, `EmployeeResponse`
+
+#### 6) Packages
+- Use lowercase
+- Follow reverse domain naming convention
+```java
+com.revature.revworkforce.model
+com.revature.revworkforce.repository
+com.revature.revworkforce.controller
+com.revature.revworkforce.exceptions
+```
+
+#### 7) JavaDocS and Comments
+
+- Mandatory JavaDoc for:
+  - All public classes
+  - All public methods
+  - Complex business logic
+- Use clear and concise inline comments
+- Avoid unnecessary or obvious comments
+- Remove commented-out dead code
+
+```java
+/**
+ * Calculates working days between two dates.
+ * 
+ * @param startDate the start date
+ * @param endDate the end date
+ * @return number of working days
+ */
+public int calculateWorkingDays(LocalDate startDate, LocalDate endDate) {
+    // implementation
+}
+```
+
+#### 8) Logging Guidelines (Log4j2)
+- Use parameterized logging
+- Log meaningful context
+- Do NOT use `System.out.println()`
+```java
+logger.info("Creating employee with ID: {}", employee.getEmployeeId());
+logger.warn("Employee not found with ID: {}", id);
+logger.error("Error while creating employee", ex);
+```
+| Level | When to Use                       |
+| ----- | --------------------------------- |
+| TRACE | Detailed internal debugging       |
+| DEBUG | Development debugging             |
+| INFO  | Important business events         |
+| WARN  | Unexpected but handled situations |
+| ERROR | Failures and exceptions           |
+
+
+#### 9) API Layering Rule 
+- Follow strict layering: Controller → Service → Repository
+- Controller and Repository should NOT contain business logic
+- Business logic must be inside Service layer
+
+**HTTP Request Types:**
+
+| HTTP Method | Purpose                | Example Use Case             | Expected Status Code |
+|------------|------------------------|------------------------------|----------------------|
+| **GET**    | Retrieve data          | Fetch employee details       | 200 OK               |
+| **POST**   | Create new resource    | Create new employee          | 201 CREATED          |
+| **PUT**    | Update entire resource | Update full employee details | 200 OK               |
+| **PATCH**  | Partial update         | Update employee email only   | 200 OK               |
+| **DELETE** | Remove resource        | Delete employee record       | 204 NO CONTENT       |
+
+**Proper HTTP Status Codes:**
+| Operation    | Status         |
+| ------------ | -------------- |
+| Create       | 201 CREATED    |
+| Fetch        | 200 OK         |
+| Update       | 200 OK         |
+| Delete       | 204 NO CONTENT |
+| Bad Request  | 400            |
+| Unauthorized | 401            |
+| Forbidden    | 403            |
+| Not Found    | 404            |
+| Conflict     | 409            |
+
+#### 10) Exception Handling
+- Use custom exceptions
+- Use Global Exception Handler (@ControllerAdvice)
+- Do NOT use try-catch in every controller
+```java
+public class EmployeeAlreadyExistsException extends RuntimeException {
+    public EmployeeAlreadyExistsException(String message) {
+        super(message);
+    }
+}
+```
+## Testing Guidelines
+
+### Unit Tests
+- Follow AAA Approach
+```java
+@Test
+public void testCalculateWorkingDays_ExcludesWeekends() {
+    // Arrange
+    LocalDate start = LocalDate.of(2024, 2, 5);  // Monday
+    LocalDate end = LocalDate.of(2024, 2, 9);    // Friday
+    
+    // Act
+    int days = dateUtil.calculateWorkingDays(start, end);
+    
+    // Assert
+    assertEquals(5, days);
+}
+```
+
+### Test Coverage
+
+- Aim for 60%+ overall coverage
+- Critical business logic should have 80%+ coverage
+- Run `mvn jacoco:report` to check coverage
+
+## Responding to Reviews
 
 - Be open to feedback
 - Respond to all comments
