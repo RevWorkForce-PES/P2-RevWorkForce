@@ -368,4 +368,4 @@ Code: [Relevant code snippet or link]
 - Contact team lead
 
 
-**Thank you for efforts!**
+**Thank you for your efforts!**
