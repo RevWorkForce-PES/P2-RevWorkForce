@@ -61,6 +61,19 @@ Types:
 ```bash
 git fetch upstream
 ```
+### 5. Rebase Before Creating PR
+
+Always rebase your branch with latest main before creating a Pull Request.
+
+Why?
+To avoid merge conflicts and messy commit history.
+
+```bash
+git checkout main
+git pull upstream main
+git checkout feature/your-feature-name
+git rebase main
+```
 
 ### 5. Push Changes
 ```bash
@@ -76,6 +89,12 @@ git push origin feature/your-feature-name
 5. Request review from team members
 
 ## Pull Request Guidelines
+### Code Review Policy
+
+- Minimum 1 approval required before merge
+- All tests must pass
+- No direct push to main branch
+- Resolve all review comments before merging
 
 ### PR Title Format
 ```
@@ -112,7 +131,15 @@ Brief description of changes
 ## Code Style Guidelines
 
 ### Java Code Style
-#### 1) Variables
+
+#### 1) Code Formatting Rules
+
+- Remove unused imports
+- No wildcard imports (*)
+- Format code before commit (Ctrl + Alt + L in IntelliJ)
+- Do not leave commented dead code
+
+#### 2) Variables
 - Use meaningful variable names in camelCase
 - Avoid single-letter names
 ```java
@@ -120,7 +147,7 @@ String employeeId = "EMP001";  //  Good
 String e = "EMP001";           //  Bad
 ```
 
-#### 2) Constants
+#### 3) Constants
 - Use UPPER_SNAKE_CASE
 - Declare as `public static final`
 ```java
@@ -233,7 +260,18 @@ logger.error("Error while creating employee", ex);
 | Not Found    | 404            |
 | Conflict     | 409            |
 
-#### 10) Exception Handling
+#### 10) DTO Rule
+
+- Do NOT return Entity objects directly from Controller
+- Always use Request and Response DTOs
+- Convert Entity ↔ DTO inside Service layer
+
+Example:
+Controller → EmployeeRequest  
+Service → Converts to Employee entity  
+Controller returns → EmployeeResponse
+
+#### 11) Exception Handling
 - Use custom exceptions
 - Use Global Exception Handler (@ControllerAdvice)
 - Do NOT use try-catch in every controller
@@ -244,6 +282,17 @@ public class EmployeeAlreadyExistsException extends RuntimeException {
     }
 }
 ```
+
+#### 12) Global Exception Handling
+
+Do NOT write try-catch in every controller.
+
+Use a Global Exception Handler:
+
+- Create custom exceptions
+- Handle them using @ControllerAdvice
+- Return proper HTTP status codes
+
 ## Testing Guidelines
 
 ### Unit Tests
@@ -268,6 +317,17 @@ public void testCalculateWorkingDays_ExcludesWeekends() {
 - Aim for 60%+ overall coverage
 - Critical business logic should have 80%+ coverage
 - Run `mvn jacoco:report` to check coverage
+
+### Definition of Done
+
+A task is complete only when:
+
+- Code implemented
+- Unit tests written
+- All tests passing
+- Coverage requirement met
+- Code reviewed
+- No warnings/errors
 
 ## Responding to Reviews
 
