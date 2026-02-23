@@ -144,7 +144,7 @@ INSERT INTO EMPLOYEES (
     department_id, designation_id, joining_date, salary, status, password_hash, first_login
 ) VALUES (
     'ADM001', 'Mastan', 'Sayyad', 'admin@revworkforce.com', '9876543210', 
-    DATE '200-02-17', 'M',
+    DATE '2000-02-17', 'M',
     '123 MG Road', 'Bengaluru', 'Karnataka', '560001', 'India',
     1, 5, DATE '2020-01-01', 2000000, 'Active',
     '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYDpLABB5dW', 'N'
@@ -540,7 +540,7 @@ INSERT INTO HOLIDAYS (holiday_id, holiday_date, holiday_name, holiday_type, desc
 VALUES (holiday_seq.NEXTVAL, DATE '2024-08-15', 'Independence Day', 'National', 'Indian Independence Day');
 
 INSERT INTO HOLIDAYS (holiday_id, holiday_date, holiday_name, holiday_type, description) 
-VALUES (holiday_seq.NEXTVAL, DATE '2024-10-02', 'Gandhi Jayanti', 'National', 'Mahatma Gandhi\'s Birthday');
+VALUES (holiday_seq.NEXTVAL, DATE '2024-10-02', 'Gandhi Jayanti', 'National', 'Mahatma Gandhi''s Birthday');
 
 INSERT INTO HOLIDAYS (holiday_id, holiday_date, holiday_name, holiday_type, description) 
 VALUES (holiday_seq.NEXTVAL, DATE '2024-10-12', 'Dussehra', 'Festival', 'Hindu festival');
@@ -634,7 +634,7 @@ INSERT INTO GOALS (
     'Complete AWS Certification', 
     'Prepare and pass AWS Solutions Architect Associate certification exam',
     'Professional Development',
-    DATE '2024-06-30', 'HIGH', 60, 'IN_PROGRESS'
+    TRUNC(SYSDATE) + 120, 'HIGH', 60, 'IN_PROGRESS'
 );
 
 -- Goal 2: Completed
@@ -646,7 +646,7 @@ INSERT INTO GOALS (
     'Redesign Company Website',
     'Complete UI/UX redesign of company website with modern design principles',
     'Technical',
-    DATE '2024-02-28', 'HIGH', 100, 'COMPLETED',
+    TRUNC(SYSDATE) + 30, 'HIGH', 100, 'COMPLETED',
     'Excellent work! Website traffic increased by 35% after redesign.',
     SYSDATE - 15
 );
@@ -660,7 +660,7 @@ INSERT INTO GOALS (
     'Learn Spring Security',
     'Master Spring Security framework for implementing authentication and authorization',
     'Technical',
-    DATE '2024-08-31', 'MEDIUM', 0, 'NOT_STARTED'
+    TRUNC(SYSDATE) + 180, 'MEDIUM', 0, 'NOT_STARTED'
 );
 
 -- Goal 4: In Progress
@@ -672,7 +672,7 @@ INSERT INTO GOALS (
     'Improve Code Quality',
     'Achieve 80% code coverage in all modules and reduce technical debt',
     'Technical',
-    DATE '2024-09-30', 'HIGH', 45, 'IN_PROGRESS'
+    TRUNC(SYSDATE) + 210, 'HIGH', 45, 'IN_PROGRESS'
 );
 
 -- Goal 5: In Progress
@@ -684,7 +684,7 @@ INSERT INTO GOALS (
     'Master Test Automation',
     'Learn Selenium and implement automated testing framework',
     'Professional Development',
-    DATE '2024-07-31', 'MEDIUM', 30, 'IN_PROGRESS'
+    TRUNC(SYSDATE) + 150, 'MEDIUM', 30, 'IN_PROGRESS'
 );
 
 COMMIT;
