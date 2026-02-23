@@ -71,7 +71,6 @@ target/
 .project
 .factorypath
 
-
 # IntelliJ
 .idea/
 *.iml
