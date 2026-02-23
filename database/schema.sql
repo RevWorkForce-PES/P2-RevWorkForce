@@ -299,7 +299,6 @@
     COMMENT ON COLUMN EMPLOYEES.account_locked IS 'Y if account is locked due to failed attempts';
 
     -- Create indexes for EMPLOYEES table
-    -- CREATE INDEX idx_emp_email ON EMPLOYEES(email);
     CREATE INDEX idx_emp_dept ON EMPLOYEES(department_id);
     CREATE INDEX idx_emp_mgr ON EMPLOYEES(manager_id);
     CREATE INDEX idx_emp_status ON EMPLOYEES(status);
@@ -434,8 +433,7 @@
     COMMENT ON COLUMN HOLIDAYS.holiday_type IS 'National/Regional/Festival/Company-specific';
     COMMENT ON COLUMN HOLIDAYS.is_optional IS 'Y if employees can choose to work';
 
-    -- Create index for HOLIDAYS table
-    -- CREATE INDEX idx_holiday_date ON HOLIDAYS(holiday_date);
+
 
     -- ============================================
     -- TABLE 10: PERFORMANCE_REVIEWS
