@@ -1,23 +1,20 @@
--- =================================================
--- Create User for Phase 2 RevWorkForce Application
--- =================================================
-
--- Drop user if exists (for fresh setup)
--- DROP USER revworkforce CASCADE;
+-- Connect as SYSTEM
+sqlplus system/your_sys_password@localhost:1521/XE
 
 -- Create user
-CREATE USER revworkforce IDENTIFIED BY revpassword;
+CREATE USER "revworkforce-db" IDENTIFIED BY revpassword;
 
--- Grant necessary privileges
-GRANT CONNECT, RESOURCE TO revworkforce;
-GRANT CREATE SESSION TO revworkforce;
-GRANT CREATE TABLE TO revworkforce;
-GRANT CREATE VIEW TO revworkforce;
-GRANT CREATE SEQUENCE TO revworkforce;
-GRANT CREATE TRIGGER TO revworkforce;
-GRANT UNLIMITED TABLESPACE TO revworkforce;
+-- Grant privileges
+GRANT CONNECT, RESOURCE, DBA TO "revworkforce-db";
+GRANT CREATE SESSION TO "revworkforce-db";
+GRANT CREATE TABLE TO "revworkforce-db";
+GRANT CREATE VIEW TO "revworkforce-db";
+GRANT CREATE SEQUENCE TO "revworkforce-db";
+GRANT CREATE TRIGGER TO "revworkforce-db";
+GRANT UNLIMITED TABLESPACE TO "revworkforce-db";
 
--- Confirm user creation
-SELECT username FROM dba_users WHERE username = 'REVWORKFORCE';
+-- Verify user created
+SELECT username FROM dba_users WHERE username = 'revworkforce-db';
 
-COMMIT;
+-- Exit
+EXIT;
