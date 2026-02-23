@@ -83,7 +83,3 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
-
-# Application
-application-local.properties
-
