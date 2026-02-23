@@ -1,5 +1,5 @@
 -- Connect as SYSTEM
-sqlplus system/your_sys_password@localhost:1521/XE
+-- sqlplus system/your_sys_password@localhost:1521/XEPDB1
 
 -- Create user
 CREATE USER "revworkforce-db" IDENTIFIED BY revpassword;
