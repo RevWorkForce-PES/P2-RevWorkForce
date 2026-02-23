@@ -1,16 +1,17 @@
-# Compiled class file
+# ==============================
+# Compiled Class Files
+# ==============================
 *.class
 
-# Log file
+# ==============================
+# Log Files
+# ==============================
 *.log
+logs/
 
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
+# ==============================
+# Package Files
+# ==============================
 *.jar
 *.war
 *.nar
@@ -19,17 +20,40 @@
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
-
-HELP.md
+# ==============================
+# Maven / Target
+# ==============================
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+# ==============================
+# Build Directories
+# ==============================
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# ==============================
+# JVM Crash Logs
+# ==============================
+hs_err_pid*
+replay_pid*
+
+# ==============================
+# BlueJ
+# ==============================
+*.ctxt
+
+# ==============================
+# J2ME
+# ==============================
+.mtj.tmp/
+
+# ==============================
+# Spring Tool Suite (STS)
+# ==============================
 .apt_generated
 .classpath
 .factorypath
@@ -38,47 +62,40 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
+# ==============================
+# IntelliJ IDEA
+# ==============================
+.idea/
 *.iws
 *.iml
 *.ipr
 
-### NetBeans ###
+# ==============================
+# NetBeans
+# ==============================
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
+# ==============================
+# VS Code
+# ==============================
 .vscode/
 
-# Compiled class files
-*.class
-target/
-*.jar
-*.war
-*.ear
-
+# ==============================
 # Eclipse
+# ==============================
 .metadata
-.settings/
-.classpath
-.project
-.factorypath
 
-# IntelliJ
-.idea/
-*.iml
-
-# Logs
-*.log
-logs/
-
-# OS
+# ==============================
+# OS Files
+# ==============================
 .DS_Store
 Thumbs.db
+
+# ==============================
+# Misc
+# ==============================
+HELP.md
