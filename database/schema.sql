@@ -273,7 +273,7 @@
         joining_date DATE DEFAULT SYSDATE,
         leaving_date DATE,
         salary NUMBER(10,2),
-        status VARCHAR2(20) DEFAULT 'Active' CHECK (status IN ('Active', 'Inactive', 'On Leave', 'Terminated')),
+        status VARCHAR2(20) DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE','INACTIVE','ON_LEAVE','TERMINATED')),
         password_hash VARCHAR2(255) NOT NULL,
         first_login CHAR(1) DEFAULT 'Y' CHECK (first_login IN ('Y', 'N')),
         last_login TIMESTAMP,
