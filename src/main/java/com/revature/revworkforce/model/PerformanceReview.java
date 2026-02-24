@@ -4,6 +4,7 @@ import com.revature.revworkforce.enums.ReviewStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,38 +15,28 @@ import java.time.LocalDateTime;
  *
  * Database Table: PERFORMANCE_REVIEWS
  *
- * This entity stores employee performance evaluations
- * conducted annually or periodically.
- *
  * Relationships:
  * - Many-to-One with Employee (reviewed employee)
  * - Many-to-One with Employee (reviewed by manager)
  *
- * Status Lifecycle:
- * DRAFT → SUBMITTED → REVIEWED → COMPLETED
- *
- * Business Rules:
- * - Each employee can have only one review per year.
- * - Ratings must be between 1.0 and 5.0.
- * - Final rating may be calculated based on self and manager ratings.
+ * Unique Constraint:
+ * Each employee can have only one review per year.
  *
  * Oracle Sequence Used: review_seq
- *
- * @author RevWorkForce Team
  */
 @Getter
 @Setter
+@ToString(exclude = {"employee", "reviewedBy"})
 @Entity
 @Table(name = "PERFORMANCE_REVIEWS",
-       uniqueConstraints = @UniqueConstraint(
-           name = "uk_emp_review_year",
-           columnNames = {"employee_id", "review_year"}
-       ))
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_emp_review_year",
+                columnNames = {"employee_id", "review_year"}
+        ))
 public class PerformanceReview {
 
     /**
      * Primary key for performance review.
-     * Auto-generated using Oracle sequence review_seq.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "review_seq")
@@ -74,31 +65,27 @@ public class PerformanceReview {
 
     /**
      * Employee self-assessment rating (1.0 to 5.0).
-     * Stored as NUMBER(2,1) in Oracle.
      */
     @Column(name = "self_assessment_rating", precision = 2, scale = 1)
     private BigDecimal selfAssessmentRating;
 
     /**
      * Manager rating (1.0 to 5.0).
-     * Stored as NUMBER(2,1) in Oracle.
      */
     @Column(name = "manager_rating", precision = 2, scale = 1)
     private BigDecimal managerRating;
 
     /**
      * Final rating after evaluation.
-     * Stored as NUMBER(2,1) in Oracle.
      */
     @Column(name = "final_rating", precision = 2, scale = 1)
     private BigDecimal finalRating;
 
     /**
      * Current status of the review.
-     * Default value: DRAFT.
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 20)
+    @Column(name = "status", nullable = false, length = 20)
     private ReviewStatus status = ReviewStatus.DRAFT;
 
     /**
@@ -123,7 +110,7 @@ public class PerformanceReview {
     /**
      * Record creation timestamp.
      */
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
     /**
@@ -133,12 +120,63 @@ public class PerformanceReview {
     private LocalDateTime updatedAt;
 
     /**
+     * Default constructor required by JPA.
+     */
+    public PerformanceReview() {
+    }
+
+    /**
+     * Constructor used when creating a new review.
+     */
+    public PerformanceReview(Employee employee,
+                             Integer reviewYear,
+                             String reviewPeriod) {
+
+        this.employee = employee;
+        this.reviewYear = reviewYear;
+        this.reviewPeriod = reviewPeriod;
+        this.status = ReviewStatus.DRAFT;
+    }
+
+    /**
+     * Full constructor.
+     */
+    public PerformanceReview(Long reviewId,
+                             Employee employee,
+                             Integer reviewYear,
+                             String reviewPeriod,
+                             BigDecimal selfAssessmentRating,
+                             BigDecimal managerRating,
+                             BigDecimal finalRating,
+                             ReviewStatus status,
+                             Employee reviewedBy,
+                             LocalDate submittedDate,
+                             LocalDate reviewedDate,
+                             LocalDateTime createdAt,
+                             LocalDateTime updatedAt) {
+
+        this.reviewId = reviewId;
+        this.employee = employee;
+        this.reviewYear = reviewYear;
+        this.reviewPeriod = reviewPeriod;
+        this.selfAssessmentRating = selfAssessmentRating;
+        this.managerRating = managerRating;
+        this.finalRating = finalRating;
+        this.status = status;
+        this.reviewedBy = reviewedBy;
+        this.submittedDate = submittedDate;
+        this.reviewedDate = reviewedDate;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    /**
      * Automatically sets timestamps before insert.
      */
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     /**
@@ -146,6 +184,6 @@ public class PerformanceReview {
      */
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 }

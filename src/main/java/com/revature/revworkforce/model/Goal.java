@@ -128,12 +128,70 @@ public class Goal {
     private LocalDateTime updatedAt;
 
     /**
+     * Default constructor required by JPA.
+     */
+    public Goal() {
+    }
+
+    /**
+     * Constructor for creating a new goal (without ID).
+     */
+    public Goal(Employee employee,
+                String goalTitle,
+                String goalDescription,
+                String category,
+                LocalDate deadline,
+                GoalPriority priority) {
+
+        this.employee = employee;
+        this.goalTitle = goalTitle;
+        this.goalDescription = goalDescription;
+        this.category = category;
+        this.deadline = deadline;
+        this.priority = priority;
+        this.progress = 0;
+        this.status = GoalStatus.NOT_STARTED;
+    }
+
+    /**
+     * Full constructor.
+     */
+    public Goal(Long goalId,
+                Employee employee,
+                String goalTitle,
+                String goalDescription,
+                String category,
+                LocalDate deadline,
+                GoalPriority priority,
+                Integer progress,
+                GoalStatus status,
+                String managerComments,
+                LocalDateTime completedAt,
+                LocalDateTime createdAt,
+                LocalDateTime updatedAt) {
+
+        this.goalId = goalId;
+        this.employee = employee;
+        this.goalTitle = goalTitle;
+        this.goalDescription = goalDescription;
+        this.category = category;
+        this.deadline = deadline;
+        this.priority = priority;
+        this.progress = progress;
+        this.status = status;
+        this.managerComments = managerComments;
+        this.completedAt = completedAt;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    /**
      * Automatically sets timestamps before insert.
      */
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     /**
@@ -141,6 +199,6 @@ public class Goal {
      */
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 }
