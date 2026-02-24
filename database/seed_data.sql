@@ -144,9 +144,9 @@ INSERT INTO EMPLOYEES (
     department_id, designation_id, joining_date, salary, status, password_hash, first_login
 ) VALUES (
     'ADM001', 'Mastan', 'Sayyad', 'admin@revworkforce.com', '9876543210', 
-    DATE '200-02-17', 'M',
+    DATE '2000-02-17', 'M',
     '123 MG Road', 'Bengaluru', 'Karnataka', '560001', 'India',
-    1, 5, DATE '2020-01-01', 2000000, 'Active',
+    1, 5, DATE '2020-01-01', 2000000, 'ACTIVE',
     '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYDpLABB5dW', 'N'
 );
 
@@ -159,7 +159,7 @@ INSERT INTO EMPLOYEES (
     'MGR001', 'Priya', 'Sharma', 'manager@revworkforce.com', '9876543211',
     DATE '1988-07-22', 'F',
     '456 Brigade Road', 'Bengaluru', 'Karnataka', '560025', 'India',
-    1, 4, 'ADM001', DATE '2020-03-15', 1500000, 'Active',
+    1, 4, 'ADM001', DATE '2020-03-15', 1500000, 'ACTIVE',
     '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYDpLABB5dW', 'N'
 );
 
@@ -172,7 +172,7 @@ INSERT INTO EMPLOYEES (
     'MGR002', 'Amit', 'Patel', 'amit.patel@revworkforce.com', '9876543212',
     DATE '1986-11-08', 'M',
     '789 Whitefield', 'Bengaluru', 'Karnataka', '560066', 'India',
-    2, 4, 'ADM001', DATE '2020-06-01', 1400000, 'Active',
+    2, 4, 'ADM001', DATE '2020-06-01', 1400000, 'ACTIVE',
     '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYDpLABB5dW', 'N'
 );
 
@@ -185,7 +185,7 @@ INSERT INTO EMPLOYEES (
     'EMP001', 'Sanjay', 'kv', 'employee1@revworkforce.com', '9876543213',
     DATE '1995-05-10', 'M',
     '101 Koramangala', 'Bengaluru', 'Karnataka', '560034', 'India',
-    1, 2, 'MGR001', DATE '2022-01-15', 800000, 'Active',
+    1, 2, 'MGR001', DATE '2022-01-15', 800000, 'ACTIVE',
     '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYDpLABB5dW', 'N'
 );
 
@@ -197,7 +197,7 @@ INSERT INTO EMPLOYEES (
     'EMP002', 'Gururaj', 'Shetty', 'employee2@revworkforce.com', '9876543214',
     DATE '1996-08-20', 'M',
     '202 Indiranagar', 'Bengaluru', 'Karnataka', '560038', 'India',
-    1, 2, 'MGR001', DATE '2022-02-01', 750000, 'Active',
+    1, 2, 'MGR001', DATE '2022-02-01', 750000, 'ACTIVE',
     '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYDpLABB5dW', 'N'
 );
 
@@ -209,7 +209,7 @@ INSERT INTO EMPLOYEES (
     'EMP003', 'Aishwarya', 'MS', 'employee3@revworkforce.com', '9876543215',
     DATE '1997-03-14', 'F',
     '303 Jayanagar', 'Bengaluru', 'Karnataka', '560041', 'India',
-    1, 1, 'MGR001', DATE '2023-01-10', 550000, 'Active',
+    1, 1, 'MGR001', DATE '2023-01-10', 550000, 'ACTIVE',
     '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYDpLABB5dW', 'N'
 );
 
@@ -221,7 +221,7 @@ INSERT INTO EMPLOYEES (
     'EMP004', 'Shahla', 'Nigar', 'employee4@revworkforce.com', '9876543216',
     DATE '1996-12-05', 'F',
     '404 HSR Layout', 'Bengaluru', 'Karnataka', '560102', 'India',
-    1, 1, 'MGR001', DATE '2023-02-15', 520000, 'Active',
+    1, 1, 'MGR001', DATE '2023-02-15', 520000, 'ACTIVE',
     '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYDpLABB5dW', 'N'
 );
 
@@ -233,7 +233,7 @@ INSERT INTO EMPLOYEES (
     'EMP005', 'Chinmayi', 'Maske', 'employee5@revworkforce.com', '9876543217',
     DATE '1998-01-28', 'F',
     '505 Marathahalli', 'Bengaluru', 'Karnataka', '560037', 'India',
-    7, 9, 'MGR001', DATE '2023-03-01', 480000, 'Active',
+    7, 9, 'MGR001', DATE '2023-03-01', 480000, 'ACTIVE',
     '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYDpLABB5dW', 'N'
 );
 
@@ -245,7 +245,7 @@ INSERT INTO EMPLOYEES (
     'EMP006', 'Nagarjuna', 'Ummanaboyina', 'employee6@revworkforce.com', '9876543218',
     DATE '1997-06-18', 'M',
     '606 Electronic City', 'Bengaluru', 'Karnataka', '560100', 'India',
-    1, 2, 'MGR001', DATE '2022-08-01', 720000, 'Active',
+    1, 2, 'MGR001', DATE '2022-08-01', 720000, 'ACTIVE',
     '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYDpLABB5dW', 'N'
 );
 
@@ -258,7 +258,7 @@ INSERT INTO EMPLOYEES (
     'EMP007', 'Sneha', 'Reddy', 'sneha.reddy@revworkforce.com', '9876543219',
     DATE '1994-09-25', 'F',
     '707 JP Nagar', 'Bengaluru', 'Karnataka', '560078', 'India',
-    2, 6, 'MGR002', DATE '2021-05-01', 600000, 'Active',
+    2, 6, 'MGR002', DATE '2021-05-01', 600000, 'ACTIVE',
     '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYDpLABB5dW', 'N'
 );
 
@@ -271,7 +271,7 @@ INSERT INTO EMPLOYEES (
     'EMP008', 'Vikram', 'Singh', 'vikram.singh@revworkforce.com', '9876543220',
     DATE '1990-04-12', 'M',
     '808 BTM Layout', 'Bengaluru', 'Karnataka', '560076', 'India',
-    3, 7, 'ADM001', DATE '2021-08-15', 700000, 'Active',
+    3, 7, 'ADM001', DATE '2021-08-15', 700000, 'ACTIVE',
     '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYDpLABB5dW', 'N'
 );
 
@@ -284,7 +284,7 @@ INSERT INTO EMPLOYEES (
     'EMP009', 'Ananya', 'Iyer', 'ananya.iyer@revworkforce.com', '9876543221',
     DATE '1998-11-30', 'F',
     '909 Sarjapur Road', 'Bengaluru', 'Karnataka', '560035', 'India',
-    4, 8, 'ADM001', DATE '2023-04-01', 450000, 'Active',
+    4, 8, 'ADM001', DATE '2023-04-01', 450000, 'ACTIVE',
     '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYDpLABB5dW', 'N'
 );
 
@@ -297,7 +297,7 @@ INSERT INTO EMPLOYEES (
     'EMP010', 'Karthik', 'Rao', 'karthik.rao@revworkforce.com', '9876543222',
     DATE '1993-02-17', 'M',
     '1010 Banashankari', 'Bengaluru', 'Karnataka', '560070', 'India',
-    6, 10, 'ADM001', DATE '2022-09-01', 550000, 'Active',
+    6, 10, 'ADM001', DATE '2022-09-01', 550000, 'ACTIVE',
     '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYDpLABB5dW', 'N'
 );
 
@@ -409,7 +409,7 @@ DECLARE
     v_count NUMBER := 0;
 BEGIN
     -- Loop through each employee
-    FOR emp IN (SELECT employee_id FROM EMPLOYEES WHERE status = 'Active') LOOP
+    FOR emp IN (SELECT employee_id FROM EMPLOYEES WHERE status = 'ACTIVE') LOOP
         -- Loop through each leave type
         FOR lt IN (SELECT leave_type_id, default_days FROM LEAVE_TYPES WHERE is_active = 'Y') LOOP
             INSERT INTO LEAVE_BALANCES (
@@ -540,7 +540,7 @@ INSERT INTO HOLIDAYS (holiday_id, holiday_date, holiday_name, holiday_type, desc
 VALUES (holiday_seq.NEXTVAL, DATE '2024-08-15', 'Independence Day', 'National', 'Indian Independence Day');
 
 INSERT INTO HOLIDAYS (holiday_id, holiday_date, holiday_name, holiday_type, description) 
-VALUES (holiday_seq.NEXTVAL, DATE '2024-10-02', 'Gandhi Jayanti', 'National', 'Mahatma Gandhi\'s Birthday');
+VALUES (holiday_seq.NEXTVAL, DATE '2024-10-02', 'Gandhi Jayanti', 'National', 'Mahatma Gandhi''s Birthday');
 
 INSERT INTO HOLIDAYS (holiday_id, holiday_date, holiday_name, holiday_type, description) 
 VALUES (holiday_seq.NEXTVAL, DATE '2024-10-12', 'Dussehra', 'Festival', 'Hindu festival');
@@ -634,7 +634,7 @@ INSERT INTO GOALS (
     'Complete AWS Certification', 
     'Prepare and pass AWS Solutions Architect Associate certification exam',
     'Professional Development',
-    DATE '2024-06-30', 'HIGH', 60, 'IN_PROGRESS'
+    TRUNC(SYSDATE) + 120, 'HIGH', 60, 'IN_PROGRESS'
 );
 
 -- Goal 2: Completed
@@ -646,7 +646,7 @@ INSERT INTO GOALS (
     'Redesign Company Website',
     'Complete UI/UX redesign of company website with modern design principles',
     'Technical',
-    DATE '2024-02-28', 'HIGH', 100, 'COMPLETED',
+    TRUNC(SYSDATE) + 30, 'HIGH', 100, 'COMPLETED',
     'Excellent work! Website traffic increased by 35% after redesign.',
     SYSDATE - 15
 );
@@ -660,7 +660,7 @@ INSERT INTO GOALS (
     'Learn Spring Security',
     'Master Spring Security framework for implementing authentication and authorization',
     'Technical',
-    DATE '2024-08-31', 'MEDIUM', 0, 'NOT_STARTED'
+    TRUNC(SYSDATE) + 180, 'MEDIUM', 0, 'NOT_STARTED'
 );
 
 -- Goal 4: In Progress
@@ -672,7 +672,7 @@ INSERT INTO GOALS (
     'Improve Code Quality',
     'Achieve 80% code coverage in all modules and reduce technical debt',
     'Technical',
-    DATE '2024-09-30', 'HIGH', 45, 'IN_PROGRESS'
+    TRUNC(SYSDATE) + 210, 'HIGH', 45, 'IN_PROGRESS'
 );
 
 -- Goal 5: In Progress
@@ -684,7 +684,7 @@ INSERT INTO GOALS (
     'Master Test Automation',
     'Learn Selenium and implement automated testing framework',
     'Professional Development',
-    DATE '2024-07-31', 'MEDIUM', 30, 'IN_PROGRESS'
+    TRUNC(SYSDATE) + 150, 'MEDIUM', 30, 'IN_PROGRESS'
 );
 
 COMMIT;
