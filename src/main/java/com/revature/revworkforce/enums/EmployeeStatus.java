@@ -1,14 +1,23 @@
 package com.revature.revworkforce.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
- * Represents the employment status of an employee.
+ * Represents the employment status of an employee within the RevWorkForce system.
  *
- * This enum maps to the STATUS column in the EMPLOYEES table.
- * Allowed database values:
- *  - ACTIVE
- *  - INACTIVE
- *  - ON_LEAVE
- *  - TERMINATED
+ * <p>This enum maps to the {@code status} column in the EMPLOYEES table.</p>
+ *
+ * <p>Supported database values:
+ * <ul>
+ *     <li>ACTIVE</li>
+ *     <li>INACTIVE</li>
+ *     <li>ON_LEAVE</li>
+ *     <li>TERMINATED</li>
+ * </ul>
+ * </p>
+ *
+ * <p>This enum ensures type safety and consistency across the application
+ * when handling employee status values.</p>
  */
 public enum EmployeeStatus {
 
@@ -18,22 +27,25 @@ public enum EmployeeStatus {
     TERMINATED;
 
     /**
-     * Converts a string value to EmployeeStatus enum.
-     * Matching is case-insensitive and trims spaces.
+     * Converts a string value to the corresponding {@link EmployeeStatus}.
+     * Matching is case-insensitive and ignores leading/trailing spaces.
      *
-     * @param value status value from database or user input
-     * @return corresponding EmployeeStatus enum
-     * @throws IllegalArgumentException if value is invalid
+     * @param value the status value to convert
+     * @return the matching EmployeeStatus enum constant
+     * @throws IllegalArgumentException if the value does not match any constant
      */
+    @JsonCreator
     public static EmployeeStatus fromString(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException("EmployeeStatus cannot be null or empty");
+        if (value == null) {
+            return null;
         }
 
-        try {
-            return EmployeeStatus.valueOf(value.trim().toUpperCase());
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid EmployeeStatus: " + value);
+        for (EmployeeStatus status : EmployeeStatus.values()) {
+            if (status.name().equalsIgnoreCase(value.trim())) {
+                return status;
+            }
         }
+
+        throw new IllegalArgumentException("Invalid EmployeeStatus: " + value);
     }
 }

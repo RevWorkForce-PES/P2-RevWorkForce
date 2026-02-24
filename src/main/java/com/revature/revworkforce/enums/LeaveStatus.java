@@ -1,14 +1,23 @@
 package com.revature.revworkforce.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
- * Represents the status of a leave application.
+ * Represents the status of a leave application in the RevWorkForce system.
  *
- * This enum maps to the STATUS column in the LEAVE_APPLICATIONS table.
- * Allowed database values:
- *  - PENDING
- *  - APPROVED
- *  - REJECTED
- *  - CANCELLED
+ * <p>This enum maps to the {@code status} column in the LEAVE_APPLICATIONS table.</p>
+ *
+ * <p>Supported database values:
+ * <ul>
+ *     <li>PENDING</li>
+ *     <li>APPROVED</li>
+ *     <li>REJECTED</li>
+ *     <li>CANCELLED</li>
+ * </ul>
+ * </p>
+ *
+ * <p>This enum ensures type safety and consistent handling of leave
+ * lifecycle states across the application.</p>
  */
 public enum LeaveStatus {
 
@@ -18,22 +27,25 @@ public enum LeaveStatus {
     CANCELLED;
 
     /**
-     * Converts a string value to LeaveStatus enum.
-     * Matching is case-insensitive and trims spaces.
+     * Converts a string value to the corresponding {@link LeaveStatus}.
+     * Matching is case-insensitive and ignores leading/trailing spaces.
      *
-     * @param value status value from database or user input
-     * @return corresponding LeaveStatus enum
-     * @throws IllegalArgumentException if value is invalid
+     * @param value the leave status value to convert
+     * @return the matching LeaveStatus enum constant
+     * @throws IllegalArgumentException if the value does not match any constant
      */
+    @JsonCreator
     public static LeaveStatus fromString(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException("LeaveStatus cannot be null or empty");
+        if (value == null) {
+            return null;
         }
 
-        try {
-            return LeaveStatus.valueOf(value.trim().toUpperCase());
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid LeaveStatus: " + value);
+        for (LeaveStatus status : LeaveStatus.values()) {
+            if (status.name().equalsIgnoreCase(value.trim())) {
+                return status;
+            }
         }
+
+        throw new IllegalArgumentException("Invalid LeaveStatus: " + value);
     }
 }

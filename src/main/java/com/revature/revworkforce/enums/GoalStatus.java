@@ -1,15 +1,26 @@
 package com.revature.revworkforce.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
- * Represents the progress status of an employee goal.
+ * Represents the progress status of a goal
+ * in the RevWorkForce system.
  *
- * This enum maps to the STATUS column in the GOALS table.
- * Allowed database values:
- *  - NOT_STARTED
- *  - IN_PROGRESS
- *  - COMPLETED
- *  - CANCELLED
- *  - DEFERRED
+ * <p>This enum maps to the {@code status} column
+ * in the GOALS table.</p>
+ *
+ * <p>Supported database values:
+ * <ul>
+ *     <li>NOT_STARTED</li>
+ *     <li>IN_PROGRESS</li>
+ *     <li>COMPLETED</li>
+ *     <li>CANCELLED</li>
+ *     <li>DEFERRED</li>
+ * </ul>
+ * </p>
+ *
+ * <p>This enum ensures consistent tracking of goal lifecycle
+ * states and provides type-safe handling across the application.</p>
  */
 public enum GoalStatus {
 
@@ -20,22 +31,25 @@ public enum GoalStatus {
     DEFERRED;
 
     /**
-     * Converts a string value to GoalStatus enum.
-     * Matching is case-insensitive and trims spaces.
+     * Converts a string value to the corresponding {@link GoalStatus}.
+     * Matching is case-insensitive and ignores leading/trailing spaces.
      *
-     * @param value status value from database or user input
-     * @return corresponding GoalStatus enum
-     * @throws IllegalArgumentException if value is invalid
+     * @param value the goal status value to convert
+     * @return the matching GoalStatus enum constant
+     * @throws IllegalArgumentException if the value does not match any constant
      */
+    @JsonCreator
     public static GoalStatus fromString(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException("GoalStatus cannot be null or empty");
+        if (value == null) {
+            return null;
         }
 
-        try {
-            return GoalStatus.valueOf(value.trim().toUpperCase());
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid GoalStatus: " + value);
+        for (GoalStatus status : GoalStatus.values()) {
+            if (status.name().equalsIgnoreCase(value.trim())) {
+                return status;
+            }
         }
+
+        throw new IllegalArgumentException("Invalid GoalStatus: " + value);
     }
 }

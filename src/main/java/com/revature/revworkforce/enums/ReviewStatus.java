@@ -1,14 +1,25 @@
 package com.revature.revworkforce.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
- * Represents the lifecycle state of a performance review.
+ * Represents the lifecycle state of a performance review
+ * in the RevWorkForce system.
  *
- * This enum maps to the STATUS column in the PERFORMANCE_REVIEWS table.
- * Allowed database values:
- *  - DRAFT
- *  - SUBMITTED
- *  - REVIEWED
- *  - COMPLETED
+ * <p>This enum maps to the {@code status} column
+ * in the PERFORMANCE_REVIEWS table.</p>
+ *
+ * <p>Supported database values:
+ * <ul>
+ *     <li>DRAFT</li>
+ *     <li>SUBMITTED</li>
+ *     <li>REVIEWED</li>
+ *     <li>COMPLETED</li>
+ * </ul>
+ * </p>
+ *
+ * <p>This enum ensures consistent handling of performance
+ * review states across the application.</p>
  */
 public enum ReviewStatus {
 
@@ -18,22 +29,25 @@ public enum ReviewStatus {
     COMPLETED;
 
     /**
-     * Converts a string value to ReviewStatus enum.
-     * Matching is case-insensitive and trims spaces.
+     * Converts a string value to the corresponding {@link ReviewStatus}.
+     * Matching is case-insensitive and ignores leading/trailing spaces.
      *
-     * @param value status value from database or user input
-     * @return corresponding ReviewStatus enum
-     * @throws IllegalArgumentException if value is invalid
+     * @param value the review status value to convert
+     * @return the matching ReviewStatus enum constant
+     * @throws IllegalArgumentException if the value does not match any constant
      */
+    @JsonCreator
     public static ReviewStatus fromString(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException("ReviewStatus cannot be null or empty");
+        if (value == null) {
+            return null;
         }
 
-        try {
-            return ReviewStatus.valueOf(value.trim().toUpperCase());
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid ReviewStatus: " + value);
+        for (ReviewStatus status : ReviewStatus.values()) {
+            if (status.name().equalsIgnoreCase(value.trim())) {
+                return status;
+            }
         }
+
+        throw new IllegalArgumentException("Invalid ReviewStatus: " + value);
     }
 }
