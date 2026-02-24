@@ -1,6 +1,4 @@
-=============
 
-Verify Database
 
 
 sql-- Check all tables
