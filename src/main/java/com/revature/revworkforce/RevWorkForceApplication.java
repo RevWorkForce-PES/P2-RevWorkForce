@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class RevWorkForceApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(RevWorkForceApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(RevWorkForceApplication.class, args);
+        System.out.println("RevWorkforce Application Started Successfully!");
+    }
 }
