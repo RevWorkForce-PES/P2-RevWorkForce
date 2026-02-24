@@ -29,8 +29,7 @@ import java.time.LocalDateTime;
  * PENDING → REJECTED
  * PENDING → CANCELLED
  *
- * LeaveStatus enum is stored as STRING in the database
- * to avoid issues if enum order changes.
+ * LeaveStatus enum is stored as STRING in the database.
  *
  * Oracle Sequence Used: leave_app_seq
  *
@@ -45,7 +44,6 @@ public class LeaveApplication {
 
     /**
      * Primary key for leave application.
-     * Auto-generated using Oracle sequence leave_app_seq.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "leave_app_seq")
@@ -61,7 +59,7 @@ public class LeaveApplication {
     private Employee employee;
 
     /**
-     * Type of leave being applied (CL, SL, PL, etc.).
+     * Type of leave being applied.
      */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "leave_type_id", nullable = false)
@@ -80,13 +78,13 @@ public class LeaveApplication {
     private LocalDate endDate;
 
     /**
-     * Total number of working days.
+     * Total number of leave days.
      */
     @Column(name = "total_days", nullable = false)
     private Integer totalDays;
 
     /**
-     * Reason provided by employee.
+     * Reason for leave.
      */
     @Column(name = "reason", nullable = false, length = 500)
     private String reason;
@@ -95,47 +93,110 @@ public class LeaveApplication {
      * Current leave status.
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 20)
+    @Column(name = "status", nullable = false, length = 20)
     private LeaveStatus status = LeaveStatus.PENDING;
 
     /**
      * Timestamp when leave was applied.
      */
-    @Column(name = "applied_on")
+    @Column(name = "applied_on", updatable = false, nullable = false)
     private LocalDateTime appliedOn;
 
     /**
-     * Manager who approved or rejected the leave.
+     * Manager who approved/rejected leave.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "approved_by")
     private Employee approvedBy;
 
     /**
-     * Timestamp when leave was approved or rejected.
+     * Timestamp when leave was approved/rejected.
      */
     @Column(name = "approved_on")
     private LocalDateTime approvedOn;
 
     /**
-     * Reason provided if leave is rejected.
+     * Rejection reason if leave is rejected.
      */
     @Column(name = "rejection_reason", length = 500)
     private String rejectionReason;
 
     /**
-     * Additional comments from manager.
+     * Additional manager comments.
      */
     @Column(name = "comments", length = 500)
     private String comments;
 
     /**
-     * Ensures appliedOn is set before persisting.
+     * Default constructor required by JPA.
+     * Initializes default status and timestamp.
+     */
+    public LeaveApplication() {
+        this.status = LeaveStatus.PENDING;
+        this.appliedOn = LocalDateTime.now();
+    }
+
+    /**
+     * Constructor used when employee applies for leave.
+     */
+    public LeaveApplication(Employee employee,
+                            LeaveType leaveType,
+                            LocalDate startDate,
+                            LocalDate endDate,
+                            Integer totalDays,
+                            String reason) {
+
+        this();
+        this.employee = employee;
+        this.leaveType = leaveType;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.totalDays = totalDays;
+        this.reason = reason;
+    }
+
+    /**
+     * Full constructor.
+     */
+    public LeaveApplication(Long applicationId,
+                            Employee employee,
+                            LeaveType leaveType,
+                            LocalDate startDate,
+                            LocalDate endDate,
+                            Integer totalDays,
+                            String reason,
+                            LeaveStatus status,
+                            LocalDateTime appliedOn,
+                            Employee approvedBy,
+                            LocalDateTime approvedOn,
+                            String rejectionReason,
+                            String comments) {
+
+        this.applicationId = applicationId;
+        this.employee = employee;
+        this.leaveType = leaveType;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.totalDays = totalDays;
+        this.reason = reason;
+        this.status = status;
+        this.appliedOn = appliedOn;
+        this.approvedBy = approvedBy;
+        this.approvedOn = approvedOn;
+        this.rejectionReason = rejectionReason;
+        this.comments = comments;
+    }
+
+    /**
+     * Automatically sets appliedOn before persisting.
      */
     @PrePersist
     protected void onCreate() {
-        if (appliedOn == null) {
-            appliedOn = LocalDateTime.now();
+        if (this.appliedOn == null) {
+            this.appliedOn = LocalDateTime.now();
+        }
+        if (this.status == null) {
+            this.status = LeaveStatus.PENDING;
         }
     }
 }

@@ -42,7 +42,6 @@ public class Notification {
 
     /**
      * Primary key for notification.
-     * Auto-generated using Oracle sequence notif_seq.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notif_seq")
@@ -58,10 +57,10 @@ public class Notification {
     private Employee employee;
 
     /**
-     * Type of notification (LEAVE, PERFORMANCE, GOAL, etc.).
+     * Type of notification.
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "notification_type", length = 50)
+    @Column(name = "notification_type", nullable = false, length = 50)
     private NotificationType notificationType;
 
     /**
@@ -92,7 +91,7 @@ public class Notification {
      * Indicates whether notification has been read.
      * Default value: 'N'
      */
-    @Column(name = "is_read", length = 1)
+    @Column(name = "is_read", nullable = false, length = 1)
     private Character isRead = 'N';
 
     /**
@@ -103,29 +102,97 @@ public class Notification {
 
     /**
      * Notification priority level.
-     * Default value: NORMAL.
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "priority", length = 20)
+    @Column(name = "priority", nullable = false, length = 20)
     private NotificationPriority priority = NotificationPriority.NORMAL;
 
     /**
      * Record creation timestamp.
      */
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
     /**
-     * Expiry timestamp after which notification may be removed.
+     * Expiry timestamp.
      */
     @Column(name = "expires_at")
     private LocalDateTime expiresAt;
+
+    /**
+     * Default constructor required by JPA.
+     * Initializes timestamps and defaults.
+     */
+    public Notification() {
+        this.createdAt = LocalDateTime.now();
+        this.expiresAt = LocalDateTime.now().plusDays(90);
+        this.isRead = 'N';
+        this.priority = NotificationPriority.NORMAL;
+    }
+
+    /**
+     * Constructor used when creating a new notification.
+     */
+    public Notification(Employee employee,
+                        NotificationType notificationType,
+                        String title,
+                        String message,
+                        NotificationPriority priority) {
+
+        this();
+        this.employee = employee;
+        this.notificationType = notificationType;
+        this.title = title;
+        this.message = message;
+        this.priority = priority != null ? priority : NotificationPriority.NORMAL;
+    }
+
+    /**
+     * Full constructor.
+     */
+    public Notification(Long notificationId,
+                        Employee employee,
+                        NotificationType notificationType,
+                        String title,
+                        String message,
+                        String referenceType,
+                        Long referenceId,
+                        Character isRead,
+                        LocalDateTime readAt,
+                        NotificationPriority priority,
+                        LocalDateTime createdAt,
+                        LocalDateTime expiresAt) {
+
+        this.notificationId = notificationId;
+        this.employee = employee;
+        this.notificationType = notificationType;
+        this.title = title;
+        this.message = message;
+        this.referenceType = referenceType;
+        this.referenceId = referenceId;
+        this.isRead = isRead;
+        this.readAt = readAt;
+        this.priority = priority;
+        this.createdAt = createdAt;
+        this.expiresAt = expiresAt;
+    }
 
     /**
      * Automatically sets creation timestamp before insert.
      */
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+        if (this.expiresAt == null) {
+            this.expiresAt = this.createdAt.plusDays(90);
+        }
+        if (this.isRead == null) {
+            this.isRead = 'N';
+        }
+        if (this.priority == null) {
+            this.priority = NotificationPriority.NORMAL;
+        }
     }
 }
