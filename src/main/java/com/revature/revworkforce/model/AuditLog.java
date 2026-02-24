@@ -1,29 +1,17 @@
 package com.revature.revworkforce.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
 import java.time.LocalDateTime;
 
 /**
- * Entity representing audit trail logs.
- *
- * Database Table: AUDIT_LOG
- *
- * Used for:
- * - Tracking user activity
- * - Recording data changes
- * - Security auditing
- *
- * Oracle Sequence Used: audit_seq
+ * Entity class representing an Audit Log entry.
+ * 
+ * Maps to database table: AUDIT_LOGS
+ * 
+ * @author RevWorkForce Team
  */
-@Getter
-@Setter
-@ToString
 @Entity
-@Table(name = "AUDIT_LOG")
+@Table(name = "AUDIT_LOGS")
 public class AuditLog {
 
     @Id
@@ -32,9 +20,6 @@ public class AuditLog {
     @Column(name = "audit_id")
     private Long auditId;
 
-    /**
-     * Employee performing the action.
-     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")
     private Employee employee;
@@ -71,8 +56,140 @@ public class AuditLog {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    // Constructors
+    public AuditLog() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public AuditLog(Employee employee, String action, String tableName, String description) {
+        this();
+        this.employee = employee;
+        this.action = action;
+        this.tableName = tableName;
+        this.description = description;
+    }
+
+    public AuditLog(Employee employee, String action, String tableName, String recordId, String description) {
+        this();
+        this.employee = employee;
+        this.action = action;
+        this.tableName = tableName;
+        this.recordId = recordId;
+        this.description = description;
+    }
+
+    // Getters and Setters
+    public Long getAuditId() {
+        return auditId;
+    }
+
+    public void setAuditId(Long auditId) {
+        this.auditId = auditId;
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public String getRecordId() {
+        return recordId;
+    }
+
+    public void setRecordId(String recordId) {
+        this.recordId = recordId;
+    }
+
+    public String getFieldName() {
+        return fieldName;
+    }
+
+    public void setFieldName(String fieldName) {
+        this.fieldName = fieldName;
+    }
+
+    public String getOldValue() {
+        return oldValue;
+    }
+
+    public void setOldValue(String oldValue) {
+        this.oldValue = oldValue;
+    }
+
+    public String getNewValue() {
+        return newValue;
+    }
+
+    public void setNewValue(String newValue) {
+        this.newValue = newValue;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    // Lifecycle callbacks
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+    }
+
+    @Override
+    public String toString() {
+        return "AuditLog{" +
+                "auditId=" + auditId +
+                ", employeeId=" + (employee != null ? employee.getEmployeeId() : null) +
+                ", action='" + action + '\'' +
+                ", tableName='" + tableName + '\'' +
+                ", recordId='" + recordId + '\'' +
+                ", createdAt=" + createdAt +
+                '}';
     }
 }

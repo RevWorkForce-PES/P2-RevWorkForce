@@ -1,23 +1,16 @@
 package com.revature.revworkforce.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * Entity representing company holidays.
- *
- * Database Table: HOLIDAYS
- *
- * Oracle Sequence Used: holiday_seq
+ * Entity class representing a Company Holiday.
+ * 
+ * Maps to database table: HOLIDAYS
+ * 
+ * @author RevWorkForce Team
  */
-@Getter
-@Setter
-@ToString
 @Entity
 @Table(name = "HOLIDAYS")
 public class Holiday {
@@ -28,7 +21,7 @@ public class Holiday {
     @Column(name = "holiday_id")
     private Long holidayId;
 
-    @Column(name = "holiday_date", nullable = false)
+    @Column(name = "holiday_date", nullable = false, unique = true)
     private LocalDate holidayDate;
 
     @Column(name = "holiday_name", nullable = false, length = 100)
@@ -49,8 +42,102 @@ public class Holiday {
     @Column(name = "created_by", length = 20)
     private String createdBy;
 
+    // Constructors
+    public Holiday() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public Holiday(LocalDate holidayDate, String holidayName) {
+        this();
+        this.holidayDate = holidayDate;
+        this.holidayName = holidayName;
+    }
+
+    public Holiday(LocalDate holidayDate, String holidayName, String holidayType) {
+        this();
+        this.holidayDate = holidayDate;
+        this.holidayName = holidayName;
+        this.holidayType = holidayType;
+    }
+
+    // Getters and Setters
+    public Long getHolidayId() {
+        return holidayId;
+    }
+
+    public void setHolidayId(Long holidayId) {
+        this.holidayId = holidayId;
+    }
+
+    public LocalDate getHolidayDate() {
+        return holidayDate;
+    }
+
+    public void setHolidayDate(LocalDate holidayDate) {
+        this.holidayDate = holidayDate;
+    }
+
+    public String getHolidayName() {
+        return holidayName;
+    }
+
+    public void setHolidayName(String holidayName) {
+        this.holidayName = holidayName;
+    }
+
+    public String getHolidayType() {
+        return holidayType;
+    }
+
+    public void setHolidayType(String holidayType) {
+        this.holidayType = holidayType;
+    }
+
+    public Character getIsOptional() {
+        return isOptional;
+    }
+
+    public void setIsOptional(Character isOptional) {
+        this.isOptional = isOptional;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    // Lifecycle callbacks
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+    }
+
+    @Override
+    public String toString() {
+        return "Holiday{" +
+                "holidayId=" + holidayId +
+                ", holidayDate=" + holidayDate +
+                ", holidayName='" + holidayName + '\'' +
+                ", holidayType='" + holidayType + '\'' +
+                '}';
     }
 }

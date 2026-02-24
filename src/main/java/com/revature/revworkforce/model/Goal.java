@@ -1,6 +1,6 @@
 package com.revature.revworkforce.model;
 
-import com.revature.revworkforce.enums.GoalPriority;
+import com.revature.revworkforce.enums.Priority;
 import com.revature.revworkforce.enums.GoalStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -88,7 +88,7 @@ public class Goal {
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "priority", length = 20)
-    private GoalPriority priority;
+    private Priority priority;
 
     /**
      * Percentage completion of goal (0–100).
@@ -146,7 +146,7 @@ public class Goal {
                 String goalDescription,
                 String category,
                 LocalDate deadline,
-                GoalPriority priority) {
+                Priority priority) {
 
         this();
         this.employee = employee;
