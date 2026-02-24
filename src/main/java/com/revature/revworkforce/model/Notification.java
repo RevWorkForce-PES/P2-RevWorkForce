@@ -121,8 +121,13 @@ public class Notification {
 
     /**
      * Default constructor required by JPA.
+     * Initializes timestamps and defaults.
      */
     public Notification() {
+        this.createdAt = LocalDateTime.now();
+        this.expiresAt = LocalDateTime.now().plusDays(90);
+        this.isRead = 'N';
+        this.priority = NotificationPriority.NORMAL;
     }
 
     /**
@@ -134,13 +139,12 @@ public class Notification {
                         String message,
                         NotificationPriority priority) {
 
+        this();
         this.employee = employee;
         this.notificationType = notificationType;
         this.title = title;
         this.message = message;
         this.priority = priority != null ? priority : NotificationPriority.NORMAL;
-        this.isRead = 'N';
-        this.createdAt = LocalDateTime.now();
     }
 
     /**
@@ -181,8 +185,14 @@ public class Notification {
         if (this.createdAt == null) {
             this.createdAt = LocalDateTime.now();
         }
+        if (this.expiresAt == null) {
+            this.expiresAt = this.createdAt.plusDays(90);
+        }
         if (this.isRead == null) {
             this.isRead = 'N';
+        }
+        if (this.priority == null) {
+            this.priority = NotificationPriority.NORMAL;
         }
     }
 }

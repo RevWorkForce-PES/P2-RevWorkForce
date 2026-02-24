@@ -93,13 +93,13 @@ public class LeaveApplication {
      * Current leave status.
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 20)
+    @Column(name = "status", nullable = false, length = 20)
     private LeaveStatus status = LeaveStatus.PENDING;
 
     /**
      * Timestamp when leave was applied.
      */
-    @Column(name = "applied_on", updatable = false)
+    @Column(name = "applied_on", updatable = false, nullable = false)
     private LocalDateTime appliedOn;
 
     /**
@@ -129,8 +129,11 @@ public class LeaveApplication {
 
     /**
      * Default constructor required by JPA.
+     * Initializes default status and timestamp.
      */
     public LeaveApplication() {
+        this.status = LeaveStatus.PENDING;
+        this.appliedOn = LocalDateTime.now();
     }
 
     /**
@@ -143,14 +146,13 @@ public class LeaveApplication {
                             Integer totalDays,
                             String reason) {
 
+        this();
         this.employee = employee;
         this.leaveType = leaveType;
         this.startDate = startDate;
         this.endDate = endDate;
         this.totalDays = totalDays;
         this.reason = reason;
-        this.status = LeaveStatus.PENDING;
-        this.appliedOn = LocalDateTime.now();
     }
 
     /**
@@ -192,6 +194,9 @@ public class LeaveApplication {
     protected void onCreate() {
         if (this.appliedOn == null) {
             this.appliedOn = LocalDateTime.now();
+        }
+        if (this.status == null) {
+            this.status = LeaveStatus.PENDING;
         }
     }
 }

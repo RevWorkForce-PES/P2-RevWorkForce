@@ -98,7 +98,7 @@ public class LeaveBalance {
     /**
      * Record creation timestamp.
      */
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
     /**
@@ -109,8 +109,15 @@ public class LeaveBalance {
 
     /**
      * Default constructor required by JPA.
+     * Initializes timestamps and default numeric values.
      */
     public LeaveBalance() {
+        this.totalAllocated = 0;
+        this.used = 0;
+        this.carriedForward = 0;
+        this.balance = 0;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     /**
@@ -122,6 +129,7 @@ public class LeaveBalance {
                         Integer totalAllocated,
                         Integer carriedForward) {
 
+        this();
         this.employee = employee;
         this.leaveType = leaveType;
         this.year = year;
@@ -162,8 +170,12 @@ public class LeaveBalance {
      */
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+        if (this.updatedAt == null) {
+            this.updatedAt = LocalDateTime.now();
+        }
     }
 
     /**

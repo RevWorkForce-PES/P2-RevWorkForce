@@ -121,8 +121,12 @@ public class PerformanceReview {
 
     /**
      * Default constructor required by JPA.
+     * Initializes timestamps and default status.
      */
     public PerformanceReview() {
+        this.status = ReviewStatus.DRAFT;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     /**
@@ -132,10 +136,10 @@ public class PerformanceReview {
                              Integer reviewYear,
                              String reviewPeriod) {
 
+        this();
         this.employee = employee;
         this.reviewYear = reviewYear;
         this.reviewPeriod = reviewPeriod;
-        this.status = ReviewStatus.DRAFT;
     }
 
     /**
@@ -175,8 +179,12 @@ public class PerformanceReview {
      */
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+        if (this.updatedAt == null) {
+            this.updatedAt = LocalDateTime.now();
+        }
     }
 
     /**
