@@ -4,16 +4,19 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Entity representing organizational departments.
- * This is an independent table with no foreign key dependencies.
+ * Entity class representing a Department in the organization.
+ * 
+ * Maps to database table: DEPARTMENTS
+ * 
+ * @author RevWorkForce Team
  */
 @Entity
 @Table(name = "DEPARTMENTS")
 public class Department {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "dept_seq_gen")
-    @SequenceGenerator(name = "dept_seq_gen", sequenceName = "dept_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "dept_seq")
+    @SequenceGenerator(name = "dept_seq", sequenceName = "dept_seq", allocationSize = 1)
     @Column(name = "department_id")
     private Long departmentId;
 
@@ -27,18 +30,26 @@ public class Department {
     private String description;
 
     @Column(name = "is_active", length = 1)
-    private String isActive;
+    private Character isActive = 'Y';
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public Department() {}
+    // Constructors
+    public Department() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public Department(String departmentName) {
+        this();
+        this.departmentName = departmentName;
+    }
 
     // Getters and Setters
-
     public Long getDepartmentId() {
         return departmentId;
     }
@@ -71,11 +82,11 @@ public class Department {
         this.description = description;
     }
 
-    public String getIsActive() {
+    public Character getIsActive() {
         return isActive;
     }
 
-    public void setIsActive(String isActive) {
+    public void setIsActive(Character isActive) {
         this.isActive = isActive;
     }
 
@@ -95,13 +106,25 @@ public class Department {
         this.updatedAt = updatedAt;
     }
 
+    // Lifecycle callbacks
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
     @Override
     public String toString() {
         return "Department{" +
                 "departmentId=" + departmentId +
                 ", departmentName='" + departmentName + '\'' +
                 ", departmentHead='" + departmentHead + '\'' +
-                ", isActive='" + isActive + '\'' +
+                ", isActive=" + isActive +
                 '}';
     }
 }
