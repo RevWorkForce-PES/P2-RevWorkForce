@@ -1,0 +1,38 @@
+package com.revature.revworkforce.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "DEPARTMENTS")
+public class Department {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "dept_seq_gen")
+    @SequenceGenerator(name = "dept_seq_gen", sequenceName = "dept_seq", allocationSize = 1)
+    @Column(name = "department_id")
+    private Long departmentId;
+
+    @Column(name = "department_name", nullable = false, unique = true, length = 100)
+    private String departmentName;
+
+    @Column(name = "department_head", length = 20)
+    private String departmentHead;
+
+    @Column(name = "description", length = 500)
+    private String description;
+
+    @Column(name = "is_active", length = 1)
+    private String isActive;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+}
