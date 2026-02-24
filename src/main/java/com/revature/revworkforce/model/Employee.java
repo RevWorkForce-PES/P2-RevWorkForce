@@ -84,9 +84,9 @@ public class Employee {
     /**
      * Gender stored as STRING enum (not ordinal)
      * This prevents database issues if enum order changes.
-     */
+     */ 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender", length = 10)
+    @Column(name = "gender", length = 1)
     private Gender gender;
 
     /**

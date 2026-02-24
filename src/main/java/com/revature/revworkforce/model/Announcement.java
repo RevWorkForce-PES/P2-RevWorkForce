@@ -52,6 +52,7 @@ public class Announcement {
     @JoinColumn(name = "created_by", nullable = false)
     private Employee createdBy;
 
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -185,6 +186,7 @@ public class Announcement {
         if (publishDate == null) {
             publishDate = LocalDate.now();
         }
+
     }
 
     @PreUpdate
