@@ -26,35 +26,4 @@ public final class Constants {
     public static final String ROLE_MANAGER = "MANAGER";
     public static final String ROLE_EMPLOYEE = "EMPLOYEE";
 
-    // ============================================
-    // Employee Status
-    // ============================================
-    public static final String STATUS_ACTIVE = "ACTIVE";
-    public static final String STATUS_INACTIVE = "INACTIVE";
-    public static final String STATUS_ON_LEAVE = "ON_LEAVE";
-    public static final String STATUS_TERMINATED = "TERMINATED";
-
-    // ============================================
-    // Leave Status
-    // ============================================
-    public static final String LEAVE_PENDING = "PENDING";
-    public static final String LEAVE_APPROVED = "APPROVED";
-    public static final String LEAVE_REJECTED = "REJECTED";
-    public static final String LEAVE_CANCELLED = "CANCELLED";
-
-    // ============================================
-    // Goal Status
-    // ============================================
-    public static final String GOAL_NOT_STARTED = "NOT_STARTED";
-    public static final String GOAL_IN_PROGRESS = "IN_PROGRESS";
-    public static final String GOAL_COMPLETED = "COMPLETED";
-
-    // ============================================
-    // Notification Priority
-    // ============================================
-    public static final String PRIORITY_LOW = "LOW";
-    public static final String PRIORITY_NORMAL = "NORMAL";
-    public static final String PRIORITY_HIGH = "HIGH";
-    public static final String PRIORITY_URGENT = "URGENT";
-
 }
