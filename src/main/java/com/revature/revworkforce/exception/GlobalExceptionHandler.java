@@ -137,6 +137,63 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
     
     /**
+     * Handle InsufficientLeaveBalanceException.
+     * Returns 400 BAD REQUEST.
+     */
+    @ExceptionHandler(InsufficientLeaveBalanceException.class)
+    public ResponseEntity<ErrorResponse> handleInsufficientLeaveBalanceException(
+            InsufficientLeaveBalanceException ex, WebRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.BAD_REQUEST.value(),
+            "Insufficient Leave Balance",
+            ex.getMessage(),
+            request.getDescription(false)
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handle LeaveOverlapException.
+     * Returns 400 BAD REQUEST.
+     */
+    @ExceptionHandler(LeaveOverlapException.class)
+    public ResponseEntity<ErrorResponse> handleLeaveOverlapException(
+            LeaveOverlapException ex, WebRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.BAD_REQUEST.value(),
+            "Leave Overlap",
+            ex.getMessage(),
+            request.getDescription(false)
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handle InvalidStatusTransitionException.
+     * Returns 400 BAD REQUEST.
+     */
+    @ExceptionHandler(InvalidStatusTransitionException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidStatusTransitionException(
+            InvalidStatusTransitionException ex, WebRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.BAD_REQUEST.value(),
+            "Invalid Status Transition",
+            ex.getMessage(),
+            request.getDescription(false)
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+    
+    /**
      * Error response structure.
      */
     public static class ErrorResponse {
