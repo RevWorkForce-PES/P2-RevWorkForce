@@ -20,11 +20,43 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     
-    /**
+	/**
      * Handle ResourceNotFoundException.
      * Returns 404 NOT FOUND.
      */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
+            ResourceNotFoundException ex, WebRequest request) {
+        
+        ErrorResponse errorResponse = new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.NOT_FOUND.value(),
+            "Not Found",
+            ex.getMessage(),
+            request.getDescription(false)
+        );
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
     
+    /**
+     * Handle EmployeeNotFoundException.
+     * Returns 404 NOT FOUND.
+     */
+    @ExceptionHandler(EmployeeNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEmployeeNotFoundException(
+            EmployeeNotFoundException ex, WebRequest request) {
+        
+        ErrorResponse errorResponse = new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.NOT_FOUND.value(),
+            "Employee Not Found",
+            ex.getMessage(),
+            request.getDescription(false)
+        );
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
     
     /**
      * Handle ValidationException.
