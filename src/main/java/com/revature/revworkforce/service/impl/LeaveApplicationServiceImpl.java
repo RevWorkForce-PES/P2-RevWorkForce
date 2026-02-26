@@ -70,42 +70,42 @@ public class LeaveApplicationServiceImpl implements LeaveApplicationService {
         List<LeaveApplication> overlappingLeaves = leaveApplicationRepository.findOverlappingLeaves(
                 employeeId, startDate, endDate, excludedStatuses);
 
-        if (!overlappingLeaves.isEmpty()) {
-            LeaveApplication firstOverlap = overlappingLeaves.get(0);
-            throw new LeaveOverlapException(
-                    startDate,
-                    endDate,
-                    firstOverlap.getStartDate(),
-                    firstOverlap.getEndDate());
-        }
-
-        // 5. Balance Check
-        int currentYear = startDate.getYear();
-        Optional<LeaveBalance> optBalance = leaveBalanceRepository.findByEmployeeAndLeaveTypeAndYear(
-                employee, leaveType, currentYear);
-
-        if (optBalance.isPresent()) {
-            LeaveBalance balance = optBalance.get();
-            if (balance.getBalance() < requestedDays) {
-                // Throw our specific custom exception!
-                throw new InsufficientLeaveBalanceException(
-                        leaveType.getLeaveCode(),
-                        requestedDays,
-                        balance.getBalance());
-            }
-
-            // Deduct balance
-            balance.setUsed(balance.getUsed() + requestedDays);
-            balance.setBalance(balance.getBalance() - requestedDays);
-            leaveBalanceRepository.save(balance);
-
-        } else {
-            // Let's assume they don't have this leave type allocated this year at all.
-            throw new InsufficientLeaveBalanceException(
-                    leaveType.getLeaveCode(),
-                    requestedDays,
-                    0);
-        }
+//        if (!overlappingLeaves.isEmpty()) {
+//            LeaveApplication firstOverlap = overlappingLeaves.get(0);
+//            throw new LeaveOverlapException(
+//                    startDate,
+//                    endDate,
+//                    firstOverlap.getStartDate(),
+//                    firstOverlap.getEndDate());
+//        }
+//
+//        // 5. Balance Check
+//        int currentYear = startDate.getYear();
+//        Optional<LeaveBalance> optBalance = leaveBalanceRepository.findByEmployeeAndLeaveTypeAndYear(
+//                employee, leaveType, currentYear);
+//
+//        if (optBalance.isPresent()) {
+//            LeaveBalance balance = optBalance.get();
+//            if (balance.getBalance() < requestedDays) {
+//                // Throw our specific custom exception!
+//                throw new InsufficientLeaveBalanceException(
+//                        leaveType.getLeaveCode(),
+//                        requestedDays,
+//                        balance.getBalance());
+//            }
+//
+//            // Deduct balance
+//            balance.setUsed(balance.getUsed() + requestedDays);
+//            balance.setBalance(balance.getBalance() - requestedDays);
+//            leaveBalanceRepository.save(balance);
+//
+//        } else {
+//            // Let's assume they don't have this leave type allocated this year at all.
+//            throw new InsufficientLeaveBalanceException(
+//                    leaveType.getLeaveCode(),
+//                    requestedDays,
+//                    0);
+//        }
 
         // 6. Save and Return Application
         LeaveApplication application = new LeaveApplication(
