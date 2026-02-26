@@ -8,33 +8,40 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Entity class representing an Employee in the RevWorkForce system.
  *
- * <p>This class maps to the EMPLOYEES database table and contains:
+ * <p>
+ * This class maps to the EMPLOYEES database table and contains:
  * <ul>
- *     <li>Personal information</li>
- *     <li>Employment details</li>
- *     <li>Authentication & security details</li>
- *     <li>Audit tracking fields</li>
- *     <li>Role-based access mapping</li>
+ * <li>Personal information</li>
+ * <li>Employment details</li>
+ * <li>Authentication & security details</li>
+ * <li>Audit tracking fields</li>
+ * <li>Role-based access mapping</li>
  * </ul>
  *
- * <p>This entity is central to:
+ * <p>
+ * This entity is central to:
  * <ul>
- *     <li>User authentication</li>
- *     <li>Authorization (role-based access)</li>
- *     <li>Organizational hierarchy</li>
+ * <li>User authentication</li>
+ * <li>Authorization (role-based access)</li>
+ * <li>Organizational hierarchy</li>
  * </ul>
  *
- * <p>Table: EMPLOYEES
+ * <p>
+ * Table: EMPLOYEES
  *
  * @author RevWorkForce Team
  */
 
 @Entity
 @Table(name = "EMPLOYEES")
+@Getter
+@Setter
 public class Employee {
 
     /**
@@ -84,7 +91,7 @@ public class Employee {
     /**
      * Gender stored as STRING enum (not ordinal)
      * This prevents database issues if enum order changes.
-     */ 
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", length = 1)
     private Gender gender;
@@ -227,12 +234,8 @@ public class Employee {
      * EAGER fetch because roles are required immediately for authentication.
      * Cascade persist/merge allows automatic role association updates.
      */
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-        name = "EMPLOYEE_ROLES",
-        joinColumns = @JoinColumn(name = "employee_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinTable(name = "EMPLOYEE_ROLES", joinColumns = @JoinColumn(name = "employee_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
     /**
@@ -325,13 +328,35 @@ public class Employee {
                 '}';
     }
 
-	public String getEmployeeId() {
-		return employeeId;
-	}
+    public String getEmployeeId() {
+        return employeeId;
+    }
 
-	public void setEmployeeId(String employeeId) {
-		this.employeeId = employeeId;
-	}
+    public void setEmployeeId(String employeeId) {
+        this.employeeId = employeeId;
+    }
 
-	
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public EmployeeStatus getStatus() {
+        return status;
+    }
+
+    public Character getAccountLocked() {
+        return accountLocked;
+    }
+
+    public LocalDateTime getLockedUntil() {
+        return lockedUntil;
+    }
 }
