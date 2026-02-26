@@ -2,8 +2,6 @@ package com.revature.revworkforce.model;
 
 import com.revature.revworkforce.enums.LeaveStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDate;
@@ -35,9 +33,7 @@ import java.time.LocalDateTime;
  *
  * @author RevWorkForce Team
  */
-@Getter
-@Setter
-@ToString(exclude = {"employee", "leaveType", "approvedBy"})
+@ToString(exclude = { "employee", "leaveType", "approvedBy" })
 @Entity
 @Table(name = "LEAVE_APPLICATIONS")
 public class LeaveApplication {
@@ -140,11 +136,11 @@ public class LeaveApplication {
      * Constructor used when employee applies for leave.
      */
     public LeaveApplication(Employee employee,
-                            LeaveType leaveType,
-                            LocalDate startDate,
-                            LocalDate endDate,
-                            Integer totalDays,
-                            String reason) {
+            LeaveType leaveType,
+            LocalDate startDate,
+            LocalDate endDate,
+            Integer totalDays,
+            String reason) {
 
         this();
         this.employee = employee;
@@ -159,18 +155,18 @@ public class LeaveApplication {
      * Full constructor.
      */
     public LeaveApplication(Long applicationId,
-                            Employee employee,
-                            LeaveType leaveType,
-                            LocalDate startDate,
-                            LocalDate endDate,
-                            Integer totalDays,
-                            String reason,
-                            LeaveStatus status,
-                            LocalDateTime appliedOn,
-                            Employee approvedBy,
-                            LocalDateTime approvedOn,
-                            String rejectionReason,
-                            String comments) {
+            Employee employee,
+            LeaveType leaveType,
+            LocalDate startDate,
+            LocalDate endDate,
+            Integer totalDays,
+            String reason,
+            LeaveStatus status,
+            LocalDateTime appliedOn,
+            Employee approvedBy,
+            LocalDateTime approvedOn,
+            String rejectionReason,
+            String comments) {
 
         this.applicationId = applicationId;
         this.employee = employee;
@@ -198,5 +194,110 @@ public class LeaveApplication {
         if (this.status == null) {
             this.status = LeaveStatus.PENDING;
         }
+    }
+
+    // Getters and Setters
+    public Long getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(Long applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
+
+    public LeaveType getLeaveType() {
+        return leaveType;
+    }
+
+    public void setLeaveType(LeaveType leaveType) {
+        this.leaveType = leaveType;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+    public Integer getTotalDays() {
+        return totalDays;
+    }
+
+    public void setTotalDays(Integer totalDays) {
+        this.totalDays = totalDays;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public LeaveStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(LeaveStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getAppliedOn() {
+        return appliedOn;
+    }
+
+    public void setAppliedOn(LocalDateTime appliedOn) {
+        this.appliedOn = appliedOn;
+    }
+
+    public Employee getApprovedBy() {
+        return approvedBy;
+    }
+
+    public void setApprovedBy(Employee approvedBy) {
+        this.approvedBy = approvedBy;
+    }
+
+    public LocalDateTime getApprovedOn() {
+        return approvedOn;
+    }
+
+    public void setApprovedOn(LocalDateTime approvedOn) {
+        this.approvedOn = approvedOn;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
     }
 }
