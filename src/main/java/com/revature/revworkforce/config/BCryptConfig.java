@@ -2,14 +2,14 @@ package com.revature.revworkforce.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * BCrypt Password Encoder Configuration.
  * 
  * BCrypt is a password hashing function designed for secure password storage.
- * It uses a salt to protect against rainbow table attacks and is computationally
+ * It uses a salt to protect against rainbow table attacks and is
+ * computationally
  * expensive to slow down brute force attacks.
  * 
  * Key Features:
@@ -29,9 +29,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * 
  * @author RevWorkForce Team
  */
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Configuration
 public class BCryptConfig {
-    
+    private static final Logger log = LoggerFactory.getLogger(BCryptConfig.class);
+
     /**
      * BCrypt strength (number of rounds).
      * 
@@ -44,7 +48,7 @@ public class BCryptConfig {
      * 12 rounds is recommended for most applications.
      */
     private static final int BCRYPT_STRENGTH = 12;
-    
+
     /**
      * Creates BCrypt password encoder bean.
      * 
@@ -57,29 +61,16 @@ public class BCryptConfig {
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(BCRYPT_STRENGTH);
-        
-        System.out.println("\n========================================");
-        System.out.println("BCrypt Password Encoder Initialized");
-        System.out.println("========================================");
-        System.out.println("Algorithm: BCrypt");
-        System.out.println("Strength: " + BCRYPT_STRENGTH + " rounds");
-        System.out.println("Hash Length: 60 characters");
-        System.out.println("Format: $2a$rounds$salt+hash");
-        System.out.println("========================================");
-        
-        // Display example encoding (for demonstration)
-        String examplePassword = "password123";
-        String exampleHash = encoder.encode(examplePassword);
-        System.out.println("\nExample Encoding:");
-        System.out.println("Plain text: " + examplePassword);
-        System.out.println("BCrypt hash: " + exampleHash);
-        System.out.println("Hash length: " + exampleHash.length() + " characters");
-        System.out.println("========================================\n");
-        
+        org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder(
+                BCRYPT_STRENGTH);
+
+        log.info("BCrypt Password Encoder Initialized with Strength: {} rounds", BCRYPT_STRENGTH);
+
+        // Removed explicit raw password hash logging for security reasons in production
+
         return encoder;
     }
-    
+
     /**
      * Get the BCrypt strength value.
      * Can be used by other components if needed.
