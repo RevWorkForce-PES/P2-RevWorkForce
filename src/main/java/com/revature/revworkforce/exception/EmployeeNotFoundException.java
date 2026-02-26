@@ -6,7 +6,7 @@ package com.revature.revworkforce.exception;
  * @author RevWorkForce Team
  */
 public class EmployeeNotFoundException extends ResourceNotFoundException {
-    
+
     /**
      * Constructor with employee ID.
      * 
@@ -15,20 +15,23 @@ public class EmployeeNotFoundException extends ResourceNotFoundException {
     public EmployeeNotFoundException(String employeeId) {
         super("Employee", "employeeId", employeeId);
     }
-    
+
     /**
      * Constructor with custom message.
      * 
-     * @param message the error message
+     * @param message         the error message
+     * @param isCustomMessage unused parameter to avoid constructor signature
+     *                        conflict
      */
+    @SuppressWarnings("PMD.UnusedFormalParameter")
     public EmployeeNotFoundException(String message, boolean isCustomMessage) {
         super(message);
     }
-    
+
     /**
      * Constructor with field name and value.
      * 
-     * @param fieldName the field name (e.g., "email")
+     * @param fieldName  the field name (e.g., "email")
      * @param fieldValue the field value
      */
     public EmployeeNotFoundException(String fieldName, Object fieldValue) {
