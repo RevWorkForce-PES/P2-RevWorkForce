@@ -46,8 +46,8 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        // Account is locked if the boolean flag is true
-        if (Boolean.TRUE.equals(employee.getAccountLocked())) {
+        // Account is locked if the flag is 'Y'
+        if (employee.getAccountLocked() != null && employee.getAccountLocked() == 'Y') {
             return false;
         }
         // Account is temporarily locked if lockedUntil is in the future
