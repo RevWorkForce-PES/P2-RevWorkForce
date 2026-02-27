@@ -1,6 +1,8 @@
 package com.revature.revworkforce.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
@@ -27,10 +29,17 @@ import java.time.LocalDateTime;
  *
  * @author RevWorkForce Team
  */
-@ToString(exclude = { "employee", "leaveType" })
+@Getter
+@Setter
+@ToString(exclude = {"employee", "leaveType"})
 @Entity
-@Table(name = "LEAVE_BALANCES", uniqueConstraints = @UniqueConstraint(name = "uk_emp_leave_year", columnNames = {
-        "employee_id", "leave_type_id", "year" }))
+@Table(
+        name = "LEAVE_BALANCES",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_emp_leave_year",
+                columnNames = {"employee_id", "leave_type_id", "year"}
+        )
+)
 public class LeaveBalance {
 
     /**
@@ -115,10 +124,10 @@ public class LeaveBalance {
      * Constructor used when allocating yearly leave.
      */
     public LeaveBalance(Employee employee,
-            LeaveType leaveType,
-            Integer year,
-            Integer totalAllocated,
-            Integer carriedForward) {
+                        LeaveType leaveType,
+                        Integer year,
+                        Integer totalAllocated,
+                        Integer carriedForward) {
 
         this();
         this.employee = employee;
@@ -134,15 +143,15 @@ public class LeaveBalance {
      * Full constructor.
      */
     public LeaveBalance(Long balanceId,
-            Employee employee,
-            LeaveType leaveType,
-            Integer year,
-            Integer totalAllocated,
-            Integer used,
-            Integer balance,
-            Integer carriedForward,
-            LocalDateTime createdAt,
-            LocalDateTime updatedAt) {
+                        Employee employee,
+                        LeaveType leaveType,
+                        Integer year,
+                        Integer totalAllocated,
+                        Integer used,
+                        Integer balance,
+                        Integer carriedForward,
+                        LocalDateTime createdAt,
+                        LocalDateTime updatedAt) {
 
         this.balanceId = balanceId;
         this.employee = employee;
@@ -175,86 +184,5 @@ public class LeaveBalance {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
-    }
-
-    // Getters and Setters
-    public Long getBalanceId() {
-        return balanceId;
-    }
-
-    public void setBalanceId(Long balanceId) {
-        this.balanceId = balanceId;
-    }
-
-    public Employee getEmployee() {
-        return employee;
-    }
-
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
-    }
-
-    public LeaveType getLeaveType() {
-        return leaveType;
-    }
-
-    public void setLeaveType(LeaveType leaveType) {
-        this.leaveType = leaveType;
-    }
-
-    public Integer getYear() {
-        return year;
-    }
-
-    public void setYear(Integer year) {
-        this.year = year;
-    }
-
-    public Integer getTotalAllocated() {
-        return totalAllocated;
-    }
-
-    public void setTotalAllocated(Integer totalAllocated) {
-        this.totalAllocated = totalAllocated;
-    }
-
-    public Integer getUsed() {
-        return used;
-    }
-
-    public void setUsed(Integer used) {
-        this.used = used;
-    }
-
-    public Integer getBalance() {
-        return balance;
-    }
-
-    public void setBalance(Integer balance) {
-        this.balance = balance;
-    }
-
-    public Integer getCarriedForward() {
-        return carriedForward;
-    }
-
-    public void setCarriedForward(Integer carriedForward) {
-        this.carriedForward = carriedForward;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }
