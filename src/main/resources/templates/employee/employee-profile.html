@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head(title='My Profile - Employee - RevWorkforce', links=~{::link})}">
+    <link rel="stylesheet" th:href="@{/css/employee/employee-profile.css}">
+</head>
+
+<body class="page-loading">
+    <div class="skeleton-overlay" style="display: flex; height: 100vh; width: 100%; background: var(--background); position: fixed; z-index: 9999; top: 0; left: 0;">
+        <aside style="width: 260px; border-right: 1px solid var(--border); padding: 24px; background: white; display: flex; flex-direction: column; gap: 20px;">
+            <div class="skeleton" style="height: 48px; width: 120px; margin: 0 auto; border-radius: 4px;"></div>
+            <div style="padding: 0 24px; display: flex; flex-direction: column; gap: 12px; margin-top: 32px;">
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+            </div>
+        </aside>
+        <main style="flex: 1; padding: 32px 48px; margin-left: 260px;">
+            <div class="skeleton" style="height: 40px; width: 300px; margin-bottom: 12px; border-radius: 6px;"></div>
+            <div class="skeleton" style="height: 20px; width: 500px; margin-bottom: 32px; border-radius: 4px;"></div>
+            <div style="display: flex; gap: 32px;">
+                <div class="skeleton" style="height: 400px; flex: 1; border-radius: 12px;"></div>
+                <div class="skeleton" style="height: 400px; flex: 1; border-radius: 12px;"></div>
+            </div>
+        </main>
+    </div>
+    <!-- Sidebar -->
+    <aside th:replace="~{fragments/employee-sidebar :: sidebar(active='employee-profile.html')}"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content real-content">
+        <div class="page-header">
+            <div style="display: flex; align-items: center;">
+
+            <!-- Mobile Menu Toggle -->
+            <button id="mobileMenuBtn" class="mobile-menu-btn" style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--foreground); margin-right: 16px;">
+                ☰
+            </button>
+                <div>
+                <h1 class="page-title">My Profile</h1>
+                <p class="page-subtitle">Manage your personal information, contact details, and account settings.</p>
+                </div>
+            </div>
+            <div th:replace="~{fragments/header :: headerActions}"></div>
+        </div>
+
+        <div class="profile-container">
+            <!-- Left Side: Profile Card -->
+            <div class="panel profile-card">
+                <div class="panel-body">
+                    <div class="profile-avatar-container">
+                        <div class="profile-avatar">SJ</div>
+                        <div class="btn-upload-photo" title="Upload Photo">📷</div>
+                    </div>
+                    <h2 class="profile-name">Sarah Jenkins</h2>
+                    <p class="profile-role">Software Engineer II</p>
+                    <span class="badge">Active Status</span>
+
+                    <div class="profile-meta">
+                        <div class="meta-row">
+                            <span class="meta-label">Employee ID</span>
+                            <span class="meta-value">EMP042</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-label">Department</span>
+                            <span class="meta-value">Engineering</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-label">Reports To</span>
+                            <span class="meta-value">John Doe (MGR001)</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-label">Hire Date</span>
+                            <span class="meta-value">March 15, 2021</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Editable Details -->
+            <div class="panel" style="animation-delay: 0.4s;">
+                <div class="panel-header">
+                    <h2 class="panel-title">✏️ Account Details</h2>
+                </div>
+                <div class="panel-body">
+                    <form action="#" method="POST">
+
+                        <div class="form-section">
+                            <h3 class="form-section-title">Personal Information</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" class="form-control" value="Sarah" readonly
+                                        title="Contact Admin to change name">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" value="Jenkins" readonly
+                                        title="Contact Admin to change name">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="date" class="form-control" value="1992-08-24" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="form-section-title">Contact Details</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Corporate Email</label>
+                                    <input type="email" class="form-control" value="sarah.j@revworkforce.com" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Phone Number / Mobile</label>
+                                    <input type="tel" class="form-control" value="+1 (555) 234-5678">
+                                </div>
+                                <div class="form-group form-full">
+                                    <label class="form-label">Current Address</label>
+                                    <input type="text" class="form-control"
+                                        value="123 Developer Lane, San Francisco, CA 94105">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Emergency Contact Name</label>
+                                    <input type="text" class="form-control" value="Mark Jenkins">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Emergency Contact Phone</label>
+                                    <input type="tel" class="form-control" value="+1 (555) 987-6543">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary"
+                                onclick="window.location='employee-dashboard.html'">Cancel</button>
+                            <button type="submit" class="btn-group">
+    <span class="btn-group-fill"></span>
+    <span class="btn-group-svg1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-auto h-full opacity-100 object-stretch" viewBox="0 0 487 487">
+            <path fill-opacity=".1" fill-rule="nonzero" fill="#FFF" d="M0 .3c67 2.1 134.1 4.3 186.3 37 52.2 32.7 89.6 95.8 112.8 150.6 23.2 54.8 32.3 101.4 61.2 149.9 28.9 48.4 77.7 98.8 126.4 149.2H0V.3z"></path>
+        </svg>
+    </span>
+    <span class="btn-group-svg2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="object-cover w-full h-full" viewBox="0 0 487 487">
+            <path fill-opacity=".1" fill-rule="nonzero" fill="#FFF" d="M487 486.7c-66.1-3.6-132.3-7.3-186.3-37s-95.9-85.3-126.2-137.2c-30.4-51.8-49.3-99.9-76.5-151.4C70.9 109.6 35.6 54.8.3 0H487v486.7z"></path>
+        </svg>
+    </span>
+    <span class="btn-group-overlay"></span>
+    <span class="btn-group-text">Save Changes</span>
+</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const removeSkeleton = () => { document.body.classList.remove('page-loading'); };
+            if (document.readyState === 'complete') { removeSkeleton(); } 
+            else { window.addEventListener('load', removeSkeleton); }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bell = document.getElementById('notificationBell');
+            const panel = document.getElementById('notificationPanel');
+            const checkbox = bell ? bell.querySelector('input[type="checkbox"]') : null;
+            
+            if(bell && panel && checkbox) {
+                bell.addEventListener('click', (e) => {
+                    if(e.target !== checkbox) {
+                        e.preventDefault();
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    
+                    if(checkbox.checked) {
+                        panel.classList.add('active');
+                    } else {
+                        panel.classList.remove('active');
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if(!bell.contains(e.target) && !panel.contains(e.target)) {
+                        checkbox.checked = false;
+                        panel.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if(mobileBtn && sidebar) {
+                mobileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('active');
+                });
+                
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', (e) => {
+                    if(window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                        if(!sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                            sidebar.classList.remove('active');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

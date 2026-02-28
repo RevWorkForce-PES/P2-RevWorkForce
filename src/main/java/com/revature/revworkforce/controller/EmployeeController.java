@@ -15,6 +15,6 @@ public class EmployeeController {
 
     @GetMapping("/dashboard")
     public String dashboard() {
-        return "employee-dashboard"; // Maps to /templates/employee-dashboard.html
+        return "dashboard/employee-dashboard"; // Maps to /templates/dashboard/employee-dashboard.html
     }
 }

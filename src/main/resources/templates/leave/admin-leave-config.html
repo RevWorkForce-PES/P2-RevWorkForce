@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head(title='Leave Configuration - Admin - RevWorkforce', links=~{::link})}">
+    <link rel="stylesheet" th:href="@{/css/admin/admin-leave-config.css}">
+</head>
+
+<body class="page-loading">
+    <div class="skeleton-overlay" style="display: flex; height: 100vh; width: 100%; background: var(--background); position: fixed; z-index: 9999; top: 0; left: 0;">
+        <aside style="width: 260px; border-right: 1px solid var(--border); padding: 24px; background: white; display: flex; flex-direction: column; gap: 20px;">
+            <div class="skeleton" style="height: 48px; width: 120px; margin: 0 auto; border-radius: 4px;"></div>
+            <div style="padding: 0 24px; display: flex; flex-direction: column; gap: 12px; margin-top: 32px;">
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+            </div>
+        </aside>
+        <main style="flex: 1; padding: 32px 48px; margin-left: 260px;">
+            <div class="skeleton" style="height: 40px; width: 300px; margin-bottom: 12px; border-radius: 6px;"></div>
+            <div class="skeleton" style="height: 20px; width: 500px; margin-bottom: 32px; border-radius: 4px;"></div>
+            <div style="display: flex; gap: 32px;">
+                <div class="skeleton" style="height: 400px; flex: 1; border-radius: 12px;"></div>
+                <div class="skeleton" style="height: 400px; flex: 1; border-radius: 12px;"></div>
+            </div>
+        </main>
+    </div>
+    <!-- Sidebar -->
+    <aside th:replace="~{fragments/admin-sidebar :: sidebar(active='admin-leave-config.html')}"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content real-content">
+        <div class="page-header">
+            <div style="display: flex; align-items: center;">
+
+            <!-- Mobile Menu Toggle -->
+            <button id="mobileMenuBtn" class="mobile-menu-btn" style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--foreground); margin-right: 16px;">
+                ☰
+            </button>
+                <div>
+                <h1 class="page-title">Leave Configuration</h1>
+                <p class="page-subtitle">Set global leave types, policies, and assign quotas to individuals.</p>
+                </div>
+            </div>
+            <div th:replace="~{fragments/header :: headerActions}"></div>
+        </div>
+
+        <div class="layout-grid">
+            <!-- Assignment Form -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">👥 Assign Leave Quota</h2>
+                </div>
+                <div class="panel-body">
+                    <form action="#" method="POST">
+                        <div class="form-group">
+                            <label class="form-label">Employee ID</label>
+                            <input type="text" class="form-control" placeholder="Search by EMP or MGR ID..." required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Leave Type</label>
+                            <select class="form-control" required>
+                                <option value="" disabled selected>Select Leave Type</option>
+                                <option value="ANNUAL">Annual / Vacation Leave</option>
+                                <option value="SICK">Sick Leave</option>
+                                <option value="PERSONAL">Personal Leave</option>
+                                <option value="MATERNITY">Maternity / Paternity</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Quota Amount (Days)</label>
+                            <input type="number" class="form-control" placeholder="e.g. 14" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Valid Year</label>
+                            <input type="number" class="form-control" value="2024" required>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary">Clear</button>
+                            <button type="submit" class="btn-group">
+    <span class="btn-group-fill"></span>
+    <span class="btn-group-svg1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-auto h-full opacity-100 object-stretch" viewBox="0 0 487 487">
+            <path fill-opacity=".1" fill-rule="nonzero" fill="#FFF" d="M0 .3c67 2.1 134.1 4.3 186.3 37 52.2 32.7 89.6 95.8 112.8 150.6 23.2 54.8 32.3 101.4 61.2 149.9 28.9 48.4 77.7 98.8 126.4 149.2H0V.3z"></path>
+        </svg>
+    </span>
+    <span class="btn-group-svg2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="object-cover w-full h-full" viewBox="0 0 487 487">
+            <path fill-opacity=".1" fill-rule="nonzero" fill="#FFF" d="M487 486.7c-66.1-3.6-132.3-7.3-186.3-37s-95.9-85.3-126.2-137.2c-30.4-51.8-49.3-99.9-76.5-151.4C70.9 109.6 35.6 54.8.3 0H487v486.7z"></path>
+        </svg>
+    </span>
+    <span class="btn-group-overlay"></span>
+    <span class="btn-group-text">Allocate Quota</span>
+</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Configuration List -->
+            <div class="panel" style="animation-delay: 0.4s;">
+                <div class="panel-header">
+                    <h2 class="panel-title">📅 Global Leave Types</h2>
+                    <button class="btn btn-secondary btn-sm" style="padding: 6px 12px; font-size: 0.85rem;">+ Add
+                        Type</button>
+                </div>
+                <div class="panel-body" style="padding: 0;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Type Code</th>
+                                <th>Name</th>
+                                <th>Default Quota</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong style="color: var(--primary);">ANNUAL</strong></td>
+                                <td>Annual / Vacation Leave</td>
+                                <td>14 Days / Year</td>
+                                <td><span style="color: #10b981;">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: var(--primary);">SICK</strong></td>
+                                <td>Sick Leave</td>
+                                <td>5 Days / Year</td>
+                                <td><span style="color: #10b981;">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: var(--primary);">PERSONAL</strong></td>
+                                <td>Personal Leave</td>
+                                <td>3 Days / Year</td>
+                                <td><span style="color: #10b981;">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: var(--primary);">MATERNITY</strong></td>
+                                <td>Maternity / Paternity</td>
+                                <td>90 Days</td>
+                                <td><span style="color: #10b981;">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: var(--primary);">UNPAID</strong></td>
+                                <td>Leave of Absence</td>
+                                <td>No limit</td>
+                                <td><span style="color: #10b981;">Active</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const removeSkeleton = () => { document.body.classList.remove('page-loading'); };
+            if (document.readyState === 'complete') { removeSkeleton(); } 
+            else { window.addEventListener('load', removeSkeleton); }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bell = document.getElementById('notificationBell');
+            const panel = document.getElementById('notificationPanel');
+            const checkbox = bell ? bell.querySelector('input[type="checkbox"]') : null;
+            
+            if(bell && panel && checkbox) {
+                bell.addEventListener('click', (e) => {
+                    if(e.target !== checkbox) {
+                        e.preventDefault();
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    
+                    if(checkbox.checked) {
+                        panel.classList.add('active');
+                    } else {
+                        panel.classList.remove('active');
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if(!bell.contains(e.target) && !panel.contains(e.target)) {
+                        checkbox.checked = false;
+                        panel.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if(mobileBtn && sidebar) {
+                mobileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('active');
+                });
+                
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', (e) => {
+                    if(window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                        if(!sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                            sidebar.classList.remove('active');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -38,6 +38,6 @@ public class AuthController {
             model.addAttribute("msg", "Your session has expired. Please log in again.");
         }
 
-        return "login"; // Resolves to /templates/login.html
+        return "auth/login"; // Resolves to /templates/auth/login.html
     }
 }

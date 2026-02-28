@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head(title='Forms & Leave - Employee - RevWorkforce', links=~{::link})}">
+    <link rel="stylesheet" th:href="@{/css/employee/employee-leave.css}">
+</head>
+
+<body class="page-loading">
+    <div class="skeleton-overlay" style="display: flex; height: 100vh; width: 100%; background: var(--background); position: fixed; z-index: 9999; top: 0; left: 0;">
+        <aside style="width: 260px; border-right: 1px solid var(--border); padding: 24px; background: white; display: flex; flex-direction: column; gap: 20px;">
+            <div class="skeleton" style="height: 48px; width: 120px; margin: 0 auto; border-radius: 4px;"></div>
+            <div style="padding: 0 24px; display: flex; flex-direction: column; gap: 12px; margin-top: 32px;">
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+            </div>
+        </aside>
+        <main style="flex: 1; padding: 32px 48px; margin-left: 260px;">
+            <div class="skeleton" style="height: 40px; width: 300px; margin-bottom: 12px; border-radius: 6px;"></div>
+            <div class="skeleton" style="height: 20px; width: 500px; margin-bottom: 32px; border-radius: 4px;"></div>
+            <div style="display: flex; gap: 32px;">
+                <div class="skeleton" style="height: 400px; flex: 1; border-radius: 12px;"></div>
+                <div class="skeleton" style="height: 400px; flex: 1; border-radius: 12px;"></div>
+            </div>
+        </main>
+    </div>
+    <!-- Sidebar -->
+    <aside th:replace="~{fragments/employee-sidebar :: sidebar(active='employee-leave.html')}"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content real-content">
+        <div class="page-header">
+            <div style="display: flex; align-items: center;">
+
+            <!-- Mobile Menu Toggle -->
+            <button id="mobileMenuBtn" class="mobile-menu-btn" style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--foreground); margin-right: 16px;">
+                ☰
+            </button>
+                <div>
+                <h1 class="page-title">Leave & Attendance</h1>
+                <p class="page-subtitle">Submit time off requests and view your historical balances.</p>
+            </div>
+            </div>
+            <!-- Check in/out shortcut -->
+            <button class="btn btn-outline"
+                style="background: white; border: 1px solid var(--border); color: var(--foreground); border-radius: 6px; padding: 10px 20px; font-weight: 500; font-family: 'Inter', sans-serif;">Check
+                Out (Shift Ends 5:00 PM)</button>
+        
+            <div th:replace="~{fragments/header :: headerActions}"></div>
+        </div>
+
+        <!-- Balances -->
+        <div class="balance-grid">
+            <div class="balance-card">
+                <h3 class="balance-title">Annual Leave</h3>
+                <p class="balance-value" style="color: var(--primary);">12</p>
+                <p class="balance-text">Days Remaining / 14</p>
+            </div>
+            <div class="balance-card sick">
+                <h3 class="balance-title">Sick Leave</h3>
+                <p class="balance-value" style="color: #ef4444;">4</p>
+                <p class="balance-text">Days Remaining / 5</p>
+            </div>
+            <div class="balance-card personal">
+                <h3 class="balance-title">Personal Leave</h3>
+                <p class="balance-value" style="color: #8b5cf6;">3</p>
+                <p class="balance-text">Days Remaining / 3</p>
+            </div>
+            <div class="balance-card unpaid">
+                <h3 class="balance-title">Unpaid Leave</h3>
+                <p class="balance-value" style="color: #64748b;">0</p>
+                <p class="balance-text">Days Used (No Limit)</p>
+            </div>
+        </div>
+
+        <div class="layout-grid">
+            <!-- Submit Form -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">📝 Apply for Leave</h2>
+                </div>
+                <div class="panel-body">
+                    <form action="#" method="POST">
+                        <div class="form-group">
+                            <label class="form-label">Leave Type</label>
+                            <select class="form-control" required>
+                                <option value="" disabled selected>Select absence type</option>
+                                <option value="annual">Annual / Vacation</option>
+                                <option value="sick">Sick Leave</option>
+                                <option value="personal">Personal Leave</option>
+                                <option value="unpaid">Unpaid Leave</option>
+                            </select>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" class="form-control" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">End Date</label>
+                                <input type="date" class="form-control" required>
+                            </div>
+                        </div>
+                        <div
+                            style="margin-bottom: 20px; font-size: 0.85rem; color: var(--muted-foreground); display: flex; justify-content: flex-end;">
+                            Total requested: <strong style="color: var(--foreground); margin-left: 4px;">0 Days</strong>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Reason / Comments</label>
+                            <textarea class="form-control" placeholder="Provide additional details to your manager..."
+                                required></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-group" style="width: 100%;">
+    <span class="btn-group-fill"></span>
+    <span class="btn-group-svg1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-auto h-full opacity-100 object-stretch" viewBox="0 0 487 487">
+            <path fill-opacity=".1" fill-rule="nonzero" fill="#FFF" d="M0 .3c67 2.1 134.1 4.3 186.3 37 52.2 32.7 89.6 95.8 112.8 150.6 23.2 54.8 32.3 101.4 61.2 149.9 28.9 48.4 77.7 98.8 126.4 149.2H0V.3z"></path>
+        </svg>
+    </span>
+    <span class="btn-group-svg2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="object-cover w-full h-full" viewBox="0 0 487 487">
+            <path fill-opacity=".1" fill-rule="nonzero" fill="#FFF" d="M487 486.7c-66.1-3.6-132.3-7.3-186.3-37s-95.9-85.3-126.2-137.2c-30.4-51.8-49.3-99.9-76.5-151.4C70.9 109.6 35.6 54.8.3 0H487v486.7z"></path>
+        </svg>
+    </span>
+    <span class="btn-group-overlay"></span>
+    <span class="btn-group-text">Submit Request</span>
+</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- History Table -->
+            <div class="panel panel-delay">
+                <div class="panel-header">
+                    <h2 class="panel-title">📅 Leave History</h2>
+                </div>
+                <div class="panel-body" style="padding: 0; display: flex; flex-direction: column;">
+                    <div class="table-responsive" style="flex: 1; margin: 24px;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Dates</th>
+                                    <th>Type</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Oct 12 - Oct 14</td>
+                                    <td>Sick Leave</td>
+                                    <td>3 Days</td>
+                                    <td><span class="badge badge-pending">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Jun 05 - Jun 05</td>
+                                    <td>Sick Leave</td>
+                                    <td>1 Day</td>
+                                    <td><span class="badge badge-approved">Approved</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Mar 10 - Mar 11</td>
+                                    <td>Annual Leave</td>
+                                    <td>2 Days</td>
+                                    <td><span class="badge badge-approved">Approved</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Dec 20 - Dec 24 (2022)</td>
+                                    <td>Annual Leave</td>
+                                    <td>5 Days</td>
+                                    <td><span class="badge badge-approved">Approved</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const removeSkeleton = () => { document.body.classList.remove('page-loading'); };
+            if (document.readyState === 'complete') { removeSkeleton(); } 
+            else { window.addEventListener('load', removeSkeleton); }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bell = document.getElementById('notificationBell');
+            const panel = document.getElementById('notificationPanel');
+            const checkbox = bell ? bell.querySelector('input[type="checkbox"]') : null;
+            
+            if(bell && panel && checkbox) {
+                bell.addEventListener('click', (e) => {
+                    if(e.target !== checkbox) {
+                        e.preventDefault();
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    
+                    if(checkbox.checked) {
+                        panel.classList.add('active');
+                    } else {
+                        panel.classList.remove('active');
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if(!bell.contains(e.target) && !panel.contains(e.target)) {
+                        checkbox.checked = false;
+                        panel.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if(mobileBtn && sidebar) {
+                mobileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('active');
+                });
+                
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', (e) => {
+                    if(window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                        if(!sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                            sidebar.classList.remove('active');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,10 +1,174 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-</head>
-<body>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
+<head th:replace="~{fragments/head :: head(title='Employee Dashboard - RevWorkforce', links=~{::link})}">
+    <link rel="stylesheet" th:href="@{/css/employee/employee-dashboard.css}">
+</head>
+
+<body class="page-loading">
+    <div class="skeleton-overlay"
+        style="display: flex; height: 100vh; width: 100%; background: var(--background); position: fixed; z-index: 9999; top: 0; left: 0;">
+        <aside
+            style="width: 260px; border-right: 1px solid var(--border); padding: 24px; background: white; display: flex; flex-direction: column; gap: 20px;">
+            <div class="skeleton" style="height: 48px; width: 120px; margin: 0 auto; border-radius: 4px;"></div>
+            <div style="padding: 0 24px; display: flex; flex-direction: column; gap: 12px; margin-top: 32px;">
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+            </div>
+        </aside>
+        <main style="flex: 1; padding: 32px 48px; margin-left: 260px;">
+            <div class="skeleton" style="height: 40px; width: 300px; margin-bottom: 12px; border-radius: 6px;"></div>
+            <div class="skeleton" style="height: 20px; width: 500px; margin-bottom: 32px; border-radius: 4px;"></div>
+            <div style="display: flex; gap: 32px;">
+                <div class="skeleton" style="height: 400px; flex: 1; border-radius: 12px;"></div>
+                <div class="skeleton" style="height: 400px; flex: 1; border-radius: 12px;"></div>
+            </div>
+        </main>
+    </div>
+    <!-- Sidebar -->
+    <aside th:replace="~{fragments/employee-sidebar :: sidebar(active='employee-dashboard.html')}"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content real-content">
+        <div class="page-header">
+            <div style="display: flex; align-items: center;">
+
+                <!-- Mobile Menu Toggle -->
+                <button id="mobileMenuBtn" class="mobile-menu-btn"
+                    style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--foreground); margin-right: 16px;">
+                    ☰
+                </button>
+                <div>
+                    <h1 class="page-title">Employee Portal</h1>
+                    <p class="page-subtitle">Manage your profile, leave, and performance goals.</p>
+                </div>
+            </div>
+            <div th:replace="~{fragments/header :: headerActions}"></div>
+        </div>
+
+        <!-- Stat Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-title">Remaining Sick Leave</span>
+                <h2 class="stat-value">5 days</h2>
+                <span class="stat-trend warning">Resets Jan 1st</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-title">Remaining Annual Leave</span>
+                <h2 class="stat-value">14 days</h2>
+                <span class="stat-trend">You have upcoming time off</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-title">Performance Goal Status</span>
+                <h2 class="stat-value">85%</h2>
+                <span class="stat-trend">On track</span>
+            </div>
+        </div>
+
+        <!-- Announcements Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <h2 class="panel-title">📢 Company Announcements & Holidays</h2>
+            </div>
+            <div class="panel-body">
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <div style="padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+                        <h4
+                            style="margin: 0 0 8px 0; color: var(--foreground); display: flex; justify-content: space-between;">
+                            <span>Thanksgiving Break 🦃</span>
+                            <span style="font-size: 0.85rem; color: var(--muted-foreground); font-weight: normal;">Nov
+                                23 - Nov 24</span>
+                        </h4>
+                        <p style="margin: 0; font-size: 0.95rem; color: var(--muted-foreground);">The corporate office
+                            will be closed for the Thanksgiving holiday. Enjoy the long weekend!</p>
+                    </div>
+                    <div style="padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+                        <h4
+                            style="margin: 0 0 8px 0; color: var(--foreground); display: flex; justify-content: space-between;">
+                            <span>Q4 Townhall Meeting 🗣️</span>
+                            <span style="font-size: 0.85rem; color: var(--muted-foreground); font-weight: normal;">Dec 5
+                                (10:00 AM)</span>
+                        </h4>
+                        <p style="margin: 0; font-size: 0.95rem; color: var(--muted-foreground);">Join the executive
+                            team for the final all-hands meeting of the year to discuss Q4 results.</p>
+                    </div>
+                    <div>
+                        <h4
+                            style="margin: 0 0 8px 0; color: var(--foreground); display: flex; justify-content: space-between;">
+                            <span>Winter Holiday Closure ❄️</span>
+                            <span style="font-size: 0.85rem; color: var(--muted-foreground); font-weight: normal;">Dec
+                                25 - Jan 1</span>
+                        </h4>
+                        <p style="margin: 0; font-size: 0.95rem; color: var(--muted-foreground);">Mandatory company-wide
+                            shutdown. These days will not deduct from your Annual Leave allowance.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const removeSkeleton = () => { document.body.classList.remove('page-loading'); };
+            if (document.readyState === 'complete') { removeSkeleton(); }
+            else { window.addEventListener('load', removeSkeleton); }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bell = document.getElementById('notificationBell');
+            const panel = document.getElementById('notificationPanel');
+            const checkbox = bell ? bell.querySelector('input[type="checkbox"]') : null;
+
+            if (bell && panel && checkbox) {
+                bell.addEventListener('click', (e) => {
+                    if (e.target !== checkbox) {
+                        e.preventDefault();
+                        checkbox.checked = !checkbox.checked;
+                    }
+
+                    if (checkbox.checked) {
+                        panel.classList.add('active');
+                    } else {
+                        panel.classList.remove('active');
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!bell.contains(e.target) && !panel.contains(e.target)) {
+                        checkbox.checked = false;
+                        panel.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.sidebar');
+
+            if (mobileBtn && sidebar) {
+                mobileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('active');
+                });
+
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                        if (!sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                            sidebar.classList.remove('active');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 </body>
+
 </html>

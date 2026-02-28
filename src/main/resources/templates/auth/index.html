@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RevWorkforce Dashboard</title>
+    <!-- Thymeleaf compatibility note: The static links below can be replaced with th:href="@{/css/global.css}" in Thymeleaf -->
+    <link rel="stylesheet" th:href="@{/css/common/global.css}">
+    <link rel="stylesheet" th:href="@{/css/auth/splash.css}">
+    <style>
+        /* Dashboard Hero Styles */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background-color: var(--card);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-header-logo img {
+            height: 48px;
+        }
+
+        .dashboard-nav {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn-outline {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: white;
+            color: var(--foreground);
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 20px 20px 40px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .roles-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 60px;
+            max-width: 100%;
+            padding: 0 40px;
+            width: 100%;
+        }
+
+        .role-card {
+            flex: 1;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        body:not(.loading) .role-card {
+            animation: slideUpFadeCard 0.6s ease forwards;
+        }
+
+        body:not(.loading) .role-card:nth-child(1) {
+            animation-delay: 1.4s;
+        }
+
+        body:not(.loading) .role-card:nth-child(2) {
+            animation-delay: 1.6s;
+        }
+
+        body:not(.loading) .role-card:nth-child(3) {
+            animation-delay: 1.8s;
+        }
+
+        @keyframes slideUpFadeCard {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .role-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        .role-card h3 {
+            color: var(--foreground);
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+        }
+
+        .role-card p {
+            color: var(--muted-foreground);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--secondary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: var(--muted-foreground);
+            margin-bottom: 30px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            /* Green */
+            border-radius: 50%;
+        }
+
+        .title-container {
+            display: inline-block;
+            position: relative;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+        }
+
+        .title-container::after {
+            content: '';
+            position: absolute;
+            width: 0%;
+            height: 3px;
+            bottom: 4px;
+            /* Lifted slightly to make room for second underline */
+            left: 50%;
+            background: linear-gradient(to right, #111111 0%, #9ca3af 20%, #d1d5db 28%, #f97316 33%, #fb923c 60%, #ea580c 100%);
+            background-size: 200% auto;
+            animation: gradientMorph 5s linear infinite alternate;
+            transition: width 0.8s ease 1s;
+            /* delayed 1s to wait for text */
+            transform: translateX(-50%);
+            border-radius: 4px;
+        }
+
+        .title-container::before {
+            content: '';
+            position: absolute;
+            width: 0%;
+            height: 2px;
+            bottom: -2px;
+            left: 50%;
+            background: linear-gradient(to right, #111111 0%, #9ca3af 20%, #d1d5db 28%, #f97316 33%, #fb923c 60%, #ea580c 100%);
+            background-size: 200% auto;
+            animation: gradientMorph 5s linear infinite alternate;
+            transition: width 0.8s ease 1.2s;
+            /* Delayed slightly more than the first underline */
+            transform: translateX(-50%);
+            border-radius: 4px;
+            opacity: 0.7;
+        }
+
+        body:not(.loading) .title-container::after {
+            width: 100%;
+        }
+
+        body:not(.loading) .title-container::before {
+            width: 100%;
+        }
+
+        .hero-title {
+            font-family: 'Pacifico', 'Caveat', 'Segoe Print', cursive, sans-serif;
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin: 0;
+            text-transform: uppercase;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+            display: flex;
+            justify-content: center;
+        }
+
+        .hero-text-left {
+            display: inline-block;
+            background: linear-gradient(to right, #111111 0%, #4b5563 25%, #9ca3af 50%, #d1d5db 75%, #9ca3af 100%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            opacity: 0;
+        }
+
+        .hero-text-right {
+            display: inline-block;
+            background: linear-gradient(to right, #9ca3af 0%, #d1d5db 12%, #f97316 20%, #fb923c 50%, #ea580c 75%, #f97316 100%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            opacity: 0;
+        }
+
+        .hero-text-left {
+            transform: translateX(-100px);
+        }
+
+        .hero-text-right {
+            transform: translateX(100px);
+        }
+
+        body:not(.loading) .hero-text-left {
+            animation: slideInLeftText 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards, gradientMorph 5s linear infinite alternate;
+        }
+
+        body:not(.loading) .hero-text-right {
+            animation: slideInRightText 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards, gradientMorph 5s linear infinite alternate;
+        }
+
+        @keyframes slideInLeftText {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRightText {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+
+
+        @keyframes gradientMorph {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--muted-foreground);
+            max-width: 100%;
+            white-space: nowrap;
+            margin-bottom: 20px;
+            padding: 0 20px;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        body:not(.loading) .hero-subtitle {
+            animation: slideUpFadeSubtitle 0.6s ease forwards;
+            animation-delay: 1.3s;
+        }
+
+        @keyframes slideUpFadeSubtitle {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .skeleton-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+
+        .skeleton-cards {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .animated-list {
+            list-style: none;
+            padding: 0 40px;
+            margin: 0 0 40px 0;
+            text-align: left;
+            max-width: 100%;
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px 30px;
+        }
+
+        .animated-list li {
+            font-size: 1.1rem;
+            color: var(--foreground);
+            margin-bottom: 14px;
+            padding-left: 32px;
+            position: relative;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        body:not(.loading) .animated-list li {
+            animation: slideInFade 0.5s ease forwards;
+        }
+
+        body:not(.loading) .animated-list li:nth-child(1) {
+            animation-delay: 1.5s;
+        }
+
+        body:not(.loading) .animated-list li:nth-child(2) {
+            animation-delay: 1.7s;
+        }
+
+        body:not(.loading) .animated-list li:nth-child(3) {
+            animation-delay: 1.9s;
+        }
+
+        body:not(.loading) .animated-list li:nth-child(4) {
+            animation-delay: 2.1s;
+        }
+
+        body:not(.loading) .animated-list li:nth-child(5) {
+            animation-delay: 2.3s;
+        }
+
+        body:not(.loading) .animated-list li:nth-child(6) {
+            animation-delay: 2.5s;
+        }
+
+        .animated-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+            background: #fff3e0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 0.8rem;
+        }
+
+        @keyframes slideInFade {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn-primary {
+            padding: 12px 24px;
+            background-color: #111;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+                padding: 0 10px;
+            }
+
+            .hero-section {
+                padding: 40px 15px;
+                min-height: auto;
+                justify-content: center;
+                gap: 30px;
+            }
+
+            .hero-subtitle {
+                white-space: normal;
+                padding: 0 10px;
+                font-size: 1rem;
+            }
+
+            .animated-list,
+            .skeleton-grid {
+                grid-template-columns: 1fr;
+                padding: 0 10px;
+            }
+
+            .animated-list li {
+                font-size: 1rem;
+                margin-bottom: 12px;
+            }
+
+            .roles-container,
+            .skeleton-cards {
+                flex-direction: column;
+                margin-top: 40px;
+                padding: 0 20px;
+            }
+
+            .btn-primary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body class="loading page-loading">
+
+    <!-- Splash Screen overlay -->
+    <div class="splash-container" id="splashScreen">
+        <div class="splash-content">
+            <img th:src="@{/images/logo.gif}" alt="RevWorkforce Logo" class="splash-logo">
+        </div>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="dashboard-content">
+        <!-- Skeleton Loader for Hero -->
+        <div class="skeleton-overlay"
+            style="width: 100%; max-width: 900px; margin: 0 auto; padding: 60px 20px; text-align: center; display: flex; flex-direction: column; align-items: center;">
+            <div class="skeleton skeleton-text"
+                style="height: 70px; width: 60%; margin-bottom: 30px; border-radius: 8px;"></div>
+            <div class="skeleton skeleton-text" style="height: 24px; width: 80%; margin-bottom: 40px;"></div>
+            <div class="skeleton-grid">
+                <div class="skeleton skeleton-text" style="height: 20px; border-radius: 4px;"></div>
+                <div class="skeleton skeleton-text" style="height: 20px; border-radius: 4px;"></div>
+                <div class="skeleton skeleton-text" style="height: 20px; border-radius: 4px;"></div>
+                <div class="skeleton skeleton-text" style="height: 20px; border-radius: 4px;"></div>
+                <div class="skeleton skeleton-text" style="height: 20px; border-radius: 4px;"></div>
+                <div class="skeleton skeleton-text" style="height: 20px; border-radius: 4px;"></div>
+            </div>
+            <div class="skeleton skeleton-btn" style="width: 180px; margin-bottom: 60px;"></div>
+            <div class="skeleton-cards">
+                <div class="skeleton" style="height: 120px; flex: 1; border-radius: 12px;"></div>
+                <div class="skeleton" style="height: 120px; flex: 1; border-radius: 12px;"></div>
+                <div class="skeleton" style="height: 120px; flex: 1; border-radius: 12px;"></div>
+            </div>
+        </div>
+
+        <main class="hero-section real-content">
+            <div class="title-container">
+                <h1 class="hero-title">
+                    <span class="hero-text-left">Rev</span>
+                    <span class="hero-text-right">WorkForce</span>
+                </h1>
+            </div>
+
+            <p class="hero-subtitle">
+                RevWorkForce is a full-stack monolithic Human Resource Management web application designed to
+                streamline:
+            </p>
+
+            <ul class="animated-list">
+                <li>Employee management</li>
+                <li>Leave tracking and approvals</li>
+                <li>Performance review processes</li>
+                <li>Goal management</li>
+                <li>Real-time notifications</li>
+                <li>Analytics and reporting</li>
+            </ul>
+
+            <div class="hero-actions">
+                <a th:href="@{/login}" class="btn-primary">
+                    Get Started
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+
+            <div class="roles-container">
+                <div class="role-card">
+                    <h3>Employees</h3>
+                    <p>Self-service portal</p>
+                </div>
+                <div class="role-card">
+                    <h3>Managers</h3>
+                    <p>Team management and approvals</p>
+                </div>
+                <div class="role-card">
+                    <h3>Admins</h3>
+                    <p>System configuration and reporting</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Script to handle splash screen lifecycle -->
+    <script>
+        // Handle skeleton loader removal immediately after content load
+        const removeSkeleton = () => {
+            document.body.classList.remove('page-loading');
+        };
+        if (document.readyState === 'complete') {
+            removeSkeleton();
+        } else {
+            window.addEventListener('load', removeSkeleton);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const splashScreen = document.getElementById('splashScreen');
+            const holdDuration = 4900;
+            const exitAnimationTime = 800;
+
+            setTimeout(() => {
+                document.body.classList.remove('loading');
+                setTimeout(() => {
+                    splashScreen.style.display = 'none';
+                }, exitAnimationTime);
+            }, holdDuration);
+        });
+    </script>
+</body>
+
+</html>

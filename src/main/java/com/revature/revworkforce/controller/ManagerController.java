@@ -15,6 +15,6 @@ public class ManagerController {
 
     @GetMapping("/dashboard")
     public String dashboard() {
-        return "manager-dashboard"; // Maps to /templates/manager-dashboard.html
+        return "dashboard/manager-dashboard"; // Maps to /templates/dashboard/manager-dashboard.html
     }
 }

@@ -1,12 +1,133 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<meta charset="UTF-8">
-<title>login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in - RevWorkforce</title>
+    <!-- Thymeleaf compatibility note: adjust paths to th:href="@{/css/global.css}" -->
+    <link rel="stylesheet" th:href="@{/css/common/global.css}">
+    <link rel="stylesheet" th:href="@{/css/auth/auth.css}">
 </head>
-<body>
 
-<h2>It is a Login Page</h2>
+<body class="page-loading">
+    <div class="auth-wrapper">
+        <div class="auth-image">
+            <video autoplay muted loop playsinline class="auth-video">
+                <source th:src="@{/images/login.mp4}" type="video/mp4">
+            </video>
+            <div class="auth-image-overlay"></div>
+            <div class="auth-image-content">
+                <h1>Welcome to City Voice</h1>
+                <p>Your platform for civic engagement.</p>
+            </div>
+        </div>
+        <div class="auth-form-container">
+            <!-- Skeleton Loader -->
+            <div class="skeleton-overlay" style="width: 100%; max-width: 400px; padding: 20px;">
+                <div style="display: flex; justify-content: center; margin-bottom: 0px;">
+                    <div class="skeleton" style="width: 220px; height: 220px; border-radius: 50%;"></div>
+                </div>
+                <div class="skeleton skeleton-text" style="height: 36px; width: 60%; margin: 20px auto 30px;"></div>
+                <div class="skeleton skeleton-text" style="width: 20%;"></div>
+                <div class="skeleton skeleton-text" style="height: 50px; margin-bottom: 20px; border-radius: 12px;">
+                </div>
+                <div class="skeleton skeleton-text" style="width: 25%;"></div>
+                <div class="skeleton skeleton-text" style="height: 50px; margin-bottom: 20px; border-radius: 12px;">
+                </div>
+                <div class="skeleton skeleton-btn" style="height: 50px; border-radius: 12px;"></div>
+            </div>
 
+            <form class="form real-content" action="#" method="POST">
+                <div class="form-header">
+                    <div style="text-align: center; margin-bottom: 0px;">
+                        <a th:href="@{/}">
+                            <img th:src="@{/images/logo complete.png}" alt="Logo" class="auth-logo">
+                        </a>
+                    </div>
+                    <h2>Welcome <span style="color: #ea580c;">back</span></h2>
+                </div>
+
+                <!-- Error State (Visible for demonstration, use Thymeleaf th:if in production) -->
+                <div class="alert alert-error"
+                    style="background-color: #fef2f2; color: #ef4444; border: 1px solid #fca5a5; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-size: 0.9rem; display: none; align-items: flex-start; gap: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span><strong>Login Failed:</strong> Invalid email or password. Please try again. (3 attempts
+                        remaining)</span>
+                </div>
+
+                <!-- Account Locked State (Hidden by default) -->
+                <div class="alert alert-warning"
+                    style="background-color: #fffbeb; color: #b45309; border: 1px solid #fcd34d; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-size: 0.9rem; display: none; align-items: flex-start; gap: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                        <path
+                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                        </path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <span><strong>Account Locked:</strong> Maximum login attempts exceeded. Please contact your
+                        administrator.</span>
+                </div>
+
+                <div class="flex-column">
+                    <label>Email</label>
+                </div>
+                <div class="inputForm">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path>
+                    </svg>
+                    <input type="email" class="input" placeholder="Enter your Email" required name="email">
+                </div>
+
+                <div class="flex-column" style="margin-top: 16px;">
+                    <label>Password</label>
+                </div>
+                <!-- lock icon for password -->
+                <div class="inputForm">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    <input type="password" class="input" placeholder="Enter your Password" required name="password">
+                </div>
+
+                <div class="flex-row">
+                    <div>
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">Remember me</label>
+                    </div>
+                    <a th:href="@{/forgot-password}" class="span" style="color: #2563eb;">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="button-submit" style="background-color: #111; color: white;">Sign
+                    In</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const removeSkeleton = () => {
+                document.body.classList.remove('page-loading');
+            };
+
+            if (document.readyState === 'complete') {
+                removeSkeleton();
+            } else {
+                window.addEventListener('load', removeSkeleton);
+            }
+        });
+    </script>
 </body>
+
 </html>
