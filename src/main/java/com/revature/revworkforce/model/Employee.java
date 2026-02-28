@@ -123,17 +123,16 @@ public class Employee {
      * Many employees belong to one Department.
      * Lazy fetch to avoid unnecessary loading.
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "department_id")
     private Department department;
-
+    
     /**
      * Many employees share one Designation.
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "designation_id")
     private Designation designation;
-
     /**
      * Self-referencing relationship.
      * Represents reporting hierarchy (Manager → Employee).
