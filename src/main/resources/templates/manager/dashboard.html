@@ -11,24 +11,24 @@
                 <div class="card bg-primary text-white">
                     <div class="card-body">
                         <h2 class="mb-0">
-                            <i class="fas fa-tachometer-alt me-2"></i>
-                            Welcome, <span th:text="${fullName}">Admin</span>!
+                            <i class="fas fa-users me-2"></i>
+                            Welcome, <span th:text="${fullName}">Manager</span>!
                         </h2>
-                        <p class="mb-0">Administrator Dashboard - Full System Access</p>
+                        <p class="mb-0">Manager Dashboard - Team Management & Approvals</p>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Statistics Cards -->
+        <!-- Team Statistics -->
         <div class="row mb-4">
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="text-muted mb-2">Total Employees</h6>
-                                <h3 class="mb-0" th:text="${totalEmployees}">0</h3>
+                                <h6 class="text-muted mb-2">My Team Size</h6>
+                                <h3 class="mb-0" th:text="${teamSize}">0</h3>
                             </div>
                             <div class="text-primary">
                                 <i class="fas fa-users fa-3x"></i>
@@ -38,50 +38,32 @@
                 </div>
             </div>
             
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="text-muted mb-2">Active Employees</h6>
-                                <h3 class="mb-0 text-success" th:text="${activeEmployees}">0</h3>
+                                <h6 class="text-muted mb-2">Pending Approvals</h6>
+                                <h3 class="mb-0 text-warning">0</h3>
                             </div>
-                            <div class="text-success">
-                                <i class="fas fa-user-check fa-3x"></i>
+                            <div class="text-warning">
+                                <i class="fas fa-clock fa-3x"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="text-muted mb-2">Departments</h6>
-                                <h3 class="mb-0 text-info">7</h3>
+                                <h6 class="text-muted mb-2">Reviews Pending</h6>
+                                <h3 class="mb-0 text-info">0</h3>
                             </div>
                             <div class="text-info">
-                                <i class="fas fa-building fa-3x"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-2">System Health</h6>
-                                <h3 class="mb-0 text-success">
-                                    <i class="fas fa-check-circle"></i>
-                                </h3>
-                            </div>
-                            <div class="text-success">
-                                <i class="fas fa-heartbeat fa-3x"></i>
+                                <i class="fas fa-star fa-3x"></i>
                             </div>
                         </div>
                     </div>
@@ -102,26 +84,26 @@
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <a href="#" class="btn btn-outline-primary w-100 py-3">
-                                    <i class="fas fa-user-plus fa-2x mb-2"></i><br>
-                                    Add Employee
+                                    <i class="fas fa-users fa-2x mb-2"></i><br>
+                                    View My Team
                                 </a>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <a href="#" class="btn btn-outline-primary w-100 py-3">
-                                    <i class="fas fa-building fa-2x mb-2"></i><br>
-                                    Manage Departments
+                                <a href="#" class="btn btn-outline-warning w-100 py-3">
+                                    <i class="fas fa-check-circle fa-2x mb-2"></i><br>
+                                    Approve Leaves
                                 </a>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <a href="#" class="btn btn-outline-primary w-100 py-3">
-                                    <i class="fas fa-calendar-alt fa-2x mb-2"></i><br>
-                                    Manage Holidays
+                                <a href="#" class="btn btn-outline-info w-100 py-3">
+                                    <i class="fas fa-star fa-2x mb-2"></i><br>
+                                    Performance Reviews
                                 </a>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <a href="#" class="btn btn-outline-primary w-100 py-3">
-                                    <i class="fas fa-chart-bar fa-2x mb-2"></i><br>
-                                    View Reports
+                                <a href="#" class="btn btn-outline-success w-100 py-3">
+                                    <i class="fas fa-bullseye fa-2x mb-2"></i><br>
+                                    Team Goals
                                 </a>
                             </div>
                         </div>
@@ -130,19 +112,35 @@
             </div>
         </div>
         
-        <!-- Recent Activity -->
+        <!-- Pending Approvals -->
         <div class="row">
-            <div class="col-12">
+            <div class="col-md-6 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-white">
                         <h5 class="mb-0">
-                            <i class="fas fa-history me-2"></i>Recent System Activity
+                            <i class="fas fa-calendar-check me-2"></i>Pending Leave Approvals
                         </h5>
                     </div>
                     <div class="card-body">
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
-                            Recent activity tracking will be displayed here once modules are implemented.
+                            No pending leave approvals at this time.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-line me-2"></i>Team Performance
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Team performance metrics will be displayed here.
                         </div>
                     </div>
                 </div>
