@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 Internal Server Error - RevWorkforce</title>
+    <link rel="stylesheet" th:href="@{/styles/common/global.css}">
+    <link rel="stylesheet" th:href="@{/styles/auth/auth.css}">
+    <style>
+        .error-container {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .error-code {
+            font-size: 6rem;
+            font-weight: 800;
+            color: #ea580c;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+
+        .error-title {
+            font-size: 1.5rem;
+            color: var(--foreground);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .error-desc {
+            color: var(--muted-foreground);
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div
+        style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: var(--background);">
+        <div class="auth-form-container"
+            style="width: 100%; max-width: 500px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+            <div class="error-container">
+                <a th:href="@{/}">
+                    <img th:src="@{/assets/logo complete.png}" alt="Logo" class="auth-logo"
+                        style="margin-bottom: 2rem;">
+                </a>
+
+                <div class="error-code">500</div>
+                <h1 class="error-title">Internal Server Error</h1>
+
+                <p class="error-desc"
+                    th:text="${errorMessage ?: 'Oops! Something went wrong on our end. Please try again later.'}">
+                    Oops! Something went wrong on our end. Please try again later.
+                </p>
+
+                <a th:href="@{/dashboard}" class="button-submit"
+                    style="background-color: #111; color: white; display: inline-block; text-decoration: none; width: auto; padding: 0 32px;">
+                    Return to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

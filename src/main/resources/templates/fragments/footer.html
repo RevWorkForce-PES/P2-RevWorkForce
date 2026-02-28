@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <footer class="footer" th:fragment="footer"
+        style="padding: 24px; text-align: center; border-top: 1px solid var(--border); color: var(--muted-foreground); display: flex; flex-direction: column; gap: 8px;">
+        <div>
+            &copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}"></span> RevWorkforce by Revature. All
+            rights reserved.
+        </div>
+        <div style="font-size: 0.85rem;">
+            <a th:href="@{/privacy}"
+                style="color: var(--muted-foreground); text-decoration: none; margin: 0 8px;">Privacy Policy</a> |
+            <a th:href="@{/terms}" style="color: var(--muted-foreground); text-decoration: none; margin: 0 8px;">Terms
+                of Service</a> |
+            <a th:href="@{/support}"
+                style="color: var(--muted-foreground); text-decoration: none; margin: 0 8px;">Support</a>
+        </div>
+    </footer>
+</body>
+
+</html>
