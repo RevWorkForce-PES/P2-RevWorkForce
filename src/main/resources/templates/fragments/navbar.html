@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <!-- A horizontal top navigation bar as an alternative/addition to the sidebar -->
+    <nav class="navbar real-content" th:fragment="navbar"
+        style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background-color: var(--card); border-bottom: 1px solid var(--border);">
+        <div class="navbar-brand">
+            <a th:href="@{/dashboard}" style="display: flex; align-items: center;">
+                <img th:src="@{/assets/logo complete.png}" alt="RevWorkforce Logo"
+                    style="height: 32px; object-fit: contain;">
+            </a>
+        </div>
+
+        <div class="navbar-links" style="display: flex; gap: 24px; align-items: center;">
+            <a th:href="@{/dashboard}"
+                style="text-decoration: none; color: var(--foreground); font-weight: 500; font-size: 0.95rem;">Dashboard</a>
+            <a th:href="@{/profile}"
+                style="text-decoration: none; color: var(--muted-foreground); font-weight: 500; font-size: 0.95rem;">Profile</a>
+            <a th:href="@{/directory}"
+                style="text-decoration: none; color: var(--muted-foreground); font-weight: 500; font-size: 0.95rem;">Directory</a>
+        </div>
+
+        <div class="navbar-actions" style="display: flex; align-items: center; gap: 16px;">
+            <div th:replace="~{fragments/header :: headerActions}"></div>
+
+            <div class="user-menu"
+                style="display: flex; align-items: center; gap: 12px; margin-left: 12px; padding-left: 16px; border-left: 1px solid var(--border);">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--foreground);"
+                        th:text="${fullName ?: 'User'}">User</div>
+                    <div style="font-size: 0.75rem; color: var(--muted-foreground);"
+                        th:text="${designation ?: 'Employee'}">Role</div>
+                </div>
+                <a th:href="@{/logout}"
+                    style="padding: 6px 12px; background-color: #fef2f2; color: #ef4444; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500;">Logout</a>
+            </div>
+        </div>
+    </nav>
+</body>
+
+</html>
