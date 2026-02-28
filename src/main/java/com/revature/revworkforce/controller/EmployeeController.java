@@ -395,4 +395,21 @@ public class EmployeeController {
         
         return "employee/directory";
     }
+    
+    @GetMapping("/admin/employees/search")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String searchEmployeesAlias(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long departmentId,
+            @RequestParam(required = false) Long designationId,
+            @RequestParam(required = false) EmployeeStatus status,
+            Model model) {
+        return listEmployees(keyword, departmentId, designationId, status, model);
+    }
+
+    @GetMapping("/admin/employees/department/{departmentId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String filterByDepartment(@PathVariable Long departmentId, Model model) {
+        return listEmployees(null, departmentId, null, null, model);
+    }
 }
