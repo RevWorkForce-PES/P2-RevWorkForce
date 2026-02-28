@@ -137,7 +137,7 @@ public class Employee {
      * Self-referencing relationship.
      * Represents reporting hierarchy (Manager → Employee).
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "manager_id")
     private Employee manager;
 
