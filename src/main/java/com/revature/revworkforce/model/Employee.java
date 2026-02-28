@@ -332,6 +332,22 @@ public class Employee {
 	public void setEmployeeId(String employeeId) {
 		this.employeeId = employeeId;
 	}
+	
+	public Character getAccountLocked() {
+	    return accountLocked;
+	}
+
+	public EmployeeStatus getStatus() {
+	    return status;
+	}
+
+	public String getPasswordHash() {
+	    return passwordHash;
+	}
+
+	public Set<Role> getRoles() {
+	    return roles;
+	}
 
 	
 }
