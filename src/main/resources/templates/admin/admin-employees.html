@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head(title='Employee Management - Admin - RevWorkforce', links=~{::link})}">
+    <link rel="stylesheet" th:href="@{/styles/admin/admin-employees.css}">
+</head>
+
+<body class="page-loading">
+    <div class="skeleton-overlay" style="display: flex; height: 100vh; width: 100%; background: var(--background); position: fixed; z-index: 9999; top: 0; left: 0;">
+        <aside style="width: 260px; border-right: 1px solid var(--border); padding: 24px; background: white; display: flex; flex-direction: column; gap: 20px;">
+            <div class="skeleton" style="height: 48px; width: 120px; margin: 0 auto; border-radius: 4px;"></div>
+            <div style="padding: 0 24px; display: flex; flex-direction: column; gap: 12px; margin-top: 32px;">
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+            </div>
+        </aside>
+        <main style="flex: 1; padding: 32px 48px; margin-left: 260px;">
+            <div class="skeleton" style="height: 40px; width: 300px; margin-bottom: 12px; border-radius: 6px;"></div>
+            <div class="skeleton" style="height: 20px; width: 500px; margin-bottom: 32px; border-radius: 4px;"></div>
+            <div style="display: flex; gap: 32px;">
+                <div class="skeleton" style="height: 400px; flex: 1; border-radius: 12px;"></div>
+                <div class="skeleton" style="height: 400px; flex: 1; border-radius: 12px;"></div>
+            </div>
+        </main>
+    </div>
+    <!-- Sidebar -->
+    <aside th:replace="~{fragments/admin-sidebar :: sidebar(active='admin-employees.html')}"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content real-content">
+        <div class="page-header">
+            <div style="display: flex; align-items: center;">
+
+            <!-- Mobile Menu Toggle -->
+            <button id="mobileMenuBtn" class="mobile-menu-btn" style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--foreground); margin-right: 16px;">
+                ☰
+            </button>
+                <div>
+                <h1 class="page-title">Employee Directory</h1>
+                <p class="page-subtitle">Manage, update, and review all personnel records.</p>
+                </div>
+            </div>
+            <div th:replace="~{fragments/header :: headerActions}"></div>
+        </div>
+
+        <div class="controls-bar">
+            <div class="search-wrapper">
+                <input type="text" class="search-input" placeholder=" " id="search_2">
+                <label class="search-label" for="search_2">Search by name, ID, or email...</label>
+                <div class="search-icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="#cbd5e1" viewBox="0 0 24 24" height="24" width="24"><path d="M10.979 16.8991C11.0591 17.4633 10.6657 17.9926 10.0959 17.9994C8.52021 18.0183 6.96549 17.5712 5.63246 16.7026C4.00976 15.6452 2.82575 14.035 2.30018 12.1709C1.77461 10.3068 1.94315 8.31525 2.77453 6.56596C3.60592 4.81667 5.04368 3.42838 6.82101 2.65875C8.59833 1.88911 10.5945 1.79039 12.4391 2.3809C14.2837 2.97141 15.8514 4.21105 16.8514 5.86977C17.8513 7.52849 18.2155 9.49365 17.8764 11.4005C17.5979 12.967 16.8603 14.4068 15.7684 15.543C15.3736 15.9539 14.7184 15.8787 14.3617 15.4343C14.0051 14.9899 14.0846 14.3455 14.4606 13.9173C15.1719 13.1073 15.6538 12.1134 15.8448 11.0393C16.0964 9.62426 15.8261 8.166 15.0841 6.93513C14.3421 5.70426 13.1788 4.78438 11.81 4.34618C10.4412 3.90799 8.95988 3.98125 7.641 4.55236C6.32213 5.12348 5.25522 6.15367 4.63828 7.45174C4.02135 8.74982 3.89628 10.2276 4.28629 11.6109C4.67629 12.9942 5.55489 14.1891 6.75903 14.9737C7.67308 15.5693 8.72759 15.8979 9.80504 15.9333C10.3746 15.952 10.8989 16.3349 10.979 16.8991Z"></path><rect transform="rotate(-49.6812 12.2469 14.8859)" rx="1" height="10.1881" width="2" y="14.8859" x="12.2469"></rect></svg>
+                </div>
+            </div>
+            <a th:href="@{/admin/dashboard}" class="btn-group">
+    <span class="btn-group-fill"></span>
+    <span class="btn-group-svg1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-auto h-full opacity-100 object-stretch" viewBox="0 0 487 487">
+            <path fill-opacity=".1" fill-rule="nonzero" fill="#FFF" d="M0 .3c67 2.1 134.1 4.3 186.3 37 52.2 32.7 89.6 95.8 112.8 150.6 23.2 54.8 32.3 101.4 61.2 149.9 28.9 48.4 77.7 98.8 126.4 149.2H0V.3z"></path>
+        </svg>
+    </span>
+    <span class="btn-group-svg2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="object-cover w-full h-full" viewBox="0 0 487 487">
+            <path fill-opacity=".1" fill-rule="nonzero" fill="#FFF" d="M487 486.7c-66.1-3.6-132.3-7.3-186.3-37s-95.9-85.3-126.2-137.2c-30.4-51.8-49.3-99.9-76.5-151.4C70.9 109.6 35.6 54.8.3 0H487v486.7z"></path>
+        </svg>
+    </span>
+    <span class="btn-group-overlay"></span>
+    <span class="btn-group-text">+ Add New Employee</span>
+</a>
+        </div>
+
+        <div class="employee-grid">
+            <!-- Employee Card 1 -->
+            <div class="employee-card animated" style="animation-delay: 0.4s;">
+                <div class="emp-header">
+                    <div class="emp-avatar">JD</div>
+                    <div class="emp-info">
+                        <h3>John Doe</h3>
+                        <p>john.doe@revworkforce.com</p>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge badge-mgr">Manager</span>
+                    <span class="badge badge-active">Active</span>
+                </div>
+                <div class="emp-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Employee ID</span>
+                        <span>MGR001</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Department</span>
+                        <span>Engineering</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Manager</span>
+                        <span>N/A</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button class="button btn-sm">
+                        <div class="button-outer">
+                            <div class="button-inner">
+                                <span>Edit profile</span>
+                            </div>
+                        </div>
+                    </button>
+                    <button class="button btn-sm">
+                        <div class="button-outer">
+                            <div class="button-inner">
+                                <span>Config</span>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Employee Card 2 -->
+            <div class="employee-card animated" style="animation-delay: 0.5s;">
+                <div class="emp-header">
+                    <div class="emp-avatar" style="background-color: #f3e8ff; color: #9333ea;">SJ</div>
+                    <div class="emp-info">
+                        <h3>Sarah Jenkins</h3>
+                        <p>sarah.j@revworkforce.com</p>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge badge-emp">Employee</span>
+                    <span class="badge badge-active">Active</span>
+                </div>
+                <div class="emp-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Employee ID</span>
+                        <span>EMP042</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Department</span>
+                        <span>Engineering</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Manager</span>
+                        <span>MGR001</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button class="button btn-sm">
+                        <div class="button-outer">
+                            <div class="button-inner">
+                                <span>Edit profile</span>
+                            </div>
+                        </div>
+                    </button>
+                    <button class="button btn-sm">
+                        <div class="button-outer">
+                            <div class="button-inner">
+                                <span>Config</span>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Employee Card 3 -->
+            <div class="employee-card animated" style="animation-delay: 0.6s;">
+                <div class="emp-header">
+                    <div class="emp-avatar" style="background-color: #fee2e2; color: #b91c1c;">MC</div>
+                    <div class="emp-info">
+                        <h3>Michael Chen</h3>
+                        <p>m.chen@revworkforce.com</p>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge badge-emp">Employee</span>
+                    <span class="badge badge-locked">Locked</span>
+                </div>
+                <div class="emp-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Employee ID</span>
+                        <span>EMP018</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Department</span>
+                        <span>Marketing</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Manager</span>
+                        <span>MGR005</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button class="button btn-sm">
+                        <div class="button-outer">
+                            <div class="button-inner">
+                                <span>Edit profile</span>
+                            </div>
+                        </div>
+                    </button>
+                    <button class="button btn-sm red-override">
+                        <div class="button-outer">
+                            <div class="button-inner">
+                                <span>Unlock</span>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Employee Card 4 -->
+            <div class="employee-card animated" style="animation-delay: 0.7s;">
+                <div class="emp-header">
+                    <div class="emp-avatar" style="background-color: #dcfce7; color: #15803d;">DT</div>
+                    <div class="emp-info">
+                        <h3>David Thompson</h3>
+                        <p>david.t@revworkforce.com</p>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge badge-emp">Employee</span>
+                    <span class="badge badge-active">Active</span>
+                </div>
+                <div class="emp-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Employee ID</span>
+                        <span>EMP093</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Department</span>
+                        <span>Sales</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Manager</span>
+                        <span>MGR012</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button class="button btn-sm">
+                        <div class="button-outer">
+                            <div class="button-inner">
+                                <span>Edit profile</span>
+                            </div>
+                        </div>
+                    </button>
+                    <button class="button btn-sm">
+                        <div class="button-outer">
+                            <div class="button-inner">
+                                <span>Config</span>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Employee Card 5 -->
+            <div class="employee-card animated" style="animation-delay: 0.8s;">
+                <div class="emp-header">
+                    <div class="emp-avatar" style="background-color: #e0f2fe; color: #0369a1;">EW</div>
+                    <div class="emp-info">
+                        <h3>Emily Wong</h3>
+                        <p>e.wong@revworkforce.com</p>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge badge-mgr">Manager</span>
+                    <span class="badge badge-active">Active</span>
+                </div>
+                <div class="emp-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Employee ID</span>
+                        <span>MGR005</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Department</span>
+                        <span>Marketing</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Manager</span>
+                        <span>N/A</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button class="button btn-sm">
+                        <div class="button-outer">
+                            <div class="button-inner">
+                                <span>Edit profile</span>
+                            </div>
+                        </div>
+                    </button>
+                    <button class="button btn-sm">
+                        <div class="button-outer">
+                            <div class="button-inner">
+                                <span>Config</span>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Employee Card 6 -->
+            <div class="employee-card animated" style="animation-delay: 0.9s;">
+                <div class="emp-header">
+                    <div class="emp-avatar" style="background-color: #ffedd5; color: #c2410c;">RJ</div>
+                    <div class="emp-info">
+                        <h3>Robert Johnson</h3>
+                        <p>robert.j@revworkforce.com</p>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge badge-emp">Employee</span>
+                    <span class="badge badge-active">Active</span>
+                </div>
+                <div class="emp-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Employee ID</span>
+                        <span>EMP142</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Department</span>
+                        <span>Engineering</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Manager</span>
+                        <span>MGR001</span>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button class="button btn-sm">
+                        <div class="button-outer">
+                            <div class="button-inner">
+                                <span>Edit profile</span>
+                            </div>
+                        </div>
+                    </button>
+                    <button class="button btn-sm">
+                        <div class="button-outer">
+                            <div class="button-inner">
+                                <span>Config</span>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const removeSkeleton = () => { document.body.classList.remove('page-loading'); };
+            if (document.readyState === 'complete') { removeSkeleton(); } 
+            else { window.addEventListener('load', removeSkeleton); }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bell = document.getElementById('notificationBell');
+            const panel = document.getElementById('notificationPanel');
+            const checkbox = bell ? bell.querySelector('input[type="checkbox"]') : null;
+            
+            if(bell && panel && checkbox) {
+                bell.addEventListener('click', (e) => {
+                    if(e.target !== checkbox) {
+                        e.preventDefault();
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    
+                    if(checkbox.checked) {
+                        panel.classList.add('active');
+                    } else {
+                        panel.classList.remove('active');
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if(!bell.contains(e.target) && !panel.contains(e.target)) {
+                        checkbox.checked = false;
+                        panel.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if(mobileBtn && sidebar) {
+                mobileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('active');
+                });
+                
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', (e) => {
+                    if(window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                        if(!sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                            sidebar.classList.remove('active');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

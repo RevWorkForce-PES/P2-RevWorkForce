@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside class="sidebar real-content" th:fragment="sidebar(active)">
+        <div class="sidebar-logo">
+            <a th:href="@{/}">
+                <img th:src="@{/assets/logo complete.png}" alt="RevWorkforce Logo">
+            </a>
+        </div>
+
+        <nav>
+            <a th:href="@{/employee/dashboard}" class="nav-link" th:classappend="${active == 'employee-dashboard.html'} ? 'active' : ''">
+                <span class="nav-icon">📊</span> Dashboard
+            </a>
+            <a th:href="@{/employee/profile}" class="nav-link" th:classappend="${active == 'employee-profile.html'} ? 'active' : ''">
+                <span class="nav-icon">👤</span> My Profile
+            </a>
+            <a th:href="@{/employee/leave}" class="nav-link" th:classappend="${active == 'employee-leave.html'} ? 'active' : ''">
+                <span class="nav-icon">📅</span> Forms & Leave
+            </a>
+            <a th:href="@{/employee/performance}" class="nav-link" th:classappend="${active == 'employee-performance.html'} ? 'active' : ''">
+                <span class="nav-icon">⭐</span> Performance
+            </a>
+            <a th:href="@{/employee/directory}" class="nav-link" th:classappend="${active == 'employee-directory.html'} ? 'active' : ''">
+                <span class="nav-icon">🏢</span> Directory
+            </a>
+        </nav>
+
+        <div class="logout-container">
+            <a th:href="@{/login}" class="btn-logout">Logout</a>
+        </div>
+    </aside>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head(title='Leave Management - Manager - RevWorkforce', links=~{::link})}">
+    <link rel="stylesheet" th:href="@{/styles/manager/manager-leave.css}">
+</head>
+
+<body class="page-loading">
+    <div class="skeleton-overlay" style="display: flex; height: 100vh; width: 100%; background: var(--background); position: fixed; z-index: 9999; top: 0; left: 0;">
+        <aside style="width: 260px; border-right: 1px solid var(--border); padding: 24px; background: white; display: flex; flex-direction: column; gap: 20px;">
+            <div class="skeleton" style="height: 48px; width: 120px; margin: 0 auto; border-radius: 4px;"></div>
+            <div style="padding: 0 24px; display: flex; flex-direction: column; gap: 12px; margin-top: 32px;">
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+            </div>
+        </aside>
+        <main style="flex: 1; padding: 32px 48px; margin-left: 260px;">
+            <div class="skeleton" style="height: 40px; width: 300px; margin-bottom: 12px; border-radius: 6px;"></div>
+            <div class="skeleton" style="height: 20px; width: 500px; margin-bottom: 32px; border-radius: 4px;"></div>
+            <div style="display: flex; gap: 32px;">
+                <div class="skeleton" style="height: 400px; flex: 1; border-radius: 12px;"></div>
+                <div class="skeleton" style="height: 400px; flex: 1; border-radius: 12px;"></div>
+            </div>
+        </main>
+    </div>
+    <!-- Sidebar -->
+    <aside th:replace="~{fragments/manager-sidebar :: sidebar(active='manager-leave.html')}"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content real-content">
+        <div class="page-header">
+            <div style="display: flex; align-items: center;">
+
+            <!-- Mobile Menu Toggle -->
+            <button id="mobileMenuBtn" class="mobile-menu-btn" style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--foreground); margin-right: 16px;">
+                ☰
+            </button>
+                <div>
+                <h1 class="page-title">Leave Management</h1>
+                <p class="page-subtitle">Review, approve, or revoke time-off requests from your team.</p>
+                </div>
+            </div>
+            <div th:replace="~{fragments/header :: headerActions}"></div>
+        </div>
+
+        <h3 style="margin-bottom: 20px; color: var(--foreground); font-weight: 600;">Action Required (2)</h3>
+
+        <!-- Pending Requests Grid (Flow B) -->
+        <div class="pending-grid">
+            <!-- Request Card 1 -->
+            <div class="request-card">
+                <div class="req-header">
+                    <div class="req-emp">
+                        <div class="req-avatar" style="background-color: #eff6ff; color: #2563eb;">SJ</div>
+                        <div>
+                            <p class="req-name">Sarah Jenkins</p>
+                            <p class="req-id">EMP042</p>
+                        </div>
+                    </div>
+                    <span class="badge badge-pending">PENDING</span>
+                </div>
+
+                <div class="req-details">
+                    <div class="req-row">
+                        <span class="req-label">Leave Type</span>
+                        <span class="req-value">Sick Leave</span>
+                    </div>
+                    <div class="req-row">
+                        <span class="req-label">Duration</span>
+                        <span class="req-value">Oct 12 - Oct 14 (3 Days)</span>
+                    </div>
+                    <div class="req-row">
+                        <span class="req-label">Remaining Balance</span>
+                        <span class="req-value">12 Days</span>
+                    </div>
+                    <div class="req-reason">
+                        "Caught the flu, need to rest for a few days."
+                    </div>
+                </div>
+
+                <div class="req-actions">
+                    <button class="btn-action btn-reject">Reject</button>
+                    <button class="btn-action btn-approve">Approve</button>
+                </div>
+            </div>
+
+            <!-- Request Card 2 -->
+            <div class="request-card">
+                <div class="req-header">
+                    <div class="req-emp">
+                        <div class="req-avatar" style="background-color: #f3e8ff; color: #9333ea;">MC</div>
+                        <div>
+                            <p class="req-name">Michael Chen</p>
+                            <p class="req-id">EMP018</p>
+                        </div>
+                    </div>
+                    <span class="badge badge-pending">PENDING</span>
+                </div>
+
+                <div class="req-details">
+                    <div class="req-row">
+                        <span class="req-label">Leave Type</span>
+                        <span class="req-value">Annual Leave</span>
+                    </div>
+                    <div class="req-row">
+                        <span class="req-label">Duration</span>
+                        <span class="req-value">Oct 20 - Oct 25 (6 Days)</span>
+                    </div>
+                    <div class="req-row">
+                        <span class="req-label">Remaining Balance</span>
+                        <span class="req-value">14 Days</span>
+                    </div>
+                    <div class="req-reason">
+                        "Family vacation out of state."
+                    </div>
+                </div>
+
+                <div class="req-actions">
+                    <button class="btn-action btn-reject">Reject</button>
+                    <button class="btn-action btn-approve">Approve</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historical Requests Table (Flow B / Flow 2.12 Revoke Leave) -->
+        <div class="panel">
+            <div class="panel-header">
+                <h2 class="panel-title">📅 Processed Requests</h2>
+            </div>
+            <div class="panel-body table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Leave ID</th>
+                            <th>Employee</th>
+                            <th>Dates</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#LV-0992</td>
+                            <td>David Thompson</td>
+                            <td>Sep 10 - Sep 11</td>
+                            <td>Personal Leave</td>
+                            <td><span class="badge badge-approved">Approved</span></td>
+                            <td>
+                                <button class="btn-sm-outline">Revoke</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#LV-0945</td>
+                            <td>Robert Johnson</td>
+                            <td>Aug 15 - Aug 15</td>
+                            <td>Sick Leave</td>
+                            <td><span class="badge badge-approved">Approved</span></td>
+                            <td>
+                                <button class="btn-sm-outline" disabled
+                                    style="opacity: 0.5; cursor: not-allowed;">Past</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#LV-0934</td>
+                            <td>Amanda Lee</td>
+                            <td>Jul 01 - Jul 14</td>
+                            <td>Annual Leave</td>
+                            <td><span class="badge badge-rejected">Rejected</span></td>
+                            <td>
+                                -
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#LV-0812</td>
+                            <td>Sarah Jenkins</td>
+                            <td>Jun 05 - Jun 05</td>
+                            <td>Sick Leave</td>
+                            <td><span class="badge badge-revoked">Revoked</span></td>
+                            <td>
+                                -
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const removeSkeleton = () => { document.body.classList.remove('page-loading'); };
+            if (document.readyState === 'complete') { removeSkeleton(); } 
+            else { window.addEventListener('load', removeSkeleton); }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bell = document.getElementById('notificationBell');
+            const panel = document.getElementById('notificationPanel');
+            const checkbox = bell ? bell.querySelector('input[type="checkbox"]') : null;
+            
+            if(bell && panel && checkbox) {
+                bell.addEventListener('click', (e) => {
+                    if(e.target !== checkbox) {
+                        e.preventDefault();
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    
+                    if(checkbox.checked) {
+                        panel.classList.add('active');
+                    } else {
+                        panel.classList.remove('active');
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if(!bell.contains(e.target) && !panel.contains(e.target)) {
+                        checkbox.checked = false;
+                        panel.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if(mobileBtn && sidebar) {
+                mobileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('active');
+                });
+                
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', (e) => {
+                    if(window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                        if(!sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                            sidebar.classList.remove('active');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

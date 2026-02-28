@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head(title='Manager Dashboard - RevWorkforce', links=~{::link})}">
+    <link rel="stylesheet" th:href="@{/styles/manager/manager-dashboard.css}">
+</head>
+
+<body class="page-loading">
+    <div class="skeleton-overlay"
+        style="display: flex; height: 100vh; width: 100%; background: var(--background); position: fixed; z-index: 9999; top: 0; left: 0;">
+        <aside
+            style="width: 260px; border-right: 1px solid var(--border); padding: 24px; background: white; display: flex; flex-direction: column; gap: 20px;">
+            <div class="skeleton" style="height: 48px; width: 120px; margin: 0 auto; border-radius: 4px;"></div>
+            <div style="padding: 0 24px; display: flex; flex-direction: column; gap: 12px; margin-top: 32px;">
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+            </div>
+        </aside>
+        <main style="flex: 1; padding: 32px 48px; margin-left: 260px;">
+            <div class="skeleton" style="height: 40px; width: 300px; margin-bottom: 12px; border-radius: 6px;"></div>
+            <div class="skeleton" style="height: 20px; width: 500px; margin-bottom: 32px; border-radius: 4px;"></div>
+            <div style="display: flex; gap: 32px;">
+                <div class="skeleton" style="height: 400px; flex: 1; border-radius: 12px;"></div>
+                <div class="skeleton" style="height: 400px; flex: 1; border-radius: 12px;"></div>
+            </div>
+        </main>
+    </div>
+    <!-- Sidebar -->
+    <aside th:replace="~{fragments/manager-sidebar :: sidebar(active='manager-dashboard.html')}"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content real-content">
+        <div class="page-header">
+            <div style="display: flex; align-items: center;">
+
+                <!-- Mobile Menu Toggle -->
+                <button id="mobileMenuBtn" class="mobile-menu-btn"
+                    style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--foreground); margin-right: 16px;">
+                    ☰
+                </button>
+                <div>
+                    <h1 class="page-title">Manager Dashboard</h1>
+                    <p class="page-subtitle">Review your team's requests and performance metrics.</p>
+                </div>
+            </div>
+            <div th:replace="~{fragments/header :: headerActions}"></div>
+        </div>
+
+        <!-- Stat Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-title">Team Size</span>
+                <h2 class="stat-value">12</h2>
+                <span class="stat-trend" style="color: var(--muted-foreground);">Direct reports</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-title">Pending Leave Requests</span>
+                <h2 class="stat-value">4</h2>
+                <span class="stat-trend" style="color: #ef4444;">Requires action</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-title">Performance Reviews Due</span>
+                <h2 class="stat-value">2</h2>
+                <span class="stat-trend">Upcoming this week</span>
+            </div>
+        </div>
+
+        <!-- Pending Leave Requests Table (Flow B) -->
+        <div class="panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Pending Team Leave Requests</h2>
+            </div>
+            <div class="panel-body table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Leave ID</th>
+                            <th>Employee Name</th>
+                            <th>Dates</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#LV-1024</td>
+                            <td><strong>Sarah Jenkins</strong><br><span
+                                    style="color: var(--muted-foreground); font-size: 0.85rem;">EMP042</span></td>
+                            <td>Oct 12 - Oct 14</td>
+                            <td>Sick Leave</td>
+                            <td><span class="badge badge-pending">Pending</span></td>
+                            <td>
+                                <button class="btn-sm btn-approve">Approve</button>
+                                <button class="btn-sm btn-reject">Reject</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#LV-1025</td>
+                            <td><strong>Michael Chen</strong><br><span
+                                    style="color: var(--muted-foreground); font-size: 0.85rem;">EMP018</span></td>
+                            <td>Oct 20 - Oct 25</td>
+                            <td>Annual Leave</td>
+                            <td><span class="badge badge-pending">Pending</span></td>
+                            <td>
+                                <button class="btn-sm btn-approve">Approve</button>
+                                <button class="btn-sm btn-reject">Reject</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#LV-1028</td>
+                            <td><strong>David Thompson</strong><br><span
+                                    style="color: var(--muted-foreground); font-size: 0.85rem;">EMP093</span></td>
+                            <td>Nov 01 - Nov 02</td>
+                            <td>Personal Leave</td>
+                            <td><span class="badge badge-pending">Pending</span></td>
+                            <td>
+                                <button class="btn-sm btn-approve">Approve</button>
+                                <button class="btn-sm btn-reject">Reject</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const removeSkeleton = () => { document.body.classList.remove('page-loading'); };
+            if (document.readyState === 'complete') { removeSkeleton(); }
+            else { window.addEventListener('load', removeSkeleton); }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bell = document.getElementById('notificationBell');
+            const panel = document.getElementById('notificationPanel');
+            const checkbox = bell ? bell.querySelector('input[type="checkbox"]') : null;
+
+            if (bell && panel && checkbox) {
+                bell.addEventListener('click', (e) => {
+                    if (e.target !== checkbox) {
+                        e.preventDefault();
+                        checkbox.checked = !checkbox.checked;
+                    }
+
+                    if (checkbox.checked) {
+                        panel.classList.add('active');
+                    } else {
+                        panel.classList.remove('active');
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!bell.contains(e.target) && !panel.contains(e.target)) {
+                        checkbox.checked = false;
+                        panel.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.sidebar');
+
+            if (mobileBtn && sidebar) {
+                mobileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('active');
+                });
+
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                        if (!sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                            sidebar.classList.remove('active');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

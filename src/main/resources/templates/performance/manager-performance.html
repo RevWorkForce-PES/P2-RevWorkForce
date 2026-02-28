@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head(title='Performance Reviews - Manager - RevWorkforce', links=~{::link})}">
+    <link rel="stylesheet" th:href="@{/styles/manager/manager-performance.css}">
+</head>
+
+<body class="page-loading">
+    <div class="skeleton-overlay" style="display: flex; height: 100vh; width: 100%; background: var(--background); position: fixed; z-index: 9999; top: 0; left: 0;">
+        <aside style="width: 260px; border-right: 1px solid var(--border); padding: 24px; background: white; display: flex; flex-direction: column; gap: 20px;">
+            <div class="skeleton" style="height: 48px; width: 120px; margin: 0 auto; border-radius: 4px;"></div>
+            <div style="padding: 0 24px; display: flex; flex-direction: column; gap: 12px; margin-top: 32px;">
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+                <div class="skeleton" style="height: 44px; border-radius: 6px;"></div>
+            </div>
+        </aside>
+        <main style="flex: 1; padding: 32px 48px; margin-left: 260px;">
+            <div class="skeleton" style="height: 40px; width: 300px; margin-bottom: 12px; border-radius: 6px;"></div>
+            <div class="skeleton" style="height: 20px; width: 500px; margin-bottom: 32px; border-radius: 4px;"></div>
+            <div style="display: flex; gap: 32px;">
+                <div class="skeleton" style="height: 400px; flex: 1; border-radius: 12px;"></div>
+                <div class="skeleton" style="height: 400px; flex: 1; border-radius: 12px;"></div>
+            </div>
+        </main>
+    </div>
+    <!-- Sidebar -->
+    <aside th:replace="~{fragments/manager-sidebar :: sidebar(active='manager-performance.html')}"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content real-content">
+        <div class="page-header">
+            <div style="display: flex; align-items: center;">
+
+            <!-- Mobile Menu Toggle -->
+            <button id="mobileMenuBtn" class="mobile-menu-btn" style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--foreground); margin-right: 16px;">
+                ☰
+            </button>
+                <div>
+                <h1 class="page-title">Performance Reviews</h1>
+                <p class="page-subtitle">Track Q4 performance, review self-assessments, and submit manager feedback.</p>
+                </div>
+            </div>
+            <div th:replace="~{fragments/header :: headerActions}"></div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span class="metric-title">Self-Reviews Submitted</span>
+                <h2 class="metric-value">4 / 12</h2>
+                <span class="metric-trend"
+                    style="font-size: 0.85rem; color: var(--muted-foreground); margin-top: 8px;">Waiting on team</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-title">Manager Reviews Due</span>
+                <h2 class="metric-value">4</h2>
+                <span class="metric-trend" style="font-size: 0.85rem; color: #ef4444; margin-top: 8px;">Action
+                    required</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-title">Team Rating Average</span>
+                <h2 class="metric-value">4.2 / 5</h2>
+                <span class="metric-trend" style="font-size: 0.85rem; color: #10b981; margin-top: 8px;">Based on
+                    completed reviews</span>
+            </div>
+        </div>
+
+        <div class="review-grid">
+            <!-- Left Side: List of employees -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">👥 Team Members</h2>
+                </div>
+                <div class="panel-body panel-list table-responsive">
+                    <table class="table">
+                        <tbody>
+                            <!-- Selected State -->
+                            <tr class="selected">
+                                <td>
+                                    <strong>Sarah Jenkins</strong><br>
+                                    <span style="font-size: 0.85rem; color: var(--muted-foreground);">Software Engineer
+                                        II</span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-submitted">Submitted</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>David Thompson</strong><br>
+                                    <span style="font-size: 0.85rem; color: var(--muted-foreground);">Senior
+                                        Developer</span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-submitted">Submitted</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Emily Wong</strong><br>
+                                    <span style="font-size: 0.85rem; color: var(--muted-foreground);">Data
+                                        Analyst</span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-submitted">Submitted</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Michael Chen</strong><br>
+                                    <span style="font-size: 0.85rem; color: var(--muted-foreground);">QA
+                                        Associate</span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-draft">Draft</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right Side: The review form -->
+            <div class="panel panel-delay">
+                <div class="panel-header" style="background-color: white;">
+                    <h2 class="panel-title" style="flex: 1;">
+                        <span
+                            style="display: block; font-size: 1.5rem; color: var(--foreground); margin-bottom: 4px;">Sarah
+                            Jenkins</span>
+                        <span
+                            style="display: block; font-size: 0.95rem; color: var(--muted-foreground); font-weight: 500;">Q4
+                            2023 Performance Review Lifecycle</span>
+                    </h2>
+                    <span class="badge badge-submitted" style="font-size: 0.9rem; padding: 6px 14px;">In Progress: Phase
+                        2</span>
+                </div>
+                <div class="panel-body" style="background-color: #fafbfc;">
+                    <form action="#" method="POST">
+
+                        <div
+                            style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px dashed var(--border);">
+                            <h3
+                                style="margin-top: 0; font-size: 1.1rem; color: var(--foreground); margin-bottom: 16px;">
+                                Phase 1: Self-Review Assessment</h3>
+
+                            <div class="form-group">
+                                <label class="form-label">Key Achievements (Employee Input)</label>
+                                <textarea class="form-control" disabled>1. Successfully shipped the new RevAuth module 2 weeks ahead of schedule.
+2. Refactored the core legacy API, reducing latency by 45%.
+3. Mentored 2 new hires in the QA department on our testing standards.</textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Areas for Growth (Employee Input)</label>
+                                <textarea class="form-control"
+                                    disabled>I would like to take more ownership in architecture meetings and learn more about Kubernetes deployments to assist the DevOps team.</textarea>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3
+                                style="margin-top: 0; font-size: 1.1rem; color: var(--foreground); margin-bottom: 16px;">
+                                Phase 2: Manager Feedback (Action Required)</h3>
+
+                            <div class="form-group">
+                                <label class="form-label">Manager Assessment & Feedback</label>
+                                <textarea class="form-control"
+                                    placeholder="Provide constructive feedback regarding Sarah's performance this quarter..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Overall Rating</label>
+                                <select class="form-control" style="width: 200px;">
+                                    <option value="" disabled selected>Select Rating</option>
+                                    <option value="5">5 - Exceptional</option>
+                                    <option value="4">4 - Exceeds Expectations</option>
+                                    <option value="3">3 - Meets Expectations</option>
+                                    <option value="2">2 - Needs Improvement</option>
+                                    <option value="1">1 - Unsatisfactory</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn"
+                                style="background: transparent; color: var(--muted-foreground); border: 1px solid transparent;">Save
+                                Draft</button>
+                            <button type="submit" class="btn-group">
+    <span class="btn-group-fill"></span>
+    <span class="btn-group-svg1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-auto h-full opacity-100 object-stretch" viewBox="0 0 487 487">
+            <path fill-opacity=".1" fill-rule="nonzero" fill="#FFF" d="M0 .3c67 2.1 134.1 4.3 186.3 37 52.2 32.7 89.6 95.8 112.8 150.6 23.2 54.8 32.3 101.4 61.2 149.9 28.9 48.4 77.7 98.8 126.4 149.2H0V.3z"></path>
+        </svg>
+    </span>
+    <span class="btn-group-svg2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="object-cover w-full h-full" viewBox="0 0 487 487">
+            <path fill-opacity=".1" fill-rule="nonzero" fill="#FFF" d="M487 486.7c-66.1-3.6-132.3-7.3-186.3-37s-95.9-85.3-126.2-137.2c-30.4-51.8-49.3-99.9-76.5-151.4C70.9 109.6 35.6 54.8.3 0H487v486.7z"></path>
+        </svg>
+    </span>
+    <span class="btn-group-overlay"></span>
+    <span class="btn-group-text">Submit Final Review</span>
+</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const removeSkeleton = () => { document.body.classList.remove('page-loading'); };
+            if (document.readyState === 'complete') { removeSkeleton(); } 
+            else { window.addEventListener('load', removeSkeleton); }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bell = document.getElementById('notificationBell');
+            const panel = document.getElementById('notificationPanel');
+            const checkbox = bell ? bell.querySelector('input[type="checkbox"]') : null;
+            
+            if(bell && panel && checkbox) {
+                bell.addEventListener('click', (e) => {
+                    if(e.target !== checkbox) {
+                        e.preventDefault();
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    
+                    if(checkbox.checked) {
+                        panel.classList.add('active');
+                    } else {
+                        panel.classList.remove('active');
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if(!bell.contains(e.target) && !panel.contains(e.target)) {
+                        checkbox.checked = false;
+                        panel.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if(mobileBtn && sidebar) {
+                mobileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('active');
+                });
+                
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', (e) => {
+                    if(window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                        if(!sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                            sidebar.classList.remove('active');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
