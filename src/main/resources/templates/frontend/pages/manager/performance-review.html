@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Review - RevWorkForce Manager</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar page-title="Performance Review"></app-navbar>
+            <div class="page-wrapper">
+                <div class="card">
+                    <div class="tabs">
+                        <button class="tab-btn active" data-target="review-team">Review Team Performance</button>
+                        <button class="tab-btn" data-target="summary-report">Performance Summary Report</button>
+                    </div>
+
+                    <!-- Review Team Tab -->
+                    <div id="review-team" class="tab-content active">
+                        <div class="flex-space-between mb-3 bg-light"
+                            style="background:#f8fafc; padding: 1rem; border-radius:8px; border:1px solid var(--border-color);">
+                            <div>
+                                <h4>Q1 2026 Performance Cycle</h4>
+                                <p class="text-muted" style="font-size:0.85rem; margin-bottom: 0;">Status: Manager
+                                    Review Phase (Ends Mar 15)</p>
+                            </div>
+                            <span class="badge badge-pending">Active Phase</span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Employee</th>
+                                        <th>Self-Review Status</th>
+                                        <th>Manager Review</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Alice Smith</td>
+                                        <td><span class="badge badge-approved">Submitted</span></td>
+                                        <td><span class="badge badge-pending">Pending Review</span></td>
+                                        <td><button class="btn btn-primary btn-sm"
+                                                onclick="alert('Review completed')">Complete Review</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Charlie Brown</td>
+                                        <td><span class="badge badge-rejected">Not Started</span></td>
+                                        <td><span class="badge"
+                                                style="background:#e2e8f0; color:#64748b;">Blocked</span></td>
+                                        <td><button class="btn btn-secondary btn-sm" disabled>Complete Review</button>
+                                            <button class="btn btn-secondary btn-sm text-primary"
+                                                style="background:none; border:none; padding-left:5px;"
+                                                onclick="alert('Nudge sent')"><i class="fas fa-bell"></i> Nudge</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Diana Prince</td>
+                                        <td><span class="badge badge-approved">Submitted</span></td>
+                                        <td><span class="badge badge-approved">Completed</span></td>
+                                        <td><button class="btn btn-secondary btn-sm"
+                                                onclick="alert('Viewing feedback')">View Feedback</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Summary Report Tab -->
+                    <div id="summary-report" class="tab-content">
+                        <h3 class="mb-3">Q4 2025 Summary</h3>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                            <div style="border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 8px;">
+                                <h4>Overall Team Rating</h4>
+                                <div style="display:flex; align-items:flex-end; gap:0.5rem; margin-top: 1rem;">
+                                    <h2 style="font-size: 3rem; margin:0; line-height:1; color: var(--primary);">4.2
+                                    </h2>
+                                    <span class="text-muted mb-1">/ 5.0</span>
+                                </div>
+                                <p class="text-muted mt-2" style="font-size: 0.85rem;">Exceeds Expectations</p>
+                            </div>
+                            <div style="border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 8px;">
+                                <h4>Rating Distribution</h4>
+                                <ul style="list-style: none; padding: 0; margin-top: 1rem;">
+                                    <li style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span
+                                            style="color:var(--text-muted);">5.0 (Outstanding)</span> <strong>2</strong>
+                                    </li>
+                                    <li style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span
+                                            style="color:var(--text-muted);">4.0 (Exceeds)</span> <strong>8</strong>
+                                    </li>
+                                    <li style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span
+                                            style="color:var(--text-muted);">3.0 (Meets)</span> <strong>3</strong></li>
+                                    <li style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span
+                                            style="color:var(--text-muted);">Below 3.0</span> <strong>1</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-secondary" onclick="alert('Downloading report...')"><i
+                                class="fas fa-download"></i> Download Full Master Report
+                            (PDF)</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Load Scripts -->
+    <script src="../../js/components.js"></script>
+    <script src="../../js/app.js"></script>
+</body>
+
+</html>

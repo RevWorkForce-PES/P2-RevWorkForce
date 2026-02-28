@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Management - RevWorkForce Manager</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar page-title="Team Management"></app-navbar>
+            <div class="page-wrapper">
+                <div class="card">
+                    <div class="tabs">
+                        <button class="tab-btn active" data-target="team-profiles">My Team / Profiles</button>
+                        <button class="tab-btn" data-target="team-attendance">Team Attendance</button>
+                        <button class="tab-btn" data-target="team-goals">Goals / Progress</button>
+                    </div>
+
+                    <!-- Profiles Tab -->
+                    <div id="team-profiles" class="tab-content active">
+                        <div class="flex-space-between mb-3">
+                            <div class="form-group" style="margin-bottom: 0; width: 350px;">
+                                <input type="text" class="form-control" placeholder="Search team members by name...">
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Designation</th>
+                                        <th>Email</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>EMP001</td>
+                                        <td>Alice Smith</td>
+                                        <td>Software Eng</td>
+                                        <td>alice@example.com</td>
+                                        <td><button class="btn btn-secondary btn-sm"
+                                                onclick="alert('Viewing profile for EMP001')"><i class="fas fa-eye"></i>
+                                                View
+                                                Profile</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>EMP045</td>
+                                        <td>Charlie Brown</td>
+                                        <td>Software Eng II</td>
+                                        <td>charlie@example.com</td>
+                                        <td><button class="btn btn-secondary btn-sm"
+                                                onclick="alert('Viewing profile for EMP045')"><i class="fas fa-eye"></i>
+                                                View
+                                                Profile</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Tab -->
+                    <div id="team-attendance" class="tab-content">
+                        <div class="flex-space-between mb-3">
+                            <div class="form-group" style="margin-bottom: 0; width: 250px;">
+                                <input type="date" class="form-control" value="2026-03-01">
+                            </div>
+                            <button class="btn btn-secondary"><i class="fas fa-download"></i> Export Report</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Check In</th>
+                                        <th>Check Out</th>
+                                        <th>Total Hours</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Alice Smith</td>
+                                        <td>09:00 AM</td>
+                                        <td>--</td>
+                                        <td>Ongoing</td>
+                                        <td><span class="badge badge-approved">Present</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Charlie Brown</td>
+                                        <td>--</td>
+                                        <td>--</td>
+                                        <td>0</td>
+                                        <td><span class="badge badge-rejected">Absent</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Goals Tab -->
+                    <div id="team-goals" class="tab-content">
+                        <div
+                            style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div
+                                style="background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 8px; border: 1px solid #10b981; text-align: center;">
+                                <h2 style="color: #10b981; margin: 0; font-size: 2rem;">45%</h2>
+                                <p style="margin: 0; color: var(--text-muted); font-size: 0.85rem;">Avg Completion</p>
+                            </div>
+                            <div
+                                style="background: rgba(59, 130, 246, 0.1); padding: 1rem; border-radius: 8px; border: 1px solid #3b82f6; text-align: center;">
+                                <h2 style="color: #3b82f6; margin: 0; font-size: 2rem;">12</h2>
+                                <p style="margin: 0; color: var(--text-muted); font-size: 0.85rem;">Active OKRs</p>
+                            </div>
+                            <div
+                                style="background: rgba(245, 158, 11, 0.1); padding: 1rem; border-radius: 8px; border: 1px solid #f59e0b; text-align: center;">
+                                <h2 style="color: #f59e0b; margin: 0; font-size: 2rem;">2</h2>
+                                <p style="margin: 0; color: var(--text-muted); font-size: 0.85rem;">At Risk</p>
+                            </div>
+                        </div>
+
+                        <p class="mb-3 text-muted">Track OKRs and ongoing goals for your direct reports.</p>
+                        <div class="card mb-3" style="box-shadow: none; border-color: var(--border-color);">
+                            <div class="flex-space-between mb-2">
+                                <h4 style="margin: 0;">Alice Smith - API Refactoring</h4>
+                                <span class="badge badge-approved">80%</span>
+                            </div>
+                            <div
+                                style="background: #e2e8f0; border-radius: 4px; height: 8px; width: 100%; margin-bottom: 1rem;">
+                                <div style="background: var(--primary); width: 80%; height: 100%; border-radius: 4px;">
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary btn-sm" onclick="alert('Add feedback form opened')">Add
+                                Feedback</button>
+                        </div>
+
+                        <div class="card" style="box-shadow: none; border-color: var(--border-color);">
+                            <div class="flex-space-between mb-2">
+                                <h4 style="margin: 0;">Charlie Brown - Q1 Feature Release</h4>
+                                <span class="badge badge-pending">30%</span>
+                            </div>
+                            <div
+                                style="background: #e2e8f0; border-radius: 4px; height: 8px; width: 100%; margin-bottom: 1rem;">
+                                <div style="background: #f59e0b; width: 30%; height: 100%; border-radius: 4px;"></div>
+                            </div>
+                            <button class="btn btn-secondary btn-sm" onclick="alert('Add feedback form opened')">Add
+                                Feedback</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Load Scripts -->
+    <script src="../../js/components.js"></script>
+    <script src="../../js/app.js"></script>
+</body>
+
+</html>
