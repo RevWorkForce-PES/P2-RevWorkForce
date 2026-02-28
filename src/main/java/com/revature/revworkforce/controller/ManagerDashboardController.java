@@ -24,10 +24,10 @@ import java.util.List;
 @RequestMapping("/manager")
 @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
 public class ManagerDashboardController {
-
+    
     @Autowired
     private EmployeeRepository employeeRepository;
-
+    
     /**
      * Display manager dashboard.
      * 
@@ -37,21 +37,21 @@ public class ManagerDashboardController {
     @GetMapping("/dashboard")
     public String managerDashboard(Model model) {
         String employeeId = SecurityUtils.getCurrentUsername();
-
+        
         // Get current user
         Employee currentUser = employeeRepository.findById(employeeId).orElse(null);
-
+        
         if (currentUser != null) {
             model.addAttribute("currentUser", currentUser);
             model.addAttribute("fullName", currentUser.getFullName());
-
+            
             // Get team members (employees reporting to this manager)
             List<Employee> teamMembers = employeeRepository.findByManager_EmployeeId(employeeId);
             model.addAttribute("teamSize", teamMembers.size());
         }
-
+        
         model.addAttribute("pageTitle", "Manager Dashboard");
-
-        return "dashboard/manager-dashboard";
+        
+        return "manager/dashboard";
     }
 }

@@ -23,10 +23,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/admin")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminDashboardController {
-
+    
     @Autowired
     private EmployeeRepository employeeRepository;
-
+    
     /**
      * Display admin dashboard.
      * 
@@ -36,23 +36,23 @@ public class AdminDashboardController {
     @GetMapping("/dashboard")
     public String adminDashboard(Model model) {
         String employeeId = SecurityUtils.getCurrentUsername();
-
+        
         // Get current user
         Employee currentUser = employeeRepository.findById(employeeId).orElse(null);
-
+        
         if (currentUser != null) {
             model.addAttribute("currentUser", currentUser);
             model.addAttribute("fullName", currentUser.getFullName());
         }
-
+        
         // Get statistics
         long totalEmployees = employeeRepository.count();
         long activeEmployees = employeeRepository.countByStatus(EmployeeStatus.ACTIVE);
-
+        
         model.addAttribute("totalEmployees", totalEmployees);
         model.addAttribute("activeEmployees", activeEmployees);
         model.addAttribute("pageTitle", "Admin Dashboard");
-
-        return "dashboard/admin-dashboard";
+        
+        return "admin/dashboard";
     }
 }
