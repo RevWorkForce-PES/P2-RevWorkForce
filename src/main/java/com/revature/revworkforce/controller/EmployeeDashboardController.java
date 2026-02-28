@@ -22,10 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/employee")
 @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
 public class EmployeeDashboardController {
-    
+
     @Autowired
     private EmployeeRepository employeeRepository;
-    
+
     /**
      * Display employee dashboard.
      * 
@@ -35,21 +35,21 @@ public class EmployeeDashboardController {
     @GetMapping("/dashboard")
     public String employeeDashboard(Model model) {
         String employeeId = SecurityUtils.getCurrentUsername();
-        
+
         // Get current user
         Employee currentUser = employeeRepository.findById(employeeId).orElse(null);
-        
+
         if (currentUser != null) {
             model.addAttribute("currentUser", currentUser);
             model.addAttribute("fullName", currentUser.getFullName());
-            model.addAttribute("designation", currentUser.getDesignation() != null ? 
-                              currentUser.getDesignation().getDesignationName() : "N/A");
-            model.addAttribute("department", currentUser.getDepartment() != null ? 
-                              currentUser.getDepartment().getDepartmentName() : "N/A");
+            model.addAttribute("designation",
+                    currentUser.getDesignation() != null ? currentUser.getDesignation().getDesignationName() : "N/A");
+            model.addAttribute("department",
+                    currentUser.getDepartment() != null ? currentUser.getDepartment().getDepartmentName() : "N/A");
         }
-        
+
         model.addAttribute("pageTitle", "Employee Dashboard");
-        
-        return "employee/dashboard";
+
+        return "dashboard/employee-dashboard";
     }
 }
