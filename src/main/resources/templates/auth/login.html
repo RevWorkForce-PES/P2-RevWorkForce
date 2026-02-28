@@ -1,133 +1,147 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log in - RevWorkforce</title>
-    <!-- Thymeleaf compatibility note: adjust paths to th:href="@{/styles/global.css}" -->
-    <link rel="stylesheet" th:href="@{/styles/common/global.css}">
-    <link rel="stylesheet" th:href="@{/styles/auth/auth.css}">
-</head>
-
-<body class="page-loading">
-    <div class="auth-wrapper">
-        <div class="auth-image">
-            <video autoplay muted loop playsinline class="auth-video">
-                <source th:src="@{/assets/login.mp4}" type="video/mp4">
-            </video>
-            <div class="auth-image-overlay"></div>
-            <div class="auth-image-content">
-                <h1>Welcome to City Voice</h1>
-                <p>Your platform for civic engagement.</p>
-            </div>
-        </div>
-        <div class="auth-form-container">
-            <!-- Skeleton Loader -->
-            <div class="skeleton-overlay" style="width: 100%; max-width: 400px; padding: 20px;">
-                <div style="display: flex; justify-content: center; margin-bottom: 0px;">
-                    <div class="skeleton" style="width: 220px; height: 220px; border-radius: 50%;"></div>
-                </div>
-                <div class="skeleton skeleton-text" style="height: 36px; width: 60%; margin: 20px auto 30px;"></div>
-                <div class="skeleton skeleton-text" style="width: 20%;"></div>
-                <div class="skeleton skeleton-text" style="height: 50px; margin-bottom: 20px; border-radius: 12px;">
-                </div>
-                <div class="skeleton skeleton-text" style="width: 25%;"></div>
-                <div class="skeleton skeleton-text" style="height: 50px; margin-bottom: 20px; border-radius: 12px;">
-                </div>
-                <div class="skeleton skeleton-btn" style="height: 50px; border-radius: 12px;"></div>
-            </div>
-
-            <form class="form real-content" action="#" method="POST">
-                <div class="form-header">
-                    <div style="text-align: center; margin-bottom: 0px;">
-                        <a th:href="@{/}">
-                            <img th:src="@{/assets/logo complete.png}" alt="Logo" class="auth-logo">
-                        </a>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+    <div class="min-vh-100 d-flex align-items-center" 
+         style="background: linear-gradient(135deg, #FB8C00 0%, #EF6C00 100%);">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-10 col-lg-8">
+                    <div class="card shadow-lg">
+                        <div class="row g-0">
+                            <!-- Left Panel - Branding -->
+                            <div class="col-md-6 d-none d-md-block" 
+                                 style="background: linear-gradient(135deg, #FB8C00 0%, #EF6C00 100%); border-radius: 12px 0 0 12px;">
+                                <div class="h-100 d-flex flex-column justify-content-center align-items-center text-white p-5">
+                                    <div class="mb-4">
+                                        <i class="fas fa-briefcase fa-5x mb-3" style="animation: pulse 2s infinite;"></i>
+                                    </div>
+                                    <h2 class="fw-bold mb-3">RevWorkForce</h2>
+                                    <p class="text-center mb-4">Human Resource Management System</p>
+                                    
+                                    <div class="mt-4 w-100">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <i class="fas fa-check-circle fa-lg me-3"></i>
+                                            <span>Employee Management</span>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-3">
+                                            <i class="fas fa-check-circle fa-lg me-3"></i>
+                                            <span>Leave Management</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-check-circle fa-lg me-3"></i>
+                                            <span>Performance Tracking</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Panel - Login Form -->
+                            <div class="col-md-6">
+                                <div class="p-5">
+                                    <div class="text-center mb-4">
+                                        <h3 class="fw-bold" style="color: #FB8C00;">Welcome Back!</h3>
+                                        <p class="text-muted">Please login to continue</p>
+                                    </div>
+                                    
+                                    <!-- Error/Success Messages -->
+                                    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        <i class="fas fa-exclamation-circle me-2"></i>
+                                        <span th:text="${error}">Error message</span>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                    
+                                    <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        <span th:text="${message}">Success message</span>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                    
+                                    <!-- Login Form -->
+                                    <form th:action="@{/login}" method="post">
+                                        <div class="mb-3">
+                                            <label for="username" class="form-label">
+                                                <i class="fas fa-user me-1"></i>Username
+                                            </label>
+                                            <input type="text" class="form-control form-control-lg" 
+                                                   id="username" name="username" 
+                                                   placeholder="Employee ID or Email" 
+                                                   required autofocus>
+                                            <small class="text-muted">Enter your Employee ID or Email</small>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="password" class="form-label">
+                                                <i class="fas fa-lock me-1"></i>Password
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="password" class="form-control form-control-lg" 
+                                                       id="password" name="password" 
+                                                       placeholder="Enter your password" 
+                                                       required>
+                                                <button class="btn btn-outline-secondary" type="button" 
+                                                        onclick="togglePassword()">
+                                                    <i class="fas fa-eye" id="toggleIcon"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" 
+                                                   id="remember-me" name="remember-me">
+                                            <label class="form-check-label" for="remember-me">
+                                                Remember me
+                                            </label>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn" 
+                                                style="background-color: #FB8C00; color:white; font-weight:bold;" 
+                                                class="btn-lg w-100 mb-3">
+                                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                                        </button>
+                                    </form>
+                                    
+                                    <!-- Demo Credentials -->
+                                    <div class="alert alert-info mt-4">
+                                        <h6 class="fw-bold mb-2">
+                                            <i class="fas fa-info-circle me-2"></i>Demo Credentials
+                                        </h6>
+                                        <small>
+                                            <strong>Admin:</strong> ADM001 / password123<br>
+                                            <strong>Manager:</strong> MGR001 / password123<br>
+                                            <strong>Employee:</strong> EMP001 / password123
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <h2>Welcome <span style="color: #ea580c;">back</span></h2>
-                </div>
-
-                <!-- Error State (Visible for demonstration, use Thymeleaf th:if in production) -->
-                <div class="alert alert-error"
-                    style="background-color: #fef2f2; color: #ef4444; border: 1px solid #fca5a5; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-size: 0.9rem; display: none; align-items: flex-start; gap: 8px;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                    <span><strong>Login Failed:</strong> Invalid email or password. Please try again. (3 attempts
-                        remaining)</span>
-                </div>
-
-                <!-- Account Locked State (Hidden by default) -->
-                <div class="alert alert-warning"
-                    style="background-color: #fffbeb; color: #b45309; border: 1px solid #fcd34d; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-size: 0.9rem; display: none; align-items: flex-start; gap: 8px;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
-                        <path
-                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
-                        </path>
-                        <line x1="12" y1="9" x2="12" y2="13"></line>
-                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                    </svg>
-                    <span><strong>Account Locked:</strong> Maximum login attempts exceeded. Please contact your
-                        administrator.</span>
-                </div>
-
-                <div class="flex-column">
-                    <label>Email</label>
-                </div>
-                <div class="inputForm">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="4"></circle>
-                        <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path>
-                    </svg>
-                    <input type="email" class="input" placeholder="Enter your Email" required name="email">
-                </div>
-
-                <div class="flex-column" style="margin-top: 16px;">
-                    <label>Password</label>
-                </div>
-                <!-- lock icon for password -->
-                <div class="inputForm">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                    <input type="password" class="input" placeholder="Enter your Password" required name="password">
-                </div>
-
-                <div class="flex-row">
-                    <div>
-                        <input type="checkbox" id="remember" name="remember">
-                        <label for="remember">Remember me</label>
+                    
+                    <div class="text-center mt-4 text-white">
+                        <small>&copy; 2026 RevWorkForce. All rights reserved.</small>
                     </div>
-                    <a th:href="@{/forgot-password}" class="span" style="color: #2563eb;">Forgot password?</a>
                 </div>
-
-                <button type="submit" class="button-submit" style="background-color: #111; color: white;">Sign
-                    In</button>
-            </form>
+            </div>
         </div>
     </div>
-
+    
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const removeSkeleton = () => {
-                document.body.classList.remove('page-loading');
-            };
-
-            if (document.readyState === 'complete') {
-                removeSkeleton();
+        function togglePassword() {
+            const passwordField = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
             } else {
-                window.addEventListener('load', removeSkeleton);
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
             }
-        });
+        }
+        
+       
     </script>
 </body>
-
 </html>
