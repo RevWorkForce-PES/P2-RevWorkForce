@@ -4,18 +4,18 @@
 <body>
     <div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
         <div class="text-center">
-            <i class="fas fa-question-circle fa-5x text-warning mb-4"></i>
-            <h1 class="display-1 fw-bold text-warning">404</h1>
-            <h2 class="mb-4">Page Not Found</h2>
+            <i class="fas fa-exclamation-triangle fa-5x text-danger mb-4"></i>
+            <h1 class="display-1 fw-bold text-danger">500</h1>
+            <h2 class="mb-4">Internal Server Error</h2>
             <p class="lead text-muted mb-4" th:text="${errorMessage}">
-                The page you are looking for was not found.
+                An internal server error occurred. Please try again later.
             </p>
             <div class="d-flex gap-2 justify-content-center">
                 <a th:href="@{/dashboard}" class="btn btn-primary btn-lg">
                     <i class="fas fa-home me-2"></i>Go to Dashboard
                 </a>
-                <a href="javascript:history.back()" class="btn btn-outline-secondary btn-lg">
-                    <i class="fas fa-arrow-left me-2"></i>Go Back
+                <a href="javascript:location.reload()" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-redo me-2"></i>Retry
                 </a>
             </div>
         </div>

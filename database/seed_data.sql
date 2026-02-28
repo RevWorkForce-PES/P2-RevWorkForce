@@ -301,6 +301,9 @@ INSERT INTO EMPLOYEES (
     '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYDpLABB5dW', 'N'
 );
 
+UPDATE employees
+SET password_hash = '$2a$12$u0tDD6pKq/rNmFFHziwEWO7FEb6W0hi.OYaFie3nOC5iITIUhkk3S';
+
 COMMIT;
 
 BEGIN
