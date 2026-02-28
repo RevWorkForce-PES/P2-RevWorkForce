@@ -1,147 +1,170 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header :: head}"></head>
+
 <body>
-    <div class="min-vh-100 d-flex align-items-center" 
-         style="background: linear-gradient(135deg, #FB8C00 0%, #EF6C00 100%);">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-10 col-lg-8">
-                    <div class="card shadow-lg">
-                        <div class="row g-0">
-                            <!-- Left Panel - Branding -->
-                            <div class="col-md-6 d-none d-md-block" 
-                                 style="background: linear-gradient(135deg, #FB8C00 0%, #EF6C00 100%); border-radius: 12px 0 0 12px;">
-                                <div class="h-100 d-flex flex-column justify-content-center align-items-center text-white p-5">
-                                    <div class="mb-4">
-                                        <i class="fas fa-briefcase fa-5x mb-3" style="animation: pulse 2s infinite;"></i>
-                                    </div>
-                                    <h2 class="fw-bold mb-3">RevWorkForce</h2>
-                                    <p class="text-center mb-4">Human Resource Management System</p>
-                                    
-                                    <div class="mt-4 w-100">
-                                        <div class="d-flex align-items-center mb-3">
-                                            <i class="fas fa-check-circle fa-lg me-3"></i>
-                                            <span>Employee Management</span>
-                                        </div>
-                                        <div class="d-flex align-items-center mb-3">
-                                            <i class="fas fa-check-circle fa-lg me-3"></i>
-                                            <span>Leave Management</span>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-check-circle fa-lg me-3"></i>
-                                            <span>Performance Tracking</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Right Panel - Login Form -->
-                            <div class="col-md-6">
-                                <div class="p-5">
-                                    <div class="text-center mb-4">
-                                        <h3 class="fw-bold" style="color: #FB8C00;">Welcome Back!</h3>
-                                        <p class="text-muted">Please login to continue</p>
-                                    </div>
-                                    
-                                    <!-- Error/Success Messages -->
-                                    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                                        <i class="fas fa-exclamation-circle me-2"></i>
-                                        <span th:text="${error}">Error message</span>
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                    </div>
-                                    
-                                    <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
-                                        <i class="fas fa-check-circle me-2"></i>
-                                        <span th:text="${message}">Success message</span>
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                    </div>
-                                    
-                                    <!-- Login Form -->
-                                    <form th:action="@{/login}" method="post">
-                                        <div class="mb-3">
-                                            <label for="username" class="form-label">
-                                                <i class="fas fa-user me-1"></i>Username
-                                            </label>
-                                            <input type="text" class="form-control form-control-lg" 
-                                                   id="username" name="username" 
-                                                   placeholder="Employee ID or Email" 
-                                                   required autofocus>
-                                            <small class="text-muted">Enter your Employee ID or Email</small>
-                                        </div>
-                                        
-                                        <div class="mb-3">
-                                            <label for="password" class="form-label">
-                                                <i class="fas fa-lock me-1"></i>Password
-                                            </label>
-                                            <div class="input-group">
-                                                <input type="password" class="form-control form-control-lg" 
-                                                       id="password" name="password" 
-                                                       placeholder="Enter your password" 
-                                                       required>
-                                                <button class="btn btn-outline-secondary" type="button" 
-                                                        onclick="togglePassword()">
-                                                    <i class="fas fa-eye" id="toggleIcon"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="mb-3 form-check">
-                                            <input type="checkbox" class="form-check-input" 
-                                                   id="remember-me" name="remember-me">
-                                            <label class="form-check-label" for="remember-me">
-                                                Remember me
-                                            </label>
-                                        </div>
-                                        
-                                        <button type="submit" class="btn" 
-                                                style="background-color: #FB8C00; color:white; font-weight:bold;" 
-                                                class="btn-lg w-100 mb-3">
-                                            <i class="fas fa-sign-in-alt me-2"></i>Login
-                                        </button>
-                                    </form>
-                                    
-                                    <!-- Demo Credentials -->
-                                    <div class="alert alert-info mt-4">
-                                        <h6 class="fw-bold mb-2">
-                                            <i class="fas fa-info-circle me-2"></i>Demo Credentials
-                                        </h6>
-                                        <small>
-                                            <strong>Admin:</strong> ADM001 / password123<br>
-                                            <strong>Manager:</strong> MGR001 / password123<br>
-                                            <strong>Employee:</strong> EMP001 / password123
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="text-center mt-4 text-white">
-                        <small>&copy; 2026 RevWorkForce. All rights reserved.</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        function togglePassword() {
-            const passwordField = document.getElementById('password');
-            const toggleIcon = document.getElementById('toggleIcon');
-            
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordField.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-            }
-        }
-        
-       
-    </script>
+	<div class="min-vh-100 d-flex align-items-center"
+     style="background-color: #FFF3E0;">
+
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-md-10 col-lg-8">
+
+					<div class="card shadow-lg rounded-4 overflow-hidden">
+						<div class="row g-0">
+
+							<!-- Left Panel -->
+							<div class="col-md-6 d-none d-md-block"
+								style="background: linear-gradient(135deg, #FB8C00 0%, #EF6C00 100%);">
+
+								<div
+									class="h-100 d-flex flex-column justify-content-center align-items-center text-white p-5">
+
+									<div class="mb-4">
+										<i class="fas fa-briefcase fa-5x mb-3"
+											style="animation: pulse 2s infinite;"></i>
+									</div>
+
+									<h2 class="fw-bold mb-3">RevWorkForce</h2>
+									<p class="text-center mb-4">Human Resource Management
+										System</p>
+
+									<div class="mt-4 w-100">
+										<div class="d-flex align-items-center mb-3">
+											<i class="fas fa-check-circle fa-lg me-3"></i> <span>Employee
+												Management</span>
+										</div>
+										<div class="d-flex align-items-center mb-3">
+											<i class="fas fa-check-circle fa-lg me-3"></i> <span>Leave
+												Management</span>
+										</div>
+										<div class="d-flex align-items-center">
+											<i class="fas fa-check-circle fa-lg me-3"></i> <span>Performance
+												Tracking</span>
+										</div>
+									</div>
+
+								</div>
+							</div>
+
+							<!-- Right Panel -->
+							<div class="col-md-6">
+								<div class="p-5">
+
+									<div class="text-center mb-4">
+										<h3 class="fw-bold" style="color: #FB8C00;">Welcome Back!
+										</h3>
+										<p class="text-muted">Please login to continue</p>
+									</div>
+
+									<!-- Error Message -->
+									<div th:if="${error}"
+										class="alert alert-danger alert-dismissible fade show"
+										role="alert">
+										<i class="fas fa-exclamation-circle me-2"></i> <span
+											th:text="${error}">Error message</span>
+										<button type="button" class="btn-close"
+											data-bs-dismiss="alert"></button>
+									</div>
+
+									<!-- Success Message -->
+									<div th:if="${message}"
+										class="alert alert-success alert-dismissible fade show"
+										role="alert">
+										<i class="fas fa-check-circle me-2"></i> <span
+											th:text="${message}">Success message</span>
+										<button type="button" class="btn-close"
+											data-bs-dismiss="alert"></button>
+									</div>
+
+									<!-- Login Form -->
+									<form th:action="@{/login}" method="post">
+
+										<div class="mb-3">
+											<label for="username" class="form-label"> <i
+												class="fas fa-user me-1"></i> Username
+											</label> <input type="text" class="form-control form-control-lg"
+												id="username" name="username"
+												placeholder="Employee ID or Email" required autofocus>
+
+											<small class="text-muted"> Enter your Employee ID or
+												Email </small>
+										</div>
+
+										<div class="mb-3">
+											<label for="password" class="form-label"> <i
+												class="fas fa-lock me-1"></i> Password
+											</label>
+
+											<div class="input-group">
+												<input type="password" class="form-control form-control-lg"
+													id="password" name="password"
+													placeholder="Enter your password" required>
+
+												<button class="btn btn-outline-secondary" type="button"
+													onclick="togglePassword()">
+													<i class="fas fa-eye" id="toggleIcon"></i>
+												</button>
+											</div>
+										</div>
+
+										<div class="mb-3 form-check">
+											<input type="checkbox" class="form-check-input"
+												id="remember-me" name="remember-me"> <label
+												class="form-check-label" for="remember-me"> Remember
+												me </label>
+										</div>
+
+										<!-- FIXED BUTTON (No duplicate class) -->
+										<button type="submit" class="btn btn-lg w-100 mb-3"
+											style="background-color: #FB8C00; color: white; font-weight: bold;">
+											<i class="fas fa-sign-in-alt me-2"></i> Login
+										</button>
+
+									</form>
+
+									<!-- Demo Credentials -->
+									<div class="alert alert-info mt-4">
+										<h6 class="fw-bold mb-2">
+											<i class="fas fa-info-circle me-2"></i> Demo Credentials
+										</h6>
+										<small> <strong>Admin:</strong> ADM001 / password123<br>
+											<strong>Manager:</strong> MGR001 / password123<br> <strong>Employee:</strong>
+											EMP001 / password123
+										</small>
+									</div>
+
+								</div>
+							</div>
+
+						</div>
+					</div>
+
+					<div class="text-center mt-4 text-black">
+						<small>&copy; 2026 RevWorkForce. All rights reserved.</small>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		function togglePassword() {
+			const passwordField = document.getElementById('password');
+			const toggleIcon = document.getElementById('toggleIcon');
+
+			if (passwordField.type === 'password') {
+				passwordField.type = 'text';
+				toggleIcon.classList.remove('fa-eye');
+				toggleIcon.classList.add('fa-eye-slash');
+			} else {
+				passwordField.type = 'password';
+				toggleIcon.classList.remove('fa-eye-slash');
+				toggleIcon.classList.add('fa-eye');
+			}
+		}
+	</script>
+
 </body>
 </html>
