@@ -1,66 +1,24 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>500 Internal Server Error - RevWorkforce</title>
-    <link rel="stylesheet" th:href="@{/styles/common/global.css}">
-    <link rel="stylesheet" th:href="@{/styles/auth/auth.css}">
-    <style>
-        .error-container {
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .error-code {
-            font-size: 6rem;
-            font-weight: 800;
-            color: #ea580c;
-            line-height: 1;
-            margin-bottom: 1rem;
-        }
-
-        .error-title {
-            font-size: 1.5rem;
-            color: var(--foreground);
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-
-        .error-desc {
-            color: var(--muted-foreground);
-            margin-bottom: 2rem;
-        }
-    </style>
-</head>
-
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
 <body>
-    <div
-        style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: var(--background);">
-        <div class="auth-form-container"
-            style="width: 100%; max-width: 500px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
-            <div class="error-container">
-                <a th:href="@{/}">
-                    <img th:src="@{/assets/logo complete.png}" alt="Logo" class="auth-logo"
-                        style="margin-bottom: 2rem;">
+    <div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
+        <div class="text-center">
+            <i class="fas fa-exclamation-triangle fa-5x text-danger mb-4"></i>
+            <h1 class="display-1 fw-bold text-danger">500</h1>
+            <h2 class="mb-4">Internal Server Error</h2>
+            <p class="lead text-muted mb-4" th:text="${errorMessage}">
+                An internal server error occurred. Please try again later.
+            </p>
+            <div class="d-flex gap-2 justify-content-center">
+                <a th:href="@{/dashboard}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-home me-2"></i>Go to Dashboard
                 </a>
-
-                <div class="error-code">500</div>
-                <h1 class="error-title">Internal Server Error</h1>
-
-                <p class="error-desc"
-                    th:text="${errorMessage ?: 'Oops! Something went wrong on our end. Please try again later.'}">
-                    Oops! Something went wrong on our end. Please try again later.
-                </p>
-
-                <a th:href="@{/dashboard}" class="button-submit"
-                    style="background-color: #111; color: white; display: inline-block; text-decoration: none; width: auto; padding: 0 32px;">
-                    Return to Dashboard
+                <a href="javascript:location.reload()" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-redo me-2"></i>Retry
                 </a>
             </div>
         </div>
     </div>
 </body>
-
 </html>

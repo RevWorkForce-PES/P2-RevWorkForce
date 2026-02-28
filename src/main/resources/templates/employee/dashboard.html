@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    
+    <div class="container-fluid mt-4">
+        <!-- Welcome Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h2 class="mb-0">
+                            <i class="fas fa-user me-2"></i>
+                            Welcome, <span th:text="${fullName}">Employee</span>!
+                        </h2>
+                        <p class="mb-0">
+                            <span th:text="${designation}">Designation</span> | 
+                            <span th:text="${department}">Department</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Leave Balance</h6>
+                                <h3 class="mb-0 text-success">0</h3>
+                            </div>
+                            <div class="text-success">
+                                <i class="fas fa-calendar-alt fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Active Goals</h6>
+                                <h3 class="mb-0 text-info">0</h3>
+                            </div>
+                            <div class="text-info">
+                                <i class="fas fa-bullseye fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Pending Reviews</h6>
+                                <h3 class="mb-0 text-warning">0</h3>
+                            </div>
+                            <div class="text-warning">
+                                <i class="fas fa-star fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Notifications</h6>
+                                <h3 class="mb-0 text-danger">0</h3>
+                            </div>
+                            <div class="text-danger">
+                                <i class="fas fa-bell fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bolt me-2"></i>Quick Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <a href="#" class="btn btn-outline-primary w-100 py-3">
+                                    <i class="fas fa-calendar-plus fa-2x mb-2"></i><br>
+                                    Apply Leave
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="#" class="btn btn-outline-info w-100 py-3">
+                                    <i class="fas fa-user fa-2x mb-2"></i><br>
+                                    My Profile
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="#" class="btn btn-outline-success w-100 py-3">
+                                    <i class="fas fa-bullseye fa-2x mb-2"></i><br>
+                                    My Goals
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="#" class="btn btn-outline-warning w-100 py-3">
+                                    <i class="fas fa-star fa-2x mb-2"></i><br>
+                                    Performance Review
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity & Upcoming -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i>My Leave History
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Your leave history will be displayed here.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar-day me-2"></i>Upcoming Holidays
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Upcoming company holidays will be displayed here.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+</body>
+</html>
