@@ -12,26 +12,23 @@ import java.util.Set;
 /**
  * Entity class representing an Employee in the RevWorkForce system.
  *
- * <p>
- * This class maps to the EMPLOYEES database table and contains:
+ * <p>This class maps to the EMPLOYEES database table and contains:
  * <ul>
- * <li>Personal information</li>
- * <li>Employment details</li>
- * <li>Authentication & security details</li>
- * <li>Audit tracking fields</li>
- * <li>Role-based access mapping</li>
+ *     <li>Personal information</li>
+ *     <li>Employment details</li>
+ *     <li>Authentication & security details</li>
+ *     <li>Audit tracking fields</li>
+ *     <li>Role-based access mapping</li>
  * </ul>
  *
- * <p>
- * This entity is central to:
+ * <p>This entity is central to:
  * <ul>
- * <li>User authentication</li>
- * <li>Authorization (role-based access)</li>
- * <li>Organizational hierarchy</li>
+ *     <li>User authentication</li>
+ *     <li>Authorization (role-based access)</li>
+ *     <li>Organizational hierarchy</li>
  * </ul>
  *
- * <p>
- * Table: EMPLOYEES
+ * <p>Table: EMPLOYEES
  *
  * @author RevWorkForce Team
  */
@@ -87,7 +84,7 @@ public class Employee {
     /**
      * Gender stored as STRING enum (not ordinal)
      * This prevents database issues if enum order changes.
-     */
+     */ 
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", length = 1)
     private Gender gender;
@@ -199,9 +196,8 @@ public class Employee {
     /**
      * Indicates whether account is locked.
      */
-    @Convert(converter = org.hibernate.type.YesNoConverter.class)
     @Column(name = "account_locked", length = 1)
-    private Boolean accountLocked = false;
+    private Character accountLocked = 'N';
 
     /**
      * Timestamp until which account remains locked.
@@ -231,8 +227,12 @@ public class Employee {
      * EAGER fetch because roles are required immediately for authentication.
      * Cascade persist/merge allows automatic role association updates.
      */
-    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    @JoinTable(name = "EMPLOYEE_ROLES", joinColumns = @JoinColumn(name = "employee_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+        name = "EMPLOYEE_ROLES",
+        joinColumns = @JoinColumn(name = "employee_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
     private Set<Role> roles = new HashSet<>();
 
     /**
@@ -325,259 +325,261 @@ public class Employee {
                 '}';
     }
 
-    public String getEmployeeId() {
-        return employeeId;
-    }
+	public String getEmployeeId() {
+		return employeeId;
+	}
 
-    public void setEmployeeId(String employeeId) {
-        this.employeeId = employeeId;
-    }
+	public void setEmployeeId(String employeeId) {
+		this.employeeId = employeeId;
+	}
+	
+	public Character getAccountLocked() {
+	    return accountLocked;
+	}
 
-    public String getFirstName() {
-        return firstName;
-    }
+	public EmployeeStatus getStatus() {
+	    return status;
+	}
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+	public String getPasswordHash() {
+	    return passwordHash;
+	}
 
-    public String getLastName() {
-        return lastName;
-    }
+	public Set<Role> getRoles() {
+	    return roles;
+	}
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+	public String getFirstName() {
+		return firstName;
+	}
 
-    public String getEmail() {
-        return email;
-    }
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+	public String getLastName() {
+		return lastName;
+	}
 
-    public String getPhone() {
-        return phone;
-    }
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
 
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
+	public String getEmail() {
+		return email;
+	}
 
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
+	public String getPhone() {
+		return phone;
+	}
 
-    public Gender getGender() {
-        return gender;
-    }
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
 
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
+	public LocalDate getDateOfBirth() {
+		return dateOfBirth;
+	}
 
-    public String getAddress() {
-        return address;
-    }
+	public void setDateOfBirth(LocalDate dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
+	}
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
+	public Gender getGender() {
+		return gender;
+	}
 
-    public String getCity() {
-        return city;
-    }
+	public void setGender(Gender gender) {
+		this.gender = gender;
+	}
 
-    public void setCity(String city) {
-        this.city = city;
-    }
+	public String getAddress() {
+		return address;
+	}
 
-    public String getState() {
-        return state;
-    }
+	public void setAddress(String address) {
+		this.address = address;
+	}
 
-    public void setState(String state) {
-        this.state = state;
-    }
+	public String getCity() {
+		return city;
+	}
 
-    public String getPostalCode() {
-        return postalCode;
-    }
+	public void setCity(String city) {
+		this.city = city;
+	}
 
-    public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
-    }
+	public String getState() {
+		return state;
+	}
 
-    public String getCountry() {
-        return country;
-    }
+	public void setState(String state) {
+		this.state = state;
+	}
 
-    public void setCountry(String country) {
-        this.country = country;
-    }
+	public String getPostalCode() {
+		return postalCode;
+	}
 
-    public String getEmergencyContactName() {
-        return emergencyContactName;
-    }
+	public void setPostalCode(String postalCode) {
+		this.postalCode = postalCode;
+	}
 
-    public void setEmergencyContactName(String emergencyContactName) {
-        this.emergencyContactName = emergencyContactName;
-    }
+	public String getCountry() {
+		return country;
+	}
 
-    public String getEmergencyContactPhone() {
-        return emergencyContactPhone;
-    }
+	public void setCountry(String country) {
+		this.country = country;
+	}
 
-    public void setEmergencyContactPhone(String emergencyContactPhone) {
-        this.emergencyContactPhone = emergencyContactPhone;
-    }
+	public String getEmergencyContactName() {
+		return emergencyContactName;
+	}
 
-    public Department getDepartment() {
-        return department;
-    }
+	public void setEmergencyContactName(String emergencyContactName) {
+		this.emergencyContactName = emergencyContactName;
+	}
 
-    public void setDepartment(Department department) {
-        this.department = department;
-    }
+	public String getEmergencyContactPhone() {
+		return emergencyContactPhone;
+	}
 
-    public Designation getDesignation() {
-        return designation;
-    }
+	public void setEmergencyContactPhone(String emergencyContactPhone) {
+		this.emergencyContactPhone = emergencyContactPhone;
+	}
 
-    public void setDesignation(Designation designation) {
-        this.designation = designation;
-    }
+	public Department getDepartment() {
+		return department;
+	}
 
-    public Employee getManager() {
-        return manager;
-    }
+	public void setDepartment(Department department) {
+		this.department = department;
+	}
 
-    public void setManager(Employee manager) {
-        this.manager = manager;
-    }
+	public Designation getDesignation() {
+		return designation;
+	}
 
-    public LocalDate getJoiningDate() {
-        return joiningDate;
-    }
+	public void setDesignation(Designation designation) {
+		this.designation = designation;
+	}
 
-    public void setJoiningDate(LocalDate joiningDate) {
-        this.joiningDate = joiningDate;
-    }
+	public Employee getManager() {
+		return manager;
+	}
 
-    public LocalDate getLeavingDate() {
-        return leavingDate;
-    }
+	public void setManager(Employee manager) {
+		this.manager = manager;
+	}
 
-    public void setLeavingDate(LocalDate leavingDate) {
-        this.leavingDate = leavingDate;
-    }
+	public LocalDate getJoiningDate() {
+		return joiningDate;
+	}
 
-    public BigDecimal getSalary() {
-        return salary;
-    }
+	public void setJoiningDate(LocalDate joiningDate) {
+		this.joiningDate = joiningDate;
+	}
 
-    public void setSalary(BigDecimal salary) {
-        this.salary = salary;
-    }
+	public LocalDate getLeavingDate() {
+		return leavingDate;
+	}
 
-    public EmployeeStatus getStatus() {
-        return status;
-    }
+	public void setLeavingDate(LocalDate leavingDate) {
+		this.leavingDate = leavingDate;
+	}
 
-    public void setStatus(EmployeeStatus status) {
-        this.status = status;
-    }
+	public BigDecimal getSalary() {
+		return salary;
+	}
 
-    public String getPasswordHash() {
-        return passwordHash;
-    }
+	public void setSalary(BigDecimal salary) {
+		this.salary = salary;
+	}
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
+	public Character getFirstLogin() {
+		return firstLogin;
+	}
 
-    public Character getFirstLogin() {
-        return firstLogin;
-    }
+	public void setFirstLogin(Character firstLogin) {
+		this.firstLogin = firstLogin;
+	}
 
-    public void setFirstLogin(Character firstLogin) {
-        this.firstLogin = firstLogin;
-    }
+	public LocalDateTime getLastLogin() {
+		return lastLogin;
+	}
 
-    public LocalDateTime getLastLogin() {
-        return lastLogin;
-    }
+	public void setLastLogin(LocalDateTime lastLogin) {
+		this.lastLogin = lastLogin;
+	}
 
-    public void setLastLogin(LocalDateTime lastLogin) {
-        this.lastLogin = lastLogin;
-    }
+	public Integer getFailedLoginAttempts() {
+		return failedLoginAttempts;
+	}
 
-    public Integer getFailedLoginAttempts() {
-        return failedLoginAttempts;
-    }
+	public void setFailedLoginAttempts(Integer failedLoginAttempts) {
+		this.failedLoginAttempts = failedLoginAttempts;
+	}
 
-    public void setFailedLoginAttempts(Integer failedLoginAttempts) {
-        this.failedLoginAttempts = failedLoginAttempts;
-    }
+	public LocalDateTime getLockedUntil() {
+		return lockedUntil;
+	}
 
-    public Boolean getAccountLocked() {
-        return accountLocked;
-    }
+	public void setLockedUntil(LocalDateTime lockedUntil) {
+		this.lockedUntil = lockedUntil;
+	}
 
-    public void setAccountLocked(Boolean accountLocked) {
-        this.accountLocked = accountLocked;
-    }
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
 
-    public LocalDateTime getLockedUntil() {
-        return lockedUntil;
-    }
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
 
-    public void setLockedUntil(LocalDateTime lockedUntil) {
-        this.lockedUntil = lockedUntil;
-    }
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+	public String getCreatedBy() {
+		return createdBy;
+	}
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+	public String getUpdatedBy() {
+		return updatedBy;
+	}
 
-    public String getCreatedBy() {
-        return createdBy;
-    }
+	public void setUpdatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
+	}
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
+	public void setStatus(EmployeeStatus status) {
+		this.status = status;
+	}
 
-    public String getUpdatedBy() {
-        return updatedBy;
-    }
+	public void setPasswordHash(String passwordHash) {
+		this.passwordHash = passwordHash;
+	}
 
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
-    }
+	public void setAccountLocked(Character accountLocked) {
+		this.accountLocked = accountLocked;
+	}
 
-    public Set<Role> getRoles() {
-        return roles;
-    }
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
+	}
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
+	
 }

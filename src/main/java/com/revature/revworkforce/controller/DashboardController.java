@@ -1,46 +1,53 @@
 package com.revature.revworkforce.controller;
 
+import com.revature.revworkforce.model.Employee;
+import com.revature.revworkforce.repository.EmployeeRepository;
+import com.revature.revworkforce.security.SecurityUtils;
+import com.revature.revworkforce.service.AuthService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.Collection;
-
 /**
- * Controller for routing authenticated users to their respective dashboards.
+ * Dashboard Controller.
+ * 
+ * Handles dashboard routing based on user role.
+ * 
+ * @author RevWorkForce Team
  */
 @Controller
 public class DashboardController {
-
+    
+    @Autowired
+    private EmployeeRepository employeeRepository;
+    
+    @Autowired
+    private AuthService authService;
+    
     /**
-     * Default success URL after login. Redirects user based on their role.
+     * Main dashboard - redirects based on role.
      * 
-     * @param authentication the current authenticated user
-     * @return the redirect URL to the appropriate dashboard
+     * @param authentication the authentication object
+     * @return redirect to role-specific dashboard
      */
     @GetMapping("/dashboard")
-    public String defaultAfterLogin(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return "redirect:/login"; // Should not happen due to Spring Security config
+    public String dashboard(Authentication authentication) {
+        String employeeId = SecurityUtils.getCurrentUsername();
+        
+        // Check if first login - redirect to change password
+        if (employeeId != null && authService.isFirstLogin(employeeId)) {
+            return "redirect:/change-password";
         }
-
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-
-        // Check assigned roles (Note: Authorities typically have 'ROLE_' prefix)
-        boolean isAdmin = authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        boolean isManager = authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER"));
-        boolean isEmployee = authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE"));
-
-        if (isAdmin) {
+        
+        // Redirect based on role
+        if (SecurityUtils.hasRole("ADMIN")) {
             return "redirect:/admin/dashboard";
-        } else if (isManager) {
+        } else if (SecurityUtils.hasRole("MANAGER")) {
             return "redirect:/manager/dashboard";
-        } else if (isEmployee) {
+        } else {
             return "redirect:/employee/dashboard";
         }
-
-        // Fallback if no specific role matches
-        return "redirect:/login?error=true";
     }
 }
