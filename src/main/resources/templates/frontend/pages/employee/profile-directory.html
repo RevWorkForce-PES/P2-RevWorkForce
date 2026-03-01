@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -106,44 +106,38 @@
                                     placeholder="Search colleagues by name or department...">
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
-                                <select class="form-control">
-                                    <option>All Departments</option>
-                                    <option>Engineering</option>
-                                    <option>HR</option>
-                                    <option>Sales</option>
+                                <select class="form-control" name="departmentId">
+                                    <option value="">All Departments</option>
+                                    <option th:each="dept : ${departments}" th:value="${dept.departmentId}"
+                                        th:text="${dept.departmentName}"
+                                        th:selected="${dept.departmentId == selectedDepartmentId}"></option>
                                 </select>
                             </div>
                         </div>
                         <div
                             style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;">
+                            <!-- Notice: In standard EmployeeDirectory, if it's empty -->
+                            <div th:if="${#lists.isEmpty(employees)}" class="col-12 text-center text-muted"
+                                style="grid-column: 1 / -1; padding: 2rem;">
+                                No employees found matching criteria
+                            </div>
+
                             <!-- Colleague Card -->
-                            <div
+                            <div th:each="emp : ${employees}"
                                 style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; display: flex; gap: 1rem; align-items: center; transition: box-shadow 0.2s;">
-                                <div
-                                    style="width: 50px; height: 50px; border-radius: 50%; background: #dbeafe; color: #1e40af; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: #dbeafe; color: #1e40af; display: flex; align-items: center; justify-content: center; font-weight: bold;"
+                                    th:text="${#strings.substring(emp.firstName,0,1) + #strings.substring(emp.lastName,0,1)}">
                                     AS</div>
                                 <div>
-                                    <h4 style="margin-bottom: 0.1rem; font-size: 1rem;">Alice Smith</h4>
-                                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.25rem;">
+                                    <h4 style="margin-bottom: 0.1rem; font-size: 1rem;"
+                                        th:text="${emp.firstName + ' ' + emp.lastName}">Alice Smith</h4>
+                                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.25rem;"
+                                        th:text="${emp.departmentName != null ? emp.departmentName : 'N/A'}">
                                         Engineering</p>
-                                    <a href="mailto:a.smith@example.com"
+                                    <a th:href="'mailto:' + ${emp.email}"
                                         style="color: var(--primary); font-size: 0.8rem;"><i
-                                            class="fas fa-envelope"></i> a.smith@example.com</a>
-                                </div>
-                            </div>
-                            <!-- Colleague Card -->
-                            <div
-                                style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; display: flex; gap: 1rem; align-items: center; transition: box-shadow 0.2s;">
-                                <div
-                                    style="width: 50px; height: 50px; border-radius: 50%; background: #fef3c7; color: #b45309; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                                    CB</div>
-                                <div>
-                                    <h4 style="margin-bottom: 0.1rem; font-size: 1rem;">Charlie Brown</h4>
-                                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.25rem;">HR
-                                    </p>
-                                    <a href="mailto:c.brown@example.com"
-                                        style="color: var(--primary); font-size: 0.8rem;"><i
-                                            class="fas fa-envelope"></i> c.brown@example.com</a>
+                                            class="fas fa-envelope"></i> <span
+                                            th:text="${emp.email}">a.smith@example.com</span></a>
                                 </div>
                             </div>
                         </div>

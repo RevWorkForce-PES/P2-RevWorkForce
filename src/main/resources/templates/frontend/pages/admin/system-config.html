@@ -103,34 +103,39 @@
                                             <tr>
                                                 <th>Name</th>
                                                 <th>Band</th>
+                                                <th>Employees</th>
+                                                <th>Status</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>Software Engineer</td>
-                                                <td>L1</td>
-                                                <td><button class="btn btn-secondary btn-sm"
-                                                        onclick="alert('Edit Designation Dialog')">Edit</button></td>
+                                            <tr th:each="desig : ${designations}">
+                                                <td th:text="${desig.designationName}">Software Engineer</td>
+                                                <td th:text="${desig.designationLevel}">L1</td>
+                                                <td>
+                                                    <span class="badge bg-info"
+                                                        th:text="${desig.employeeCount + ' Members'}">12 Members</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge"
+                                                        th:classappend="${desig.isActive == 'Y' ? 'bg-success' : 'bg-danger'}"
+                                                        th:text="${desig.isActive == 'Y' ? 'Active' : 'Inactive'}">Active</span>
+                                                </td>
+                                                <td>
+                                                    <a th:href="@{/admin/designations/edit/{id}(id=${desig.designationId})}"
+                                                        class="btn btn-secondary btn-sm">Edit</a>
+                                                </td>
                                             </tr>
-                                            <tr>
-                                                <td>Senior Engineer</td>
-                                                <td>L2</td>
-                                                <td><button class="btn btn-secondary btn-sm"
-                                                        onclick="alert('Edit Designation Dialog')">Edit</button></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Manager</td>
-                                                <td>M1</td>
-                                                <td><button class="btn btn-secondary btn-sm"
-                                                        onclick="alert('Edit Designation Dialog')">Edit</button></td>
+                                            <tr th:if="${#lists.isEmpty(designations)}">
+                                                <td colspan="5" class="text-center text-muted">No designations found
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
-                                <button class="btn btn-primary btn-sm" onclick="alert('Add Designation Dialog')"><i
-                                        class="fas fa-plus"></i> Add
-                                    Designation</button>
+                                <a th:href="@{/admin/designations/add}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus"></i> Add Designation
+                                </a>
                             </div>
                         </div>
                     </div>

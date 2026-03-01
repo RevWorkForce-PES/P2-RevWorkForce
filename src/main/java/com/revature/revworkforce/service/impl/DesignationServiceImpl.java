@@ -6,6 +6,7 @@ import com.revature.revworkforce.exception.ResourceNotFoundException;
 import com.revature.revworkforce.exception.ValidationException;
 import com.revature.revworkforce.model.Designation;
 import com.revature.revworkforce.repository.DesignationRepository;
+import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.service.DesignationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,10 +28,12 @@ import java.util.stream.Collectors;
 public class DesignationServiceImpl implements DesignationService {
 
     private final DesignationRepository designationRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Autowired
-    public DesignationServiceImpl(DesignationRepository designationRepository) {
+    public DesignationServiceImpl(DesignationRepository designationRepository, EmployeeRepository employeeRepository) {
         this.designationRepository = designationRepository;
+        this.employeeRepository = employeeRepository;
     }
 
     @Override
@@ -197,6 +200,8 @@ public class DesignationServiceImpl implements DesignationService {
         dto.setMaxSalary(entity.getMaxSalary());
         dto.setDescription(entity.getDescription());
         dto.setIsActive(entity.getIsActive());
+
+        dto.setEmployeeCount(employeeRepository.countByDesignation(entity));
 
         return dto;
     }
