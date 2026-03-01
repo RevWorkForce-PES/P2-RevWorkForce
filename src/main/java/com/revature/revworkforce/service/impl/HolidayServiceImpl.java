@@ -320,6 +320,25 @@ public HolidayStatisticsDTO getHolidayStatistics() {
     );
 
     return stats;
+}private HolidayDTO convertToDTO(Holiday holiday) {
+
+    return HolidayDTO.builder()
+            .holidayId(holiday.getHolidayId())
+            .holidayName(holiday.getHolidayName())
+            .holidayDate(holiday.getHolidayDate())
+            .type(holiday.getHolidayType())
+            .description(holiday.getDescription())
+            .isActive(holiday.getIsActive() == 'Y')
+            .build();
+}
+@Override
+public List<HolidayDTO> getAllActiveHolidays() {
+
+    return holidayRepository
+            .findByIsActiveOrderByHolidayDateAsc('Y')
+            .stream()
+            .map(this::convertToDTO)
+            .toList();
 }
 }
 

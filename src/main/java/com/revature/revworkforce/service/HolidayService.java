@@ -33,4 +33,5 @@ public interface HolidayService {
     int importHolidays(List<HolidayDTO> holidays);
     void deleteHolidaysByYear(int year);
     HolidayStatisticsDTO getHolidayStatistics();
+    List<HolidayDTO> getAllActiveHolidays();
 }
