@@ -418,21 +418,26 @@
     -- TABLE 9: HOLIDAYS
     -- Purpose: Store company holidays
     -- ============================================
-    CREATE TABLE HOLIDAYS (
-        holiday_id NUMBER PRIMARY KEY,
-        holiday_date DATE NOT NULL UNIQUE,
-        holiday_name VARCHAR2(100) NOT NULL,
-        holiday_type VARCHAR2(50) DEFAULT 'National',
-        is_optional CHAR(1) DEFAULT 'N' CHECK (is_optional IN ('Y', 'N')),
-        description VARCHAR2(500),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        created_by VARCHAR2(20)
-    );
+   CREATE TABLE HOLIDAYS (
+    holiday_id NUMBER PRIMARY KEY,
+    holiday_date DATE NOT NULL UNIQUE,
+    holiday_name VARCHAR2(100) NOT NULL,
+    holiday_type VARCHAR2(50) DEFAULT 'NATIONAL',
+    is_optional CHAR(1) DEFAULT 'N' CHECK (is_optional IN ('Y', 'N')),
+    is_active CHAR(1) DEFAULT 'Y' CHECK (is_active IN ('Y','N')),
+    description VARCHAR2(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR2(20),
+    updated_by VARCHAR2(20)
+);
 
     COMMENT ON TABLE HOLIDAYS IS 'Stores company holidays for working days calculation';
     COMMENT ON COLUMN HOLIDAYS.holiday_type IS 'National/Regional/Festival/Company-specific';
     COMMENT ON COLUMN HOLIDAYS.is_optional IS 'Y if employees can choose to work';
-
+COMMENT ON COLUMN HOLIDAYS.is_active IS 'Y=Active, N=Inactive (soft delete)';
+COMMENT ON COLUMN HOLIDAYS.updated_at IS 'Last updated timestamp';
+COMMENT ON COLUMN HOLIDAYS.updated_by IS 'User who last updated record';
 
 
     -- ============================================
