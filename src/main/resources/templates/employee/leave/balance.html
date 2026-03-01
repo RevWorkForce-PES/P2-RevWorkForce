@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mt-4">
+
+    <h3 class="mb-4">
+        <i class="fas fa-wallet me-2"></i>Leave Balance
+    </h3>
+
+    <form method="get"
+          th:action="@{/leave/employee/balance}"
+          class="mb-3">
+
+        <input type="number"
+               name="year"
+               class="form-control w-25 d-inline"
+               th:value="${selectedYear}" />
+
+        <button class="btn btn-primary ms-2">
+            Filter
+        </button>
+    </form>
+
+    <div class="row">
+        <div class="col-md-3 mb-3" th:each="b : ${balances}">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <h5 th:text="${b.leaveType}"></h5>
+                    <p>Allocated: <span th:text="${b.totalAllocated}"></span></p>
+                    <p>Used: <span th:text="${b.usedLeaves}"></span></p>
+                    <p class="text-success">
+                        Remaining: <span th:text="${b.remainingBalance}"></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/footer :: scripts}"></div>
+
+</body>
+</html>
