@@ -7,7 +7,9 @@ import com.revature.revworkforce.model.LeaveApplication;
 import com.revature.revworkforce.model.LeaveBalance;
 import com.revature.revworkforce.model.LeaveType;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 /**
  * LeaveService - Core business logic interface for Leave Management.
@@ -141,4 +143,6 @@ public interface LeaveService {
      */
     void validateLeaveBalance(LeaveBalance leaveBalance,
                               int requestedDays);
+    
+   
 }

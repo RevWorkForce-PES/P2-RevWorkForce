@@ -310,7 +310,7 @@ public class LeaveServiceImpl implements LeaveService {
                                     LocalDate endDate) {
 
         Set<LocalDate> holidays =
-                holidayService.getHolidayDatesInRange(startDate, endDate);
+        		holidayService.getHolidaysInRange(startDate, endDate);
 
         return DateUtil.calculateWorkingDays(startDate, endDate, holidays);
     }
