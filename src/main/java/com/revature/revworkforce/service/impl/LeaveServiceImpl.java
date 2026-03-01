@@ -126,11 +126,9 @@ public class LeaveServiceImpl implements LeaveService {
     // =========================================================
     // APPROVE
     // =========================================================
-
     @Override
     public LeaveApplication approveLeave(Long applicationId,
-             
-    		String approverId,
+                                         String approverId,
                                          String comments) {
 
         LeaveApplication application = getLeaveById(applicationId);
@@ -143,14 +141,19 @@ public class LeaveServiceImpl implements LeaveService {
             );
         }
 
-        Employee manager = employeeRepository.findById(approverId)
+        Employee approver = employeeRepository.findById(approverId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Employee", "employeeId", approverId));
 
-        if (application.getEmployee().getManager() == null ||
+        boolean isAdmin = approver.hasRole("ADMIN");
+
+        if (!isAdmin) {
+            if (application.getEmployee().getManager() == null ||
                 !application.getEmployee().getManager().getEmployeeId()
-                        .equals(manager.getEmployeeId())) {
-            throw new UnauthorizedException("Not authorized to approve this leave");
+                        .equals(approver.getEmployeeId())) {
+
+                throw new UnauthorizedException("Not authorized to approve this leave");
+            }
         }
 
         LeaveBalance balance = getOrCreateLeaveBalance(
@@ -165,7 +168,7 @@ public class LeaveServiceImpl implements LeaveService {
         balance.setBalance(balance.getBalance() - application.getTotalDays());
 
         application.setStatus(LeaveStatus.APPROVED);
-        application.setApprovedBy(manager);
+        application.setApprovedBy(approver);
         application.setApprovedOn(LocalDateTime.now());
         application.setComments(comments);
 
@@ -192,18 +195,28 @@ public class LeaveServiceImpl implements LeaveService {
             );
         }
 
-        Employee manager = employeeRepository.findById(approverId)
+        Employee approver = employeeRepository.findById(approverId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Employee", "employeeId", approverId));
 
+        boolean isAdmin = approver.hasRole("ADMIN");
+
+        if (!isAdmin) {
+            if (application.getEmployee().getManager() == null ||
+                !application.getEmployee().getManager().getEmployeeId()
+                        .equals(approver.getEmployeeId())) {
+
+                throw new UnauthorizedException("Not authorized to reject this leave");
+            }
+        }
+
         application.setStatus(LeaveStatus.REJECTED);
-        application.setApprovedBy(manager);
+        application.setApprovedBy(approver);
         application.setApprovedOn(LocalDateTime.now());
         application.setRejectionReason(rejectionReason);
 
         return leaveApplicationRepository.save(application);
     }
-
     // =========================================================
     // BALANCES
     // =========================================================
