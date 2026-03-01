@@ -35,6 +35,8 @@ public class DesignationDTO {
 
     private Character isActive = 'Y';
 
+    private Long employeeCount = 0L;
+
     // Constructors
     public DesignationDTO() {
     }
@@ -98,5 +100,13 @@ public class DesignationDTO {
 
     public void setIsActive(Character isActive) {
         this.isActive = isActive;
+    }
+
+    public Long getEmployeeCount() {
+        return employeeCount;
+    }
+
+    public void setEmployeeCount(Long employeeCount) {
+        this.employeeCount = employeeCount;
     }
 }

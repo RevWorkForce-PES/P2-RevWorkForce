@@ -2,6 +2,7 @@ package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.enums.EmployeeStatus;
 import com.revature.revworkforce.model.Employee;
+import com.revature.revworkforce.repository.DepartmentRepository;
 import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.security.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +24,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/admin")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminDashboardController {
-    
+
     @Autowired
     private EmployeeRepository employeeRepository;
-    
+
+    @Autowired
+    private DepartmentRepository departmentRepository;
+
     /**
      * Display admin dashboard.
      * 
@@ -36,23 +40,25 @@ public class AdminDashboardController {
     @GetMapping("/dashboard")
     public String adminDashboard(Model model) {
         String employeeId = SecurityUtils.getCurrentUsername();
-        
+
         // Get current user
         Employee currentUser = employeeRepository.findById(employeeId).orElse(null);
-        
+
         if (currentUser != null) {
             model.addAttribute("currentUser", currentUser);
             model.addAttribute("fullName", currentUser.getFullName());
         }
-        
+
         // Get statistics
         long totalEmployees = employeeRepository.count();
         long activeEmployees = employeeRepository.countByStatus(EmployeeStatus.ACTIVE);
-        
+        long totalDepartments = departmentRepository.count();
+
         model.addAttribute("totalEmployees", totalEmployees);
         model.addAttribute("activeEmployees", activeEmployees);
+        model.addAttribute("totalDepartments", totalDepartments);
         model.addAttribute("pageTitle", "Admin Dashboard");
-        
-        return "admin/dashboard";
+
+        return "frontend/pages/admin/dashboard";
     }
 }

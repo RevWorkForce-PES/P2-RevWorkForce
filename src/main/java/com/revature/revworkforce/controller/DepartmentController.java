@@ -1,7 +1,9 @@
 package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.dto.DepartmentDTO;
+import com.revature.revworkforce.dto.DesignationDTO;
 import com.revature.revworkforce.service.DepartmentService;
+import com.revature.revworkforce.service.DesignationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,10 +28,12 @@ import java.util.List;
 public class DepartmentController {
 
     private final DepartmentService departmentService;
+    private final DesignationService designationService;
 
     @Autowired
-    public DepartmentController(DepartmentService departmentService) {
+    public DepartmentController(DepartmentService departmentService, DesignationService designationService) {
         this.departmentService = departmentService;
+        this.designationService = designationService;
     }
 
     /**
@@ -51,8 +55,10 @@ public class DepartmentController {
     @GetMapping("/system-config")
     public String systemConfig(Model model) {
         List<DepartmentDTO> departments = departmentService.getAllDepartments();
+        List<DesignationDTO> designations = designationService.getAllDesignations();
 
         model.addAttribute("departments", departments);
+        model.addAttribute("designations", designations);
         model.addAttribute("pageTitle", "System Configuration");
 
         return "frontend/pages/admin/system-config";

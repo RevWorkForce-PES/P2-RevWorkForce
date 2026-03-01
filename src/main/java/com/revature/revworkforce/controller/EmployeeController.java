@@ -30,23 +30,23 @@ import java.util.stream.Collectors;
  */
 @Controller
 public class EmployeeController {
-    
+
     @Autowired
     private EmployeeService employeeService;
-    
+
     @Autowired
     private DepartmentRepository departmentRepository;
-    
+
     @Autowired
     private DesignationRepository designationRepository;
-    
+
     @Autowired
     private RoleRepository roleRepository;
-    
+
     // ============================================
     // ADMIN ENDPOINTS - Employee Management
     // ============================================
-    
+
     /**
      * List all employees with search/filter.
      */
@@ -58,32 +58,32 @@ public class EmployeeController {
             @RequestParam(required = false) Long designationId,
             @RequestParam(required = false) EmployeeStatus status,
             Model model) {
-        
+
         // Build search criteria
         EmployeeSearchCriteria criteria = new EmployeeSearchCriteria();
         criteria.setKeyword(keyword);
         criteria.setDepartmentId(departmentId);
         criteria.setDesignationId(designationId);
         criteria.setStatus(status);
-        
+
         // Search employees
         List<Employee> employees = employeeService.searchEmployees(criteria);
-        
+
         // Convert to DTOs
         List<EmployeeDTO> employeeDTOs = employees.stream()
-            .map(employeeService::convertToDTO)
-            .collect(Collectors.toList());
-        
+                .map(employeeService::convertToDTO)
+                .collect(Collectors.toList());
+
         model.addAttribute("employees", employeeDTOs);
         model.addAttribute("criteria", criteria);
         model.addAttribute("departments", departmentRepository.findAllByOrderByDepartmentNameAsc());
         model.addAttribute("designations", designationRepository.findAllByOrderByDesignationNameAsc());
         model.addAttribute("statuses", EmployeeStatus.values());
         model.addAttribute("pageTitle", "Employee Management");
-        
-        return "admin/employees/list";
+
+        return "frontend/pages/admin/employee-management";
     }
-    
+
     /**
      * Show add employee form.
      */
@@ -91,10 +91,10 @@ public class EmployeeController {
     @PreAuthorize("hasRole('ADMIN')")
     public String showAddEmployeeForm(Model model) {
         EmployeeDTO dto = new EmployeeDTO();
-        
+
         // Generate employee ID
         dto.setEmployeeId(employeeService.generateEmployeeId("EMP"));
-        
+
         model.addAttribute("employeeDTO", dto);
         model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
         model.addAttribute("designations", designationRepository.findByIsActive('Y'));
@@ -103,10 +103,10 @@ public class EmployeeController {
         model.addAttribute("statuses", EmployeeStatus.values());
         model.addAttribute("pageTitle", "Add Employee");
         model.addAttribute("isEdit", false);
-        
+
         return "admin/employees/form";
     }
-    
+
     /**
      * Process add employee form.
      */
@@ -117,7 +117,7 @@ public class EmployeeController {
             BindingResult result,
             Model model,
             RedirectAttributes redirectAttributes) {
-        
+
         if (result.hasErrors()) {
             model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
             model.addAttribute("designations", designationRepository.findByIsActive('Y'));
@@ -127,11 +127,12 @@ public class EmployeeController {
             model.addAttribute("isEdit", false);
             return "admin/employees/form";
         }
-        
+
         try {
             Employee employee = employeeService.createEmployee(dto);
-            redirectAttributes.addFlashAttribute("success", 
-                "Employee " + employee.getFullName() + " (ID: " + employee.getEmployeeId() + ") added successfully!");
+            redirectAttributes.addFlashAttribute("success",
+                    "Employee " + employee.getFullName() + " (ID: " + employee.getEmployeeId()
+                            + ") added successfully!");
             return "redirect:/admin/employees";
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
@@ -144,7 +145,7 @@ public class EmployeeController {
             return "admin/employees/form";
         }
     }
-    
+
     /**
      * Show edit employee form.
      */
@@ -153,7 +154,7 @@ public class EmployeeController {
     public String showEditEmployeeForm(@PathVariable String employeeId, Model model) {
         Employee employee = employeeService.getEmployeeById(employeeId);
         EmployeeDTO dto = employeeService.convertToDTO(employee);
-        
+
         model.addAttribute("employeeDTO", dto);
         model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
         model.addAttribute("designations", designationRepository.findByIsActive('Y'));
@@ -162,10 +163,10 @@ public class EmployeeController {
         model.addAttribute("statuses", EmployeeStatus.values());
         model.addAttribute("pageTitle", "Edit Employee");
         model.addAttribute("isEdit", true);
-        
+
         return "admin/employees/form";
     }
-    
+
     /**
      * Process edit employee form.
      */
@@ -177,7 +178,7 @@ public class EmployeeController {
             BindingResult result,
             Model model,
             RedirectAttributes redirectAttributes) {
-        
+
         if (result.hasErrors()) {
             model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
             model.addAttribute("designations", designationRepository.findByIsActive('Y'));
@@ -187,11 +188,11 @@ public class EmployeeController {
             model.addAttribute("isEdit", true);
             return "admin/employees/form";
         }
-        
+
         try {
             Employee employee = employeeService.updateEmployee(employeeId, dto);
-            redirectAttributes.addFlashAttribute("success", 
-                "Employee " + employee.getFullName() + " updated successfully!");
+            redirectAttributes.addFlashAttribute("success",
+                    "Employee " + employee.getFullName() + " updated successfully!");
             return "redirect:/admin/employees";
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
@@ -204,7 +205,7 @@ public class EmployeeController {
             return "admin/employees/form";
         }
     }
-    
+
     /**
      * View employee details.
      */
@@ -213,17 +214,17 @@ public class EmployeeController {
     public String viewEmployee(@PathVariable String employeeId, Model model) {
         Employee employee = employeeService.getEmployeeById(employeeId);
         EmployeeDTO dto = employeeService.convertToDTO(employee);
-        
+
         // Get team members if this is a manager
         List<Employee> teamMembers = employeeService.getTeamMembers(employeeId);
-        
+
         model.addAttribute("employee", dto);
         model.addAttribute("teamMembers", teamMembers);
         model.addAttribute("pageTitle", "Employee Details");
-        
+
         return "admin/employees/view";
     }
-    
+
     /**
      * Deactivate employee.
      */
@@ -232,19 +233,19 @@ public class EmployeeController {
     public String deactivateEmployee(
             @PathVariable String employeeId,
             RedirectAttributes redirectAttributes) {
-        
+
         try {
             Employee employee = employeeService.getEmployeeById(employeeId);
             employeeService.deactivateEmployee(employeeId);
-            redirectAttributes.addFlashAttribute("success", 
-                "Employee " + employee.getFullName() + " deactivated successfully!");
+            redirectAttributes.addFlashAttribute("success",
+                    "Employee " + employee.getFullName() + " deactivated successfully!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        
+
         return "redirect:/admin/employees";
     }
-    
+
     /**
      * Delete employee.
      */
@@ -253,23 +254,23 @@ public class EmployeeController {
     public String deleteEmployee(
             @PathVariable String employeeId,
             RedirectAttributes redirectAttributes) {
-        
+
         try {
             Employee employee = employeeService.getEmployeeById(employeeId);
             employeeService.deleteEmployee(employeeId);
-            redirectAttributes.addFlashAttribute("success", 
-                "Employee " + employee.getFullName() + " deleted successfully!");
+            redirectAttributes.addFlashAttribute("success",
+                    "Employee " + employee.getFullName() + " deleted successfully!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        
+
         return "redirect:/admin/employees";
     }
-    
+
     // ============================================
     // EMPLOYEE ENDPOINTS - Profile Management
     // ============================================
-    
+
     /**
      * View own profile.
      */
@@ -279,13 +280,13 @@ public class EmployeeController {
         String employeeId = SecurityUtils.getCurrentUsername();
         Employee employee = employeeService.getEmployeeById(employeeId);
         EmployeeDTO dto = employeeService.convertToDTO(employee);
-        
+
         model.addAttribute("employee", dto);
         model.addAttribute("pageTitle", "My Profile");
-        
+
         return "employee/profile";
     }
-    
+
     /**
      * Show edit profile form.
      */
@@ -295,13 +296,13 @@ public class EmployeeController {
         String employeeId = SecurityUtils.getCurrentUsername();
         Employee employee = employeeService.getEmployeeById(employeeId);
         EmployeeDTO dto = employeeService.convertToDTO(employee);
-        
+
         model.addAttribute("employeeDTO", dto);
         model.addAttribute("pageTitle", "Edit Profile");
-        
+
         return "employee/profile-edit";
     }
-    
+
     /**
      * Process edit profile form.
      */
@@ -312,13 +313,13 @@ public class EmployeeController {
             BindingResult result,
             Model model,
             RedirectAttributes redirectAttributes) {
-        
+
         String employeeId = SecurityUtils.getCurrentUsername();
-        
+
         if (result.hasErrors()) {
             return "employee/profile-edit";
         }
-        
+
         try {
             // Only allow updating specific fields
             Employee employee = employeeService.getEmployeeById(employeeId);
@@ -329,7 +330,7 @@ public class EmployeeController {
             employee.setPostalCode(dto.getPostalCode());
             employee.setEmergencyContactName(dto.getEmergencyContactName());
             employee.setEmergencyContactPhone(dto.getEmergencyContactPhone());
-            
+
             // Note: Convert to DTO and back to use the existing update method
             EmployeeDTO fullDto = employeeService.convertToDTO(employee);
             fullDto.setPhone(dto.getPhone());
@@ -339,9 +340,9 @@ public class EmployeeController {
             fullDto.setPostalCode(dto.getPostalCode());
             fullDto.setEmergencyContactName(dto.getEmergencyContactName());
             fullDto.setEmergencyContactPhone(dto.getEmergencyContactPhone());
-            
+
             employeeService.updateEmployee(employeeId, fullDto);
-            
+
             redirectAttributes.addFlashAttribute("success", "Profile updated successfully!");
             return "redirect:/employee/profile";
         } catch (Exception e) {
@@ -349,11 +350,11 @@ public class EmployeeController {
             return "employee/profile-edit";
         }
     }
-    
+
     // ============================================
     // EMPLOYEE ENDPOINTS - Employee Directory
     // ============================================
-    
+
     /**
      * View employee directory with search.
      */
@@ -364,9 +365,9 @@ public class EmployeeController {
             @RequestParam(required = false) Long departmentId,
             @RequestParam(required = false) Long designationId,
             Model model) {
-        
+
         List<Employee> employees;
-        
+
         if (search != null || departmentId != null || designationId != null) {
             // Build search criteria
             EmployeeSearchCriteria criteria = new EmployeeSearchCriteria();
@@ -374,17 +375,17 @@ public class EmployeeController {
             criteria.setDepartmentId(departmentId);
             criteria.setDesignationId(designationId);
             criteria.setStatus(com.revature.revworkforce.enums.EmployeeStatus.ACTIVE);
-            
+
             employees = employeeService.searchEmployees(criteria);
         } else {
             // Show only active employees
             employees = employeeService.getActiveEmployees();
         }
-        
+
         List<EmployeeDTO> employeeDTOs = employees.stream()
-            .map(employeeService::convertToDTO)
-            .collect(Collectors.toList());
-        
+                .map(employeeService::convertToDTO)
+                .collect(Collectors.toList());
+
         model.addAttribute("employees", employeeDTOs);
         model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
         model.addAttribute("designations", designationRepository.findByIsActive('Y'));
@@ -392,10 +393,10 @@ public class EmployeeController {
         model.addAttribute("selectedDepartmentId", departmentId);
         model.addAttribute("selectedDesignationId", designationId);
         model.addAttribute("pageTitle", "Employee Directory");
-        
-        return "employee/directory";
+
+        return "frontend/pages/employee/profile-directory";
     }
-    
+
     @GetMapping("/admin/employees/search")
     @PreAuthorize("hasRole('ADMIN')")
     public String searchEmployeesAlias(
