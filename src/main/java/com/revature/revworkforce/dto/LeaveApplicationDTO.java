@@ -14,8 +14,7 @@ import java.time.LocalDate;
  * Used to transfer leave request data between
  * Controller and Service layers.
  */
-@Getter
-@Setter
+
 public class LeaveApplicationDTO {
 
     /**
@@ -79,4 +78,72 @@ public class LeaveApplicationDTO {
                 " characters"
     )
     private String rejectionReason;
+    
+    // ================= GETTERS =================
+
+    public String getLeaveType() {
+        return leaveType;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public Integer getTotalDays() {
+        return totalDays;
+    }
+
+    public LeaveStatus getStatus() {
+        return status;
+    }
+
+    public String getManagerComments() {
+        return managerComments;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    // ================= SETTERS =================
+
+    public void setLeaveType(String leaveType) {
+        this.leaveType = leaveType;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public void setTotalDays(Integer totalDays) {
+        this.totalDays = totalDays;
+    }
+
+    public void setStatus(LeaveStatus status) {
+        this.status = status;
+    }
+
+    public void setManagerComments(String managerComments) {
+        this.managerComments = managerComments;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
 }

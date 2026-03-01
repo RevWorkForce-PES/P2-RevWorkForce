@@ -9,8 +9,7 @@ import lombok.Setter;
  *
  * Used to display leave balance details for an employee.
  */
-@Getter
-@Setter
+
 public class LeaveBalanceDTO {
 
     /**
@@ -46,4 +45,48 @@ public class LeaveBalanceDTO {
     @NotNull(message = "Year is required")
     @Min(value = 2000, message = "Invalid year")
     private Integer year;
+    
+    // ================= GETTERS =================
+
+    public String getLeaveType() {
+        return leaveType;
+    }
+
+    public Integer getTotalAllocated() {
+        return totalAllocated;
+    }
+
+    public Integer getUsedLeaves() {
+        return usedLeaves;
+    }
+
+    public Integer getRemainingBalance() {
+        return remainingBalance;
+    }
+
+    public Integer getYear() {
+        return year;
+    }
+
+    // ================= SETTERS =================
+
+    public void setLeaveType(String leaveType) {
+        this.leaveType = leaveType;
+    }
+
+    public void setTotalAllocated(Integer totalAllocated) {
+        this.totalAllocated = totalAllocated;
+    }
+
+    public void setUsedLeaves(Integer usedLeaves) {
+        this.usedLeaves = usedLeaves;
+    }
+
+    public void setRemainingBalance(Integer remainingBalance) {
+        this.remainingBalance = remainingBalance;
+    }
+
+    public void setYear(Integer year) {
+        this.year = year;
+    }
 }

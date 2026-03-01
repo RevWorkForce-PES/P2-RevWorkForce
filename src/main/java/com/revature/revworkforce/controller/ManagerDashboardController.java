@@ -3,6 +3,8 @@ package com.revature.revworkforce.controller;
 import com.revature.revworkforce.model.Employee;
 import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.security.SecurityUtils;
+import com.revature.revworkforce.service.LeaveService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -27,7 +29,8 @@ public class ManagerDashboardController {
     
     @Autowired
     private EmployeeRepository employeeRepository;
-    
+    @Autowired
+    private LeaveService leaveService;
     /**
      * Display manager dashboard.
      * 
@@ -37,21 +40,25 @@ public class ManagerDashboardController {
     @GetMapping("/dashboard")
     public String managerDashboard(Model model) {
         String employeeId = SecurityUtils.getCurrentUsername();
-        
-        // Get current user
+
         Employee currentUser = employeeRepository.findById(employeeId).orElse(null);
-        
+
         if (currentUser != null) {
             model.addAttribute("currentUser", currentUser);
             model.addAttribute("fullName", currentUser.getFullName());
-            
-            // Get team members (employees reporting to this manager)
-            List<Employee> teamMembers = employeeRepository.findByManager_EmployeeId(employeeId);
+
+            // Team Size
+            List<Employee> teamMembers =
+                    employeeRepository.findByManager_EmployeeId(employeeId);
             model.addAttribute("teamSize", teamMembers.size());
+
+            // ✅ ADD THIS BLOCK
+            model.addAttribute("pendingCount",
+                    leaveService.getPendingLeavesForManager(employeeId).size());
         }
-        
+
         model.addAttribute("pageTitle", "Manager Dashboard");
-        
+
         return "manager/dashboard";
     }
 }

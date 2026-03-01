@@ -35,8 +35,7 @@ import java.time.LocalDateTime;
  *
  * @author RevWorkForce Team
  */
-@Getter
-@Setter
+
 @ToString(exclude = {"employee", "leaveType", "approvedBy"})
 @Entity
 @Table(name = "LEAVE_APPLICATIONS")
@@ -54,10 +53,10 @@ public class LeaveApplication {
     /**
      * Employee who submitted the leave request.
      */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+   
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
-
     /**
      * Type of leave being applied.
      */
@@ -199,4 +198,36 @@ public class LeaveApplication {
             this.status = LeaveStatus.PENDING;
         }
     }
+    
+ // ===== GETTERS =====
+
+    public Long getApplicationId() { return applicationId; }
+    public Employee getEmployee() { return employee; }
+    public LeaveType getLeaveType() { return leaveType; }
+    public LocalDate getStartDate() { return startDate; }
+    public LocalDate getEndDate() { return endDate; }
+    public Integer getTotalDays() { return totalDays; }
+    public String getReason() { return reason; }
+    public LeaveStatus getStatus() { return status; }
+    public LocalDateTime getAppliedOn() { return appliedOn; }
+    public Employee getApprovedBy() { return approvedBy; }
+    public LocalDateTime getApprovedOn() { return approvedOn; }
+    public String getRejectionReason() { return rejectionReason; }
+    public String getComments() { return comments; }
+
+    // ===== SETTERS =====
+
+    public void setApplicationId(Long applicationId) { this.applicationId = applicationId; }
+    public void setEmployee(Employee employee) { this.employee = employee; }
+    public void setLeaveType(LeaveType leaveType) { this.leaveType = leaveType; }
+    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
+    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
+    public void setTotalDays(Integer totalDays) { this.totalDays = totalDays; }
+    public void setReason(String reason) { this.reason = reason; }
+    public void setStatus(LeaveStatus status) { this.status = status; }
+    public void setAppliedOn(LocalDateTime appliedOn) { this.appliedOn = appliedOn; }
+    public void setApprovedBy(Employee approvedBy) { this.approvedBy = approvedBy; }
+    public void setApprovedOn(LocalDateTime approvedOn) { this.approvedOn = approvedOn; }
+    public void setRejectionReason(String rejectionReason) { this.rejectionReason = rejectionReason; }
+    public void setComments(String comments) { this.comments = comments; }
 }
