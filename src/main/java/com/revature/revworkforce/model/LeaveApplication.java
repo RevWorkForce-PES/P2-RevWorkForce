@@ -61,7 +61,7 @@ public class LeaveApplication {
     /**
      * Type of leave being applied.
      */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "leave_type_id", nullable = false)
     private LeaveType leaveType;
 
