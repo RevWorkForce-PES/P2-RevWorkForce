@@ -1,0 +1,11 @@
+feat(announcement): implement Announcement Module backend layer
+
+- Added AnnouncementDTO for data transfer and validation.
+- Implemented AnnouncementService and AnnouncementServiceImpl to handle business logic, including auto-deactivation of expired announcements via scheduled tasks.
+- Created NotificationService and NotificationServiceImpl to support bulk broadcasting of announcements to all active employees.
+- Updated AnnouncementRepository with required custom query methods.
+- Added AnnouncementController providing secured admin management endpoints and public view endpoints for employees.
+- Fixed holidays schema validation by setting hibernate.ddl-auto to update.
+- Created module documentation in docs/announcement_module_docs.md.
+
+Resolves: #93
