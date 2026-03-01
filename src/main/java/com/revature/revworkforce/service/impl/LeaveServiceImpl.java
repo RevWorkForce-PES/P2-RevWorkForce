@@ -6,7 +6,9 @@ import com.revature.revworkforce.enums.LeaveStatus;
 import com.revature.revworkforce.exception.*;
 import com.revature.revworkforce.model.*;
 import com.revature.revworkforce.repository.*;
+import com.revature.revworkforce.service.HolidayService;
 import com.revature.revworkforce.service.LeaveService;
+import com.revature.revworkforce.util.DateUtil;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +17,9 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 @Transactional
@@ -25,20 +29,22 @@ public class LeaveServiceImpl implements LeaveService {
     private final LeaveBalanceRepository leaveBalanceRepository;
     private final LeaveTypeRepository leaveTypeRepository;
     private final EmployeeRepository employeeRepository;
-    private final HolidayRepository holidayRepository;
-
+    private final HolidayService holidayService;
+    @Value("${app.leave.max-continuous-days}")
+    private int maxContinuousLeaveDays;
+    
     public LeaveServiceImpl(
             LeaveApplicationRepository leaveApplicationRepository,
             LeaveBalanceRepository leaveBalanceRepository,
             LeaveTypeRepository leaveTypeRepository,
             EmployeeRepository employeeRepository,
-            HolidayRepository holidayRepository
+            HolidayService holidayService
     ) {
         this.leaveApplicationRepository = leaveApplicationRepository;
         this.leaveBalanceRepository = leaveBalanceRepository;
         this.leaveTypeRepository = leaveTypeRepository;
         this.employeeRepository = employeeRepository;
-        this.holidayRepository = holidayRepository;
+        this.holidayService = holidayService;
     }
 
     // =========================================================
@@ -303,21 +309,10 @@ public class LeaveServiceImpl implements LeaveService {
     public int calculateWorkingDays(LocalDate startDate,
                                     LocalDate endDate) {
 
-        int days = 0;
+        Set<LocalDate> holidays =
+                holidayService.getHolidayDatesInRange(startDate, endDate);
 
-        while (!startDate.isAfter(endDate)) {
-
-            if (startDate.getDayOfWeek() != DayOfWeek.SATURDAY &&
-                startDate.getDayOfWeek() != DayOfWeek.SUNDAY &&
-                !holidayRepository.existsByHolidayDate(startDate)) {
-
-                days++;
-            }
-
-            startDate = startDate.plusDays(1);
-        }
-
-        return days;
+        return DateUtil.calculateWorkingDays(startDate, endDate, holidays);
     }
 
     @Override
@@ -327,8 +322,10 @@ public class LeaveServiceImpl implements LeaveService {
 
         int days = calculateWorkingDays(startDate, endDate);
 
-        if (days > 15) {
-            throw new ValidationException("Continuous leave cannot exceed 15 working days");
+        if (days > maxContinuousLeaveDays) {
+            throw new ValidationException(
+                "Continuous leave cannot exceed " + maxContinuousLeaveDays + " working days"
+            );
         }
     }
 

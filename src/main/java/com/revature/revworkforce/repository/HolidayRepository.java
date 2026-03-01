@@ -1,6 +1,8 @@
 package com.revature.revworkforce.repository;
 
 import com.revature.revworkforce.model.Holiday;
+import com.revature.revworkforce.service.HolidayService;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,7 +21,7 @@ import java.util.Optional;
  */
 @Repository
 public interface HolidayRepository extends JpaRepository<Holiday, Long> {
-    
+	
     /**
      * Find holiday by date.
      * 
@@ -34,19 +36,22 @@ public interface HolidayRepository extends JpaRepository<Holiday, Long> {
      * @param year the year
      * @return list of holidays
      */
-    @Query("SELECT h FROM Holiday h WHERE EXTRACT(YEAR FROM h.holidayDate) = :year ORDER BY h.holidayDate")
-    List<Holiday> findByYear(@Param("year") Integer year);
+    @Query("""
+    	    SELECT h FROM Holiday h
+    	    WHERE EXTRACT(YEAR FROM h.holidayDate) = :year
+    	    AND h.isActive = 'Y'
+    	    ORDER BY h.holidayDate
+    	""")
+    	List<Holiday> findByYear(@Param("year") Integer year);
     
-    /**
-     * Find holidays by date range.
-     * 
-     * @param startDate the start date
-     * @param endDate the end date
-     * @return list of holidays
-     */
-    @Query("SELECT h FROM Holiday h WHERE h.holidayDate BETWEEN :startDate AND :endDate ORDER BY h.holidayDate")
-    List<Holiday> findByDateRange(@Param("startDate") LocalDate startDate, 
-                                   @Param("endDate") LocalDate endDate);
+    @Query("""
+    	    SELECT h FROM Holiday h
+    	    WHERE h.holidayDate BETWEEN :startDate AND :endDate
+    	    AND h.isActive = 'Y'
+    	    ORDER BY h.holidayDate
+    	""")
+    	List<Holiday> findByDateRange(LocalDate startDate,
+    	                              LocalDate endDate);
     
     /**
      * Find holidays by type.
@@ -56,23 +61,17 @@ public interface HolidayRepository extends JpaRepository<Holiday, Long> {
      */
     List<Holiday> findByHolidayType(String holidayType);
     
-    /**
-     * Find upcoming holidays (from today onwards).
-     * 
-     * @param today the current date
-     * @return list of holidays
-     */
-    @Query("SELECT h FROM Holiday h WHERE h.holidayDate >= :today ORDER BY h.holidayDate")
-    List<Holiday> findUpcomingHolidays(@Param("today") LocalDate today);
+    @Query("""
+    	    SELECT h FROM Holiday h
+    	    WHERE h.holidayDate >= :today
+    	    AND h.isActive = 'Y'
+    	    ORDER BY h.holidayDate
+    	""")
+    	List<Holiday> findUpcomingHolidays(@Param("today") LocalDate today);
+   
+    List<Holiday> findByIsActiveOrderByHolidayDateAsc(Character isActive);
     
-    /**
-     * Check if a date is a holiday.
-     * 
-     * @param date the date to check
-     * @return true if date is a holiday
-     */
-    boolean existsByHolidayDate(LocalDate date);
-    
+    boolean existsByHolidayDateAndIsActive(LocalDate date, Character isActive); 
     /**
      * Count holidays in a date range.
      * 
@@ -84,10 +83,4 @@ public interface HolidayRepository extends JpaRepository<Holiday, Long> {
     long countHolidaysInRange(@Param("startDate") LocalDate startDate, 
                               @Param("endDate") LocalDate endDate);
     
-    /**
-     * Find all holidays ordered by date.
-     * 
-     * @return list of holidays
-     */
-    List<Holiday> findAllByOrderByHolidayDateAsc();
 }

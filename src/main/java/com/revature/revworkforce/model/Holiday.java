@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.revature.revworkforce.enums.HolidayType;
+
 /**
  * Entity class representing a Company Holiday.
  * 
@@ -27,8 +29,9 @@ public class Holiday {
     @Column(name = "holiday_name", nullable = false, length = 100)
     private String holidayName;
 
-    @Column(name = "holiday_type", length = 50)
-    private String holidayType = "National";
+    @Enumerated(EnumType.STRING)
+    @Column(name = "holiday_type", nullable = false, length = 50)
+    private HolidayType holidayType;
 
     @Column(name = "is_optional", length = 1)
     private Character isOptional = 'N';
@@ -41,6 +44,15 @@ public class Holiday {
 
     @Column(name = "created_by", length = 20)
     private String createdBy;
+    
+    @Column(name = "is_active", length = 1)
+    private Character isActive = 'Y';
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "updated_by", length = 20)
+    private String updatedBy;
 
     // Constructors
     public Holiday() {
@@ -53,7 +65,7 @@ public class Holiday {
         this.holidayName = holidayName;
     }
 
-    public Holiday(LocalDate holidayDate, String holidayName, String holidayType) {
+    public Holiday(LocalDate holidayDate, String holidayName, HolidayType holidayType) {
         this();
         this.holidayDate = holidayDate;
         this.holidayName = holidayName;
@@ -85,11 +97,11 @@ public class Holiday {
         this.holidayName = holidayName;
     }
 
-    public String getHolidayType() {
+    public HolidayType getHolidayType() {
         return holidayType;
     }
 
-    public void setHolidayType(String holidayType) {
+    public void setHolidayType(HolidayType holidayType) {
         this.holidayType = holidayType;
     }
 
@@ -123,6 +135,29 @@ public class Holiday {
 
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
+    }
+    public Character getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Character isActive) {
+        this.isActive = isActive;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
     }
 
     // Lifecycle callbacks
