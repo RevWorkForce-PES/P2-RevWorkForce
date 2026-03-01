@@ -129,7 +129,8 @@ public class LeaveServiceImpl implements LeaveService {
 
     @Override
     public LeaveApplication approveLeave(Long applicationId,
-                                         String approverId,
+             
+    		String approverId,
                                          String comments) {
 
         LeaveApplication application = getLeaveById(applicationId);

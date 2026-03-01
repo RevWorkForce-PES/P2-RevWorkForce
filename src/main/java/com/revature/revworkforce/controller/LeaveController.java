@@ -80,24 +80,48 @@ public class LeaveController {
     }
     // ================= MANAGER =================
 
-    @GetMapping("/manager")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public String managerLeavePage(Model model,
-                                   Authentication authentication) {
+ // ================= MANAGER =================
 
-        String managerId = authentication.getName();
+    @GetMapping("/manager/pending")
+    @PreAuthorize("hasRole('MANAGER')")
+    public String showPendingLeaves(Model model, Authentication auth) {
+
+        String managerId = auth.getName();
 
         model.addAttribute("pending",
                 leaveService.getPendingLeavesForManager(managerId));
 
+        return "manager/leave/pending";
+    }
+
+   
+    @GetMapping("/manager/team")
+    @PreAuthorize("hasRole('MANAGER')")
+    public String showTeamLeaves(Model model, Authentication auth) {
+
+        String managerId = auth.getName();
+
         model.addAttribute("team",
                 leaveService.getTeamLeaves(managerId));
 
-        return "manager/leave";
+        return "manager/leave/team";
+    }
+    
+
+    @GetMapping("/manager/review/{id}")
+    @PreAuthorize("hasRole('MANAGER')")
+    public String reviewLeave(@PathVariable Long id,
+                              Model model,
+                              Authentication auth) {
+
+        model.addAttribute("leave",
+                leaveService.getLeaveById(id));
+
+        return "manager/leave/review";
     }
 
     @PostMapping("/manager/approve/{id}")
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasRole('MANAGER')")
     public String approve(@PathVariable Long id,
                           @RequestParam(required = false) String comments,
                           Authentication authentication) {
@@ -106,11 +130,11 @@ public class LeaveController {
                 authentication.getName(),
                 comments);
 
-        return "redirect:/leave/manager";
+        return "redirect:/leave/manager/pending";
     }
 
     @PostMapping("/manager/reject/{id}")
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasRole('MANAGER')")
     public String reject(@PathVariable Long id,
                          @RequestParam String rejectionReason,
                          Authentication authentication) {
@@ -119,6 +143,7 @@ public class LeaveController {
                 authentication.getName(),
                 rejectionReason);
 
-        return "redirect:/leave/manager";
+        return "redirect:/leave/manager/pending";
     }
+   
 }

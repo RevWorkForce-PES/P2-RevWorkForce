@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mt-4">
+
+    <h3 class="mb-4">Review Leave Request</h3>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <p><strong>Employee:</strong> <span th:text="${leave.employee.fullName}"></span></p>
+            <p><strong>Leave Type:</strong> <span th:text="${leave.leaveType.leaveCode}"></span></p>
+            <p><strong>Date Range:</strong>
+                <span th:text="${leave.startDate}"></span>
+                to
+                <span th:text="${leave.endDate}"></span>
+            </p>
+            <p><strong>Total Days:</strong> <span th:text="${leave.totalDays}"></span></p>
+            <p><strong>Reason:</strong> <span th:text="${leave.reason}"></span></p>
+
+            <hr>
+
+            <!-- Approve -->
+            <form th:action="@{/leave/manager/approve/{id}(id=${leave.applicationId})}"
+                  method="post" class="mb-3">
+
+                <label>Comments (optional)</label>
+                <textarea name="comments" class="form-control"></textarea>
+
+                <button class="btn btn-success mt-2">Approve</button>
+            </form>
+
+            <!-- Reject -->
+            <form th:action="@{/leave/manager/reject/{id}(id=${leave.applicationId})}"
+                  method="post">
+
+                <label>Rejection Reason (Mandatory)</label>
+                <textarea name="rejectionReason"
+                          class="form-control"
+                          required></textarea>
+
+                <button class="btn btn-danger mt-2">Reject</button>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
