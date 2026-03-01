@@ -52,7 +52,7 @@ public interface HolidayRepository extends JpaRepository<Holiday, Long> {
     	""")
     	List<Holiday> findByDateRange(LocalDate startDate,
     	                              LocalDate endDate);
-    
+    List<Holiday> findAllByOrderByHolidayDateAsc();
     /**
      * Find holidays by type.
      * 
