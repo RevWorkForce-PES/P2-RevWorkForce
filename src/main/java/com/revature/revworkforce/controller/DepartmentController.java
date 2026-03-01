@@ -46,6 +46,19 @@ public class DepartmentController {
     }
 
     /**
+     * Load System Configuration (Frontend Template)
+     */
+    @GetMapping("/system-config")
+    public String systemConfig(Model model) {
+        List<DepartmentDTO> departments = departmentService.getAllDepartments();
+
+        model.addAttribute("departments", departments);
+        model.addAttribute("pageTitle", "System Configuration");
+
+        return "frontend/pages/admin/system-config";
+    }
+
+    /**
      * Show add department form.
      */
     @GetMapping("/add")

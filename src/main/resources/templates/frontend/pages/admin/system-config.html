@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <meta charset="UTF-8">
@@ -21,6 +21,25 @@
         <main class="main-content">
             <app-navbar page-title="System Configuration"></app-navbar>
             <div class="page-wrapper">
+                <!-- Success/Error Messages -->
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show"
+                    style="margin-bottom: 20px; padding: 15px; background-color: #d4edda; border-color: #c3e6cb; color: #155724; border-radius: 4px;">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close"
+                        style="float: right; background: none; border: none; font-size: 1.2rem; cursor: pointer;"
+                        onclick="this.parentElement.style.display='none';">&times;</button>
+                </div>
+
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show"
+                    style="margin-bottom: 20px; padding: 15px; background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; border-radius: 4px;">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close"
+                        style="float: right; background: none; border: none; font-size: 1.2rem; cursor: pointer;"
+                        onclick="this.parentElement.style.display='none';">&times;</button>
+                </div>
+
                 <div class="card">
                     <div class="tabs">
                         <button class="tab-btn active" data-target="master-data">Master Data</button>
@@ -38,36 +57,42 @@
                                     <table class="table">
                                         <thead>
                                             <tr>
-                                                <th>Code</th>
                                                 <th>Name</th>
+                                                <th>Head</th>
+                                                <th>Employees</th>
+                                                <th>Status</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>ENG</td>
-                                                <td>Engineering</td>
-                                                <td><button class="btn btn-secondary btn-sm"
-                                                        onclick="alert('Edit Department Dialog')">Edit</button></td>
+                                            <tr th:each="dept : ${departments}">
+                                                <td th:text="${dept.departmentName}">Engineering</td>
+                                                <td
+                                                    th:text="${dept.departmentHead != null ? dept.departmentHead : 'Not Assigned'}">
+                                                    John Doe</td>
+                                                <td>
+                                                    <span class="badge bg-info"
+                                                        th:text="${dept.employeeCount + ' Members'}">12 Members</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge"
+                                                        th:classappend="${dept.isActive == 'Y' ? 'bg-success' : 'bg-danger'}"
+                                                        th:text="${dept.isActive == 'Y' ? 'Active' : 'Inactive'}">Active</span>
+                                                </td>
+                                                <td>
+                                                    <a th:href="@{/admin/departments/edit/{id}(id=${dept.departmentId})}"
+                                                        class="btn btn-secondary btn-sm">Edit</a>
+                                                </td>
                                             </tr>
-                                            <tr>
-                                                <td>HR</td>
-                                                <td>Human Resources</td>
-                                                <td><button class="btn btn-secondary btn-sm"
-                                                        onclick="alert('Edit Department Dialog')">Edit</button></td>
-                                            </tr>
-                                            <tr>
-                                                <td>SLS</td>
-                                                <td>Sales</td>
-                                                <td><button class="btn btn-secondary btn-sm"
-                                                        onclick="alert('Edit Department Dialog')">Edit</button></td>
+                                            <tr th:if="${#lists.isEmpty(departments)}">
+                                                <td colspan="5" class="text-center text-muted">No departments found</td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
-                                <button class="btn btn-primary btn-sm" onclick="alert('Add Department Dialog')"><i
-                                        class="fas fa-plus"></i> Add
-                                    Department</button>
+                                <a th:href="@{/admin/departments/add}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus"></i> Add Department
+                                </a>
                             </div>
 
                             <div>
