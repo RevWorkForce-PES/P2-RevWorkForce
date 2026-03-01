@@ -5,6 +5,7 @@ import com.revature.revworkforce.exception.DuplicateResourceException;
 import com.revature.revworkforce.exception.ResourceNotFoundException;
 import com.revature.revworkforce.model.Department;
 import com.revature.revworkforce.repository.DepartmentRepository;
+import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,10 +26,12 @@ import java.util.stream.Collectors;
 public class DepartmentServiceImpl implements DepartmentService {
 
     private final DepartmentRepository departmentRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Autowired
-    public DepartmentServiceImpl(DepartmentRepository departmentRepository) {
+    public DepartmentServiceImpl(DepartmentRepository departmentRepository, EmployeeRepository employeeRepository) {
         this.departmentRepository = departmentRepository;
+        this.employeeRepository = employeeRepository;
     }
 
     @Override
@@ -141,6 +144,9 @@ public class DepartmentServiceImpl implements DepartmentService {
         dto.setDepartmentHead(entity.getDepartmentHead());
         dto.setDescription(entity.getDescription());
         dto.setIsActive(entity.getIsActive());
+
+        // Get employee count efficiently
+        dto.setEmployeeCount(employeeRepository.countByDepartment(entity));
 
         return dto;
     }
