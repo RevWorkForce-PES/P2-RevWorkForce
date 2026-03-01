@@ -78,12 +78,12 @@ public class LeaveController {
 
         return "employee/leave/balance";
     }
-    // ================= MANAGER =================
+   
 
  // ================= MANAGER =================
 
     @GetMapping("/manager/pending")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String showPendingLeaves(Model model, Authentication auth) {
 
         String managerId = auth.getName();
@@ -96,7 +96,7 @@ public class LeaveController {
 
    
     @GetMapping("/manager/team")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String showTeamLeaves(Model model, Authentication auth) {
 
         String managerId = auth.getName();
@@ -109,7 +109,7 @@ public class LeaveController {
     
 
     @GetMapping("/manager/review/{id}")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String reviewLeave(@PathVariable Long id,
                               Model model,
                               Authentication auth) {
@@ -121,7 +121,7 @@ public class LeaveController {
     }
 
     @PostMapping("/manager/approve/{id}")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String approve(@PathVariable Long id,
                           @RequestParam(required = false) String comments,
                           Authentication authentication) {
@@ -134,7 +134,7 @@ public class LeaveController {
     }
 
     @PostMapping("/manager/reject/{id}")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String reject(@PathVariable Long id,
                          @RequestParam String rejectionReason,
                          Authentication authentication) {
