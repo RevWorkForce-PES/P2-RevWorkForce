@@ -21,7 +21,7 @@ public class LeaveController {
     // ================= EMPLOYEE =================
 
     @GetMapping("/employee/apply")
-    @PreAuthorize("hasAnyRole('EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
     public String showApplyPage(Model model, Authentication auth) {
 
         String employeeId = auth.getName();
@@ -35,7 +35,7 @@ public class LeaveController {
     }
 
     @PostMapping("/employee/apply")
-    @PreAuthorize("hasAnyRole('EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
     public String applyLeave(@ModelAttribute LeaveApplicationDTO dto,
                              Authentication auth) {
 
@@ -44,7 +44,7 @@ public class LeaveController {
     }
 
     @GetMapping("/employee/history")
-    @PreAuthorize("hasAnyRole('EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
     public String showHistory(Model model, Authentication auth) {
 
         model.addAttribute("history",
@@ -54,7 +54,7 @@ public class LeaveController {
     }
 
     @PostMapping("/employee/cancel/{id}")
-    @PreAuthorize("hasAnyRole('EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
     public String cancel(@PathVariable Long id, Authentication auth) {
 
         leaveService.cancelLeave(id, auth.getName());
@@ -62,7 +62,7 @@ public class LeaveController {
     }
 
     @GetMapping("/employee/balance")
-    @PreAuthorize("hasAnyRole('EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
     public String showBalance(Model model,
                               Authentication auth,
                               @RequestParam(required = false) Integer year) {
