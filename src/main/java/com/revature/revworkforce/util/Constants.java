@@ -169,7 +169,7 @@ public final class Constants {
     public static final String AUDIT_REJECT = "REJECT";
     
     // Audit Retention
-    public static final int AUDIT_RETENTION_YEARS = 7;
+    public static final int AUDIT_RETENTION_YEARS = 5;
     
     // ============================================
     // DATE/TIME CONSTANTS

@@ -243,6 +243,78 @@
     <!-- Load Scripts -->
     <script src="../../js/components.js"></script>
     <script src="../../js/app.js"></script>
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    loadAuditLogs();
+
+    function loadAuditLogs(limit = 100) {
+
+        fetch("/admin/audit/logs?limit=" + limit)
+            .then(response => response.json())
+            .then(data => {
+
+                const tableBody = document.getElementById("auditTableBody");
+                tableBody.innerHTML = "";
+
+                if (data.length === 0) {
+                    tableBody.innerHTML =
+                        "<tr><td colspan='6' style='text-align:center;'>No Logs Found</td></tr>";
+                    return;
+                }
+
+                data.forEach(log => {
+
+                    const row = `
+                        <tr>
+                            <td>#${log.auditId}</td>
+                            <td>${new Date(log.createdAt).toLocaleString()}</td>
+                            <td>${log.employeeId || "SYSTEM"}</td>
+                            <td>${getBadge(log.action)}</td>
+                            <td>${log.tableName || "-"}</td>
+                            <td>${log.description || ""}</td>
+                        </tr>
+                    `;
+
+                    tableBody.innerHTML += row;
+                });
+            });
+    }
+
+    function getBadge(action) {
+
+        let style = "";
+
+        switch (action) {
+            case "INSERT":
+                style = "background:#e0f2fe;color:#0284c7;";
+                break;
+            case "UPDATE":
+                style = "background:#fef3c7;color:#b45309;";
+                break;
+            case "DELETE":
+                style = "background:#fee2e2;color:#dc2626;";
+                break;
+            case "APPROVE":
+                style = "background:#d1fae5;color:#059669;";
+                break;
+            case "REJECT":
+                style = "background:#fee2e2;color:#dc2626;";
+                break;
+            case "LOGIN":
+                style = "background:#e0f2fe;color:#0284c7;";
+                break;
+            case "LOGOUT":
+                style = "background:#f1f5f9;color:#475569;";
+                break;
+            default:
+                style = "background:#f1f5f9;color:#475569;";
+        }
+
+        return `<span class="badge" style="${style}">${action}</span>`;
+    }
+});
+</script>
 </body>
 
 </html>

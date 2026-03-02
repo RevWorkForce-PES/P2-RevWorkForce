@@ -28,6 +28,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
         * @param email the email address
         * @return Optional containing the employee if found
         */
+	Optional<Employee> findByEmployeeId(String employeeId);
        Optional<Employee> findByEmail(String email);
 
        /**
