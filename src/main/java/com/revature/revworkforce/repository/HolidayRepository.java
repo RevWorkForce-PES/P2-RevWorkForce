@@ -2,6 +2,7 @@ package com.revature.revworkforce.repository;
 
 import com.revature.revworkforce.model.Holiday;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,7 +14,7 @@ import java.util.Optional;
 
 @Repository
 public interface HolidayRepository extends JpaRepository<Holiday, Long> {
-
+	
     // ============================================
     // BASIC
     // ============================================
@@ -80,6 +81,6 @@ public interface HolidayRepository extends JpaRepository<Holiday, Long> {
             LocalDate date,
             Character isActive
     );
-    
+    List<Holiday> findByHolidayDateAfterOrderByHolidayDateAsc(LocalDate date);
     
 }

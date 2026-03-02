@@ -174,7 +174,15 @@
                     <div class="card-body">
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
-                            Upcoming company holidays will be displayed here.
+                            <div th:if="${#lists.isEmpty(upcomingHolidays)}" class="alert alert-info">
+    No upcoming holidays.
+</div>
+
+<div th:each="holiday : ${upcomingHolidays}" class="mb-2">
+    <strong th:text="${#temporals.format(holiday.holidayDate, 'dd MMM yyyy')}"></strong>
+    -
+    <span th:text="${holiday.holidayName}"></span>
+</div>
                         </div>
                     </div>
                 </div>

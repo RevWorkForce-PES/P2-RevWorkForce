@@ -1,8 +1,14 @@
 package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.model.Employee;
+import com.revature.revworkforce.model.Holiday;
 import com.revature.revworkforce.repository.EmployeeRepository;
+import com.revature.revworkforce.repository.HolidayRepository;
 import com.revature.revworkforce.security.SecurityUtils;
+
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -22,10 +28,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/employee")
 @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
 public class EmployeeDashboardController {
-    
-    @Autowired
-    private EmployeeRepository employeeRepository;
-    
+	@Autowired
+	private EmployeeRepository employeeRepository;
+
+	@Autowired
+	private HolidayRepository holidayRepository;
+   
     /**
      * Display employee dashboard.
      * 
@@ -48,8 +56,15 @@ public class EmployeeDashboardController {
                               currentUser.getDepartment().getDepartmentName() : "N/A");
         }
         
+     // 🔥 ADD THIS BLOCK
+        List<Holiday> upcomingHolidays =
+                holidayRepository.findByHolidayDateAfterOrderByHolidayDateAsc(LocalDate.now());
+
+        model.addAttribute("upcomingHolidays", upcomingHolidays);
+
         model.addAttribute("pageTitle", "Employee Dashboard");
-        
+
         return "employee/dashboard";
     }
+    
 }
