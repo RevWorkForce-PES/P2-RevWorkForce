@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mt-4">
+
+    <h3 class="mb-3">
+        <i class="fas fa-calendar-alt"></i> Manage Holidays
+    </h3>
+
+    <!-- Add Button -->
+    <div class="mb-3 text-end">
+        <a th:href="@{/admin/holidays/add}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Holiday
+        </a>
+    </div>
+
+    <!-- Holiday Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="holiday : ${holidays}"
+    th:classappend="${holiday.holidayDate.isBefore(T(java.time.LocalDate).now())} ? 'table-secondary' : ''">
+                    <td th:text="${#temporals.format(holiday.holidayDate, 'dd MMM yyyy')}"></td>
+                    <td th:text="${holiday.holidayName}"></td>
+
+                    <td>
+                        <span class="badge bg-info"
+                              th:text="${holiday.type}">
+                        </span>
+                    </td>
+
+                    <td th:text="${holiday.description}"></td>
+
+                    <td>
+                        <a th:href="@{/admin/holidays/edit/{id}(id=${holiday.holidayId})}"
+                           class="btn btn-sm btn-warning">
+                            Edit
+                        </a>
+
+                        <form th:action="@{/admin/holidays/delete/{id}(id=${holiday.holidayId})}"
+                              method="post"
+                              style="display:inline;">
+                            <input type="hidden"
+                                   th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}"/>
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Are you sure?')">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(holidays)}">
+                    <td colspan="5" class="text-center text-muted">
+                        No holidays found
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <!-- Bulk Delete by Year -->
+    <div class="card mt-4 shadow-sm">
+        <div class="card-body">
+            <form th:action="@{/admin/holidays/delete-year}" method="post">
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}"/>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="number"
+                               name="year"
+                               class="form-control"
+                               placeholder="Enter Year (e.g. 2026)"
+                               required>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit"
+                                class="btn btn-danger"
+                                onclick="return confirm('Delete all holidays for this year?')">
+                            Delete Holidays By Year
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/footer :: scripts}"></div>
+</body>
+</html>

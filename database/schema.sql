@@ -677,6 +677,13 @@ END;
     END;
     /
 
+    CREATE OR REPLACE TRIGGER trg_holidays_updated
+BEFORE UPDATE ON HOLIDAYS
+FOR EACH ROW
+BEGIN
+    :NEW.updated_at := CURRENT_TIMESTAMP;
+END;
+/
     -- ============================================
     -- SECTION 5: GRANT PERMISSIONS
     -- ============================================

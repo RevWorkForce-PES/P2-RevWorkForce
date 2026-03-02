@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mt-4">
+
+    <h3><i class="fas fa-calendar-day"></i> Holiday Calendar</h3>
+
+    <div class="card shadow-sm mt-3">
+        <div class="card-body">
+
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="holiday : ${holidays}">
+                    <td th:text="${#temporals.format(holiday.holidayDate, 'dd MMM yyyy')}"></td>
+                    <td th:text="${holiday.holidayName}"></td>
+                    <td>
+                        <span class="badge bg-primary"
+                              th:text="${holiday.type}">
+                        </span>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(holidays)}">
+                    <td colspan="3" class="text-center text-muted">
+                        No upcoming holidays
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/footer :: scripts}"></div>
+</body>
+</html>
