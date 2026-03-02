@@ -526,7 +526,5 @@ The Holiday Management Module:
 ====================================================================
 HOLIDAY MODULE READY FOR PRODUCTION
 ====================================================================
-```
 
-Tell me what you want next.
 
