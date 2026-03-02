@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+    <title th:text="${pageTitle != null ? pageTitle + ' - RevWorkForce' : 'RevWorkForce HRM'}">RevWorkForce</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+   <style>
+    :root {
+        --primary-color: #FB8C00;        /* Main Orange */
+        --primary-dark: #EF6C00;         /* Dark Orange */
+        --primary-light: #FFB74D;        /* Light Orange */
+        --secondary-color: #5D4037;      /* Brownish secondary */
+        --success-color: #43A047;
+        --danger-color: #E53935;
+        --warning-color: #FFA000;
+        --info-color: #1E88E5;
+        --light-bg: #FFF8F1;             /* Very light warm background */
+        --dark-text: #212121;
+        --light-text: #757575;
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--light-bg);
+        color: var(--dark-text);
+        min-height: 100vh;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+    }
+    
+    .text-primary {
+        color: var(--primary-color) !important;
+    }
+    
+    .navbar {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(251, 140, 0, 0.25);
+    }
+    
+    .alert {
+        border-radius: 8px;
+        border: none;
+    }
+</style>
+</head>
+</html>

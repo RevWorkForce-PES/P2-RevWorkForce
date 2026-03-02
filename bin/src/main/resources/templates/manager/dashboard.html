@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    
+    <div class="container-fluid mt-4">
+        <!-- Welcome Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h2 class="mb-0">
+                            <i class="fas fa-users me-2"></i>
+                            Welcome, <span th:text="${fullName}">Manager</span>!
+                        </h2>
+                        <p class="mb-0">Manager Dashboard - Team Management & Approvals</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+        <!-- Team Statistics -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">My Team Size</h6>
+                                <h3 class="mb-0" th:text="${teamSize}">0</h3>
+                            </div>
+                            <div class="text-primary">
+                                <i class="fas fa-users fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Pending Approvals</h6>
+                                <h3 class="mb-0 text-warning" th:text="${pendingCount}">0</h3>
+                            </div>
+                            <div class="text-warning">
+                                <i class="fas fa-clock fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Reviews Pending</h6>
+                                <h3 class="mb-0 text-info">0</h3>
+                            </div>
+                            <div class="text-info">
+                                <i class="fas fa-star fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bolt me-2"></i>Quick Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+    <a th:href="@{/leave/manager/team}"  
+       class="btn btn-outline-primary w-100 py-3">
+        <i class="fas fa-users fa-2x mb-2"></i><br>
+        View My Team
+    </a>
+</div>
+
+<div class="col-md-3 mb-3">
+    <a th:href="@{/leave/manager/pending}" 
+    
+       class="btn btn-outline-warning w-100 py-3">
+        <i class="fas fa-check-circle fa-2x mb-2"></i><br>
+        Approve Leaves
+    </a>
+</div>
+                            <div class="col-md-3 mb-3">
+                                <a href="#" class="btn btn-outline-info w-100 py-3">
+                                    <i class="fas fa-star fa-2x mb-2"></i><br>
+                                    Performance Reviews
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="#" class="btn btn-outline-success w-100 py-3">
+                                    <i class="fas fa-bullseye fa-2x mb-2"></i><br>
+                                    Team Goals
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pending Approvals -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar-check me-2"></i>Pending Leave Approvals
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No pending leave approvals at this time.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-line me-2"></i>Team Performance
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Team performance metrics will be displayed here.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+</body>
+</html>

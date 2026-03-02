@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mt-4">
+
+    <h3 class="mb-4">
+        <i class="fas fa-history me-2"></i>Leave History
+    </h3>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <table class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <tr th:each="leave : ${history}">
+                    <td th:text="${leave.leaveType != null ? leave.leaveType.leaveCode : 'N/A'}"></td>
+
+                    <td th:text="${leave.startDate}"></td>
+                    <td th:text="${leave.endDate}"></td>
+
+                    <td>
+                        <span class="badge bg-warning"
+                              th:if="${leave.status != null and leave.status.name() == 'PENDING'}"
+                              th:text="${leave.status}"></span>
+
+                        <span class="badge bg-success"
+                              th:if="${leave.status != null and leave.status.name() == 'APPROVED'}"
+                              th:text="${leave.status}"></span>
+
+                        <span class="badge bg-danger"
+                              th:if="${leave.status != null and leave.status.name() == 'REJECTED'}"
+                              th:text="${leave.status}"></span>
+
+                        <span class="badge bg-secondary"
+                              th:if="${leave.status != null and leave.status.name() == 'CANCELLED'}"
+                              th:text="${leave.status}"></span>
+                    </td>
+
+                    <td>
+                        <form th:if="${leave.status != null and leave.status.name() == 'PENDING'}"
+                              th:action="@{/leave/employee/cancel/{id}(id=${leave.applicationId})}"
+                              method="post">
+                            <button class="btn btn-sm btn-danger">
+                                Cancel
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/footer :: scripts}"></div>
+
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit & Reports - RevWorkForce Admin</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .filter-bar {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar page-title="Audit & Reports"></app-navbar>
+            <div class="page-wrapper">
+                <div class="card">
+                    <div class="tabs">
+                        <button class="tab-btn active" data-target="audit-logs">Audit Logs</button>
+                        <button class="tab-btn" data-target="daily-jobs">Daily Jobs</button>
+                        <button class="tab-btn" data-target="system-notifications">System Notifications</button>
+                        <button class="tab-btn" data-target="leave-reports">Leave Reports & Revoke</button>
+                    </div>
+
+                    <!-- Audit Logs Tab -->
+                    <div id="audit-logs" class="tab-content active">
+                        <div class="filter-bar">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Date Range</label>
+                                <input type="date" class="form-control">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Module</label>
+                                <select class="form-control">
+                                    <option>All Modules</option>
+                                    <option>Authentication</option>
+                                    <option>Employee Management</option>
+                                    <option>Leave Processing</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0; flex-grow: 1;">
+                                <label class="form-label">Search Keyword</label>
+                                <input type="text" class="form-control" placeholder="Search by User ID or Action">
+                            </div>
+                            <button class="btn btn-primary" onclick="alert('Applying filters...')">Filter</button>
+                            <button class="btn btn-secondary" onclick="alert('Exporting data...')"><i
+                                    class="fas fa-download"></i> Export</button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Log ID</th>
+                                        <th>Timestamp</th>
+                                        <th>User ID</th>
+                                        <th>Action Type</th>
+                                        <th>Table / Module</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>#4092</td>
+                                        <td>2026-03-01 09:12 AM</td>
+                                        <td>ADM001</td>
+                                        <td><span class="badge"
+                                                style="background: #e0f2fe; color: #0284c7;">CREATE</span></td>
+                                        <td>EMPLOYEES</td>
+                                        <td>Inserted record EMP145</td>
+                                    </tr>
+                                    <tr>
+                                        <td>#4091</td>
+                                        <td>2026-03-01 08:45 AM</td>
+                                        <td>MGR012</td>
+                                        <td><span class="badge"
+                                                style="background: #d1fae5; color: #059669;">APPROVE</span></td>
+                                        <td>LEAVE_APPLICATIONS</td>
+                                        <td>Approved Leave Req LR-998 (EMP023)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>#4090</td>
+                                        <td>2026-03-01 07:05 AM</td>
+                                        <td>EMP045</td>
+                                        <td><span class="badge"
+                                                style="background: #fee2e2; color: #dc2626;">LOCKOUT</span></td>
+                                        <td>ACCESS_CONTROL</td>
+                                        <td>Account locked due to 3 failed attempts</td>
+                                    </tr>
+                                    <tr>
+                                        <td>#4089</td>
+                                        <td>2026-03-01 02:30 AM</td>
+                                        <td>SYSTEM</td>
+                                        <td><span class="badge"
+                                                style="background: #f1f5f9; color: #475569;">EXECUTE</span></td>
+                                        <td>DAILY_JOBS</td>
+                                        <td>Database Backup Success</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Daily Jobs Tab -->
+                    <div id="daily-jobs" class="tab-content">
+                        <div class="table-responsive mb-3">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Job Name</th>
+                                        <th>Last Run</th>
+                                        <th>Next Scheduled Run</th>
+                                        <th>Status</th>
+                                        <th>Manual Trigger</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>DB Nightly Backup</td>
+                                        <td>2026-03-01 02:30 AM</td>
+                                        <td>2026-03-02 02:30 AM</td>
+                                        <td><span class="badge badge-approved">Success</span></td>
+                                        <td><button class="btn btn-secondary btn-sm"
+                                                onclick="alert('Job Triggered')">Run Now</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Leave Balance Carry Forward</td>
+                                        <td>2025-12-31 11:59 PM</td>
+                                        <td>2026-12-31 11:59 PM</td>
+                                        <td><span class="badge badge-approved">Success</span></td>
+                                        <td><button class="btn btn-secondary btn-sm" disabled>Run Now</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Performance Cycle Archiver</td>
+                                        <td>2026-01-15 01:00 AM</td>
+                                        <td>2026-07-15 01:00 AM</td>
+                                        <td><span class="badge badge-approved">Success</span></td>
+                                        <td><button class="btn btn-secondary btn-sm"
+                                                onclick="alert('Job Triggered')">Run Now</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- System Notifications Tab -->
+                    <div id="system-notifications" class="tab-content">
+                        <h3 class="mb-3">Broadcast Announcement</h3>
+                        <form class="mb-4" onsubmit="event.preventDefault(); alert('Announcement sent to all users!');">
+                            <div class="form-group">
+                                <label class="form-label">Subject</label>
+                                <input type="text" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Message Body</label>
+                                <textarea class="form-control" rows="4" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Target Audience</label>
+                                <select class="form-control">
+                                    <option>All Employees</option>
+                                    <option>Managers Only</option>
+                                    <option>Specific Department</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Send
+                                Notification</button>
+                        </form>
+                    </div>
+
+                    <!-- Leave Reports Tab -->
+                    <div id="leave-reports" class="tab-content">
+                        <div class="filter-bar">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Employee ID</label>
+                                <input type="text" class="form-control" placeholder="e.g. EMP001">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Leave Status</label>
+                                <select class="form-control">
+                                    <option>Approved Leaves</option>
+                                    <option>Pending</option>
+                                    <option>Rejected</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="alert('Filtering leaves...')">Filter</button>
+                            <button class="btn btn-secondary" onclick="alert('Exporting Master Leave Report...')"><i
+                                    class="fas fa-download"></i> Master Report</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Employee ID</th>
+                                        <th>Name</th>
+                                        <th>Leave Type</th>
+                                        <th>Dates</th>
+                                        <th>Status</th>
+                                        <th>Emergency Revoke</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>EMP001</td>
+                                        <td>Alice Smith</td>
+                                        <td>Sick Leave</td>
+                                        <td>Mar 20 - Mar 22</td>
+                                        <td><span class="badge badge-approved">Approved</span></td>
+                                        <td><button class="btn btn-danger btn-sm"
+                                                onclick="alert('ADMIN: Leave Revoked.')"><i class="fas fa-undo"></i>
+                                                Revoke Leave</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>EMP045</td>
+                                        <td>Charlie Brown</td>
+                                        <td>Casual Leave</td>
+                                        <td>Apr 1 - Apr 5</td>
+                                        <td><span class="badge badge-approved">Approved</span></td>
+                                        <td><button class="btn btn-danger btn-sm"
+                                                onclick="alert('ADMIN: Leave Revoked.')"><i class="fas fa-undo"></i>
+                                                Revoke Leave</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Load Scripts -->
+    <script src="../../js/components.js"></script>
+    <script src="../../js/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    
+    <div class="container mt-4">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h2>
+                    <i class="fas fa-user me-2"></i>Employee Details
+                </h2>
+            </div>
+            <div class="col-md-4 text-end">
+                <a th:href="@{/admin/employees/edit/{id}(id=${employee.employeeId})}" 
+                   class="btn btn-warning me-2">
+                    <i class="fas fa-edit me-2"></i>Edit
+                </a>
+                <a th:href="@{/admin/employees}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back
+                </a>
+            </div>
+        </div>
+        
+        <!-- Employee Profile Card -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <div class="avatar-large mb-3">
+                            <span th:text="${#strings.substring(employee.firstName, 0, 1) + #strings.substring(employee.lastName, 0, 1)}"></span>
+                        </div>
+                        <h4 th:text="${employee.fullName}"></h4>
+                        <p class="text-muted" th:text="${employee.designationName}"></p>
+                        <span class="badge" 
+                              th:classappend="${employee.status.name() == 'ACTIVE' ? 'bg-success' : 
+                                              employee.status.name() == 'INACTIVE' ? 'bg-secondary' : 
+                                              employee.status.name() == 'ON_LEAVE' ? 'bg-warning' : 'bg-danger'}"
+                              th:text="${employee.status}">
+                        </span>
+                        <div class="mt-3">
+                            <span th:each="role : ${employee.roleNames}" 
+                                  class="badge bg-primary me-1"
+                                  th:text="${role}">
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-9">
+                        <!-- Personal Information -->
+                        <h5 class="border-bottom pb-2 mb-3">Personal Information</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Employee ID:</strong>
+                                <p th:text="${employee.employeeId}"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Email:</strong>
+                                <p th:text="${employee.email}"></p>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Phone:</strong>
+                                <p th:text="${employee.phone}"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Date of Birth:</strong>
+                                <p th:text="${#temporals.format(employee.dateOfBirth, 'dd MMM yyyy')}"></p>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <strong>Address:</strong>
+                                <p th:text="${employee.address + ', ' + employee.city + ', ' + employee.state + ' - ' + employee.postalCode}"></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Employment Information -->
+                        <h5 class="border-bottom pb-2 mb-3 mt-4">Employment Information</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Department:</strong>
+                                <p th:text="${employee.departmentName}"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Manager:</strong>
+                                <p th:text="${employee.managerName != null ? employee.managerName : 'No Manager'}"></p>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Joining Date:</strong>
+                                <p th:text="${#temporals.format(employee.joiningDate, 'dd MMM yyyy')}"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Salary:</strong>
+                                <p th:text="${'₹ ' + #numbers.formatDecimal(employee.salary, 1, 'COMMA', 2, 'POINT')}"></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Emergency Contact -->
+                        <h5 class="border-bottom pb-2 mb-3 mt-4">Emergency Contact</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Contact Name:</strong>
+                                <p th:text="${employee.emergencyContactName}"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Contact Phone:</strong>
+                                <p th:text="${employee.emergencyContactPhone}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Team Members (if manager) -->
+        <div th:if="${!#lists.isEmpty(teamMembers)}" class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-users me-2"></i>Team Members
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Employee ID</th>
+                                <th>Name</th>
+                                <th>Designation</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="member : ${teamMembers}">
+                                <td th:text="${member.employeeId}"></td>
+                                <td th:text="${member.fullName}"></td>
+                                <td th:text="${member.designation != null ? member.designation.designationName : ''}"></td>
+                                <td>
+                                    <span class="badge" 
+                                          th:classappend="${member.status.name() == 'ACTIVE' ? 'bg-success' : 'bg-secondary'}"
+                                          th:text="${member.status}">
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+    
+    <style>
+        .avatar-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00897B, #00695C);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 48px;
+        }
+    </style>
+</body>
+</html>

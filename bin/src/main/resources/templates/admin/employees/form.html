@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    
+    <div class="container mt-4">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2>
+                    <i class="fas fa-user-plus me-2"></i>
+                    <span th:text="${isEdit ? 'Edit Employee' : 'Add Employee'}"></span>
+                </h2>
+            </div>
+        </div>
+        
+        <!-- Error Messages -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        
+        <!-- Employee Form -->
+        <form th:action="${isEdit ? '/admin/employees/edit/' + employeeDTO.employeeId : '/admin/employees/add'}" 
+              method="post" 
+              th:object="${employeeDTO}">
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="employeeId" class="form-label">Employee ID *</label>
+                            <input type="text" class="form-control" id="employeeId" 
+                                   th:field="*{employeeId}"
+                                   th:readonly="${isEdit}">
+                            <span class="text-danger" th:if="${#fields.hasErrors('employeeId')}" th:errors="*{employeeId}"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="firstName" class="form-label">First Name *</label>
+                            <input type="text" class="form-control" id="firstName" 
+                                   th:field="*{firstName}" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="lastName" class="form-label">Last Name *</label>
+                            <input type="text" class="form-control" id="lastName" 
+                                   th:field="*{lastName}" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" 
+                                   th:field="*{email}" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="phone" class="form-label">Phone *</label>
+                            <input type="text" class="form-control" id="phone" 
+                                   th:field="*{phone}" 
+                                   placeholder="10-digit mobile number" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="dateOfBirth" class="form-label">Date of Birth *</label>
+                            <input type="date" class="form-control" id="dateOfBirth" 
+                                   th:field="*{dateOfBirth}" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="gender" class="form-label">Gender *</label>
+                            <select class="form-select" id="gender" th:field="*{gender}" required>
+                                <option value="">Select Gender</option>
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                                <option value="O">Other</option>
+                            </select>
+                            <span class="text-danger" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Address Information -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Address Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea class="form-control" id="address" th:field="*{address}" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" class="form-control" id="city" th:field="*{city}">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="state" class="form-label">State</label>
+                            <input type="text" class="form-control" id="state" th:field="*{state}">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="postalCode" class="form-label">Postal Code</label>
+                            <input type="text" class="form-control" id="postalCode" 
+                                   th:field="*{postalCode}" placeholder="6-digit PIN">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="country" class="form-label">Country</label>
+                            <input type="text" class="form-control" id="country" 
+                                   th:field="*{country}" value="India" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Emergency Contact -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Emergency Contact</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="emergencyContactName" class="form-label">Contact Name</label>
+                            <input type="text" class="form-control" id="emergencyContactName" 
+                                   th:field="*{emergencyContactName}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="emergencyContactPhone" class="form-label">Contact Phone</label>
+                            <input type="text" class="form-control" id="emergencyContactPhone" 
+                                   th:field="*{emergencyContactPhone}" placeholder="10-digit mobile number">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Employment Information -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Employment Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="departmentId" class="form-label">Department *</label>
+                            <select class="form-select" id="departmentId" th:field="*{departmentId}" required>
+                                <option value="">Select Department</option>
+                                <option th:each="dept : ${departments}" 
+                                        th:value="${dept.departmentId}"
+                                        th:text="${dept.departmentName}">
+                                </option>
+                            </select>
+                            <span class="text-danger" th:if="${#fields.hasErrors('departmentId')}" th:errors="*{departmentId}"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="designationId" class="form-label">Designation *</label>
+                            <select class="form-select" id="designationId" th:field="*{designationId}" required>
+                                <option value="">Select Designation</option>
+                                <option th:each="desig : ${designations}" 
+                                        th:value="${desig.designationId}"
+                                        th:text="${desig.designationName}">
+                                </option>
+                            </select>
+                            <span class="text-danger" th:if="${#fields.hasErrors('designationId')}" th:errors="*{designationId}"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="managerId" class="form-label">Manager</label>
+                            <select class="form-select" id="managerId" th:field="*{managerId}">
+                                <option value="">No Manager</option>
+                                <option th:each="mgr : ${managers}" 
+                                        th:value="${mgr.employeeId}"
+                                        th:text="${mgr.fullName + ' (' + mgr.employeeId + ')'}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="status" class="form-label">Status *</label>
+                            <select class="form-select" id="status" th:field="*{status}" required>
+                                <option th:each="stat : ${statuses}" 
+                                        th:value="${stat}"
+                                        th:text="${stat}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="joiningDate" class="form-label">Joining Date *</label>
+                            <input type="date" class="form-control" id="joiningDate" 
+                                   th:field="*{joiningDate}" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('joiningDate')}" th:errors="*{joiningDate}"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="salary" class="form-label">Salary (₹) *</label>
+                            <input type="number" class="form-control" id="salary" 
+                                   th:field="*{salary}" step="0.01" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('salary')}" th:errors="*{salary}"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Roles *</label>
+                            <div th:each="role : ${roles}">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" 
+                                           th:id="${'role_' + role.roleId}"
+                                           th:value="${role.roleId}"
+                                           th:field="*{roleIds}">
+                                    <label class="form-check-label" th:for="${'role_' + role.roleId}">
+                                        <span th:text="${role.roleName}"></span>
+                                        <small class="text-muted" th:text="${' - ' + role.roleDescription}"></small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary btn-lg me-2">
+                        <i class="fas fa-save me-2"></i>
+                        <span th:text="${isEdit ? 'Update Employee' : 'Add Employee'}"></span>
+                    </button>
+                    <a th:href="@{/admin/employees}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+</body>
+</html>
