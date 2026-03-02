@@ -2,196 +2,274 @@ package com.revature.revworkforce.model;
 
 import com.revature.revworkforce.enums.ReviewStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * Entity representing a performance review of an employee.
- *
- * Database Table: PERFORMANCE_REVIEWS
- *
- * Relationships:
- * - Many-to-One with Employee (reviewed employee)
- * - Many-to-One with Employee (reviewed by manager)
- *
- * Unique Constraint:
- * Each employee can have only one review per year.
- *
- * Oracle Sequence Used: review_seq
+ * Entity class representing a Performance Review.
+ * 
+ * Maps to database table: PERFORMANCE_REVIEWS
+ * 
+ * @author RevWorkForce Team
  */
-@Getter
-@Setter
-@ToString(exclude = {"employee", "reviewedBy"})
 @Entity
 @Table(name = "PERFORMANCE_REVIEWS",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_emp_review_year",
-                columnNames = {"employee_id", "review_year"}
-        ))
+       uniqueConstraints = @UniqueConstraint(columnNames = {"employee_id", "review_year"}))
 public class PerformanceReview {
 
-    /**
-     * Primary key for performance review.
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "review_seq")
     @SequenceGenerator(name = "review_seq", sequenceName = "review_seq", allocationSize = 1)
     @Column(name = "review_id")
     private Long reviewId;
 
-    /**
-     * Employee whose performance is being reviewed.
-     */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
-    /**
-     * Review year (e.g., 2026).
-     */
     @Column(name = "review_year", nullable = false)
     private Integer reviewYear;
 
-    /**
-     * Review period (e.g., Q1-2026, Annual-2026).
-     */
     @Column(name = "review_period", length = 50)
     private String reviewPeriod;
 
-    /**
-     * Employee self-assessment rating (1.0 to 5.0).
-     */
+    @Lob
+    @Column(name = "key_deliverables")
+    private String keyDeliverables;
+
+    @Lob
+    @Column(name = "major_accomplishments")
+    private String majorAccomplishments;
+
+    @Lob
+    @Column(name = "areas_of_improvement")
+    private String areasOfImprovement;
+
     @Column(name = "self_assessment_rating", precision = 2, scale = 1)
     private BigDecimal selfAssessmentRating;
 
-    /**
-     * Manager rating (1.0 to 5.0).
-     */
+    @Column(name = "self_assessment_comments", length = 1000)
+    private String selfAssessmentComments;
+
+    @Lob
+    @Column(name = "manager_feedback")
+    private String managerFeedback;
+
     @Column(name = "manager_rating", precision = 2, scale = 1)
     private BigDecimal managerRating;
 
-    /**
-     * Final rating after evaluation.
-     */
+    @Column(name = "manager_comments", length = 1000)
+    private String managerComments;
+
     @Column(name = "final_rating", precision = 2, scale = 1)
     private BigDecimal finalRating;
 
-    /**
-     * Current status of the review.
-     */
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(name = "status", length = 20)
     private ReviewStatus status = ReviewStatus.DRAFT;
 
-    /**
-     * Manager who reviewed the performance.
-     */
+    @Column(name = "submitted_date")
+    private LocalDate submittedDate;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewed_by")
     private Employee reviewedBy;
 
-    /**
-     * Date when review was submitted.
-     */
-    @Column(name = "submitted_date")
-    private LocalDate submittedDate;
-
-    /**
-     * Date when review was finalized.
-     */
     @Column(name = "reviewed_date")
     private LocalDate reviewedDate;
 
-    /**
-     * Record creation timestamp.
-     */
-    @Column(name = "created_at", updatable = false, nullable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    /**
-     * Last updated timestamp.
-     */
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    /**
-     * Default constructor required by JPA.
-     * Initializes timestamps and default status.
-     */
+    // Constructors
     public PerformanceReview() {
-        this.status = ReviewStatus.DRAFT;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
-    /**
-     * Constructor used when creating a new review.
-     */
-    public PerformanceReview(Employee employee,
-                             Integer reviewYear,
-                             String reviewPeriod) {
-
+    public PerformanceReview(Employee employee, Integer reviewYear) {
         this();
         this.employee = employee;
         this.reviewYear = reviewYear;
+    }
+
+    // Getters and Setters
+    public Long getReviewId() {
+        return reviewId;
+    }
+
+    public void setReviewId(Long reviewId) {
+        this.reviewId = reviewId;
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
+
+    public Integer getReviewYear() {
+        return reviewYear;
+    }
+
+    public void setReviewYear(Integer reviewYear) {
+        this.reviewYear = reviewYear;
+    }
+
+    public String getReviewPeriod() {
+        return reviewPeriod;
+    }
+
+    public void setReviewPeriod(String reviewPeriod) {
         this.reviewPeriod = reviewPeriod;
     }
 
-    /**
-     * Full constructor.
-     */
-    public PerformanceReview(Long reviewId,
-                             Employee employee,
-                             Integer reviewYear,
-                             String reviewPeriod,
-                             BigDecimal selfAssessmentRating,
-                             BigDecimal managerRating,
-                             BigDecimal finalRating,
-                             ReviewStatus status,
-                             Employee reviewedBy,
-                             LocalDate submittedDate,
-                             LocalDate reviewedDate,
-                             LocalDateTime createdAt,
-                             LocalDateTime updatedAt) {
+    public String getKeyDeliverables() {
+        return keyDeliverables;
+    }
 
-        this.reviewId = reviewId;
-        this.employee = employee;
-        this.reviewYear = reviewYear;
-        this.reviewPeriod = reviewPeriod;
+    public void setKeyDeliverables(String keyDeliverables) {
+        this.keyDeliverables = keyDeliverables;
+    }
+
+    public String getMajorAccomplishments() {
+        return majorAccomplishments;
+    }
+
+    public void setMajorAccomplishments(String majorAccomplishments) {
+        this.majorAccomplishments = majorAccomplishments;
+    }
+
+    public String getAreasOfImprovement() {
+        return areasOfImprovement;
+    }
+
+    public void setAreasOfImprovement(String areasOfImprovement) {
+        this.areasOfImprovement = areasOfImprovement;
+    }
+
+    public BigDecimal getSelfAssessmentRating() {
+        return selfAssessmentRating;
+    }
+
+    public void setSelfAssessmentRating(BigDecimal selfAssessmentRating) {
         this.selfAssessmentRating = selfAssessmentRating;
+    }
+
+    public String getSelfAssessmentComments() {
+        return selfAssessmentComments;
+    }
+
+    public void setSelfAssessmentComments(String selfAssessmentComments) {
+        this.selfAssessmentComments = selfAssessmentComments;
+    }
+
+    public String getManagerFeedback() {
+        return managerFeedback;
+    }
+
+    public void setManagerFeedback(String managerFeedback) {
+        this.managerFeedback = managerFeedback;
+    }
+
+    public BigDecimal getManagerRating() {
+        return managerRating;
+    }
+
+    public void setManagerRating(BigDecimal managerRating) {
         this.managerRating = managerRating;
+    }
+
+    public String getManagerComments() {
+        return managerComments;
+    }
+
+    public void setManagerComments(String managerComments) {
+        this.managerComments = managerComments;
+    }
+
+    public BigDecimal getFinalRating() {
+        return finalRating;
+    }
+
+    public void setFinalRating(BigDecimal finalRating) {
         this.finalRating = finalRating;
+    }
+
+    public ReviewStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ReviewStatus status) {
         this.status = status;
-        this.reviewedBy = reviewedBy;
+    }
+
+    public LocalDate getSubmittedDate() {
+        return submittedDate;
+    }
+
+    public void setSubmittedDate(LocalDate submittedDate) {
         this.submittedDate = submittedDate;
+    }
+
+    public Employee getReviewedBy() {
+        return reviewedBy;
+    }
+
+    public void setReviewedBy(Employee reviewedBy) {
+        this.reviewedBy = reviewedBy;
+    }
+
+    public LocalDate getReviewedDate() {
+        return reviewedDate;
+    }
+
+    public void setReviewedDate(LocalDate reviewedDate) {
         this.reviewedDate = reviewedDate;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    /**
-     * Automatically sets timestamps before insert.
-     */
+    // Lifecycle callbacks
     @PrePersist
     protected void onCreate() {
-        if (this.createdAt == null) {
-            this.createdAt = LocalDateTime.now();
-        }
-        if (this.updatedAt == null) {
-            this.updatedAt = LocalDateTime.now();
-        }
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
-    /**
-     * Updates modified timestamp before update.
-     */
     @PreUpdate
     protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public String toString() {
+        return "PerformanceReview{" +
+                "reviewId=" + reviewId +
+                ", employeeId=" + (employee != null ? employee.getEmployeeId() : null) +
+                ", reviewYear=" + reviewYear +
+                ", status=" + status +
+                ", finalRating=" + finalRating +
+                '}';
     }
 }
