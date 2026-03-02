@@ -2,6 +2,7 @@ package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.dto.HolidayDTO;
 import com.revature.revworkforce.dto.HolidayStatisticsDTO;
+import com.revature.revworkforce.model.Holiday;
 import com.revature.revworkforce.service.HolidayService;
 
 import jakarta.validation.Valid;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -81,8 +83,11 @@ public class HolidayController {
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/employee/holidays")
 	public String viewHolidays(Model model) {
+
 	    model.addAttribute("holidays",
 	            holidayService.getAllActiveHolidays());
-	    return "employee/holidays/calendar"; // matches calendar.html
+
+	    return "employee/holidays/calendar";   // ✅ CORRECT
 	}
+	
 }
