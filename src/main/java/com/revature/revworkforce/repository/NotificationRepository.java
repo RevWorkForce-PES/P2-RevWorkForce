@@ -1,5 +1,6 @@
 package com.revature.revworkforce.repository;
 
+import com.revature.revworkforce.enums.NotificationPriority;
 import com.revature.revworkforce.enums.Priority;
 import com.revature.revworkforce.model.Employee;
 import com.revature.revworkforce.model.Notification;
@@ -8,7 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -48,17 +49,10 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
      */
     List<Notification> findByEmployeeAndNotificationType(Employee employee, String notificationType);
     
-    /**
-     * Find recent notifications for employee (last N days).
-     * 
-     * @param employee the employee
-     * @param since the datetime threshold
-     * @return list of notifications
-     */
-    @Query("SELECT n FROM Notification n WHERE n.employee = :employee AND n.createdAt >= :since ORDER BY n.createdAt DESC")
-    List<Notification> findRecentNotifications(@Param("employee") Employee employee, 
-                                               @Param("since") LocalDateTime since);
-    
+    @Query("SELECT n FROM Notification n WHERE n.employee = :employee ORDER BY n.createdAt DESC")
+    List<Notification> findRecentByEmployee(
+            @Param("employee") Employee employee,
+            Pageable pageable);
     /**
      * Count unread notifications for employee.
      * 
@@ -68,17 +62,11 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
      */
     long countByEmployeeAndIsRead(Employee employee, Character isRead);
     
-    /**
-     * Find high-priority unread notifications.
-     * 
-     * @param employee the employee
-     * @param priority the priority (HIGH or URGENT)
-     * @param isRead 'N' for unread
-     * @return list of notifications
-     */
-    List<Notification> findByEmployeeAndPriorityAndIsReadOrderByCreatedAtDesc(Employee employee, 
-                                                                                Priority priority, 
-                                                                                Character isRead);
+    
+    List<Notification> findByEmployeeAndPriorityAndIsReadOrderByCreatedAtDesc(
+            Employee employee,
+            NotificationPriority priority,
+            Character isRead);
     
     /**
      * Mark notification as read.
@@ -116,4 +104,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
      * @return list of notifications
      */
     List<Notification> findByReferenceTypeAndReferenceId(String referenceType, Long referenceId);
+
 }

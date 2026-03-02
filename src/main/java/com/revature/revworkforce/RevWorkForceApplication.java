@@ -4,6 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @version 1.3.0
  * @since 2026
  */
+@EnableScheduling
 @SpringBootApplication
 public class RevWorkForceApplication implements CommandLineRunner {
 
