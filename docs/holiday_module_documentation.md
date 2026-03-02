@@ -528,13 +528,5 @@ HOLIDAY MODULE READY FOR PRODUCTION
 ====================================================================
 ```
 
----
-
-If you want next:
-
-* 🎤 QC-ready explanation script (how to speak this confidently)
-* 📊 Diagram version (flow diagram text)
-* 🧠 Interview questions from Holiday module
-* 📄 Combined Leave + Holiday integration master document
-
 Tell me what you want next.
+
