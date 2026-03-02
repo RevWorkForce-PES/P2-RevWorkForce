@@ -1,3 +1,4 @@
+
 package com.revature.revworkforce.model;
 
 import com.revature.revworkforce.enums.ReviewStatus;
