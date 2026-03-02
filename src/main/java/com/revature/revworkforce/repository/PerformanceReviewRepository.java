@@ -1,4 +1,3 @@
-
 package com.revature.revworkforce.repository;
 
 import com.revature.revworkforce.enums.ReviewStatus;
@@ -111,4 +110,3 @@ public interface PerformanceReviewRepository extends JpaRepository<PerformanceRe
      */
     long countByStatus(ReviewStatus status);
 }
-
