@@ -82,5 +82,5 @@ public interface HolidayRepository extends JpaRepository<Holiday, Long> {
             Character isActive
     );
     List<Holiday> findByHolidayDateAfterOrderByHolidayDateAsc(LocalDate date);
-    
+    List<Holiday> findByIsActiveOrderByHolidayDateAsc(char isActive);
 }

@@ -114,7 +114,9 @@ public class HolidayServiceImpl implements HolidayService {
 
     @Override
     public List<HolidayDTO> getAllHolidays() {
-        return holidayRepository.findAllByOrderByHolidayDateAsc()
+
+        return holidayRepository
+                .findByIsActiveOrderByHolidayDateAsc('Y')
                 .stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -342,7 +344,7 @@ public List<HolidayDTO> getAllActiveHolidays() {
             .map(this::convertToDTO)
             .toList();
 }
-
+//
 //@GetMapping("/employee/holidays")
 //public String viewHolidays(Model model) {
 //    model.addAttribute("holidays",

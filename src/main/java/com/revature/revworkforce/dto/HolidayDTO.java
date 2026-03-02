@@ -39,21 +39,21 @@ public class HolidayDTO {
     // Custom Validations
     // ===============================
 
-    public void validateDateRules() {
-        if (holidayDate != null) {
-
-            // No past date
-            if (holidayDate.isBefore(LocalDate.now())) {
-                throw new IllegalArgumentException("Holiday date cannot be in the past");
-            }
-
-            // No weekend
-            if (holidayDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
-                holidayDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
-                throw new IllegalArgumentException("Holiday cannot be on a weekend");
-            }
-        }
-    }
+//    public void validateDateRules() {
+//        if (holidayDate != null) {
+//
+//            // No past date
+//            if (holidayDate.isBefore(LocalDate.now())) {
+//                throw new IllegalArgumentException("Holiday date cannot be in the past");
+//            }
+//
+//            // No weekend
+//            if (holidayDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
+//                holidayDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
+//                throw new IllegalArgumentException("Holiday cannot be on a weekend");
+//            }
+//        }
+    
 
     // ===============================
     // Getters & Setters
@@ -164,9 +164,12 @@ public class HolidayDTO {
             return this;
         }
 
+//        public HolidayDTO build() {
+//            dto.validateDateRules();
+//            return dto;
+//        }
         public HolidayDTO build() {
-            dto.validateDateRules();
-            return dto;
+            return dto;   // ✅ only this
         }
     }
 }
