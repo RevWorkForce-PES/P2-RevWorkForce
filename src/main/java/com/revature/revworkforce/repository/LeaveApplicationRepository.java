@@ -47,6 +47,14 @@ public interface LeaveApplicationRepository extends JpaRepository<LeaveApplicati
        List<LeaveApplication> findByStatus(LeaveStatus status);
 
        /**
+        * Count leave applications by status.
+        *
+        * @param status the leave status
+        * @return count of leave applications
+        */
+       long countByStatus(LeaveStatus status);
+
+       /**
         * Find all leave applications by employee and status.
         * 
         * @param employee the employee
@@ -126,4 +134,41 @@ public interface LeaveApplicationRepository extends JpaRepository<LeaveApplicati
         * @return count of leave applications
         */
        long countByEmployeeAndStatus(Employee employee, LeaveStatus status);
+
+       /**
+        * Count total leaves for a given year based on status.
+        * 
+        * @param year the year
+        * @return List of Object arrays with LeaveStatus and count
+        */
+       @Query("SELECT la.status, COUNT(la) FROM LeaveApplication la WHERE EXTRACT(YEAR FROM la.startDate) = :year GROUP BY la.status")
+       List<Object[]> countLeavesByStatus(@Param("year") Integer year);
+
+       /**
+        * Count leaves for a given year based on leave type.
+        * 
+        * @param year the year
+        * @return List of Object arrays with LeaveType name and count
+        */
+       @Query("SELECT la.leaveType.leaveName, COUNT(la) FROM LeaveApplication la WHERE EXTRACT(YEAR FROM la.startDate) = :year GROUP BY la.leaveType.leaveName")
+       List<Object[]> countLeavesByType(@Param("year") Integer year);
+
+       /**
+        * Count leaves grouped by month for a given year.
+        * 
+        * @param year the year
+        * @return List of Object arrays with month integer and count
+        */
+       @Query("SELECT EXTRACT(MONTH FROM la.startDate), COUNT(la) FROM LeaveApplication la WHERE EXTRACT(YEAR FROM la.startDate) = :year GROUP BY EXTRACT(MONTH FROM la.startDate)")
+       List<Object[]> countLeavesByMonth(@Param("year") Integer year);
+
+       /**
+        * Sum the total leave days taken (approved) for a given year.
+        * 
+        * @param year   the year
+        * @param status the leave status
+        * @return Total leave days taken
+        */
+       @Query("SELECT SUM(la.totalDays) FROM LeaveApplication la WHERE EXTRACT(YEAR FROM la.startDate) = :year AND la.status = :status")
+       Long sumTotalLeaveDaysByStatus(@Param("year") Integer year, @Param("status") LeaveStatus status);
 }

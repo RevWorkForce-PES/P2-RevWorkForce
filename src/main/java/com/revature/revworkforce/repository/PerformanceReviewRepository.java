@@ -20,7 +20,7 @@ import java.util.Optional;
  */
 @Repository
 public interface PerformanceReviewRepository extends JpaRepository<PerformanceReview, Long> {
-    
+
     /**
      * Find all performance reviews by employee.
      * 
@@ -28,16 +28,16 @@ public interface PerformanceReviewRepository extends JpaRepository<PerformanceRe
      * @return list of performance reviews
      */
     List<PerformanceReview> findByEmployeeOrderByReviewYearDesc(Employee employee);
-    
+
     /**
      * Find performance review by employee and year.
      * 
-     * @param employee the employee
+     * @param employee   the employee
      * @param reviewYear the review year
      * @return Optional containing the performance review if found
      */
     Optional<PerformanceReview> findByEmployeeAndReviewYear(Employee employee, Integer reviewYear);
-    
+
     /**
      * Find all performance reviews by status.
      * 
@@ -45,28 +45,28 @@ public interface PerformanceReviewRepository extends JpaRepository<PerformanceRe
      * @return list of performance reviews
      */
     List<PerformanceReview> findByStatus(ReviewStatus status);
-    
+
     /**
      * Find all performance reviews by employee and status.
      * 
      * @param employee the employee
-     * @param status the review status
+     * @param status   the review status
      * @return list of performance reviews
      */
     List<PerformanceReview> findByEmployeeAndStatus(Employee employee, ReviewStatus status);
-    
+
     /**
      * Find pending reviews for manager.
      * (Reviews submitted by employees reporting to the manager)
      * 
      * @param managerId the manager's employee ID
-     * @param status the review status (typically SUBMITTED)
+     * @param status    the review status (typically SUBMITTED)
      * @return list of pending performance reviews
      */
     @Query("SELECT pr FROM PerformanceReview pr WHERE pr.employee.manager.employeeId = :managerId AND pr.status = :status")
-    List<PerformanceReview> findPendingReviewsByManagerId(@Param("managerId") String managerId, 
-                                                           @Param("status") ReviewStatus status);
-    
+    List<PerformanceReview> findPendingReviewsByManagerId(@Param("managerId") String managerId,
+            @Param("status") ReviewStatus status);
+
     /**
      * Find all reviews for team members (employees reporting to manager).
      * 
@@ -75,7 +75,7 @@ public interface PerformanceReviewRepository extends JpaRepository<PerformanceRe
      */
     @Query("SELECT pr FROM PerformanceReview pr WHERE pr.employee.manager.employeeId = :managerId ORDER BY pr.reviewYear DESC")
     List<PerformanceReview> findTeamReviewsByManagerId(@Param("managerId") String managerId);
-    
+
     /**
      * Find reviews by year.
      * 
@@ -83,25 +83,25 @@ public interface PerformanceReviewRepository extends JpaRepository<PerformanceRe
      * @return list of performance reviews
      */
     List<PerformanceReview> findByReviewYear(Integer reviewYear);
-    
+
     /**
      * Find reviews by year and status.
      * 
      * @param reviewYear the review year
-     * @param status the review status
+     * @param status     the review status
      * @return list of performance reviews
      */
     List<PerformanceReview> findByReviewYearAndStatus(Integer reviewYear, ReviewStatus status);
-    
+
     /**
      * Check if employee has review for a specific year.
      * 
-     * @param employee the employee
+     * @param employee   the employee
      * @param reviewYear the review year
      * @return true if exists
      */
     boolean existsByEmployeeAndReviewYear(Employee employee, Integer reviewYear);
-    
+
     /**
      * Count reviews by status.
      * 
@@ -109,4 +109,22 @@ public interface PerformanceReviewRepository extends JpaRepository<PerformanceRe
      * @return count of reviews
      */
     long countByStatus(ReviewStatus status);
+
+    /**
+     * Get rating distribution for a given year.
+     * 
+     * @param reviewYear the review year
+     * @return List of Object arrays with rating (rounded) and count
+     */
+    @Query("SELECT FLOOR(pr.finalRating), COUNT(pr) FROM PerformanceReview pr WHERE pr.reviewYear = :reviewYear AND pr.finalRating IS NOT NULL GROUP BY FLOOR(pr.finalRating)")
+    List<Object[]> countRatingDistribution(@Param("reviewYear") Integer reviewYear);
+
+    /**
+     * Get the average rating for a given year.
+     * 
+     * @param reviewYear the review year
+     * @return Average rating
+     */
+    @Query("SELECT AVG(pr.finalRating) FROM PerformanceReview pr WHERE pr.reviewYear = :reviewYear AND pr.finalRating IS NOT NULL")
+    Double getAverageRating(@Param("reviewYear") Integer reviewYear);
 }
