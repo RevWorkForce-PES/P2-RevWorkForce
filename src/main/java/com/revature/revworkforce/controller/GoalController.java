@@ -1,6 +1,7 @@
 package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.dto.GoalDTO;
+import com.revature.revworkforce.dto.GoalStatistics;
 import com.revature.revworkforce.enums.Priority;
 import com.revature.revworkforce.enums.GoalStatus;
 import com.revature.revworkforce.model.Goal;
@@ -48,7 +49,7 @@ public class GoalController {
             .collect(Collectors.toList());
 
         // Get statistics
-        GoalService.GoalStatistics stats = goalService.getEmployeeStatistics(employeeId);
+        GoalStatistics stats = goalService.getEmployeeStatistics(employeeId);
 
         model.addAttribute("goals", goalDTOs);
         model.addAttribute("statistics", stats);

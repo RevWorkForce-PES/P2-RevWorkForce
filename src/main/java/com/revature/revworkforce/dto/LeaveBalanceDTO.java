@@ -11,14 +11,17 @@ import lombok.Setter;
  */
 
 public class LeaveBalanceDTO {
-
+	private String leaveTypeName;
     /**
      * Leave Type Code (CL, SL, PL, etc.)
      */
     @NotBlank(message = "Leave type is required")
     private String leaveType;
 
-    /**
+    
+    
+
+	/**
      * Total leave allocated for the year.
      */
     @NotNull
@@ -88,5 +91,12 @@ public class LeaveBalanceDTO {
 
     public void setYear(Integer year) {
         this.year = year;
+    }
+    public String getLeaveTypeName() {
+        return leaveTypeName;
+    }
+
+    public void setLeaveTypeName(String leaveTypeName) {
+        this.leaveTypeName = leaveTypeName;
     }
 }

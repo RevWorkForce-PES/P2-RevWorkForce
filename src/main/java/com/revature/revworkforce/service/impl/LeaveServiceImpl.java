@@ -3,11 +3,14 @@ package com.revature.revworkforce.service.impl;
 import com.revature.revworkforce.dto.LeaveApplicationDTO;
 import com.revature.revworkforce.dto.LeaveBalanceDTO;
 import com.revature.revworkforce.enums.LeaveStatus;
+import com.revature.revworkforce.enums.NotificationPriority;
+import com.revature.revworkforce.enums.NotificationType;
 import com.revature.revworkforce.exception.*;
 import com.revature.revworkforce.model.*;
 import com.revature.revworkforce.repository.*;
 import com.revature.revworkforce.service.HolidayService;
 import com.revature.revworkforce.service.LeaveService;
+import com.revature.revworkforce.service.NotificationService;
 import com.revature.revworkforce.util.DateUtil;
 
 import org.springframework.stereotype.Service;
@@ -30,21 +33,23 @@ public class LeaveServiceImpl implements LeaveService {
     private final LeaveTypeRepository leaveTypeRepository;
     private final EmployeeRepository employeeRepository;
     private final HolidayService holidayService;
+    private final NotificationService notificationService;
     @Value("${app.leave.max-continuous-days}")
     private int maxContinuousLeaveDays;
-    
     public LeaveServiceImpl(
             LeaveApplicationRepository leaveApplicationRepository,
             LeaveBalanceRepository leaveBalanceRepository,
             LeaveTypeRepository leaveTypeRepository,
             EmployeeRepository employeeRepository,
-            HolidayService holidayService
+            HolidayService holidayService,
+            NotificationService notificationService
     ) {
         this.leaveApplicationRepository = leaveApplicationRepository;
         this.leaveBalanceRepository = leaveBalanceRepository;
         this.leaveTypeRepository = leaveTypeRepository;
         this.employeeRepository = employeeRepository;
         this.holidayService = holidayService;
+        this.notificationService = notificationService;
     }
 
     // =========================================================
@@ -179,7 +184,22 @@ public class LeaveServiceImpl implements LeaveService {
         application.setComments(comments);
 
         leaveBalanceRepository.save(balance);
-        return leaveApplicationRepository.save(application);
+        LeaveApplication saved = leaveApplicationRepository.save(application);
+
+        // 🔔 CREATE NOTIFICATION
+        notificationService.createNotification(
+                application.getEmployee(),
+                NotificationType.LEAVE,
+                "Leave Approved",
+                "Your leave from " +
+                        application.getStartDate() +
+                        " to " +
+                        application.getEndDate() +
+                        " has been approved.",
+                NotificationPriority.NORMAL
+        );
+
+        return saved;
     }
 
     // =========================================================
@@ -221,7 +241,23 @@ public class LeaveServiceImpl implements LeaveService {
         application.setApprovedOn(LocalDateTime.now());
         application.setRejectionReason(rejectionReason);
 
-        return leaveApplicationRepository.save(application);
+        LeaveApplication saved = leaveApplicationRepository.save(application);
+
+     // 🔔 CREATE NOTIFICATION
+     notificationService.createNotification(
+             application.getEmployee(),
+             NotificationType.LEAVE,
+             "Leave Rejected",
+             "Your leave from " +
+                     application.getStartDate() +
+                     " to " +
+                     application.getEndDate() +
+                     " has been rejected. Reason: " +
+                     rejectionReason,
+             NotificationPriority.NORMAL
+     );
+
+     return saved;
     }
     // =========================================================
     // BALANCES
@@ -235,11 +271,32 @@ public class LeaveServiceImpl implements LeaveService {
                 .stream()
                 .map(lb -> {
                     LeaveBalanceDTO dto = new LeaveBalanceDTO();
+
                     dto.setLeaveType(lb.getLeaveType().getLeaveCode());
+
+                    // ✅ ADD THIS SWITCH HERE (INSIDE METHOD)
+                    switch (lb.getLeaveType().getLeaveCode()) {
+                        case "CL":
+                            dto.setLeaveTypeName("Casual Leave");
+                            break;
+                        case "SL":
+                            dto.setLeaveTypeName("Sick Leave");
+                            break;
+                        case "PL":
+                            dto.setLeaveTypeName("Privilege Leave");
+                            break;
+                        case "PRIV":
+                            dto.setLeaveTypeName("Privilege Leave (Extended)");
+                            break;
+                        default:
+                            dto.setLeaveTypeName(lb.getLeaveType().getLeaveCode());
+                    }
+
                     dto.setTotalAllocated(lb.getTotalAllocated());
                     dto.setUsedLeaves(lb.getUsed());
                     dto.setRemainingBalance(lb.getBalance());
                     dto.setYear(lb.getYear());
+
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -353,4 +410,5 @@ public class LeaveServiceImpl implements LeaveService {
         return leaveApplicationRepository
                 .findTeamLeavesByManagerId(managerId);
     }
+    
 }
