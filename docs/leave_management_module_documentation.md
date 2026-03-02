@@ -1,4 +1,4 @@
-==================================================================
+
 LEAVE MANAGEMENT MODULE DOCUMENTATION (Final – Complete Version)
 Enterprise-Grade Technical Documentation
 ==================================================================
@@ -578,5 +578,6 @@ Implements hierarchical RBAC
 Prevents unauthorized approval
 Is transaction-safe and scalable
 It is production-ready and aligned with enterprise architecture standards.
+
 
 ==================================================================
