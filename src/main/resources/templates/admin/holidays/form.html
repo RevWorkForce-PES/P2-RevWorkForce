@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mt-4">
+
+    <h3 th:text="${holiday.holidayId == null} ? 'Add Holiday' : 'Edit Holiday'"></h3>
+
+    <form th:action="${holiday.holidayId == null} ?
+            @{/admin/holidays/add} :
+            @{/admin/holidays/edit/{id}(id=${holiday.holidayId})}"
+          th:object="${holiday}"
+          method="post">
+
+        <input type="hidden"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}"/>
+
+        <!-- Name -->
+        <div class="mb-3">
+            <label class="form-label">Holiday Name</label>
+            <input type="text"
+                   class="form-control"
+                   th:field="*{holidayName}"
+                   required>
+            <div class="text-danger"
+                 th:if="${#fields.hasErrors('holidayName')}"
+                 th:errors="*{holidayName}"></div>
+        </div>
+
+        <!-- Date -->
+        <div class="mb-3">
+            <label class="form-label">Holiday Date</label>
+            <input type="date"
+                   class="form-control"
+                   th:field="*{holidayDate}"
+                   required>
+            <div class="text-danger"
+                 th:if="${#fields.hasErrors('holidayDate')}"
+                 th:errors="*{holidayDate}"></div>
+        </div>
+
+        <!-- Type -->
+        <div class="mb-3">
+            <label class="form-label">Holiday Type</label>
+            <select class="form-select"
+                    th:field="*{type}"
+                    required>
+                <option value="">Select Type</option>
+                <option th:each="t : ${T(com.revature.revworkforce.enums.HolidayType).values()}"
+                        th:value="${t}"
+                        th:text="${t}">
+                </option>
+            </select>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control"
+                      th:field="*{description}"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success">
+            Save
+        </button>
+
+        <a th:href="@{/admin/holidays}"
+           class="btn btn-secondary">
+            Cancel
+        </a>
+
+    </form>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/footer :: scripts}"></div>
+</body>
+</html>

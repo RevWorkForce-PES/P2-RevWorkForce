@@ -59,6 +59,8 @@ public class AdminDashboardController {
         model.addAttribute("totalDepartments", totalDepartments);
         model.addAttribute("pageTitle", "Admin Dashboard");
 
-        return "frontend/pages/admin/dashboard";
+//        return "frontend/pages/admin/dashboard";
+        return "admin/dashboard";
     }
+    
 }

@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import com.revature.revworkforce.dto.HolidayDTO;
 import com.revature.revworkforce.dto.HolidayStatisticsDTO;
@@ -340,5 +342,12 @@ public List<HolidayDTO> getAllActiveHolidays() {
             .map(this::convertToDTO)
             .toList();
 }
+
+//@GetMapping("/employee/holidays")
+//public String viewHolidays(Model model) {
+//    model.addAttribute("holidays",
+//            holidayService.getAllActiveHolidays());
+//    return "employee/holidays/list";
+//}
 }
 
