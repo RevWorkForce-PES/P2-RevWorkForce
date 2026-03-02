@@ -202,4 +202,20 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
         */
        @Query("SELECT AVG(EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM e.joiningDate)) FROM Employee e WHERE e.joiningDate IS NOT NULL")
        Double getAverageTenure();
+
+       /**
+        * Find employees by account locked status.
+        * 
+        * @param accountLocked the locked status ('Y' or 'N')
+        * @return list of employees
+        */
+       List<Employee> findByAccountLocked(Character accountLocked);
+
+       /**
+        * Find employees by first login status.
+        * 
+        * @param firstLogin the first login status ('Y' or 'N')
+        * @return list of employees
+        */
+       List<Employee> findByFirstLogin(Character firstLogin);
 }
