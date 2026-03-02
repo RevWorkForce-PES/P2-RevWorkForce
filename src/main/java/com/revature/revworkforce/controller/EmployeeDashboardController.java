@@ -5,6 +5,7 @@ import com.revature.revworkforce.model.Holiday;
 import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.repository.HolidayRepository;
 import com.revature.revworkforce.security.SecurityUtils;
+import com.revature.revworkforce.service.HolidayService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,43 +29,38 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/employee")
 @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
 public class EmployeeDashboardController {
-	@Autowired
-	private EmployeeRepository employeeRepository;
 
-	@Autowired
-	private HolidayRepository holidayRepository;
-   
-    /**
-     * Display employee dashboard.
-     * 
-     * @param model the model
-     * @return employee dashboard view
-     */
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private HolidayService holidayService;  // ✅ use service
+
     @GetMapping("/dashboard")
     public String employeeDashboard(Model model) {
-        String employeeId = SecurityUtils.getCurrentUsername();
-        
-        // Get current user
-        Employee currentUser = employeeRepository.findById(employeeId).orElse(null);
-        
-        if (currentUser != null) {
-            model.addAttribute("currentUser", currentUser);
-            model.addAttribute("fullName", currentUser.getFullName());
-            model.addAttribute("designation", currentUser.getDesignation() != null ? 
-                              currentUser.getDesignation().getDesignationName() : "N/A");
-            model.addAttribute("department", currentUser.getDepartment() != null ? 
-                              currentUser.getDepartment().getDepartmentName() : "N/A");
-        }
-        
-     // 🔥 ADD THIS BLOCK
-        List<Holiday> upcomingHolidays =
-                holidayRepository.findByHolidayDateAfterOrderByHolidayDateAsc(LocalDate.now());
 
-        model.addAttribute("upcomingHolidays", upcomingHolidays);
+        String employeeId = SecurityUtils.getCurrentUsername();
+
+        Employee currentUser =
+                employeeRepository.findById(employeeId).orElse(null);
+
+        if (currentUser != null) {
+            model.addAttribute("fullName", currentUser.getFullName());
+            model.addAttribute("designation",
+                    currentUser.getDesignation() != null ?
+                            currentUser.getDesignation().getDesignationName() : "N/A");
+            model.addAttribute("department",
+                    currentUser.getDepartment() != null ?
+                            currentUser.getDepartment().getDepartmentName() : "N/A");
+        }
+
+        // ✅ Use service method
+        model.addAttribute("upcomingHolidays",
+                holidayService.getUpcomingHolidays());
 
         model.addAttribute("pageTitle", "Employee Dashboard");
 
         return "employee/dashboard";
-    }
-    
+        }
+
 }

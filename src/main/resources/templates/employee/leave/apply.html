@@ -24,11 +24,11 @@
                         <label class="form-label">Leave Type</label>
                         <select th:field="*{leaveType}" 
                                 class="form-select" required>
-                            <option value="">Select Type</option>
-                            <option value="CL">CL</option>
-                            <option value="SL">SL</option>
-                            <option value="PL">PL</option>
-                            <option value="PRIV">PRIV</option>
+                            <option value="">Select Leave Type</option>
+<option value="CL">Casual Leave</option>
+<option value="SL">Sick Leave</option>
+<option value="PL">Privilege Leave</option>
+<option value="PRIV">Privilege Leave (Extended)</option>
                         </select>
                     </div>
 
@@ -73,7 +73,7 @@
              th:each="b : ${balances}">
             <div class="card shadow-sm text-center">
                 <div class="card-body">
-                    <h5 th:text="${b.leaveType}">CL</h5>
+                     <h5 th:text="${b.leaveTypeName}">Casual Leave</h5>
                     <p>Allocated: <span th:text="${b.totalAllocated}">0</span></p>
                     <p>Used: <span th:text="${b.usedLeaves}">0</span></p>
                     <p class="text-success">
