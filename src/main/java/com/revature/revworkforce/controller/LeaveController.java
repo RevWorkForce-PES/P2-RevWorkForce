@@ -15,11 +15,11 @@ public class LeaveController {
 
     private final LeaveService leaveService;
     private final LeaveTypeRepository leaveTypeRepository;
-
-    public LeaveController(LeaveService leaveService, LeaveTypeRepository leaveTypeRepository) {
-        this.leaveService = leaveService;
-        this.leaveTypeRepository = leaveTypeRepository;
-    }
+    public LeaveController(LeaveService leaveService,
+            LeaveTypeRepository leaveTypeRepository) {
+this.leaveService = leaveService;
+this.leaveTypeRepository = leaveTypeRepository;
+}
 
     // ================= EMPLOYEE =================
 
@@ -32,12 +32,15 @@ public class LeaveController {
         }
 
         model.addAttribute("leaveApplicationDTO", new LeaveApplicationDTO());
-        model.addAttribute("balances", leaveService.getLeaveBalances(employeeId, java.time.LocalDate.now().getYear()));
-        model.addAttribute("history", leaveService.getEmployeeLeaveHistory(employeeId));
-        model.addAttribute("leaveTypes", leaveTypeRepository.findAll());
-        model.addAttribute("selectedYear", year);
 
-        return "pages/employee/leave-management";
+        model.addAttribute("balances",
+                leaveService.getLeaveBalances(employeeId,
+                        java.time.LocalDate.now().getYear()));
+
+        // 🔥 ADD THIS LINE
+        model.addAttribute("leaveTypes", leaveTypeRepository.findAll());
+
+        return "employee/leave/apply";
     }
 
     @PostMapping("/employee/apply")

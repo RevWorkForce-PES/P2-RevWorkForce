@@ -111,11 +111,7 @@ public class SecurityConfig {
 
 				// Exception handling
 				.exceptionHandling(ex -> ex.accessDeniedPage("/error/403"))
-
-				// CSRF protection (enabled by default for POST requests)
-				.csrf(csrf -> csrf.ignoringRequestMatchers("/api/public/**") // Disable CSRF for public API if needed
-				);
-
+				.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));
 		System.out.println("\n========================================");
 		System.out.println("Spring Security Configuration Loaded");
 		System.out.println("========================================");

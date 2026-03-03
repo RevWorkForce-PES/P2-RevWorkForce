@@ -1,16 +1,15 @@
 package com.revature.revworkforce.controller;
 
+import com.revature.revworkforce.dto.LeaveBalanceDTO;
 import com.revature.revworkforce.model.Employee;
-import com.revature.revworkforce.model.Holiday;
 import com.revature.revworkforce.repository.EmployeeRepository;
-import com.revature.revworkforce.repository.HolidayRepository;
 import com.revature.revworkforce.security.SecurityUtils;
 import com.revature.revworkforce.service.HolidayService;
+import com.revature.revworkforce.service.LeaveService;
+import com.revature.revworkforce.service.NotificationService;
 
 import java.time.LocalDate;
-import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,12 +33,21 @@ import java.math.BigDecimal;
 @RequestMapping("/employee")
 @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
 public class EmployeeDashboardController {
+	private final LeaveService leaveService;
+    private final EmployeeRepository employeeRepository;
+    private final HolidayService holidayService;
+    private final NotificationService notificationService;
+   
+    public EmployeeDashboardController(EmployeeRepository employeeRepository,
+            HolidayService holidayService,
+            NotificationService notificationService,
+            LeaveService leaveService) {
 
-        @Autowired
-        private EmployeeRepository employeeRepository;
-
-        @Autowired
-        private HolidayService holidayService;
+this.employeeRepository = employeeRepository;
+this.holidayService = holidayService;
+this.notificationService = notificationService;
+this.leaveService = leaveService;
+}
 
         @Autowired
         private LeaveService leaveService;
@@ -50,39 +58,40 @@ public class EmployeeDashboardController {
         @Autowired
         private PerformanceReviewService reviewService;
 
-        @GetMapping("/dashboard")
-        public String employeeDashboard(Model model) {
+        if (currentUser != null) {
+            model.addAttribute("fullName", currentUser.getFullName());
+            model.addAttribute("designation",
+                    currentUser.getDesignation() != null ?
+                            currentUser.getDesignation().getDesignationName() : "N/A");
+            model.addAttribute("department",
+                    currentUser.getDepartment() != null ?
+                            currentUser.getDepartment().getDepartmentName() : "N/A");
+            leaveService.initializeLeaveBalances(currentUser);
+        }
 
-                String employeeId = SecurityUtils.getCurrentUsername();
+        // ===============================
+        // Leave Balance
+        // ===============================
 
-                Employee currentUser = employeeRepository.findById(employeeId).orElse(null);
+        int currentYear = java.time.LocalDate.now().getYear();
 
-                if (currentUser != null) {
-                        model.addAttribute("fullName", currentUser.getFullName());
-                        model.addAttribute("designation",
-                                        currentUser.getDesignation() != null
-                                                        ? currentUser.getDesignation().getDesignationName()
-                                                        : "N/A");
-                        model.addAttribute("department",
-                                        currentUser.getDepartment() != null
-                                                        ? currentUser.getDepartment().getDepartmentName()
-                                                        : "N/A");
-                }
+        int totalRemaining = leaveService
+                .getLeaveBalances(employeeId, currentYear)
+                .stream()
+                .mapToInt(lb -> lb.getRemainingBalance())
+                .sum();
 
-                // ✅ Use service method
-                model.addAttribute("upcomingHolidays",
-                                holidayService.getUpcomingHolidays());
+        model.addAttribute("leaveBalance", totalRemaining);
 
-                if (employeeId != null) {
-                        try {
-                                int currentYear = LocalDate.now().getYear();
-                                List<LeaveBalanceDTO> balances = leaveService.getLeaveBalances(employeeId, currentYear);
-                                double availableLeaves = balances.stream()
-                                                .mapToDouble(LeaveBalanceDTO::getRemainingBalance).sum();
-                                model.addAttribute("availableLeaves", availableLeaves);
-                        } catch (Exception e) {
-                                model.addAttribute("availableLeaves", 0);
-                        }
+        // ✅ Add Notification Count
+        model.addAttribute("notificationCount",
+                notificationService.getUnreadCount(employeeId));
+
+        // ✅ Holidays
+        model.addAttribute("upcomingHolidays",
+                holidayService.getUpcomingHolidays());
+        model.addAttribute("leaveHistory",
+                leaveService.getEmployeeLeaveHistory(employeeId));
 
                         try {
                                 int activeGoals = goalService.getActiveGoals(employeeId).size();
@@ -114,10 +123,7 @@ public class EmployeeDashboardController {
                 return "pages/employee/dashboard";
         }
 
-        /** Redirect /employee/leave-management → actual leave controller */
-        @GetMapping("/leave-management")
-        public String redirectLeaveManagement() {
-                return "redirect:/leave/employee/leave-management";
-        }
-
+        return "employee/dashboard";    
+        
+    }
 }
