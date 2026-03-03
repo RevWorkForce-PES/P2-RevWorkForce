@@ -1,7 +1,7 @@
 package com.revature.revworkforce.repository;
 
 import com.revature.revworkforce.enums.NotificationPriority;
-import com.revature.revworkforce.enums.Priority;
+import com.revature.revworkforce.enums.NotificationType;
 import com.revature.revworkforce.model.Employee;
 import com.revature.revworkforce.model.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -47,7 +47,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
      * @param notificationType the notification type
      * @return list of notifications
      */
-    List<Notification> findByEmployeeAndNotificationType(Employee employee, String notificationType);
+    List<Notification> findByEmployeeAndNotificationType(Employee employee, NotificationType notificationType);
     
     @Query("SELECT n FROM Notification n WHERE n.employee = :employee ORDER BY n.createdAt DESC")
     List<Notification> findRecentByEmployee(
@@ -68,25 +68,25 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             NotificationPriority priority,
             Character isRead);
     
-    /**
-     * Mark notification as read.
-     * 
-     * @param notificationId the notification ID
-     */
-    @Modifying
-    @Query("UPDATE Notification n SET n.isRead = 'Y', n.readAt = :readAt WHERE n.notificationId = :notificationId")
-    void markAsRead(@Param("notificationId") Long notificationId, @Param("readAt") LocalDateTime readAt);
-    
+//    /**
+//     * Mark notification as read.
+//     * 
+//     * @param notificationId the notification ID
+//     */
+//    @Modifying
+//    @Query("UPDATE Notification n SET n.isRead = 'Y', n.readAt = :readAt WHERE n.notificationId = :notificationId")
+//    void markAsRead(@Param("notificationId") Long notificationId, @Param("readAt") LocalDateTime readAt);
+//    
     /**
      * Mark all notifications as read for employee.
      * 
      * @param employee the employee
      * @param readAt the read timestamp
      */
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Notification n SET n.isRead = 'Y', n.readAt = :readAt WHERE n.employee = :employee AND n.isRead = 'N'")
-    void markAllAsRead(@Param("employee") Employee employee, @Param("readAt") LocalDateTime readAt);
-    
+    int markAllAsRead(@Param("employee") Employee employee,
+                      @Param("readAt") LocalDateTime readAt);
     /**
      * Delete expired notifications.
      * 
@@ -104,5 +104,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
      * @return list of notifications
      */
     List<Notification> findByReferenceTypeAndReferenceId(String referenceType, Long referenceId);
-
+    List<Notification> findByEmployeeAndIsRead(
+            Employee employee,
+            Character isRead,
+            org.springframework.data.domain.Pageable pageable);
 }

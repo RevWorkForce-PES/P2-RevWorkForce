@@ -31,8 +31,9 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="text-muted mb-2">Leave Balance</h6>
-                                <h3 class="mb-0 text-success">0</h3>
-                            </div>
+                               <h3 class="mb-0 text-success"
+    th:text="${leaveBalance}">
+</h3> </div>
                             <div class="text-success">
                                 <i class="fas fa-calendar-alt fa-3x"></i>
                             </div>
@@ -73,22 +74,23 @@
                 </div>
             </div>
             
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-2">Notifications</h6>
-                                <h3 class="mb-0 text-danger">0</h3>
-                            </div>
-                            <div class="text-danger">
-                                <i class="fas fa-bell fa-3x"></i>
-                            </div>
-                        </div>
-                    </div>
+           <div class="col-md-3">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-2">Notifications</h6>
+                    <h3 class="mb-0 text-danger" id="dashboardNotificationCount">
+                        0
+                    </h3>
+                </div>
+                <div class="text-danger">
+                    <i class="fas fa-bell fa-3x"></i>
                 </div>
             </div>
         </div>
+    </div>
+</div>
         
         <!-- Quick Actions -->
         <div class="row mb-4">
@@ -163,10 +165,22 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Your leave history will be displayed here.
-                        </div>
+                       <div th:if="${#lists.isEmpty(leaveHistory)}"
+     class="alert alert-info">
+    No leave history available.
+</div>
+
+<div th:each="leave : ${leaveHistory}" class="mb-2 border-bottom pb-2">
+    <strong th:text="${leave.leaveType.leaveName}"></strong><br>
+    <small>
+        <span th:text="${#temporals.format(leave.startDate, 'dd MMM yyyy')}"></span>
+        -
+        <span th:text="${#temporals.format(leave.endDate, 'dd MMM yyyy')}"></span>
+    </small>
+    <br>
+    <span class="badge bg-secondary"
+          th:text="${leave.status}"></span>
+</div>
                     </div>
                 </div>
             </div>
@@ -179,9 +193,8 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <div th:if="${#lists.isEmpty(upcomingHolidays)}" class="alert alert-info">
+                        <div th:if="${#lists.isEmpty(upcomingHolidays)}"
+     class="alert alert-info">
     No upcoming holidays.
 </div>
 
@@ -190,7 +203,6 @@
     -
     <span th:text="${holiday.holidayName}"></span>
 </div>
-                        </div>
                     </div>
                 </div>
             </div>

@@ -1,6 +1,7 @@
 package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.dto.LeaveApplicationDTO;
+import com.revature.revworkforce.repository.LeaveTypeRepository;
 import com.revature.revworkforce.service.LeaveService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -13,10 +14,12 @@ import org.springframework.web.bind.annotation.*;
 public class LeaveController {
 
     private final LeaveService leaveService;
-
-    public LeaveController(LeaveService leaveService) {
-        this.leaveService = leaveService;
-    }
+    private final LeaveTypeRepository leaveTypeRepository;
+    public LeaveController(LeaveService leaveService,
+            LeaveTypeRepository leaveTypeRepository) {
+this.leaveService = leaveService;
+this.leaveTypeRepository = leaveTypeRepository;
+}
 
     // ================= EMPLOYEE =================
 
@@ -27,9 +30,13 @@ public class LeaveController {
         String employeeId = auth.getName();
 
         model.addAttribute("leaveApplicationDTO", new LeaveApplicationDTO());
+
         model.addAttribute("balances",
                 leaveService.getLeaveBalances(employeeId,
                         java.time.LocalDate.now().getYear()));
+
+        // 🔥 ADD THIS LINE
+        model.addAttribute("leaveTypes", leaveTypeRepository.findAll());
 
         return "employee/leave/apply";
     }

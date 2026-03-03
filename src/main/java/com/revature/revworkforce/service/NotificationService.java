@@ -3,6 +3,7 @@ package com.revature.revworkforce.service;
 import com.revature.revworkforce.dto.NotificationDTO;
 import com.revature.revworkforce.model.Announcement;
 import com.revature.revworkforce.model.Employee;
+import com.revature.revworkforce.model.Notification;
 import com.revature.revworkforce.enums.NotificationPriority;
 import com.revature.revworkforce.enums.NotificationType;
 
@@ -37,4 +38,5 @@ public interface NotificationService {
     void deleteNotification(Long notificationId, String employeeId);
 
     void deleteExpiredNotifications();
+     
 }

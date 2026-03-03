@@ -1,88 +1,71 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <title>RevWorkForce</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-</head>
-<body>
-
 <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <!-- Brand -->
+
         <a class="navbar-brand fw-bold" th:href="@{/dashboard}">
             <i class="fas fa-briefcase me-2"></i>RevWorkForce
         </a>
 
-        <!-- Toggler for mobile -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Navbar links -->
         <div class="collapse navbar-collapse" id="navbarNav">
+
             <ul class="navbar-nav me-auto">
-                <!-- Admin Menu -->
+
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                     <a class="nav-link" th:href="@{/admin/dashboard}">
                         <i class="fas fa-tachometer-alt me-1"></i>Admin Dashboard
                     </a>
                 </li>
 
-                <!-- Manager Menu -->
                 <li class="nav-item" sec:authorize="hasAnyRole('MANAGER','ADMIN')">
                     <a class="nav-link" th:href="@{/manager/dashboard}">
                         <i class="fas fa-users me-1"></i>Team Management
                     </a>
                 </li>
 
-                <!-- Employee Menu -->
                 <li class="nav-item" sec:authorize="hasAnyRole('EMPLOYEE','MANAGER','ADMIN')">
                     <a class="nav-link" th:href="@{/employee/dashboard}">
                         <i class="fas fa-user me-1"></i>My Dashboard
                     </a>
                 </li>
+
             </ul>
 
-            <!-- User Dropdown -->
-            <ul class="navbar-nav">
+            <ul class="navbar-nav align-items-center">
+
+                <li class="nav-item me-3">
+                    <div th:replace="~{fragments/notification-bell :: notificationBell}"></div>
+                </li>
+
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle"
+                       href="#"
+                       id="userDropdown"
+                       data-bs-toggle="dropdown">
                         <i class="fas fa-user-circle me-1"></i>
                         <span sec:authentication="name">User</span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+
+                    <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                             <a class="dropdown-item" th:href="@{/employee/profile}">
-                                <i class="fas fa-user me-2"></i>My Profile
+                                My Profile
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" th:href="@{/change-password}">
-                                <i class="fas fa-key me-2"></i>Change Password
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item text-danger" th:href="@{/logout}">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            <a class="dropdown-item" th:href="@{/logout}">
+                                Logout
                             </a>
                         </li>
                     </ul>
                 </li>
+
             </ul>
+
         </div>
     </div>
 </nav>
-
-<!-- Bootstrap JS Bundle (includes Popper) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
-</html>

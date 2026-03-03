@@ -88,8 +88,25 @@ public class LeaveServiceImpl implements LeaveService {
                 workingDays,
                 dto.getReason()
         );
+        application.setStatus(LeaveStatus.PENDING);
+        LeaveApplication saved = leaveApplicationRepository.save(application);
 
-        return leaveApplicationRepository.save(application);
+        // 🔔 Notify Manager About New Leave Request
+        Employee manager = employee.getManager();
+
+        if (manager != null) {
+            notificationService.createNotification(
+                    manager,
+                    NotificationType.LEAVE,
+                    "New Leave Request",
+                    employee.getFullName() + " applied leave from "
+                            + dto.getStartDate() + " to "
+                            + dto.getEndDate(),
+                    NotificationPriority.HIGH
+            );
+        }
+
+        return saved;
     }
 
     // =========================================================
@@ -273,24 +290,7 @@ public class LeaveServiceImpl implements LeaveService {
                     LeaveBalanceDTO dto = new LeaveBalanceDTO();
 
                     dto.setLeaveType(lb.getLeaveType().getLeaveCode());
-
-                    // ✅ ADD THIS SWITCH HERE (INSIDE METHOD)
-                    switch (lb.getLeaveType().getLeaveCode()) {
-                        case "CL":
-                            dto.setLeaveTypeName("Casual Leave");
-                            break;
-                        case "SL":
-                            dto.setLeaveTypeName("Sick Leave");
-                            break;
-                        case "PL":
-                            dto.setLeaveTypeName("Privilege Leave");
-                            break;
-                        case "PRIV":
-                            dto.setLeaveTypeName("Privilege Leave (Extended)");
-                            break;
-                        default:
-                            dto.setLeaveTypeName(lb.getLeaveType().getLeaveCode());
-                    }
+                    dto.setLeaveTypeName(lb.getLeaveType().getLeaveName()); // ✅ THIS LINE
 
                     dto.setTotalAllocated(lb.getTotalAllocated());
                     dto.setUsedLeaves(lb.getUsed());

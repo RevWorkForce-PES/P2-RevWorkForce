@@ -37,7 +37,12 @@ import java.time.LocalDateTime;
 @Setter
 @ToString(exclude = {"employee"})
 @Entity
-@Table(name = "NOTIFICATIONS")
+@Table(name = "NOTIFICATIONS",
+indexes = {
+    @Index(name = "idx_notif_employee", columnList = "employee_id"),
+    @Index(name = "idx_notif_read", columnList = "is_read"),
+    @Index(name = "idx_notif_created", columnList = "created_at")
+})
 public class Notification {
 
     /**
@@ -124,7 +129,7 @@ public class Notification {
      * Initializes timestamps and defaults.
      */
     public Notification() {
-        this.createdAt = LocalDateTime.now();
+//        this.createdAt = LocalDateTime.now();
         this.expiresAt = LocalDateTime.now().plusDays(90);
         this.isRead = 'N';
         this.priority = NotificationPriority.NORMAL;

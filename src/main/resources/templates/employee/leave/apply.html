@@ -22,14 +22,14 @@
 
                     <div class="col-md-4">
                         <label class="form-label">Leave Type</label>
-                        <select th:field="*{leaveType}" 
-                                class="form-select" required>
-                            <option value="">Select Leave Type</option>
-<option value="CL">Casual Leave</option>
-<option value="SL">Sick Leave</option>
-<option value="PL">Privilege Leave</option>
-<option value="PRIV">Privilege Leave (Extended)</option>
-                        </select>
+                       <select th:field="*{leaveType}" 
+        class="form-select" required>
+    <option value="">Select Leave Type</option>
+    <option th:each="type : ${leaveTypes}"
+            th:value="${type.leaveCode}"
+            th:text="${type.leaveName}">
+    </option>
+</select>
                     </div>
 
                     <div class="col-md-4">
