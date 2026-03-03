@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * 
  * <p>
  * This class serves as the entry point for the Spring Boot application.
- * It implements {@link CommandLineRunner} to print a dynamic startup banner
+ * It implements(lke from profile {@link CommandLineRunner} to print a dynamic startup banner
  * that shows the actual port the application is running on.
  * </p>
  * 

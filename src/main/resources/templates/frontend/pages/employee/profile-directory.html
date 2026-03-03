@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile & Directory - RevWorkForce</title>
-    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
 <body>
@@ -29,9 +29,11 @@
                                     style="width: 120px; height: 120px; border-radius: 50%; background: var(--primary-light); color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 1rem auto; box-shadow: var(--shadow-sm);">
                                     <i class="fas fa-user-circle"></i>
                                 </div>
-                                <h3 style="margin-bottom: 0.25rem;">John Doe</h3>
-                                <p class="text-muted" style="font-size: 0.9rem;">EMP012 - Software Engineer</p>
-                                <span class="badge badge-approved mt-2">Active</span>
+                                <h3 style="margin-bottom: 0.25rem;" th:text="${currentUser.fullName}">John Doe</h3>
+                                <p class="text-muted" style="font-size: 0.9rem;"
+                                    th:text="${currentUser.employeeId} + ' - ' + (${currentUser.designation != null ? currentUser.designation.designationName : 'N/A'})">
+                                    EMP012 - Software Engineer</p>
+                                <span class="badge badge-approved mt-2" th:text="${currentUser.status}">Active</span>
                             </div>
                             <div style="flex-grow: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                                 <div>
@@ -39,31 +41,43 @@
                                         style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
                                         Contact Information</h4>
                                     <p class="mb-1"><i class="fas fa-envelope text-muted" style="width:20px;"></i>
-                                        john.doe@example.com</p>
-                                    <p class="mb-1"><i class="fas fa-phone text-muted" style="width:20px;"></i> +1 (555)
-                                        123-4567</p>
+                                        <span th:text="${currentUser.email}">john.doe@example.com</span>
+                                    </p>
+                                    <p class="mb-1"><i class="fas fa-phone text-muted" style="width:20px;"></i>
+                                        <span th:text="${currentUser.phone}">+1 (555) 123-4567</span>
+                                    </p>
                                     <p class="mb-1"><i class="fas fa-map-marker-alt text-muted" style="width:20px;"></i>
-                                        123 Tech Lane, NY</p>
+                                        <span
+                                            th:text="${(currentUser.city != null ? currentUser.city : '') + ', ' + (currentUser.state != null ? currentUser.state : '')}">123
+                                            Tech Lane, NY</span>
+                                    </p>
                                 </div>
                                 <div>
                                     <h4 class="mb-2"
                                         style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
                                         Professional Details</h4>
                                     <p class="mb-1"><span class="text-muted"
-                                            style="display:inline-block; width:100px;">Department:</span> Engineering
+                                            style="display:inline-block; width:100px;">Department:</span> <span
+                                            th:text="${currentUser.department != null ? currentUser.department.departmentName : 'N/A'}">Engineering</span>
                                     </p>
                                     <p class="mb-1"><span class="text-muted"
-                                            style="display:inline-block; width:100px;">Join Date:</span> Jan 15, 2024
+                                            style="display:inline-block; width:100px;">Join Date:</span> <span
+                                            th:text="${currentUser.joiningDate != null ? #temporals.format(currentUser.joiningDate, 'MMM dd, yyyy') : 'N/A'}">Jan
+                                            15,
+                                            2024</span>
                                     </p>
                                     <p class="mb-1"><span class="text-muted"
-                                            style="display:inline-block; width:100px;">Skills:</span> Java, JavaScript,
-                                        UI/UX</p>
+                                            style="display:inline-block; width:100px;">Manager:</span> <span
+                                            th:text="${manager != null ? manager.fullName : 'N/A'}">Jane Director</span>
+                                    </p>
                                 </div>
                                 <div style="grid-column: span 2; display: flex; gap: 1rem; margin-top: 1rem;">
-                                    <button class="btn btn-primary"><i class="fas fa-edit"></i> Edit Contact
-                                        Info</button>
-                                    <button class="btn btn-secondary"><i class="fas fa-key"></i> Change
-                                        Password</button>
+                                    <a th:href="@{/employee/profile/edit}" class="btn btn-primary"><i
+                                            class="fas fa-edit"></i> Edit Contact
+                                        Info</a>
+                                    <a th:href="@{/change-password}" class="btn btn-secondary"><i
+                                            class="fas fa-key"></i> Change
+                                        Password</a>
                                 </div>
                             </div>
                         </div>
@@ -71,7 +85,7 @@
 
                     <!-- Manager Info Tab -->
                     <div id="manager-info" class="tab-content">
-                        <div class="card"
+                        <div th:if="${manager != null}" class="card"
                             style="box-shadow: none; border-color: var(--border-color); max-width: 500px;">
                             <div style="display: flex; gap: 1.5rem; align-items: center;">
                                 <div
@@ -79,22 +93,27 @@
                                     <i class="fas fa-user-tie"></i>
                                 </div>
                                 <div>
-                                    <h3 style="margin-bottom: 0.25rem;">Jane Manager</h3>
-                                    <p class="text-muted mb-2" style="font-size: 0.9rem;">Engineering Director (MGR001)
+                                    <h3 style="margin-bottom: 0.25rem;" th:text="${manager.fullName}">Jane Manager</h3>
+                                    <p class="text-muted mb-2" style="font-size: 0.9rem;"
+                                        th:text="(${manager.designation != null ? manager.designation.designationName : 'Manager'}) + ' (' + ${manager.employeeId} + ')'">
+                                        Engineering Director (MGR001)
                                     </p>
                                     <p class="mb-1" style="font-size: 0.9rem;"><i class="fas fa-envelope text-muted"
-                                            style="width:20px;"></i> jane.mgr@example.com</p>
+                                            style="width:20px;"></i> <span
+                                            th:text="${manager.email}">jane.mgr@example.com</span></p>
                                     <p class="mb-0" style="font-size: 0.9rem;"><i class="fas fa-phone text-muted"
-                                            style="width:20px;"></i> +1 (555) 987-6543</p>
+                                            style="width:20px;"></i> <span th:text="${manager.phone}">+1 (555)
+                                            987-6543</span></p>
                                 </div>
                             </div>
                             <div class="mt-4"
                                 style="border-top: 1px solid var(--border-color); padding-top: 1rem; display: flex; gap: 0.5rem;">
-                                <a href="mailto:jane.mgr@example.com" class="btn btn-secondary btn-sm"><i
+                                <a th:href="'mailto:' + ${manager.email}" class="btn btn-secondary btn-sm"><i
                                         class="fas fa-paper-plane"></i> Message</a>
-                                <button class="btn btn-secondary btn-sm"><i class="fas fa-calendar-plus"></i> View
-                                    Availability</button>
                             </div>
+                        </div>
+                        <div th:if="${manager == null}">
+                            <div class="alert alert-info">You do not currently have a manager assigned to you.</div>
                         </div>
                     </div>
 
@@ -147,8 +166,8 @@
         </main>
     </div>
     <!-- Load Scripts -->
-    <script src="../../js/components.js"></script>
-    <script src="../../js/app.js"></script>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
 </body>
 
 </html>
