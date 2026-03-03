@@ -80,10 +80,10 @@ public class AdminDashboardController {
         return "pages/admin/system-config";
     }
 
-    @GetMapping("/audit-reports")
-    public String auditReports(Model model) {
-        model.addAttribute("pageTitle", "Audit Reports");
-        return "pages/admin/audit-reports";
-    }
+//    @GetMapping("/audit-reports")
+//    public String auditReports(Model model) {
+//        model.addAttribute("pageTitle", "Audit Reports");
+//        return "pages/admin/audit-reports";
+//    }
 
 }
