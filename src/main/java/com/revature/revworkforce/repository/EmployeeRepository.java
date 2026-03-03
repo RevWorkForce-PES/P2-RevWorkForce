@@ -161,4 +161,61 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
         * @return list of employees
         */
        List<Employee> findByDepartmentAndStatus(Department department, EmployeeStatus status);
+
+       /**
+        * Count employees grouped by status.
+        * 
+        * @return List of Object arrays where [0] is EmployeeStatus and [1] is the
+        *         count.
+        */
+       @Query("SELECT e.status, COUNT(e) FROM Employee e GROUP BY e.status")
+       List<Object[]> countEmployeesByStatus();
+
+       /**
+        * Count employees grouped by department.
+        * 
+        * @return List of Object arrays where [0] is Department and [1] is the count.
+        */
+       @Query("SELECT e.department.departmentName, COUNT(e) FROM Employee e GROUP BY e.department.departmentName")
+       List<Object[]> countEmployeesByDepartment();
+
+       /**
+        * Count employees grouped by designation.
+        * 
+        * @return List of Object arrays where [0] is Designation and [1] is the count.
+        */
+       @Query("SELECT e.designation.designationName, COUNT(e) FROM Employee e GROUP BY e.designation.designationName")
+       List<Object[]> countEmployeesByDesignation();
+
+       /**
+        * Count employees grouped by gender.
+        * 
+        * @return List of Object arrays where [0] is Gender and [1] is the count.
+        */
+       @Query("SELECT e.gender, COUNT(e) FROM Employee e GROUP BY e.gender")
+       List<Object[]> countEmployeesByGender();
+
+       /**
+        * Get average employee tenure in years.
+        * 
+        * @return Average tenure
+        */
+       @Query("SELECT AVG(EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM e.joiningDate)) FROM Employee e WHERE e.joiningDate IS NOT NULL")
+       Double getAverageTenure();
+
+       /**
+        * Find employees by account locked status.
+        * 
+        * @param accountLocked the locked status ('Y' or 'N')
+        * @return list of employees
+        */
+       List<Employee> findByAccountLocked(Character accountLocked);
+
+       /**
+        * Find employees by first login status.
+        * 
+        * @param firstLogin the first login status ('Y' or 'N')
+        * @return list of employees
+        */
+       List<Employee> findByFirstLogin(Character firstLogin);
 }

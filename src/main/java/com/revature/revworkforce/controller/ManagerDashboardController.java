@@ -26,11 +26,12 @@ import java.util.List;
 @RequestMapping("/manager")
 @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
 public class ManagerDashboardController {
-    
+
     @Autowired
     private EmployeeRepository employeeRepository;
     @Autowired
     private LeaveService leaveService;
+
     /**
      * Display manager dashboard.
      * 
@@ -48,8 +49,7 @@ public class ManagerDashboardController {
             model.addAttribute("fullName", currentUser.getFullName());
 
             // Team Size
-            List<Employee> teamMembers =
-                    employeeRepository.findByManager_EmployeeId(employeeId);
+            List<Employee> teamMembers = employeeRepository.findByManager_EmployeeId(employeeId);
             model.addAttribute("teamSize", teamMembers.size());
 
             // ✅ ADD THIS BLOCK
@@ -59,6 +59,30 @@ public class ManagerDashboardController {
 
         model.addAttribute("pageTitle", "Manager Dashboard");
 
-        return "manager/dashboard";
+        return "pages/manager/dashboard";
+    }
+
+    /**
+     * Redirect sidebar shortcut /manager/leave-approvals → actual leave controller
+     */
+    @GetMapping("/leave-approvals")
+    public String redirectLeaveApprovals() {
+        return "redirect:/leave/manager/leave-approvals";
+    }
+
+    /**
+     * Display team management page.
+     *
+     * @param model the model
+     * @return team management view
+     */
+    @GetMapping("/team-management")
+    public String teamManagement(Model model) {
+        String managerId = SecurityUtils.getCurrentUsername();
+        List<com.revature.revworkforce.model.Employee> teamMembers = employeeRepository
+                .findByManager_EmployeeId(managerId);
+        model.addAttribute("teamMembers", teamMembers);
+        model.addAttribute("pageTitle", "Team Management");
+        return "pages/manager/team-management";
     }
 }

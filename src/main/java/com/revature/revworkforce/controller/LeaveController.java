@@ -23,11 +23,13 @@ this.leaveTypeRepository = leaveTypeRepository;
 
     // ================= EMPLOYEE =================
 
-    @GetMapping("/employee/apply")
+    @GetMapping({ "/employee/apply", "/employee/history", "/employee/balance", "/employee/leave-management" })
     @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
-    public String showApplyPage(Model model, Authentication auth) {
-
+    public String showApplyPage(Model model, Authentication auth, @RequestParam(required = false) Integer year) {
         String employeeId = auth.getName();
+        if (year == null) {
+            year = java.time.LocalDate.now().getYear();
+        }
 
         model.addAttribute("leaveApplicationDTO", new LeaveApplicationDTO());
 
@@ -44,82 +46,45 @@ this.leaveTypeRepository = leaveTypeRepository;
     @PostMapping("/employee/apply")
     @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
     public String applyLeave(@ModelAttribute LeaveApplicationDTO dto,
-                             Authentication auth) {
+            Authentication auth) {
 
         leaveService.applyLeave(dto, auth.getName());
-        return "redirect:/leave/employee/history";
+        return "redirect:/leave/employee/leave-management";
     }
 
-    @GetMapping("/employee/history")
-    @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
-    public String showHistory(Model model, Authentication auth) {
-
-        model.addAttribute("history",
-                leaveService.getEmployeeLeaveHistory(auth.getName()));
-
-        return "employee/leave/history";
-    }
+    // History endpoint merged into leave-management
 
     @PostMapping("/employee/cancel/{id}")
     @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
     public String cancel(@PathVariable Long id, Authentication auth) {
 
         leaveService.cancelLeave(id, auth.getName());
-        return "redirect:/leave/employee/history";
+        return "redirect:/leave/employee/leave-management";
     }
 
-    @GetMapping("/employee/balance")
-    @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
-    public String showBalance(Model model,
-                              Authentication auth,
-                              @RequestParam(required = false) Integer year) {
+    // Balance endpoint merged into leave-management
 
-        if (year == null) {
-            year = java.time.LocalDate.now().getYear();
-        }
+    // ================= MANAGER =================
 
-        model.addAttribute("balances",
-                leaveService.getLeaveBalances(auth.getName(), year));
-
-        model.addAttribute("selectedYear", year);
-
-        return "employee/leave/balance";
-    }
-   
-
- // ================= MANAGER =================
-
-    @GetMapping("/manager/pending")
+    @GetMapping({ "/manager/pending", "/manager/team", "/manager/leave-approvals" })
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String showPendingLeaves(Model model, Authentication auth) {
 
         String managerId = auth.getName();
 
-        model.addAttribute("pending",
-                leaveService.getPendingLeavesForManager(managerId));
+        model.addAttribute("pending", leaveService.getPendingLeavesForManager(managerId));
+        model.addAttribute("team", leaveService.getTeamLeaves(managerId));
 
-        return "manager/leave/pending";
+        return "pages/manager/leave-approvals";
     }
 
-   
-    @GetMapping("/manager/team")
-    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
-    public String showTeamLeaves(Model model, Authentication auth) {
-
-        String managerId = auth.getName();
-
-        model.addAttribute("team",
-                leaveService.getTeamLeaves(managerId));
-
-        return "manager/leave/team";
-    }
-    
+    // Team endpoint merged into leave-approvals
 
     @GetMapping("/manager/review/{id}")
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String reviewLeave(@PathVariable Long id,
-                              Model model,
-                              Authentication auth) {
+            Model model,
+            Authentication auth) {
 
         model.addAttribute("leave",
                 leaveService.getLeaveById(id));
@@ -130,27 +95,27 @@ this.leaveTypeRepository = leaveTypeRepository;
     @PostMapping("/manager/approve/{id}")
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String approve(@PathVariable Long id,
-                          @RequestParam(required = false) String comments,
-                          Authentication authentication) {
+            @RequestParam(required = false) String comments,
+            Authentication authentication) {
 
         leaveService.approveLeave(id,
                 authentication.getName(),
                 comments);
 
-        return "redirect:/leave/manager/pending";
+        return "redirect:/leave/manager/leave-approvals";
     }
 
     @PostMapping("/manager/reject/{id}")
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String reject(@PathVariable Long id,
-                         @RequestParam String rejectionReason,
-                         Authentication authentication) {
+            @RequestParam String rejectionReason,
+            Authentication authentication) {
 
         leaveService.rejectLeave(id,
                 authentication.getName(),
                 rejectionReason);
 
-        return "redirect:/leave/manager/pending";
+        return "redirect:/leave/manager/leave-approvals";
     }
-   
+
 }

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - RevWorkForce</title>
-    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
         .login-page {
             min-height: 100vh;
@@ -145,18 +145,25 @@
             <h1 class="login-title">Welcome Back</h1>
             <p class="login-subtitle">Sign in to RevWorkForce</p>
 
-            <form id="loginForm"
-                onsubmit="event.preventDefault(); alert('Please use the quick login buttons below for demonstration purposes.');">
+            <div th:if="${error}" class="alert alert-danger"
+                style="color: #dc3545; background-color: #f8d7da; border-color: #f5c6cb; padding: .75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: .25rem; text-align: left;"
+                th:text="${error}"></div>
+            <div th:if="${message}" class="alert alert-success"
+                style="color: #155724; background-color: #d4edda; border-color: #c3e6cb; padding: .75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: .25rem; text-align: left;"
+                th:text="${message}"></div>
+
+            <form id="loginForm" th:action="@{/login}" method="post">
                 <div class="form-group">
-                    <label class="form-label" for="employeeId">Employee ID</label>
-                    <input type="text" id="employeeId" class="form-control" placeholder="e.g. EMP001" required>
+                    <label class="form-label" for="username">Employee ID / Email</label>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="e.g. EMP001"
+                        required>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>
-                    <input type="password" id="password" class="form-control" placeholder="Enter your password"
-                        required>
-                    <a href="forgot-password.html" class="forgot-password">Forgot password?</a>
+                    <input type="password" id="password" name="password" class="form-control"
+                        placeholder="Enter your password" required>
+                    <a th:href="@{/forgot-password}" class="forgot-password">Forgot password?</a>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-login">Sign In</button>
@@ -174,7 +181,7 @@
     </div>
 
     <!-- Load App JS -->
-    <script src="../../js/app.js"></script>
+    <script th:src="@{/js/app.js}"></script>
 </body>
 
 </html>

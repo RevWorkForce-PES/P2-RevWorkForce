@@ -15,6 +15,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import com.revature.revworkforce.service.LeaveService;
+import com.revature.revworkforce.service.GoalService;
+import com.revature.revworkforce.service.PerformanceReviewService;
+import com.revature.revworkforce.dto.LeaveBalanceDTO;
+import java.math.BigDecimal;
 
 /**
  * Employee Dashboard Controller.
@@ -44,13 +49,14 @@ this.notificationService = notificationService;
 this.leaveService = leaveService;
 }
 
-    @GetMapping("/dashboard")
-    public String employeeDashboard(Model model) {
+        @Autowired
+        private LeaveService leaveService;
 
-        String employeeId = SecurityUtils.getCurrentUsername();
+        @Autowired
+        private GoalService goalService;
 
-        Employee currentUser =
-                employeeRepository.findById(employeeId).orElse(null);
+        @Autowired
+        private PerformanceReviewService reviewService;
 
         if (currentUser != null) {
             model.addAttribute("fullName", currentUser.getFullName());
@@ -87,23 +93,37 @@ this.leaveService = leaveService;
         model.addAttribute("leaveHistory",
                 leaveService.getEmployeeLeaveHistory(employeeId));
 
-        model.addAttribute("pageTitle", "Employee Dashboard");
+                        try {
+                                int activeGoals = goalService.getActiveGoals(employeeId).size();
+                                model.addAttribute("activeGoals", activeGoals);
+                                model.addAttribute("recentGoals", goalService.getEmployeeGoals(employeeId));
+                        } catch (Exception e) {
+                                model.addAttribute("activeGoals", 0);
+                                model.addAttribute("recentGoals", List.of());
+                        }
 
-        return "employee/dashboard";
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+                        try {
+                                long pendingActions = reviewService.getEmployeeReviews(employeeId).stream()
+                                                .filter(r -> "SELF_ASSESSMENT_PENDING".equals(r.getStatus().name()))
+                                                .count();
+                                model.addAttribute("pendingActions", pendingActions);
+                        } catch (Exception e) {
+                                model.addAttribute("pendingActions", 0);
+                        }
+
+                        try {
+                                model.addAttribute("recentLeaves", leaveService.getEmployeeLeaveHistory(employeeId));
+                        } catch (Exception e) {
+                                model.addAttribute("recentLeaves", List.of());
+                        }
+                }
+
+                model.addAttribute("pageTitle", "Employee Dashboard");
+
+                return "pages/employee/dashboard";
+        }
+
+        return "employee/dashboard";    
         
     }
 }
