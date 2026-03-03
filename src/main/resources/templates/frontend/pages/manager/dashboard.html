@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="user-fullname" th:content="${fullName} ?: 'Manager'">
+    <meta name="user-role" content="Manager">
     <title>Manager Dashboard - RevWorkForce</title>
-    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
         .stats-grid {
             display: grid;
@@ -87,7 +89,7 @@
                     <div class="card">
                         <div class="card-header">
                             <h2 class="card-title">Team Attendance Today</h2>
-                            <a href="team-management.html" class="btn btn-secondary btn-sm">View All</a>
+                            <a th:href="@{/employee/directory}" class="btn btn-secondary btn-sm">View All</a>
                         </div>
                         <div class="table-responsive">
                             <table class="table">
@@ -155,8 +157,8 @@
         </main>
     </div>
     <!-- Load Scripts -->
-    <script src="../../js/components.js"></script>
-    <script src="../../js/app.js"></script>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
 </body>
 
 </html>

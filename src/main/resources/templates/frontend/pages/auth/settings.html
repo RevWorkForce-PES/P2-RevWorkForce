@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Settings - RevWorkForce</title>
-    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
         .settings-layout {
             display: grid;
@@ -123,7 +123,7 @@
                         <div id="admin-sys" class="settings-panel">
                             <h2 class="mb-4">Advanced System Routing</h2>
                             <p class="text-muted">You are viewing this because of your Admin role.</p>
-                            <a href="../pages/admin/system-config.html" class="btn btn-secondary">Go to Master System
+                            <a th:href="@{/admin/system-config}" class="btn btn-secondary">Go to Master System
                                 Panel
                                 <i class="fas fa-arrow-right"></i></a>
                         </div>
@@ -133,8 +133,8 @@
         </main>
     </div>
 
-    <script src="../../js/components.js"></script>
-    <script src="../../js/app.js"></script>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
     <script>
         // Role-based rendering logic for settings page
         document.addEventListener('DOMContentLoaded', () => {

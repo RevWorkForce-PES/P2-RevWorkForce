@@ -59,8 +59,31 @@ public class AdminDashboardController {
         model.addAttribute("totalDepartments", totalDepartments);
         model.addAttribute("pageTitle", "Admin Dashboard");
 
-//        return "frontend/pages/admin/dashboard";
-        return "admin/dashboard";
+        return "pages/admin/dashboard";
     }
-    
+
+    @Autowired
+    private com.revature.revworkforce.service.DepartmentService departmentService;
+
+    @Autowired
+    private com.revature.revworkforce.service.DesignationService designationService;
+
+    @Autowired
+    private com.revature.revworkforce.service.HolidayService holidayService;
+
+    @GetMapping("/system-config")
+    public String systemConfig(Model model) {
+        model.addAttribute("departments", departmentService.getAllDepartments());
+        model.addAttribute("designations", designationService.getAllDesignations());
+        model.addAttribute("holidays", holidayService.getAllHolidays());
+        model.addAttribute("pageTitle", "System Configuration");
+        return "pages/admin/system-config";
+    }
+
+    @GetMapping("/audit-reports")
+    public String auditReports(Model model) {
+        model.addAttribute("pageTitle", "Audit Reports");
+        return "pages/admin/audit-reports";
+    }
+
 }

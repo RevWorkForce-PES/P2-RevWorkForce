@@ -4,8 +4,16 @@ class AppSidebar extends HTMLElement {
     }
 
     connectedCallback() {
-        // Always fetch the freshest role when connecting to DOM, in case app.js updated it
-        this.role = localStorage.getItem('userRole') || 'employee';
+        const path = window.location.pathname;
+        if (path.includes('/admin/')) {
+            this.role = 'admin';
+        } else if (path.includes('/manager/')) {
+            this.role = 'manager';
+        } else {
+            this.role = 'employee';
+        }
+        localStorage.setItem('userRole', this.role);
+
         this.render();
         this.setupEventListeners();
     }
@@ -13,35 +21,27 @@ class AppSidebar extends HTMLElement {
     render() {
         let linksHtml = '';
 
-        const path = window.location.pathname;
-        let prefix = '../'; // default for 1 level deep
-        if (path.includes('/pages/admin/') || path.includes('/pages/manager/') || path.includes('/pages/employee/')) {
-            prefix = '../../';
-        } else if (path.includes('/pages/auth/')) {
-            prefix = '../../';
-        } else if (path.endsWith('index.html') || path === '/' || path.endsWith('/frontend/')) {
-            prefix = './';
-        }
+        const basePath = window.location.pathname.startsWith('/RevWorkForce') ? '/RevWorkForce' : '';
 
         if (this.role === 'admin') {
             linksHtml = `
                 <li class="nav-item">
-                    <a href="${prefix}pages/admin/dashboard.html" class="nav-link">
+                    <a href="${basePath}/admin/dashboard" class="nav-link">
                         <i class="fas fa-home"></i> <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/admin/employee-management.html" class="nav-link">
+                    <a href="${basePath}/admin/employees" class="nav-link">
                         <i class="fas fa-users"></i> <span>Employee Mgt</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/admin/system-config.html" class="nav-link">
+                    <a href="${basePath}/admin/system-config" class="nav-link">
                         <i class="fas fa-cogs"></i> <span>System Config</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/admin/audit-reports.html" class="nav-link">
+                    <a href="${basePath}/admin/dashboard" class="nav-link">
                         <i class="fas fa-file-alt"></i> <span>Audit & Reports</span>
                     </a>
                 </li>
@@ -49,22 +49,22 @@ class AppSidebar extends HTMLElement {
         } else if (this.role === 'manager') {
             linksHtml = `
                 <li class="nav-item">
-                    <a href="${prefix}pages/manager/dashboard.html" class="nav-link">
+                    <a href="${basePath}/manager/dashboard" class="nav-link">
                         <i class="fas fa-home"></i> <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/manager/team-management.html" class="nav-link">
-                        <i class="fas fa-users-cog"></i> <span>Team Mgt</span>
+                    <a href="${basePath}/manager/team-management" class="nav-link">
+                        <i class="fas fa-users-cog"></i> <span>Team Directory</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/manager/leave-approvals.html" class="nav-link">
+                    <a href="${basePath}/manager/leave-approvals" class="nav-link">
                         <i class="fas fa-calendar-check"></i> <span>Leave Approvals</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/manager/performance-review.html" class="nav-link">
+                    <a href="${basePath}/manager/performance" class="nav-link">
                         <i class="fas fa-chart-line"></i> <span>Performance</span>
                     </a>
                 </li>
@@ -73,22 +73,22 @@ class AppSidebar extends HTMLElement {
             // Employee
             linksHtml = `
                 <li class="nav-item">
-                    <a href="${prefix}pages/employee/dashboard.html" class="nav-link">
+                    <a href="${basePath}/employee/dashboard" class="nav-link">
                         <i class="fas fa-home"></i> <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/employee/profile-directory.html" class="nav-link">
+                    <a href="${basePath}/employee/directory" class="nav-link">
                         <i class="fas fa-id-card"></i> <span>Profile & Directory</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/employee/leave-management.html" class="nav-link">
+                    <a href="${basePath}/employee/leave-management" class="nav-link">
                         <i class="fas fa-calendar-alt"></i> <span>Leave Management</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/employee/performance-goals.html" class="nav-link">
+                    <a href="${basePath}/employee/performance" class="nav-link">
                         <i class="fas fa-bullseye"></i> <span>Performance Goals</span>
                     </a>
                 </li>
@@ -229,8 +229,8 @@ class AppSidebar extends HTMLElement {
                         <i class="fas fa-user"></i>
                     </div>
                     <div class="user-info">
-                        <span class="user-name">John Doe</span>
-                        <span class="user-role">${this.role}</span>
+                        <span class="user-name" id="sidebarUserName">Loading...</span>
+                        <span class="user-role" id="sidebarUserRole">${this.role}</span>
                     </div>
                     <button class="logout-btn" id="logoutBtn" title="Logout">
                         <i class="fas fa-sign-out-alt"></i>
@@ -240,6 +240,14 @@ class AppSidebar extends HTMLElement {
         `;
 
         this.highlightActiveLink();
+
+        // Populate user name/role from injected meta tags
+        const nameEl = this.querySelector('#sidebarUserName');
+        const roleEl = this.querySelector('#sidebarUserRole');
+        const metaName = document.querySelector('meta[name="user-fullname"]');
+        const metaRole = document.querySelector('meta[name="user-role"]');
+        if (nameEl && metaName) nameEl.textContent = metaName.content;
+        if (roleEl && metaRole) roleEl.textContent = metaRole.content;
     }
 
     highlightActiveLink() {
@@ -259,14 +267,8 @@ class AppSidebar extends HTMLElement {
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => {
                 localStorage.removeItem('userRole');
-                const path = window.location.pathname;
-                let prefix = '../'; // default for 1 level deep
-                if (path.includes('/pages/admin/') || path.includes('/pages/manager/') || path.includes('/pages/employee/')) {
-                    prefix = '../../';
-                } else if (path.includes('/pages/auth/')) {
-                    prefix = '../../';
-                }
-                window.location.href = prefix + 'pages/auth/index.html';
+                const basePath = window.location.pathname.startsWith('/RevWorkForce') ? '/RevWorkForce' : '';
+                window.location.href = basePath + '/logout';
             });
         }
     }
@@ -285,15 +287,7 @@ class AppNavbar extends HTMLElement {
 
     render() {
         const title = this.getAttribute('page-title') || 'Dashboard';
-        const path = window.location.pathname;
-        let prefix = '../'; // default for 1 level deep
-        if (path.includes('/pages/admin/') || path.includes('/pages/manager/') || path.includes('/pages/employee/')) {
-            prefix = '../../';
-        } else if (path.includes('/pages/auth/')) {
-            prefix = '../../';
-        } else if (path.endsWith('index.html') || path === '/' || path.endsWith('/frontend/')) {
-            prefix = './';
-        }
+        const basePath = window.location.pathname.startsWith('/RevWorkForce') ? '/RevWorkForce' : '';
 
         this.innerHTML = `
             <style>
@@ -458,10 +452,10 @@ class AppNavbar extends HTMLElement {
                         </div>
                     </div>
                     
-                    <button class="icon-btn" title="Change Password" onclick="window.location.href = '${prefix}pages/auth/reset-password.html'">
+                    <button class="icon-btn" title="Change Password" onclick="window.location.href = '${basePath}/change-password'">
                         <i class="fas fa-key"></i>
                     </button>
-                    <button class="icon-btn" title="Settings" onclick="window.location.href = '${prefix}pages/auth/settings.html'">
+                    <button class="icon-btn" title="Settings" onclick="window.location.href = '${basePath}/employee/profile'">
                         <i class="fas fa-cog"></i>
                     </button>
                 </div>
@@ -472,7 +466,13 @@ class AppNavbar extends HTMLElement {
     }
 
     setupDropdownLogic() {
-        const role = localStorage.getItem('userRole') || 'employee';
+        let role = 'employee';
+        const path = window.location.pathname;
+        if (path.includes('/admin/')) {
+            role = 'admin';
+        } else if (path.includes('/manager/')) {
+            role = 'manager';
+        }
         const dropdown = this.querySelector('#notificationDropdown');
         const btn = this.querySelector('#notificationBtn');
         const list = this.querySelector('#notificationList');
@@ -513,7 +513,7 @@ class AppNavbar extends HTMLElement {
             </li>
         `).join('');
 
-        // Toggle logic
+        // Toggle logic - use btn.contains() so clicking the icon inside also works
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             dropdown.classList.toggle('show');
@@ -521,7 +521,7 @@ class AppNavbar extends HTMLElement {
 
         // Close when clicking outside
         document.addEventListener('click', (e) => {
-            if (!dropdown.contains(e.target) && e.target !== btn) {
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
                 dropdown.classList.remove('show');
             }
         });

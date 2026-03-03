@@ -2,41 +2,28 @@
 
 function mockLogin(role) {
     localStorage.setItem('userRole', role);
-    // Redirect logic - Handle deep paths relative to index location
-    const currentUrl = window.location.href;
-    const baseUrl = currentUrl.replace('auth/index.html', '').replace('auth/', '');
+    const basePath = window.location.pathname.startsWith('/RevWorkForce') ? '/RevWorkForce' : '';
 
     if (role === 'admin') {
-        window.location.href = baseUrl + 'pages/admin/dashboard.html';
+        window.location.href = basePath + '/admin/dashboard';
     } else if (role === 'manager') {
-        window.location.href = baseUrl + 'pages/manager/dashboard.html';
+        window.location.href = basePath + '/manager/dashboard';
     } else {
-        window.location.href = baseUrl + 'pages/employee/dashboard.html';
+        window.location.href = basePath + '/employee/dashboard';
     }
 }
 
 function checkAuth() {
-    // Disabled for testing mode - Allow direct access to all pages
-    const role = localStorage.getItem('userRole');
-    if (!role || window.location.pathname.includes('/pages/')) {
-        // Infer the role from the path for testing mode so the correct sidebar renders
-        const path = window.location.pathname;
-        if (path.includes('/pages/admin/')) {
-            localStorage.setItem('userRole', 'admin');
-        } else if (path.includes('/pages/manager/')) {
-            localStorage.setItem('userRole', 'manager');
-        } else if (path.includes('/pages/employee/')) {
-            localStorage.setItem('userRole', 'employee');
-        }
+    // Spring Security handles backend authentication.
+    // For pure JS components, we derive role based on the current context path.
+    const path = window.location.pathname;
+    if (path.includes('/admin/')) {
+        localStorage.setItem('userRole', 'admin');
+    } else if (path.includes('/manager/')) {
+        localStorage.setItem('userRole', 'manager');
+    } else if (path.includes('/employee/')) {
+        localStorage.setItem('userRole', 'employee');
     }
-
-    // Uncomment for production (Requires auth to view /pages/ folder)
-    /*
-    if (!role && path.includes('/pages/') && !path.includes('/pages/auth/')) {
-        let prefix = '../../'; 
-        window.location.href = prefix + 'pages/auth/index.html';
-    }
-    */
 }
 
 // Ensure auth check runs on protected pages
