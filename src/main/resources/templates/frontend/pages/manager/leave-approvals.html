@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leave Approvals - RevWorkForce Manager</title>
-    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
         .grid-2 {
             display: grid;
@@ -49,35 +49,34 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>Charlie Brown</td>
-                                        <td>Sick Leave</td>
-                                        <td>Mar 2 - Mar 3</td>
-                                        <td>2 Days</td>
-                                        <td>Flu symptoms</td>
+                                    <tr th:each="leave : ${pending}">
+                                        <td th:text="${leave.employee.fullName}">Charlie Brown</td>
+                                        <td th:text="${leave.leaveType.leaveName}">Sick Leave</td>
+                                        <td
+                                            th:text="${#temporals.format(leave.startDate, 'MMM d, yyyy')} + ' - ' + ${#temporals.format(leave.endDate, 'MMM d, yyyy')}">
+                                            Mar 2 - Mar 3</td>
+                                        <td
+                                            th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(leave.startDate, leave.endDate) + 1} + ' Days'">
+                                            2 Days</td>
+                                        <td th:text="${leave.reason}">Flu symptoms</td>
                                         <td style="display: flex; gap: 0.5rem;">
-                                            <button class="btn btn-success btn-sm" onclick="alert('Approved Leave')"><i
-                                                    class="fas fa-check"></i>
-                                                Approve</button>
-                                            <button class="btn btn-danger btn-sm" onclick="alert('Rejected Leave')"><i
-                                                    class="fas fa-times"></i>
-                                                Reject</button>
+                                            <form th:action="@{/leave/manager/approve/{id}(id=${leave.applicationId})}"
+                                                method="POST" style="margin: 0;">
+                                                <button type="submit" class="btn btn-success btn-sm"><i
+                                                        class="fas fa-check"></i> Approve</button>
+                                            </form>
+                                            <form th:action="@{/leave/manager/reject/{id}(id=${leave.applicationId})}"
+                                                method="POST" style="margin: 0;"
+                                                onsubmit="let reason = prompt('Please enter a rejection reason:'); if(reason){this.rejectionReason.value = reason; return true;} else return false;">
+                                                <input type="hidden" name="rejectionReason" value="">
+                                                <button type="submit" class="btn btn-danger btn-sm"><i
+                                                        class="fas fa-times"></i> Reject</button>
+                                            </form>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td>Diana Prince</td>
-                                        <td>Casual Leave</td>
-                                        <td>Mar 10 - Mar 14</td>
-                                        <td>5 Days</td>
-                                        <td>Family vacation</td>
-                                        <td style="display: flex; gap: 0.5rem;">
-                                            <button class="btn btn-success btn-sm" onclick="alert('Approved Leave')"><i
-                                                    class="fas fa-check"></i>
-                                                Approve</button>
-                                            <button class="btn btn-danger btn-sm" onclick="alert('Rejected Leave')"><i
-                                                    class="fas fa-times"></i>
-                                                Reject</button>
-                                        </td>
+                                    <tr th:if="${#lists.isEmpty(pending)}">
+                                        <td colspan="6" class="text-center text-muted" style="padding: 1.5rem;">No
+                                            pending requests found.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -99,23 +98,25 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>Alice Smith</td>
-                                        <td>Casual Leave</td>
-                                        <td>Feb 20 - Feb 22</td>
-                                        <td><span class="badge badge-approved">Approved</span></td>
-                                        <td><button class="btn btn-secondary btn-sm text-danger" disabled><i
-                                                    class="fas fa-undo"></i> Revoke</button> <small
-                                                class="text-muted">(Past Date)</small></td>
+                                    <tr th:each="leave : ${team}" th:if="${leave.status.name() != 'PENDING'}">
+                                        <td th:text="${leave.employee.fullName}">Alice Smith</td>
+                                        <td th:text="${leave.leaveType.leaveName}">Casual Leave</td>
+                                        <td
+                                            th:text="${#temporals.format(leave.startDate, 'MMM d, yyyy')} + ' - ' + ${#temporals.format(leave.endDate, 'MMM d, yyyy')}">
+                                            Feb 20 - Feb 22</td>
+                                        <td><span class="badge"
+                                                th:classappend="${leave.status.name() == 'APPROVED' ? 'badge-approved' : 'badge-rejected'}"
+                                                th:text="${leave.status}">Approved</span></td>
+                                        <td>
+                                            <span th:if="${leave.status.name() == 'REJECTED'}" class="text-muted"
+                                                th:text="${leave.rejectionReason}"></span>
+                                            <span th:if="${leave.status.name() == 'APPROVED'}"
+                                                class="text-muted">Approved via Manager</span>
+                                        </td>
                                     </tr>
-                                    <tr>
-                                        <td>Evan Peters</td>
-                                        <td>Maternity/Paternity</td>
-                                        <td>Apr 1 - Apr 30</td>
-                                        <td><span class="badge badge-approved">Approved</span></td>
-                                        <td><button class="btn btn-danger btn-sm" onclick="alert('Leave Revoked')"><i
-                                                    class="fas fa-undo"></i>
-                                                Revoke</button></td>
+                                    <tr th:if="${#lists.isEmpty(team)}">
+                                        <td colspan="5" class="text-center text-muted" style="padding: 1.5rem;">No past
+                                            requests found for your team.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -198,8 +199,8 @@
         </main>
     </div>
     <!-- Load Scripts -->
-    <script src="../../js/components.js"></script>
-    <script src="../../js/app.js"></script>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
 </body>
 
 </html>

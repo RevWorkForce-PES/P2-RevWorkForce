@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Performance Review - RevWorkForce Manager</title>
-    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
 <body>
@@ -43,30 +43,35 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>Alice Smith</td>
-                                        <td><span class="badge badge-approved">Submitted</span></td>
-                                        <td><span class="badge badge-pending">Pending Review</span></td>
-                                        <td><button class="btn btn-primary btn-sm"
-                                                onclick="alert('Review completed')">Complete Review</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Charlie Brown</td>
-                                        <td><span class="badge badge-rejected">Not Started</span></td>
-                                        <td><span class="badge"
-                                                style="background:#e2e8f0; color:#64748b;">Blocked</span></td>
-                                        <td><button class="btn btn-secondary btn-sm" disabled>Complete Review</button>
-                                            <button class="btn btn-secondary btn-sm text-primary"
-                                                style="background:none; border:none; padding-left:5px;"
-                                                onclick="alert('Nudge sent')"><i class="fas fa-bell"></i> Nudge</button>
+                                    <tr th:each="review : ${reviews}">
+                                        <td th:text="${review.employeeName}">Alice Smith</td>
+                                        <td>
+                                            <span class="badge"
+                                                th:classappend="${review.status.name() == 'SUBMITTED' || review.status.name() == 'REVIEWED' ? 'badge-approved' : 'badge-pending'}"
+                                                th:text="${review.status}">Submitted</span>
+                                        </td>
+                                        <td>
+                                            <span th:if="${review.status.name() == 'SUBMITTED'}"
+                                                class="badge badge-pending">Pending Review</span>
+                                            <span th:if="${review.status.name() == 'REVIEWED'}"
+                                                class="badge badge-approved">Completed</span>
+                                            <span th:if="${review.status.name() == 'DRAFT'}" class="badge"
+                                                style="background:#e2e8f0; color:#64748b;">Not Ready</span>
+                                        </td>
+                                        <td>
+                                            <a th:if="${review.status.name() == 'SUBMITTED'}"
+                                                th:href="@{/manager/reviews/review/{id}(id=${review.reviewId})}"
+                                                class="btn btn-primary btn-sm">Complete Review</a>
+                                            <a th:if="${review.status.name() == 'REVIEWED'}"
+                                                th:href="@{/manager/reviews/view/{id}(id=${review.reviewId})}"
+                                                class="btn btn-secondary btn-sm">View Feedback</a>
+                                            <button th:if="${review.status.name() == 'DRAFT'}"
+                                                class="btn btn-secondary btn-sm" disabled>Complete Review</button>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td>Diana Prince</td>
-                                        <td><span class="badge badge-approved">Submitted</span></td>
-                                        <td><span class="badge badge-approved">Completed</span></td>
-                                        <td><button class="btn btn-secondary btn-sm"
-                                                onclick="alert('Viewing feedback')">View Feedback</button></td>
+                                    <tr th:if="${#lists.isEmpty(reviews)}">
+                                        <td colspan="4" class="text-center text-muted" style="padding: 1.5rem;">No
+                                            reviews found for your team.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -113,8 +118,8 @@
         </main>
     </div>
     <!-- Load Scripts -->
-    <script src="../../js/components.js"></script>
-    <script src="../../js/app.js"></script>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
 </body>
 
 </html>

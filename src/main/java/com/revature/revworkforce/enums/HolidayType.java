@@ -19,7 +19,7 @@ public enum HolidayType {
         if (value == null) {
             return null;
         }
-        return HolidayType.valueOf(value.trim().toUpperCase());
+        return HolidayType.valueOf(value.trim().toUpperCase().replace(" ", "_"));
     }
 
     @JsonValue

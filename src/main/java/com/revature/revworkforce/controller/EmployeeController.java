@@ -81,7 +81,7 @@ public class EmployeeController {
         model.addAttribute("statuses", EmployeeStatus.values());
         model.addAttribute("pageTitle", "Employee Management");
 
-        return "frontend/pages/admin/employee-management";
+        return "pages/admin/employee-management";
     }
 
     /**
@@ -284,7 +284,7 @@ public class EmployeeController {
         model.addAttribute("employee", dto);
         model.addAttribute("pageTitle", "My Profile");
 
-        return "employee/profile";
+        return "redirect:/employee/directory";
     }
 
     /**
@@ -300,7 +300,7 @@ public class EmployeeController {
         model.addAttribute("employeeDTO", dto);
         model.addAttribute("pageTitle", "Edit Profile");
 
-        return "employee/profile-edit";
+        return "redirect:/employee/directory";
     }
 
     /**
@@ -386,6 +386,11 @@ public class EmployeeController {
                 .map(employeeService::convertToDTO)
                 .collect(Collectors.toList());
 
+        String employeeId = SecurityUtils.getCurrentUsername();
+        Employee currentUser = employeeService.getEmployeeById(employeeId);
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("manager", currentUser.getManager());
+
         model.addAttribute("employees", employeeDTOs);
         model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
         model.addAttribute("designations", designationRepository.findByIsActive('Y'));
@@ -394,7 +399,7 @@ public class EmployeeController {
         model.addAttribute("selectedDesignationId", designationId);
         model.addAttribute("pageTitle", "Employee Directory");
 
-        return "frontend/pages/employee/profile-directory";
+        return "pages/employee/profile-directory";
     }
 
     @GetMapping("/admin/employees/search")
@@ -413,6 +418,5 @@ public class EmployeeController {
     public String filterByDepartment(@PathVariable Long departmentId, Model model) {
         return listEmployees(null, departmentId, null, null, model);
     }
-    
-   
+
 }
