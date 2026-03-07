@@ -1,6 +1,7 @@
 package com.revature.revworkforce.service.impl;
 
 import com.revature.revworkforce.dto.AuditLogDTO;
+import com.revature.revworkforce.enums.AuditAction;
 import com.revature.revworkforce.exception.ResourceNotFoundException;
 import com.revature.revworkforce.model.AuditLog;
 import com.revature.revworkforce.model.Employee;
@@ -270,4 +271,15 @@ public class AuditServiceImpl implements AuditService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
+	@Override
+	public void logAction(String employeeId,
+	                          AuditAction passwordReset,
+	                          String entity,
+	                          String entityId,
+	                          Object details,
+	                          String ipAddress) {
+
+	        System.out.println("AUDIT ACTION: " + passwordReset + " by " + employeeId);
+	    }
 }

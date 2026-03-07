@@ -303,6 +303,12 @@
     CREATE INDEX idx_emp_mgr ON EMPLOYEES(manager_id);
     CREATE INDEX idx_emp_status ON EMPLOYEES(status);
     CREATE INDEX idx_emp_name ON EMPLOYEES(first_name, last_name);
+    
+    -- Add security question columns
+ALTER TABLE EMPLOYEES ADD security_question_1 VARCHAR2(200);
+ALTER TABLE EMPLOYEES ADD security_answer_1 VARCHAR2(255);
+ALTER TABLE EMPLOYEES ADD security_question_2 VARCHAR2(200);
+ALTER TABLE EMPLOYEES ADD security_answer_2 VARCHAR2(255);
 
     -- ============================================
     -- TABLE 5: EMPLOYEE_ROLES
