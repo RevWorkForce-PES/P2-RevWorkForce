@@ -2,6 +2,7 @@ package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.dto.LeaveApplicationDTO;
 import com.revature.revworkforce.repository.LeaveTypeRepository;
+import com.revature.revworkforce.service.HolidayService;
 import com.revature.revworkforce.service.LeaveService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -12,21 +13,27 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/leave")
 public class LeaveController {
-
+	private final HolidayService holidayService;
     private final LeaveService leaveService;
     private final LeaveTypeRepository leaveTypeRepository;
-    public LeaveController(LeaveService leaveService,
-            LeaveTypeRepository leaveTypeRepository) {
-this.leaveService = leaveService;
-this.leaveTypeRepository = leaveTypeRepository;
-}
+    public LeaveController(
+            LeaveService leaveService,
+            LeaveTypeRepository leaveTypeRepository,
+            HolidayService holidayService) {
+
+        this.leaveService = leaveService;
+        this.leaveTypeRepository = leaveTypeRepository;
+        this.holidayService = holidayService;
+    }
 
     // ================= EMPLOYEE =================
 
     @GetMapping({ "/employee/apply", "/employee/history", "/employee/balance", "/employee/leave-management" })
-    @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
-    public String showApplyPage(Model model, Authentication auth, @RequestParam(required = false) Integer year) {
+    public String showApplyPage(Model model, Authentication auth,
+                                @RequestParam(required = false) Integer year) {
+
         String employeeId = auth.getName();
+
         if (year == null) {
             year = java.time.LocalDate.now().getYear();
         }
@@ -34,13 +41,18 @@ this.leaveTypeRepository = leaveTypeRepository;
         model.addAttribute("leaveApplicationDTO", new LeaveApplicationDTO());
 
         model.addAttribute("balances",
-                leaveService.getLeaveBalances(employeeId,
-                        java.time.LocalDate.now().getYear()));
+                leaveService.getLeaveBalances(employeeId, year));
 
-        // 🔥 ADD THIS LINE
-        model.addAttribute("leaveTypes", leaveTypeRepository.findAll());
+        model.addAttribute("leaveTypes",
+                leaveTypeRepository.findAll());
 
-        return "employee/leave/apply";
+        model.addAttribute("history",
+                leaveService.getEmployeeLeaveHistory(employeeId));
+
+        model.addAttribute("holidays",
+                holidayService.getAllActiveHolidays());
+
+        return "pages/employee/leave-management";
     }
 
     @PostMapping("/employee/apply")

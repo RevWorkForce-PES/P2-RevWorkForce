@@ -21,13 +21,22 @@
             aria-labelledby="notificationDropdown"
             style="width: 350px; max-height: 400px; overflow-y: auto;">
 
-            <li class="dropdown-header d-flex justify-content-between align-items-center">
-                <strong>Notifications</strong>
-               <a th:href="@{/notifications}"
-   class="small text-decoration-none">
-   View All
-</a>
-            </li>
+           
+              <li class="dropdown-header d-flex justify-content-between align-items-center">
+    <strong>Notifications</strong>
+
+    <div>
+        <form th:action="@{/notifications/mark-all-read}" method="post" style="display:inline;">
+            <button type="submit"
+                    class="btn btn-link btn-sm p-0 me-2">
+                Mark all as read
+            </button>
+        </form>
+
+        <a href="/notifications" onclick="viewAllNotifications(event)">View All Activity</a>
+         
+    </div>
+</li>
 
             <li><hr class="dropdown-divider"></li>
 

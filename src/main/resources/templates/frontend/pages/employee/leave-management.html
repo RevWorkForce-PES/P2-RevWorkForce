@@ -79,7 +79,7 @@
                                         style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
                                         <div class="flex-space-between mb-1">
                                             <span style="font-weight: 500;"
-                                                th:text="${leave.leaveType.leaveName} + ' (' + ${T(java.time.temporal.ChronoUnit).DAYS.between(leave.startDate, leave.endDate) + 1} + ' Days)'">Sick
+                                                th:text="${leave.leaveType.leaveName + ' (' + (T(java.time.temporal.ChronoUnit).DAYS.between(leave.startDate, leave.endDate) + 1) + ' Days)'}">Sick
                                                 Leave (2 Days)</span>
                                             <span class="badge"
                                                 th:classappend="${#strings.toLowerCase(leave.status) == 'approved' ? 'badge-approved' : (#strings.toLowerCase(leave.status) == 'rejected' ? 'badge-rejected' : 'badge-pending')}"
@@ -103,8 +103,10 @@
                                     <div th:if="${#lists.isEmpty(history)}" class="text-muted"
                                         style="text-align: center; padding: 1rem;">No recent leave requests.</div>
                                 </div>
-                                <button class="btn btn-secondary mt-3 w-100" style="width: 100%;">View Full
-                                    History</button>
+                               <a th:href="@{/leave/employee/history}"
+   class="btn btn-secondary mt-3 w-100">
+View Full History
+</a>
                             </div>
                         </div>
                     </div>
@@ -151,26 +153,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>January 1, 2026</td>
-                                        <td>Thursday</td>
-                                        <td>New Year's Day</td>
-                                    </tr>
-                                    <tr>
-                                        <td>May 1, 2026</td>
-                                        <td>Friday</td>
-                                        <td>Labor Day</td>
-                                    </tr>
-                                    <tr>
-                                        <td>July 4, 2026</td>
-                                        <td>Saturday</td>
-                                        <td>Independence Day</td>
-                                    </tr>
-                                    <tr>
-                                        <td>December 25, 2026</td>
-                                        <td>Friday</td>
-                                        <td>Christmas Day</td>
-                                    </tr>
+                                   <tr th:each="holiday : ${holidays}">
+    <td th:text="${#temporals.format(holiday.holidayDate,'MMMM d, yyyy')}"></td>
+    <td th:text="${#temporals.format(holiday.holidayDate,'EEEE')}"></td>
+    <td th:text="${holiday.holidayName}"></td>
+</tr>
                                 </tbody>
                             </table>
                         </div>

@@ -441,13 +441,16 @@ class AppNavbar extends HTMLElement {
                         <div class="notification-dropdown" id="notificationDropdown">
                             <div class="notification-header">
                                 <h3>Notifications</h3>
-                                <button style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.8rem;">Mark all as read</button>
-                            </div>
+								<button id="markAllReadBtn"
+								        style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.8rem;">
+								    Mark all as read
+								</button>
+								  </div>
                             <ul class="notification-list" id="notificationList">
                                 <!-- Populated dynamically -->
                             </ul>
                             <div class="notification-footer">
-                                <a href="#">View All Activity</a>
+                               <a href="/notifications">View All Activity</a>
                             </div>
                         </div>
                     </div>
@@ -465,67 +468,112 @@ class AppNavbar extends HTMLElement {
         this.setupDropdownLogic();
     }
 
-    setupDropdownLogic() {
-        let role = 'employee';
-        const path = window.location.pathname;
-        if (path.includes('/admin/')) {
-            role = 'admin';
-        } else if (path.includes('/manager/')) {
-            role = 'manager';
-        }
-        const dropdown = this.querySelector('#notificationDropdown');
-        const btn = this.querySelector('#notificationBtn');
-        const list = this.querySelector('#notificationList');
-        const badge = this.querySelector('#notificationBadge');
+	setupDropdownLogic() {
 
-        // Role-based mock data
-        let notifications = [];
-        if (role === 'admin') {
-            notifications = [
-                { icon: 'fa-shield-alt', text: 'System backup completed successfully.', time: '10 mins ago' },
-                { icon: 'fa-exclamation-triangle', text: 'High CPU usage detected on server 2.', time: '1 hour ago' },
-                { icon: 'fa-user-plus', text: '5 new employees pending onboarding.', time: '2 hours ago' }
-            ];
-        } else if (role === 'manager') {
-            notifications = [
-                { icon: 'fa-calendar-check', text: 'Alice placed a leave request (Sick Leave).', time: '5 mins ago' },
-                { icon: 'fa-bullseye', text: 'Charlie updated his Q1 OKRs.', time: '1 hour ago' },
-                { icon: 'fa-envelope', text: 'HR sent a reminder for performance reviews.', time: 'Yesterday' }
-            ];
-        } else {
-            // Employee
-            notifications = [
-                { icon: 'fa-check-circle', text: 'Your Casual Leave request was approved.', time: 'Just now' },
-                { icon: 'fa-bullhorn', text: 'Company Townhall meeting tomorrow.', time: '2 hours ago' },
-                { icon: 'fa-birthday-cake', text: 'It is Diana\'s birthday today!', time: '4 hours ago' }
-            ];
-        }
+		const dropdown = this.querySelector('#notificationDropdown');
+		const btn = this.querySelector('#notificationBtn');
+		const list = this.querySelector('#notificationList');
+		const badge = this.querySelector('#notificationBadge');
+		const markAllBtn = this.querySelector('#markAllReadBtn');
 
-        // Populate HTML
-        badge.innerText = notifications.length;
-        list.innerHTML = notifications.map(n => `
-            <li class="notification-item" onclick="alert('Navigating to notification context...')">
-                <div class="notify-icon"><i class="fas ${n.icon}"></i></div>
-                <div class="notify-content">
-                    <p>${n.text}</p>
-                    <span>${n.time}</span>
-                </div>
-            </li>
-        `).join('');
+		if(markAllBtn){
+		    markAllBtn.addEventListener("click", function(){
 
-        // Toggle logic - use btn.contains() so clicking the icon inside also works
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdown.classList.toggle('show');
-        });
+		        const token = document.querySelector('meta[name="_csrf"]').content;
+		        const header = document.querySelector('meta[name="_csrf_header"]').content;
 
-        // Close when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
-                dropdown.classList.remove('show');
-            }
-        });
-    }
+		        fetch("/api/notifications/mark-all-read", {
+		            method: "POST",
+		            headers: {
+		                [header]: token
+		            }
+		        })
+		        .then(res => {
+		            if(!res.ok) throw new Error("Failed");
+
+		            badge.innerText = 0;
+		            badge.style.display = "none";
+
+		            list.innerHTML =
+		                "<li class='notification-item'>No new notifications</li>";
+		        })
+		        .catch(err => console.error(err));
+		    });
+		}
+		function loadUnreadCount(){
+
+		    fetch("/api/notifications/unread-count")
+		    .then(res => res.text())
+		    .then(count => {
+
+		        const num = parseInt(count);
+
+		        badge.innerText = num;
+		        badge.style.display = num > 0 ? "flex" : "none";
+		    });
+		}
+	    // Toggle dropdown
+	    btn.addEventListener('click', (e) => {
+	        e.stopPropagation();
+	        dropdown.classList.toggle('show');
+
+	        loadNavbarNotifications();
+	    });
+
+	    document.addEventListener('click', (e) => {
+	        if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+	            dropdown.classList.remove('show');
+	        }
+			
+	    }
+		
+	);
+
+	function loadNavbarNotifications() {
+
+	    fetch("/api/notifications/recent?limit=5")
+	    .then(res => res.json())
+	    .then(data => {
+
+	        list.innerHTML = "";
+
+	        if (!data || data.length === 0) {
+	            list.innerHTML = `<li class="notification-item">No notifications</li>`;
+	            return;
+	        }
+
+	        data.forEach(n => {
+
+	            const li = document.createElement("li");
+
+	            li.className = "notification-item";
+
+	            li.innerHTML = `
+	                <div class="notify-icon">
+	                    <i class="fas fa-bell"></i>
+	                </div>
+	                <div class="notify-content">
+	                    <p>${n.message}</p>
+<span>${new Date(n.createdAt).toLocaleString()}</span>
+	                </div>
+	            `;
+
+	            li.addEventListener("click", () => {
+	                window.location.href = "/notifications";
+	            });
+
+	            list.appendChild(li);
+
+	        });
+
+	       loadUnreadCount();
+	    });
+
+	}
+	loadUnreadCount();
+
+	}
+	
 }
 
 customElements.define('app-navbar', AppNavbar);
