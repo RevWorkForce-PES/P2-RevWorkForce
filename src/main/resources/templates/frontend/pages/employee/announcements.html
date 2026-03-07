@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Announcements - RevWorkForce</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar page-title="Company Announcements"></app-navbar>
+            <div class="page-wrapper">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Company Announcements</h2>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div th:if="${#lists.isEmpty(announcements)}"
+                        style="padding: 2rem; text-align: center; color: var(--text-muted);">
+                        <i class="fas fa-bullhorn" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                        No active announcements at this time.
+                    </div>
+
+                    <!-- Announcement cards -->
+                    <div th:each="ann : ${announcements}"
+                        style="border-bottom: 1px solid var(--border-color); padding: 1.25rem 0;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                            <h3 style="margin: 0; font-size: 1rem;" th:text="${ann.title}">Announcement Title</h3>
+                            <span class="badge"
+                                th:classappend="${ann.priority != null && ann.priority.name() == 'HIGH' ? 'badge-rejected' : (ann.priority != null && ann.priority.name() == 'MEDIUM' ? 'badge-pending' : 'badge-approved')}"
+                                th:text="${ann.priority != null ? ann.priority : 'NORMAL'}">NORMAL</span>
+                        </div>
+                        <p style="color: var(--text-muted); margin-bottom: 0.5rem; line-height: 1.6;"
+                            th:text="${ann.message}">Announcement message details go here.</p>
+                        <small class="text-muted">
+                            <i class="fas fa-calendar-alt"></i>
+                            Published:
+                            <span
+                                th:text="${ann.publishDate != null ? #temporals.format(ann.publishDate, 'MMM d, yyyy') : 'N/A'}">Mar
+                                1, 2026</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Load Scripts -->
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>
