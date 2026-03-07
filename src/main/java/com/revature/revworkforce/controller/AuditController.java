@@ -1,6 +1,7 @@
 package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.dto.AuditLogDTO;
+import com.revature.revworkforce.model.AuditLog;
 import com.revature.revworkforce.service.AuditService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class AuditController {
 
 
     @GetMapping
-    public List<AuditLogDTO> getAuditLogs(
+    public List<AuditLog> getAuditLogs(
             @RequestParam(defaultValue = "100") int limit) {
         return auditService.getRecentAuditLogs(limit);
     }
@@ -51,7 +52,7 @@ public class AuditController {
         return "redirect:/audit-reports.html";
     }
     @GetMapping("/logins")
-    public List<AuditLogDTO> getLoginLogs() {
+    public List<AuditLog> getLoginLogs() {
         return auditService.getLoginActivities();
     }
     
