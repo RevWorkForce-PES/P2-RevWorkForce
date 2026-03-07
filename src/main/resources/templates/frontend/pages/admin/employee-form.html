@@ -65,6 +65,37 @@
             border-color: #e53935;
         }
 
+        /* Alert banners for success/error messages */
+        .alert-banner {
+            padding: 0.85rem 1.1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.92rem;
+            font-weight: 500;
+        }
+
+        .alert-banner.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-banner.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .text-danger {
+            font-size: 0.78rem;
+            color: #e53935;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
         @media (max-width: 768px) {
 
             .field-grid-3,
@@ -120,18 +151,41 @@
                             <!-- Role Selection (drives EmpID prefix) -->
                             <div class="form-group">
                                 <label class="form-label">Role <span class="required">*</span></label>
-                                <select id="roleSelect" name="roleIds" class="form-control" required
-                                    th:disabled="${isEdit}">
-                                    <option value="">— Select Role —</option>
-                                    <option th:each="r : ${roles}" th:value="${r.roleId}" th:text="${r.roleName}"
-                                        th:attr="data-prefix=${
-                                                #strings.containsIgnoreCase(r.roleName,'ADMIN')   ? 'ADM' :
-                                                #strings.containsIgnoreCase(r.roleName,'MANAGER') ? 'MGR' : 'EMP'
-                                            }"
-                                        th:selected="${employeeDTO.roleIds != null and !employeeDTO.roleIds.isEmpty() and employeeDTO.roleIds.contains(r.roleId)}">
-                                    </option>
-                                </select>
-                                <div class="field-hint">Employee ID prefix is auto-generated from this selection</div>
+                                <!--
+                                    NOTE: We use "th:disabled" only for UX (greyed-out look) but we
+                                    must NOT use disabled on the select itself in edit mode because
+                                    disabled fields are NOT submitted by browsers.
+                                    Instead we render the select without th:disabled and use JS to
+                                    visually lock it, while hidden inputs carry the values.
+                                -->
+                                <!-- ADD mode: interactive role select -->
+                                <div th:if="${!isEdit}">
+                                    <select id="roleSelect" name="roleIds" class="form-control" required>
+                                        <option value="">— Select Role —</option>
+                                        <option th:each="r : ${roles}" th:value="${r.roleId}" th:text="${r.roleName}"
+                                            th:attr="data-prefix=${
+                                                    #strings.containsIgnoreCase(r.roleName,'ADMIN')   ? 'ADM' :
+                                                    #strings.containsIgnoreCase(r.roleName,'MANAGER') ? 'MGR' : 'EMP'
+                                                }"
+                                            th:selected="${employeeDTO.roleIds != null and !employeeDTO.roleIds.isEmpty() and employeeDTO.roleIds.contains(r.roleId)}">
+                                        </option>
+                                    </select>
+                                    <div class="field-hint">Employee ID prefix is auto-generated from this selection
+                                    </div>
+                                </div>
+                                <!-- EDIT mode: locked role display + hidden inputs to actually submit the values -->
+                                <div th:if="${isEdit}">
+                                    <select id="roleSelect" class="form-control"
+                                        style="pointer-events:none; opacity:0.7; background:#f5f5f5;" disabled>
+                                        <option th:each="r : ${roles}" th:value="${r.roleId}" th:text="${r.roleName}"
+                                            th:selected="${employeeDTO.roleIds != null and employeeDTO.roleIds.contains(r.roleId)}">
+                                        </option>
+                                    </select>
+                                    <!-- Hidden inputs so roleIds are actually submitted in edit mode -->
+                                    <input th:each="rid : ${employeeDTO.roleIds}" type="hidden" name="roleIds"
+                                        th:value="${rid}" />
+                                    <div class="field-hint">Role cannot be changed here — use Role Management.</div>
+                                </div>
                             </div>
 
                             <!-- Employee ID (auto-generated) -->
@@ -268,11 +322,11 @@
                                 <label class="form-label">Reporting Manager</label>
                                 <select class="form-control" th:field="*{managerId}">
                                     <option value="">No Manager</option>
-                                    <!-- Only manager-role employees are passed in this list -->
+                                    <!-- Includes active MANAGER and ADMIN employees -->
                                     <option th:each="mgr : ${managers}" th:value="${mgr.employeeId}"
                                         th:text="${mgr.fullName + ' (' + mgr.employeeId + ')'}"></option>
                                 </select>
-                                <div class="field-hint">Only active managers are listed</div>
+                                <div class="field-hint">Lists active Managers and Admins</div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Joining Date <span class="required">*</span></label>

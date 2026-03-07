@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${isEdit ? 'Edit Designation' : 'Add Designation'} + ' - RevWorkForce Admin'">Designation Form
+    </title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .section-title {
+            color: var(--primary);
+            border-bottom: 2px solid rgba(255, 140, 0, 0.15);
+            padding-bottom: 0.5rem;
+            margin: 1.5rem 0 1rem;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label .required {
+            color: #e53935;
+            margin-left: 2px;
+        }
+
+        .field-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .text-danger {
+            font-size: 0.78rem;
+            color: #e53935;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .field-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .field-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+
+            .field-grid-2,
+            .field-grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .char-counter {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: 0.2rem;
+        }
+
+        #salaryWarning {
+            display: none;
+            font-size: 0.78rem;
+            color: #e53935;
+            margin-top: 0.3rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar th:attr="page-title=${isEdit ? 'Edit Designation' : 'Add Designation'}"></app-navbar>
+            <div class="page-wrapper">
+
+                <!-- Flash messages -->
+                <div th:if="${error}"
+                    style="margin-bottom:1rem; padding:0.75rem 1rem; background:#f8d7da; border-radius:6px; color:#721c24; display:flex; align-items:center; gap:0.5rem;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${error}">Error</span>
+                </div>
+
+                <div class="card">
+                    <!-- Header -->
+                    <div class="flex-space-between" style="margin-bottom:1.5rem;">
+                        <div>
+                            <h3 style="margin:0;" th:text="${isEdit ? 'Edit Designation' : 'Add New Designation'}">
+                                Designation Form
+                            </h3>
+                            <p class="text-muted" style="margin:0.2rem 0 0; font-size:0.85rem;">
+                                Fields marked with <span style="color:#e53935;">*</span> are required
+                            </p>
+                        </div>
+                        <a th:href="@{/admin/designations}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+
+                    <form id="desigForm"
+                        th:action="${isEdit ? '/admin/designations/edit/' + designationDTO.designationId : '/admin/designations/add'}"
+                        method="post" th:object="${designationDTO}" novalidate>
+
+                        <!-- Basic Info -->
+                        <h4 class="section-title"><i class="fas fa-id-badge"></i> Designation Details</h4>
+                        <div class="field-grid-2">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Designation Name <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-control" th:field="*{designationName}"
+                                    placeholder="e.g. Software Engineer, Senior Analyst" maxlength="100" required
+                                    th:classappend="${#fields.hasErrors('designationName')} ? 'is-invalid' : ''">
+                                <span class="text-danger" th:if="${#fields.hasErrors('designationName')}"
+                                    th:errors="*{designationName}"></span>
+                                <div class="field-hint">Must be unique. 2–100 characters.</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Level / Band</label>
+                                <input type="text" class="form-control" th:field="*{designationLevel}"
+                                    placeholder="e.g. L1, L2, Senior, Junior" maxlength="20"
+                                    th:classappend="${#fields.hasErrors('designationLevel')} ? 'is-invalid' : ''">
+                                <span class="text-danger" th:if="${#fields.hasErrors('designationLevel')}"
+                                    th:errors="*{designationLevel}"></span>
+                                <div class="field-hint">Optional — career band or seniority tier. Max 20 chars.</div>
+                            </div>
+                        </div>
+
+                        <!-- Salary Range -->
+                        <h4 class="section-title"><i class="fas fa-rupee-sign"></i> Salary Range (₹)</h4>
+                        <div class="field-grid-3" style="align-items:start;">
+                            <div class="form-group">
+                                <label class="form-label">Minimum Salary</label>
+                                <input type="number" id="minSalary" class="form-control" th:field="*{minSalary}"
+                                    placeholder="e.g. 300000" min="0" step="1000"
+                                    th:classappend="${#fields.hasErrors('minSalary')} ? 'is-invalid' : ''">
+                                <span class="text-danger" th:if="${#fields.hasErrors('minSalary')}"
+                                    th:errors="*{minSalary}"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Maximum Salary</label>
+                                <input type="number" id="maxSalary" class="form-control" th:field="*{maxSalary}"
+                                    placeholder="e.g. 800000" min="0" step="1000"
+                                    th:classappend="${#fields.hasErrors('maxSalary')} ? 'is-invalid' : ''">
+                                <span class="text-danger" th:if="${#fields.hasErrors('maxSalary')}"
+                                    th:errors="*{maxSalary}"></span>
+                                <span id="salaryWarning">Max salary must be ≥ Min salary</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Range Preview</label>
+                                <div id="salaryPreview"
+                                    style="background:rgba(255,140,0,0.07); border:1px solid rgba(255,140,0,0.25); border-radius:6px; padding:0.6rem 0.9rem; font-size:0.85rem; color:var(--primary); font-weight:600; min-height:38px; display:flex; align-items:center;">
+                                    —
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" th:field="*{description}" id="descriptionArea"
+                                placeholder="Describe responsibilities, qualifications, or expectations for this role…"
+                                rows="4" maxlength="500"
+                                th:classappend="${#fields.hasErrors('description')} ? 'is-invalid' : ''"></textarea>
+                            <span class="text-danger" th:if="${#fields.hasErrors('description')}"
+                                th:errors="*{description}"></span>
+                            <div class="char-counter"><span id="descCount">0</span> / 500</div>
+                        </div>
+
+                        <!-- Status -->
+                        <h4 class="section-title"><i class="fas fa-toggle-on"></i> Status</h4>
+                        <div class="form-group" style="max-width:200px;">
+                            <label class="form-label">Active Status</label>
+                            <select class="form-control" th:field="*{isActive}">
+                                <option value="Y">Active</option>
+                                <option value="N">Inactive</option>
+                            </select>
+                            <div class="field-hint">Inactive designations won't appear in employee assignment.</div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div
+                            style="display:flex; gap:1rem; padding-top:1.5rem; border-top:1px solid var(--border-color); margin-top:1.5rem;">
+                            <button type="submit" id="submitBtn" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                <span th:text="${isEdit ? 'Update Designation' : 'Add Designation'}">Save</span>
+                            </button>
+                            <a th:href="@{/admin/designations}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+    <script>
+        // ── Character counter for description
+        const descArea = document.getElementById('descriptionArea');
+        const descCount = document.getElementById('descCount');
+        if (descArea && descCount) {
+            function updateCount() { descCount.textContent = descArea.value.length; }
+            updateCount();
+            descArea.addEventListener('input', updateCount);
+        }
+
+        // ── Salary range preview
+        const minInput = document.getElementById('minSalary');
+        const maxInput = document.getElementById('maxSalary');
+        const preview = document.getElementById('salaryPreview');
+        const salaryWarning = document.getElementById('salaryWarning');
+
+        function formatCurrency(val) {
+            if (!val || isNaN(val)) return '?';
+            return '₹' + Number(val).toLocaleString('en-IN');
+        }
+
+        function updateSalaryPreview() {
+            const min = parseFloat(minInput.value);
+            const max = parseFloat(maxInput.value);
+            if (min >= 0 && max >= 0 && (minInput.value || maxInput.value)) {
+                preview.textContent = formatCurrency(min) + ' – ' + formatCurrency(max);
+                if (max < min && minInput.value && maxInput.value) {
+                    salaryWarning.style.display = 'block';
+                    preview.style.color = '#e53935';
+                } else {
+                    salaryWarning.style.display = 'none';
+                    preview.style.color = 'var(--primary)';
+                }
+            } else {
+                preview.textContent = '—';
+            }
+        }
+
+        if (minInput) { minInput.addEventListener('input', updateSalaryPreview); updateSalaryPreview(); }
+        if (maxInput) { maxInput.addEventListener('input', updateSalaryPreview); }
+
+        // ── Prevent double-submit + salary validation
+        document.getElementById('desigForm').addEventListener('submit', function (e) {
+            const min = parseFloat(minInput.value);
+            const max = parseFloat(maxInput.value);
+            if (minInput.value && maxInput.value && max < min) {
+                e.preventDefault();
+                salaryWarning.style.display = 'block';
+                maxInput.focus();
+                return;
+            }
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+        });
+    </script>
+</body>
+
+</html>
