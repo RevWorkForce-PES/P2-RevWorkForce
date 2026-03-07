@@ -20,14 +20,15 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Employee Controller.
- * 
+ *
  * Handles employee management endpoints.
- * 
+ *
  * @author RevWorkForce Team
  */
 @Controller
@@ -47,6 +48,12 @@ public class EmployeeController {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    /**
+     * Role names allowed to appear in the Reporting Manager dropdown.
+     * Both MANAGER and ADMIN employees can be assigned as reporting managers.
+     */
+    private static final List<String> MANAGER_ROLE_NAMES = Arrays.asList("MANAGER", "ADMIN");
 
     // ============================================
     // ADMIN API ENDPOINTS
@@ -117,15 +124,14 @@ public class EmployeeController {
     @PreAuthorize("hasRole('ADMIN')")
     public String showAddEmployeeForm(Model model) {
         EmployeeDTO dto = new EmployeeDTO();
-        // Start with empty ID; JS will auto-fill based on role selection
         dto.setEmployeeId("");
 
         model.addAttribute("employeeDTO", dto);
         model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
         model.addAttribute("designations", designationRepository.findByIsActive('Y'));
-        // Only show MANAGER-role employees in the Reporting Manager dropdown
+        // Show both MANAGER and ADMIN employees in the Reporting Manager dropdown
         model.addAttribute("managers",
-                employeeRepository.findActiveEmployeesByRoleName("MANAGER"));
+                employeeRepository.findActiveEmployeesByRoleNames(MANAGER_ROLE_NAMES));
         model.addAttribute("roles", roleRepository.findAll());
         model.addAttribute("statuses", EmployeeStatus.values());
         model.addAttribute("pageTitle", "Add Employee");
@@ -148,10 +154,16 @@ public class EmployeeController {
         if (result.hasErrors()) {
             model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
             model.addAttribute("designations", designationRepository.findByIsActive('Y'));
-            model.addAttribute("managers", employeeRepository.findActiveEmployeesByRoleName("MANAGER"));
+            model.addAttribute("managers",
+                    employeeRepository.findActiveEmployeesByRoleNames(MANAGER_ROLE_NAMES));
             model.addAttribute("roles", roleRepository.findAll());
             model.addAttribute("statuses", EmployeeStatus.values());
             model.addAttribute("isEdit", false);
+            // Build a readable error summary from binding result
+            String errorSummary = result.getAllErrors().stream()
+                    .map(e -> e.getDefaultMessage())
+                    .collect(Collectors.joining("; "));
+            model.addAttribute("error", "Please fix the following errors: " + errorSummary);
             return "pages/admin/employee-form";
         }
 
@@ -162,10 +174,12 @@ public class EmployeeController {
                             + ") added successfully!");
             return "redirect:/admin/employees";
         } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
+            model.addAttribute("error", e.getMessage() != null ? e.getMessage()
+                    : "An unexpected error occurred while saving the employee. Please try again.");
             model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
             model.addAttribute("designations", designationRepository.findByIsActive('Y'));
-            model.addAttribute("managers", employeeRepository.findActiveEmployeesByRoleName("MANAGER"));
+            model.addAttribute("managers",
+                    employeeRepository.findActiveEmployeesByRoleNames(MANAGER_ROLE_NAMES));
             model.addAttribute("roles", roleRepository.findAll());
             model.addAttribute("statuses", EmployeeStatus.values());
             model.addAttribute("isEdit", false);
@@ -185,8 +199,9 @@ public class EmployeeController {
         model.addAttribute("employeeDTO", dto);
         model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
         model.addAttribute("designations", designationRepository.findByIsActive('Y'));
+        // Show both MANAGER and ADMIN employees in the Reporting Manager dropdown
         model.addAttribute("managers",
-                employeeRepository.findActiveEmployeesByRoleName("MANAGER"));
+                employeeRepository.findActiveEmployeesByRoleNames(MANAGER_ROLE_NAMES));
         model.addAttribute("roles", roleRepository.findAll());
         model.addAttribute("statuses", EmployeeStatus.values());
         model.addAttribute("pageTitle", "Edit Employee");
@@ -210,10 +225,15 @@ public class EmployeeController {
         if (result.hasErrors()) {
             model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
             model.addAttribute("designations", designationRepository.findByIsActive('Y'));
-            model.addAttribute("managers", employeeService.getActiveEmployees());
+            model.addAttribute("managers",
+                    employeeRepository.findActiveEmployeesByRoleNames(MANAGER_ROLE_NAMES));
             model.addAttribute("roles", roleRepository.findAll());
             model.addAttribute("statuses", EmployeeStatus.values());
             model.addAttribute("isEdit", true);
+            String errorSummary = result.getAllErrors().stream()
+                    .map(e -> e.getDefaultMessage())
+                    .collect(Collectors.joining("; "));
+            model.addAttribute("error", "Please fix the following errors: " + errorSummary);
             return "pages/admin/employee-form";
         }
 
@@ -223,14 +243,16 @@ public class EmployeeController {
                     "Employee " + employee.getFullName() + " updated successfully!");
             return "redirect:/admin/employees";
         } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
+            model.addAttribute("error", e.getMessage() != null ? e.getMessage()
+                    : "An unexpected error occurred while updating the employee. Please try again.");
             model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
             model.addAttribute("designations", designationRepository.findByIsActive('Y'));
-            model.addAttribute("managers", employeeService.getActiveEmployees());
+            model.addAttribute("managers",
+                    employeeRepository.findActiveEmployeesByRoleNames(MANAGER_ROLE_NAMES));
             model.addAttribute("roles", roleRepository.findAll());
             model.addAttribute("statuses", EmployeeStatus.values());
             model.addAttribute("isEdit", true);
-            return "admin/employees/form";
+            return "pages/admin/employee-form";
         }
     }
 
@@ -243,7 +265,6 @@ public class EmployeeController {
         Employee employee = employeeService.getEmployeeById(employeeId);
         EmployeeDTO dto = employeeService.convertToDTO(employee);
 
-        // Get team members if this is a manager
         List<Employee> teamMembers = employeeService.getTeamMembers(employeeId);
 
         model.addAttribute("employee", dto);
@@ -349,7 +370,6 @@ public class EmployeeController {
         }
 
         try {
-            // Only allow updating specific fields
             Employee employee = employeeService.getEmployeeById(employeeId);
             employee.setPhone(dto.getPhone());
             employee.setAddress(dto.getAddress());
@@ -359,7 +379,6 @@ public class EmployeeController {
             employee.setEmergencyContactName(dto.getEmergencyContactName());
             employee.setEmergencyContactPhone(dto.getEmergencyContactPhone());
 
-            // Note: Convert to DTO and back to use the existing update method
             EmployeeDTO fullDto = employeeService.convertToDTO(employee);
             fullDto.setPhone(dto.getPhone());
             fullDto.setAddress(dto.getAddress());
@@ -397,7 +416,6 @@ public class EmployeeController {
         List<Employee> employees;
 
         if (search != null || departmentId != null || designationId != null) {
-            // Build search criteria
             EmployeeSearchCriteria criteria = new EmployeeSearchCriteria();
             criteria.setKeyword(search);
             criteria.setDepartmentId(departmentId);
@@ -406,7 +424,6 @@ public class EmployeeController {
 
             employees = employeeService.searchEmployees(criteria);
         } else {
-            // Show only active employees
             employees = employeeService.getActiveEmployees();
         }
 
