@@ -28,7 +28,7 @@ public class AdminController {
      */
     @GetMapping("/settings")
     public String getAdminSettings() {
-        return "admin/settings";
+    	return "pages/auth/settings";
     }
 
     /**
@@ -36,7 +36,7 @@ public class AdminController {
      */
     @GetMapping("/user-management")
     public String getUserManagement(Model model) {
-        return "admin/user-management";
+    	return "pages/admin/user-management";
     }
 
     /**

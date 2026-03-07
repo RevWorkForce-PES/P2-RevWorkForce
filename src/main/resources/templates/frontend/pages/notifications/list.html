@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/header :: head}"></head>
-
 <body>
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
@@ -26,8 +25,7 @@
                 <div class="d-flex justify-content-between">
                     <strong th:text="${n.title}">Title</strong>
 
-                    <span th:if="${n.isRead == 'N'}"
-                          class="badge bg-primary">New</span>
+                  <span th:if="${n.isRead == 'N'}" class="badge bg-primary">New</span>
                 </div>
 
                 <p class="mb-1 text-muted"
@@ -36,9 +34,8 @@
                 </p>
 
                 <small class="text-secondary"
-                       th:text="${#temporals.format(n.createdAt, 'dd MMM yyyy HH:mm')}">
-                    Date
-                </small>
+       th:text="${#temporals.format(n.createdAt,'dd MMM yyyy HH:mm')}">
+</small>
 
             </div>
 

@@ -214,7 +214,7 @@ public class EmployeeController {
             model.addAttribute("roles", roleRepository.findAll());
             model.addAttribute("statuses", EmployeeStatus.values());
             model.addAttribute("isEdit", true);
-            return "admin/employees/form";
+            return "pages/admin/employee-form";
         }
 
         try {

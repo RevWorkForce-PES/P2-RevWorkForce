@@ -38,7 +38,7 @@ public class NotificationViewController {
 
         model.addAttribute("notifications", notifications);
 
-        return "notifications/list";
+        return "pages/notifications/list";
     }
     // ================================
     // View Unread Notifications
@@ -54,7 +54,7 @@ public class NotificationViewController {
 
         model.addAttribute("notifications", notifications);
 
-        return "notifications/unread";
+        return "pages/notifications/unread";
     }
 
     // ================================
