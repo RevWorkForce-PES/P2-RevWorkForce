@@ -2,6 +2,7 @@ package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.dto.EmployeeDTO;
 import com.revature.revworkforce.dto.EmployeeSearchCriteria;
+import com.revature.revworkforce.enums.AuditAction;
 import com.revature.revworkforce.enums.EmployeeStatus;
 import com.revature.revworkforce.model.Employee;
 import com.revature.revworkforce.repository.DepartmentRepository;
@@ -267,6 +268,41 @@ public class EmployeeController {
             employeeService.deactivateEmployee(employeeId);
             redirectAttributes.addFlashAttribute("success",
                     "Employee " + employee.getFullName() + " deactivated successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+
+        return "redirect:/admin/employees";
+    }
+    
+    /**
+     * Reactivate employee
+     */
+    @PostMapping("/admin/employees/reactivate/{employeeId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String reactivateEmployee(
+            @PathVariable String employeeId,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            Employee employee = employeeService.getEmployeeById(employeeId);
+            
+            // Set status to ACTIVE
+            employee.setStatus(EmployeeStatus.ACTIVE);
+            employeeRepository.save(employee);
+            
+//            // Log the action
+//            auditService.logAction(
+//                SecurityUtils.getCurrentUsername(),
+//                AuditAction.UPDATE,
+//                "EMPLOYEES",
+//                employeeId,
+//                null,
+//                "Employee reactivated"
+//            );
+            
+            redirectAttributes.addFlashAttribute("success",
+                    "Employee " + employee.getFullName() + " reactivated successfully!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }

@@ -31,7 +31,6 @@
                     <div class="tabs">
                         <button class="tab-btn active" data-target="search-employees">Search & List</button>
                         <button class="tab-btn" data-target="add-employee">Add New Employee</button>
-                        <button class="tab-btn" data-target="bulk-actions">Bulk Updates</button>
                     </div>
 
                     <!-- Search & List Tab -->
@@ -46,22 +45,45 @@
                             <i class="fas fa-exclamation-circle"></i> <span th:text="${error}">Error</span>
                         </div>
 
+                        <!-- UPDATED FILTERS: Department & Designation instead of Status -->
                         <form th:action="@{/admin/employees}" method="get" class="flex-space-between mb-3">
                             <div class="form-group" style="margin-bottom: 0; width: 350px;">
                                 <input type="text" name="keyword" class="form-control"
                                     placeholder="Search by ID, Name or Email..."
                                     th:value="${criteria != null ? criteria.keyword : ''}">
                             </div>
-                            <div style="display:flex; gap:0.5rem; align-items:center;">
-                                <select name="status" class="form-control" style="width:140px;">
-                                    <option value="">All Statuses</option>
-                                    <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"
-                                        th:selected="${criteria != null && criteria.status == s}">ACTIVE</option>
+                            <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                                <!-- Department Filter -->
+                                <select name="departmentId" class="form-control" style="width:160px;">
+                                    <option value="">All Departments</option>
+                                    <option th:each="dept : ${departments}" 
+                                            th:value="${dept.departmentId}" 
+                                            th:text="${dept.departmentName}"
+                                            th:selected="${criteria != null && criteria.departmentId == dept.departmentId}">
+                                    </option>
                                 </select>
-                                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i>
-                                    Search</button>
+                                
+                                <!-- Designation Filter -->
+                                <select name="designationId" class="form-control" style="width:160px;">
+                                    <option value="">All Designations</option>
+                                    <option th:each="desig : ${designations}" 
+                                            th:value="${desig.designationId}" 
+                                            th:text="${desig.designationName}"
+                                            th:selected="${criteria != null && criteria.designationId == desig.designationId}">
+                                    </option>
+                                </select>
+                                
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                                
+                                <!-- Clear Filters Button -->
+                                <a th:href="@{/admin/employees}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Clear
+                                </a>
                             </div>
                         </form>
+                        
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
@@ -69,9 +91,9 @@
                                         <th>ID</th>
                                         <th>Name</th>
                                         <th>Department</th>
-                                        <th>Role</th>
+                                        <th>Designation</th>
                                         <th>Status</th>
-                                        <th>Actions</th>
+                                        <th style="width: 280px;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -88,20 +110,35 @@
                                                 th:text="${emp.status}">Active</span>
                                         </td>
                                         <td style="display:flex; gap:0.3rem; flex-wrap:wrap;">
+                                            <!-- Edit Button -->
                                             <a th:href="@{/admin/employees/edit/{id}(id=${emp.employeeId})}"
                                                 class="btn btn-secondary btn-sm">
                                                 <i class="fas fa-edit"></i> Edit
                                             </a>
+                                            
+                                            <!-- View Button -->
                                             <a th:href="@{/admin/employees/view/{id}(id=${emp.employeeId})}"
                                                 class="btn btn-secondary btn-sm">
                                                 <i class="fas fa-eye"></i> View
                                             </a>
-                                            <form th:action="@{/admin/employees/deactivate/{id}(id=${emp.employeeId})}"
-                                                method="POST" style="display:inline;">
+                                            
+                                            <!-- DEACTIVATE BUTTON (only for ACTIVE employees) -->
+                                            <form th:if="${emp.status != null && emp.status.name() == 'ACTIVE'}"
+                                                  th:action="@{/admin/employees/deactivate/{id}(id=${emp.employeeId})}"
+                                                  method="POST" style="display:inline;">
                                                 <button type="submit" class="btn btn-danger btn-sm"
-                                                    onclick="return confirm('Deactivate this employee?')"
-                                                    th:disabled="${emp.status != null && emp.status.name() != 'ACTIVE'}">
+                                                    onclick="return confirm('Deactivate this employee?')">
                                                     <i class="fas fa-user-slash"></i> Deactivate
+                                                </button>
+                                            </form>
+                                            
+                                            <!-- REACTIVATE BUTTON (only for INACTIVE employees) -->
+                                            <form th:if="${emp.status != null && emp.status.name() != 'ACTIVE'}"
+                                                  th:action="@{/admin/employees/reactivate/{id}(id=${emp.employeeId})}"
+                                                  method="POST" style="display:inline;">
+                                                <button type="submit" class="btn btn-success btn-sm"
+                                                    onclick="return confirm('Reactivate this employee?')">
+                                                    <i class="fas fa-user-check"></i> Reactivate
                                                 </button>
                                             </form>
                                         </td>
@@ -127,28 +164,6 @@
                             <a th:href="@{/admin/employees/add}" class="btn btn-primary">
                                 <i class="fas fa-plus"></i> Open Add Employee Form
                             </a>
-                        </div>
-                    </div>
-
-                    <!-- Bulk Actions Tab -->
-                    <div id="bulk-actions" class="tab-content">
-                        <p class="mb-3 text-muted">Upload a CSV file to import multiple employees at once or perform
-                            bulk salary/department updates.</p>
-                        <div class="form-group" style="max-width: 400px;">
-                            <label class="form-label">Action Type</label>
-                            <select class="form-control mb-2">
-                                <option>New Employee Import</option>
-                                <option>Salary Adjustments</option>
-                                <option>Department Transfer</option>
-                            </select>
-                            <label class="form-label">Upload CSV File</label>
-                            <input type="file" class="form-control" accept=".csv" style="padding: 0.5rem;">
-                        </div>
-                        <button class="btn btn-primary"><i class="fas fa-upload"></i> Upload & Process</button>
-                        <div class="mt-3">
-                            <a href="#" class="btn btn-secondary btn-sm" onclick="alert('Downloading template...')"><i
-                                    class="fas fa-download"></i> Download
-                                Template</a>
                         </div>
                     </div>
                 </div>
