@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${isEdit ? 'Edit Department' : 'Add Department'} + ' - RevWorkForce Admin'">Department Form</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .section-title {
+            color: var(--primary);
+            border-bottom: 2px solid rgba(255, 140, 0, 0.15);
+            padding-bottom: 0.5rem;
+            margin: 1.5rem 0 1rem;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label .required {
+            color: #e53935;
+            margin-left: 2px;
+        }
+
+        .field-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .text-danger {
+            font-size: 0.78rem;
+            color: #e53935;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .field-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .field-grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .char-counter {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: 0.2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar th:attr="page-title=${isEdit ? 'Edit Department' : 'Add Department'}"></app-navbar>
+            <div class="page-wrapper">
+
+                <!-- Flash messages -->
+                <div th:if="${error}"
+                    style="margin-bottom:1rem; padding:0.75rem 1rem; background:#f8d7da; border-radius:6px; color:#721c24; display:flex; align-items:center; gap:0.5rem;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${error}">Error</span>
+                </div>
+
+                <div class="card">
+                    <!-- Header -->
+                    <div class="flex-space-between" style="margin-bottom:1.5rem;">
+                        <div>
+                            <h3 style="margin:0;" th:text="${isEdit ? 'Edit Department' : 'Add New Department'}">
+                                Department Form
+                            </h3>
+                            <p class="text-muted" style="margin:0.2rem 0 0; font-size:0.85rem;">
+                                Fields marked with <span style="color:#e53935;">*</span> are required
+                            </p>
+                        </div>
+                        <a th:href="@{/admin/departments}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+
+                    <form id="deptForm"
+                        th:action="${isEdit ? '/admin/departments/edit/' + departmentDTO.departmentId : '/admin/departments/add'}"
+                        method="post" th:object="${departmentDTO}" novalidate>
+
+                        <!-- Department Name -->
+                        <h4 class="section-title"><i class="fas fa-building"></i> Department Details</h4>
+                        <div class="field-grid-2">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Department Name <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-control" th:field="*{departmentName}"
+                                    placeholder="e.g. Engineering, Human Resources" maxlength="100" required
+                                    th:classappend="${#fields.hasErrors('departmentName')} ? 'is-invalid' : ''">
+                                <span class="text-danger" th:if="${#fields.hasErrors('departmentName')}"
+                                    th:errors="*{departmentName}"></span>
+                                <div class="field-hint">Must be unique. 2–100 characters.</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Department Head</label>
+                                <input type="text" class="form-control" th:field="*{departmentHead}"
+                                    placeholder="e.g. EMP001 or Full Name" maxlength="20"
+                                    th:classappend="${#fields.hasErrors('departmentHead')} ? 'is-invalid' : ''">
+                                <span class="text-danger" th:if="${#fields.hasErrors('departmentHead')}"
+                                    th:errors="*{departmentHead}"></span>
+                                <div class="field-hint">Optional — Employee ID or name. Max 20 chars.</div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" th:field="*{description}" id="descriptionArea"
+                                placeholder="Brief overview of this department's function and responsibilities…"
+                                rows="4" maxlength="500"
+                                th:classappend="${#fields.hasErrors('description')} ? 'is-invalid' : ''"></textarea>
+                            <span class="text-danger" th:if="${#fields.hasErrors('description')}"
+                                th:errors="*{description}"></span>
+                            <div class="char-counter"><span id="descCount">0</span> / 500</div>
+                        </div>
+
+                        <!-- Status -->
+                        <h4 class="section-title"><i class="fas fa-toggle-on"></i> Status</h4>
+                        <div class="form-group" style="max-width:200px;">
+                            <label class="form-label">Active Status</label>
+                            <select class="form-control" th:field="*{isActive}">
+                                <option value="Y">Active</option>
+                                <option value="N">Inactive</option>
+                            </select>
+                            <div class="field-hint">Inactive departments won't appear in employee assignment.</div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div
+                            style="display:flex; gap:1rem; padding-top:1.5rem; border-top:1px solid var(--border-color); margin-top:1.5rem;">
+                            <button type="submit" id="submitBtn" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                <span th:text="${isEdit ? 'Update Department' : 'Add Department'}">Save</span>
+                            </button>
+                            <a th:href="@{/admin/departments}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+    <script>
+        // Character counter for description
+        const descArea = document.getElementById('descriptionArea');
+        const descCount = document.getElementById('descCount');
+        if (descArea && descCount) {
+            function updateCount() { descCount.textContent = descArea.value.length; }
+            updateCount();
+            descArea.addEventListener('input', updateCount);
+        }
+
+        // Prevent double-submit
+        document.getElementById('deptForm').addEventListener('submit', function () {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+        });
+    </script>
+</body>
+
+</html>
