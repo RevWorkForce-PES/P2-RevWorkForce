@@ -57,14 +57,14 @@
                     <div class="card stat-card" style="margin-bottom: 0;">
                         <div class="stat-icon"><i class="fas fa-users-cog"></i></div>
                         <div class="stat-info">
-                            <h3>14</h3>
+                           <h3 th:text="${teamSize}">0</h3>
                             <p>Direct Reports</p>
                         </div>
                     </div>
                     <div class="card stat-card" style="margin-bottom: 0;">
                         <div class="stat-icon"><i class="fas fa-clock"></i></div>
                         <div class="stat-info">
-                            <h3>4</h3>
+                            <h3 th:text="${pendingCount}">0</h3>
                             <p>Pending Leaves</p>
                         </div>
                     </div>
@@ -124,8 +124,41 @@
                     <div class="card">
                         <div class="card-header">
                             <h2 class="card-title">Pending Approvals</h2>
-                        </div>
-                        <ul style="list-style: none; padding: 0;">
+                        </div><ul style="list-style: none; padding: 0;">
+
+<li th:each="leave : ${pending}"
+    style="margin-bottom: 1rem; padding-bottom: 1rem;
+           border-bottom: 1px solid var(--border-color);">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 500;"
+              th:text="'Leave Request #' + ${leave.applicationId}">
+            Leave Request
+        </span>
+
+        <span class="badge badge-pending">Pending</span>
+    </div>
+
+    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;"
+       th:text="${leave.employee.fullName} + ' requested ' + ${leave.leaveType.leaveName}">
+        Leave request
+    </p>
+
+    <a th:href="@{/manager/leave-approvals}"
+       class="btn btn-primary btn-sm"
+       style="display: block; text-align: center;">
+        Review
+    </a>
+
+</li>
+
+<li th:if="${#lists.isEmpty(pending)}"
+    class="text-muted">
+    No pending approvals.
+</li>
+
+</ul>
+                      <!--   <ul style="list-style: none; padding: 0;">
                             <li
                                 style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
                                 <div
@@ -135,8 +168,10 @@
                                 </div>
                                 <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Charlie
                                     Brown requests 2 days sick leave.</p>
-                                <a href="leave-approvals.html#pending-requests" class="btn btn-primary btn-sm"
-                                    style="display: block; text-align: center;">Review</a>
+                                <a th:href="@{/manager/leave-approvals}"
+   class="btn btn-primary btn-sm">
+    Review
+</a>
                             </li>
                             <li
                                 style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
@@ -147,10 +182,13 @@
                                 </div>
                                 <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Diana
                                     Prince requests 5 days casual leave.</p>
-                                <a href="leave-approvals.html#pending-requests" class="btn btn-primary btn-sm"
-                                    style="display: block; text-align: center;">Review</a>
+                                <a th:href="@{/manager/leave-approvals}"
+   class="btn btn-primary btn-sm"
+   style="display: block; text-align: center;">
+    Review
+</a>
                             </li>
-                        </ul>
+                        </ul>-->
                     </div>
                 </div>
             </div>
