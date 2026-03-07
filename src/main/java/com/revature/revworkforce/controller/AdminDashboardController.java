@@ -58,6 +58,7 @@ public class AdminDashboardController {
         model.addAttribute("activeEmployees", activeEmployees);
         model.addAttribute("totalDepartments", totalDepartments);
         model.addAttribute("pageTitle", "Admin Dashboard");
+        model.addAttribute("currentDashboard", "admin");
 
         return "pages/admin/dashboard";
     }
