@@ -171,6 +171,21 @@ public class Employee {
      */
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
+    
+    
+ // Security Questions for Password Reset
+ 	@Column(name = "security_question_1", length = 200)
+ 	private String securityQuestion1;
+
+ 	@Column(name = "security_answer_1", length = 255)
+ 	private String securityAnswer1;
+
+ 	@Column(name = "security_question_2", length = 200)
+ 	private String securityQuestion2;
+
+ 	@Column(name = "security_answer_2", length = 255)
+ 	private String securityAnswer2;
+
 
     /**
      * Indicates if employee is logging in for the first time.
@@ -578,6 +593,38 @@ public class Employee {
 
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
+	}
+	
+	public String getSecurityQuestion1() {
+	    return securityQuestion1;
+	}
+
+	public void setSecurityQuestion1(String securityQuestion1) {
+	    this.securityQuestion1 = securityQuestion1;
+	}
+
+	public String getSecurityAnswer1() {
+	    return securityAnswer1;
+	}
+
+	public void setSecurityAnswer1(String securityAnswer1) {
+	    this.securityAnswer1 = securityAnswer1;
+	}
+
+	public String getSecurityQuestion2() {
+	    return securityQuestion2;
+	}
+
+	public void setSecurityQuestion2(String securityQuestion2) {
+	    this.securityQuestion2 = securityQuestion2;
+	}
+
+	public String getSecurityAnswer2() {
+	    return securityAnswer2;
+	}
+
+	public void setSecurityAnswer2(String securityAnswer2) {
+	    this.securityAnswer2 = securityAnswer2;
 	}
 
 	
