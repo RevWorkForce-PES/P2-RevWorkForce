@@ -1,6 +1,7 @@
 package com.revature.revworkforce.service;
 
 import com.revature.revworkforce.dto.AuditLogDTO;
+import com.revature.revworkforce.enums.AuditAction;
 import com.revature.revworkforce.model.AuditLog;
 import com.revature.revworkforce.model.Employee;
 
@@ -29,6 +30,10 @@ public interface AuditService {
     void logLeaveApproval(String performedBy, Long applicationId);
 
     void logLeaveRejection(String performedBy, Long applicationId);
+    
+	void logAction(String employeeId, AuditAction passwordReset, String string, String employeeId2, Object object, String string2);
+
+
 
     List<AuditLog> getAllAuditLogs();
 
@@ -47,4 +52,5 @@ public interface AuditService {
     AuditLogDTO convertToDTO(AuditLog auditLog);
 
     List<AuditLogDTO> getRecentAuditLogsAsDTO(int limit);
+
 }

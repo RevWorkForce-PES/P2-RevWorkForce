@@ -965,6 +965,18 @@ END;
 
 COMMIT;
 
+
+-- Set default questions for existing employees
+UPDATE EMPLOYEES 
+SET security_question_1 = 'What is your favorite teacher''s name?',
+    security_question_2 = 'What was your first pet''s name?',
+    security_answer_1 = '$2a$12$a3rQGGfHlqU.yG0VcQjSbu7tIehFEbIy0zi9ChQ1Kp8NFzYs8YY6.',  -- Hash of "teacher"
+    security_answer_2 = '$2a$12$eqgVRvnUrctdhGunxEU2re4wD8L32uOeJRELDp7GizKjGe1TQmtpu'   -- Hash of "buddy"
+WHERE security_question_1 IS NULL;
+
+COMMIT;
+
+
 -- ============================================
 -- END OF SEED DATA SCRIPT
 -- ============================================

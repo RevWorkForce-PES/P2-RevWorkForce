@@ -32,6 +32,7 @@ public enum AuditAction {
     LOGIN,
     LOGOUT,
     APPROVE,
+    PASSWORD_RESET,
     REJECT;
 
     /**

@@ -70,3 +70,9 @@ SELECT 'Schema creation completed successfully!' AS STATUS FROM DUAL;
 SELECT COUNT(*) AS TOTAL_TABLES FROM user_tables;
 SELECT COUNT(*) AS TOTAL_SEQUENCES FROM user_sequences;
 SELECT COUNT(*) AS TOTAL_INDEXES FROM user_indexes WHERE table_owner = USER;
+
+
+-- Verify security questions
+SELECT employee_id, first_name, security_question_1, security_question_2
+FROM EMPLOYEES WHERE ROWNUM <= 3;
+commit;

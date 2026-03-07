@@ -360,7 +360,7 @@ public class GoalController {
     /**
      * P2: View team member goal progress
      */
-    @GetMapping({ "/manager/performance", "/manager/goals/team", "/manager/reviews/team", "/manager/reviews/pending" })
+    @GetMapping({ "/manager/goals/performance", "/manager/goals/team", "/manager/reviews/team", "/manager/reviews/pending" })
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @Transactional
     public String viewTeamPerformance(Model model) {
