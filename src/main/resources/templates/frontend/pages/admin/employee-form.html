@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${isEdit ? 'Edit Employee' : 'Add Employee'} + ' - RevWorkForce Admin'">Employee Form</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .section-title {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary-light, #e8f0fe);
+            padding-bottom: 0.5rem;
+            margin: 1.5rem 0 1rem;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .field-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .field-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .field-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            font-size: 0.85rem;
+            margin-bottom: 0.3rem;
+            display: block;
+        }
+
+        .form-label .required {
+            color: #e53935;
+            margin-left: 2px;
+        }
+
+        .field-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .validation-msg {
+            font-size: 0.75rem;
+            color: #e53935;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .form-control.is-invalid {
+            border-color: #e53935;
+        }
+
+        @media (max-width: 768px) {
+
+            .field-grid-3,
+            .field-grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .field-grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar th:attr="page-title=${isEdit ? 'Edit Employee' : 'Add Employee'}"></app-navbar>
+            <div class="page-wrapper">
+
+                <!-- Flash alerts -->
+                <div th:if="${success}" class="alert-banner success">
+                    <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+                </div>
+                <div th:if="${error}" class="alert-banner error">
+                    <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+                </div>
+
+                <div class="card">
+                    <!-- Header -->
+                    <div class="flex-space-between" style="margin-bottom:1.5rem;">
+                        <div>
+                            <h3 style="margin:0;" th:text="${isEdit ? 'Edit Employee Profile' : 'Create New Employee'}">
+                                Add Employee</h3>
+                            <p class="text-muted" style="margin:0.25rem 0 0; font-size:0.85rem;">Fields marked with
+                                <span style="color:#e53935;">*</span> are required
+                            </p>
+                        </div>
+                        <a th:href="@{/admin/employees}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+
+                    <form id="employeeForm"
+                        th:action="${isEdit ? '/admin/employees/edit/' + employeeDTO.employeeId : '/admin/employees/add'}"
+                        method="post" th:object="${employeeDTO}" novalidate>
+
+                        <!-- ═══ IDENTITY ═══ -->
+                        <h4 class="section-title"><i class="fas fa-id-card"></i> Identity</h4>
+                        <div class="field-grid-3">
+
+                            <!-- Role Selection (drives EmpID prefix) -->
+                            <div class="form-group">
+                                <label class="form-label">Role <span class="required">*</span></label>
+                                <select id="roleSelect" name="roleIds" class="form-control" required
+                                    th:disabled="${isEdit}">
+                                    <option value="">— Select Role —</option>
+                                    <option th:each="r : ${roles}" th:value="${r.roleId}" th:text="${r.roleName}"
+                                        th:attr="data-prefix=${
+                                                #strings.containsIgnoreCase(r.roleName,'ADMIN')   ? 'ADM' :
+                                                #strings.containsIgnoreCase(r.roleName,'MANAGER') ? 'MGR' : 'EMP'
+                                            }"
+                                        th:selected="${employeeDTO.roleIds != null and !employeeDTO.roleIds.isEmpty() and employeeDTO.roleIds.contains(r.roleId)}">
+                                    </option>
+                                </select>
+                                <div class="field-hint">Employee ID prefix is auto-generated from this selection</div>
+                            </div>
+
+                            <!-- Employee ID (auto-generated) -->
+                            <div class="form-group">
+                                <label class="form-label">Employee ID <span class="required">*</span></label>
+                                <input type="text" id="employeeId" class="form-control" th:field="*{employeeId}"
+                                    th:readonly="${isEdit}" placeholder="Select a role first" readonly>
+                                <div class="field-hint" th:if="${!isEdit}">Auto-generated — read only</div>
+                            </div>
+
+                        </div>
+
+                        <!-- ═══ PERSONAL INFORMATION ═══ -->
+                        <h4 class="section-title"><i class="fas fa-user"></i> Personal Information</h4>
+                        <div class="field-grid-3">
+                            <div class="form-group">
+                                <label class="form-label">First Name <span class="required">*</span></label>
+                                <input type="text" class="form-control" th:field="*{firstName}" required
+                                    placeholder="First name">
+                                <span class="text-danger" th:if="${#fields.hasErrors('firstName')}"
+                                    th:errors="*{firstName}"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Last Name <span class="required">*</span></label>
+                                <input type="text" class="form-control" th:field="*{lastName}" required
+                                    placeholder="Last name">
+                                <span class="text-danger" th:if="${#fields.hasErrors('lastName')}"
+                                    th:errors="*{lastName}"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Gender</label>
+                                <select class="form-control" th:field="*{gender}">
+                                    <option value="">Select Gender</option>
+                                    <option value="M"
+                                        th:selected="${employeeDTO.gender != null and employeeDTO.gender.name() == 'M'}">
+                                        Male</option>
+                                    <option value="F"
+                                        th:selected="${employeeDTO.gender != null and employeeDTO.gender.name() == 'F'}">
+                                        Female</option>
+                                    <option value="O"
+                                        th:selected="${employeeDTO.gender != null and employeeDTO.gender.name() == 'O'}">
+                                        Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email <span class="required">*</span></label>
+                                <input type="email" class="form-control" th:field="*{email}" required
+                                    placeholder="work@company.com">
+                                <span class="text-danger" th:if="${#fields.hasErrors('email')}"
+                                    th:errors="*{email}"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone <span class="required">*</span></label>
+                                <input type="tel" class="form-control" th:field="*{phone}" required
+                                    placeholder="10-digit number" pattern="[6-9][0-9]{9}" maxlength="10">
+                                <span class="text-danger" th:if="${#fields.hasErrors('phone')}"
+                                    th:errors="*{phone}"></span>
+                                <div class="validation-msg" id="phoneMsg">Enter a valid 10-digit mobile number
+                                    starting
+                                    with 6–9</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Date of Birth <span class="required">*</span></label>
+                                <input type="date" id="dobInput" class="form-control" th:field="*{dateOfBirth}"
+                                    required>
+                                <span class="text-danger" th:if="${#fields.hasErrors('dateOfBirth')}"
+                                    th:errors="*{dateOfBirth}"></span>
+                                <div class="validation-msg" id="dobMsg">Employee must be at least 18 years old</div>
+                            </div>
+                        </div>
+
+                        <!-- ═══ ADDRESS ═══ -->
+                        <h4 class="section-title"><i class="fas fa-map-marker-alt"></i> Address</h4>
+                        <div class="field-grid-4">
+                            <div class="form-group" style="grid-column:1/3;">
+                                <label class="form-label">Street Address</label>
+                                <input type="text" class="form-control" th:field="*{address}"
+                                    placeholder="Street / Flat / Area">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">City</label>
+                                <input type="text" class="form-control" th:field="*{city}" placeholder="City">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">State</label>
+                                <input type="text" class="form-control" th:field="*{state}" placeholder="State">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Postal Code</label>
+                                <input type="text" class="form-control" th:field="*{postalCode}"
+                                    placeholder="6-digit PIN" maxlength="6" pattern="[0-9]{6}">
+                            </div>
+                        </div>
+
+                        <!-- ═══ EMERGENCY CONTACT ═══ -->
+                        <h4 class="section-title"><i class="fas fa-phone-alt"></i> Emergency Contact</h4>
+                        <div class="field-grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Contact Name</label>
+                                <input type="text" class="form-control" th:field="*{emergencyContactName}"
+                                    placeholder="Full name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Contact Phone</label>
+                                <input type="tel" class="form-control" th:field="*{emergencyContactPhone}"
+                                    placeholder="10-digit number" maxlength="10">
+                            </div>
+                        </div>
+
+                        <!-- ═══ EMPLOYMENT DETAILS ═══ -->
+                        <h4 class="section-title"><i class="fas fa-briefcase"></i> Employment Details</h4>
+                        <div class="field-grid-3">
+                            <div class="form-group">
+                                <label class="form-label">Department <span class="required">*</span></label>
+                                <select class="form-control" th:field="*{departmentId}" required>
+                                    <option value="">Select Department</option>
+                                    <option th:each="dept : ${departments}" th:value="${dept.departmentId}"
+                                        th:text="${dept.departmentName}"></option>
+                                </select>
+                                <span class="text-danger" th:if="${#fields.hasErrors('departmentId')}"
+                                    th:errors="*{departmentId}"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Designation <span class="required">*</span></label>
+                                <select class="form-control" th:field="*{designationId}" required>
+                                    <option value="">Select Designation</option>
+                                    <option th:each="desig : ${designations}" th:value="${desig.designationId}"
+                                        th:text="${desig.designationName}"></option>
+                                </select>
+                                <span class="text-danger" th:if="${#fields.hasErrors('designationId')}"
+                                    th:errors="*{designationId}"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Reporting Manager</label>
+                                <select class="form-control" th:field="*{managerId}">
+                                    <option value="">No Manager</option>
+                                    <!-- Only manager-role employees are passed in this list -->
+                                    <option th:each="mgr : ${managers}" th:value="${mgr.employeeId}"
+                                        th:text="${mgr.fullName + ' (' + mgr.employeeId + ')'}"></option>
+                                </select>
+                                <div class="field-hint">Only active managers are listed</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Joining Date <span class="required">*</span></label>
+                                <input type="date" id="joiningDateInput" class="form-control" th:field="*{joiningDate}"
+                                    required>
+                                <span class="text-danger" th:if="${#fields.hasErrors('joiningDate')}"
+                                    th:errors="*{joiningDate}"></span>
+                                <div class="validation-msg" id="joiningDateMsg">Joining date cannot be in the future
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Salary (₹) <span class="required">*</span></label>
+                                <input type="number" class="form-control" th:field="*{salary}" step="1000" min="0"
+                                    required placeholder="e.g. 500000">
+                                <span class="text-danger" th:if="${#fields.hasErrors('salary')}"
+                                    th:errors="*{salary}"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Status <span class="required">*</span></label>
+                                <select class="form-control" th:field="*{status}" required>
+                                    <option th:each="stat : ${statuses}" th:value="${stat}" th:text="${stat}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- ═══ FORM ACTIONS ═══ -->
+                        <div
+                            style="display:flex; gap:1rem; padding-top:1.5rem; border-top:1px solid var(--border-color); margin-top:1rem;">
+                            <button type="submit" id="submitBtn" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                <span th:text="${isEdit ? 'Update Employee' : 'Add Employee'}">Save</span>
+                            </button>
+                            <a th:href="@{/admin/employees}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const isEdit = /*[[${isEdit}]]*/ false;
+
+        // ──────────────────────────────────────────────
+        // Auto-generate Employee ID when role is changed
+        // ──────────────────────────────────────────────
+        const roleSelect = document.getElementById('roleSelect');
+        const employeeIdInput = document.getElementById('employeeId');
+
+        async function fetchNextId(prefix) {
+            try {
+                const res = await fetch('/admin/api/next-employee-id?prefix=' + prefix);
+                if (res.ok) {
+                    const id = await res.text();
+                    employeeIdInput.value = id;
+                }
+            } catch (_) { }
+        }
+
+        if (roleSelect && !isEdit) {
+            roleSelect.addEventListener('change', function () {
+                const opt = this.options[this.selectedIndex];
+                const prefix = opt.dataset.prefix || 'EMP';
+                // Update placeholder while fetching
+                employeeIdInput.value = '';
+                employeeIdInput.placeholder = 'Generating ' + prefix + ' ID…';
+                fetchNextId(prefix);
+            });
+        }
+
+        // ──────────────────────────────────────────────
+        // Date Validations
+        // ──────────────────────────────────────────────
+        const dobInput = document.getElementById('dobInput');
+        const joiningDateInput = document.getElementById('joiningDateInput');
+        const dobMsg = document.getElementById('dobMsg');
+        const joiningDateMsg = document.getElementById('joiningDateMsg');
+
+        // Set max for DOB = today - 18 years
+        function setDobMax() {
+            const d = new Date();
+            d.setFullYear(d.getFullYear() - 18);
+            dobInput.max = d.toISOString().split('T')[0];
+        }
+        // Set max for joining date = today
+        function setJoiningMax() {
+            joiningDateInput.max = new Date().toISOString().split('T')[0];
+        }
+
+        if (dobInput) {
+            setDobMax();
+            dobInput.addEventListener('change', function () {
+                const selected = new Date(this.value);
+                const limit = new Date();
+                limit.setFullYear(limit.getFullYear() - 18);
+                const isInvalid = selected > limit;
+                this.classList.toggle('is-invalid', isInvalid);
+                dobMsg.style.display = isInvalid ? 'block' : 'none';
+            });
+        }
+
+        if (joiningDateInput) {
+            setJoiningMax();
+            joiningDateInput.addEventListener('change', function () {
+                const selected = new Date(this.value);
+                const today = new Date();
+                today.setHours(23, 59, 59);
+                const isInvalid = selected > today;
+                this.classList.toggle('is-invalid', isInvalid);
+                joiningDateMsg.style.display = isInvalid ? 'block' : 'none';
+            });
+        }
+
+        // ──────────────────────────────────────────────
+        // Final validation before submit
+        // ──────────────────────────────────────────────
+        document.getElementById('employeeForm').addEventListener('submit', function (e) {
+            let valid = true;
+
+            // DOB must be ≥18 years ago
+            if (dobInput && dobInput.value) {
+                const d18 = new Date();
+                d18.setFullYear(d18.getFullYear() - 18);
+                if (new Date(dobInput.value) > d18) {
+                    dobMsg.style.display = 'block';
+                    dobInput.classList.add('is-invalid');
+                    valid = false;
+                }
+            }
+
+            // Joining date must not be future
+            if (joiningDateInput && joiningDateInput.value) {
+                const todayEnd = new Date(); todayEnd.setHours(23, 59, 59);
+                if (new Date(joiningDateInput.value) > todayEnd) {
+                    joiningDateMsg.style.display = 'block';
+                    joiningDateInput.classList.add('is-invalid');
+                    valid = false;
+                }
+            }
+
+            // Role must be selected for new employees
+            if (!isEdit && roleSelect && !roleSelect.value) {
+                roleSelect.classList.add('is-invalid');
+                valid = false;
+            }
+
+            if (!valid) e.preventDefault();
+        });
+        /*]]>*/
+    </script>
+
+    <style>
+        .alert-banner {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-banner.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .alert-banner.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .text-danger {
+            font-size: 0.75rem;
+            color: #e53935;
+        }
+    </style>
+</body>
+
+</html>

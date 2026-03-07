@@ -151,7 +151,7 @@
                                     <h4 style="margin-bottom: 0.1rem; font-size: 1rem;"
                                         th:text="${emp.firstName + ' ' + emp.lastName}">Alice Smith</h4>
                                     <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.25rem;"
-                                        th:text="${emp.departmentName != null ? emp.departmentName : 'N/A'}">
+                                        th:text="${emp.department != null ? emp.department.departmentName : 'N/A'}">
                                         Engineering</p>
                                     <a th:href="'mailto:' + ${emp.email}"
                                         style="color: var(--primary); font-size: 0.8rem;"><i

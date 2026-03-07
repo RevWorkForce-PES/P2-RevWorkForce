@@ -2,10 +2,14 @@ package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.enums.EmployeeStatus;
 import com.revature.revworkforce.model.Employee;
+import com.revature.revworkforce.repository.AuditLogRepository;
 import com.revature.revworkforce.repository.DepartmentRepository;
 import com.revature.revworkforce.repository.EmployeeRepository;
+import com.revature.revworkforce.repository.LeaveApplicationRepository;
 import com.revature.revworkforce.security.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,6 +34,12 @@ public class AdminDashboardController {
 
     @Autowired
     private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private AuditLogRepository auditLogRepository;
+
+    @Autowired
+    private LeaveApplicationRepository leaveApplicationRepository;
 
     /**
      * Display admin dashboard.
@@ -82,6 +92,18 @@ public class AdminDashboardController {
 
     @GetMapping("/audit-reports")
     public String auditReports(Model model) {
+        try {
+            model.addAttribute("auditLogs",
+                    auditLogRepository.findAll(
+                            PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "createdAt"))).getContent());
+        } catch (Exception e) {
+            model.addAttribute("auditLogs", java.util.List.of());
+        }
+        try {
+            model.addAttribute("leaveReports", leaveApplicationRepository.findAll());
+        } catch (Exception e) {
+            model.addAttribute("leaveReports", java.util.List.of());
+        }
         model.addAttribute("pageTitle", "Audit Reports");
         return "pages/admin/audit-reports";
     }

@@ -6,9 +6,11 @@ import com.revature.revworkforce.enums.EmployeeStatus;
 import com.revature.revworkforce.model.Employee;
 import com.revature.revworkforce.repository.DepartmentRepository;
 import com.revature.revworkforce.repository.DesignationRepository;
+import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.repository.RoleRepository;
 import com.revature.revworkforce.security.SecurityUtils;
 import com.revature.revworkforce.service.EmployeeService;
+import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,7 +43,31 @@ public class EmployeeController {
     private DesignationRepository designationRepository;
 
     @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
     private RoleRepository roleRepository;
+
+    // ============================================
+    // ADMIN API ENDPOINTS
+    // ============================================
+
+    /**
+     * Returns the next auto-generated Employee ID for a given prefix.
+     * Called by the Add Employee form JS when a role is selected.
+     */
+    @GetMapping("/admin/api/next-employee-id")
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseBody
+    public ResponseEntity<String> getNextEmployeeId(
+            @RequestParam(defaultValue = "EMP") String prefix) {
+        try {
+            String nextId = employeeService.generateEmployeeId(prefix.toUpperCase());
+            return ResponseEntity.ok(nextId);
+        } catch (Exception e) {
+            return ResponseEntity.ok(prefix.toUpperCase() + "001");
+        }
+    }
 
     // ============================================
     // ADMIN ENDPOINTS - Employee Management
@@ -91,20 +117,21 @@ public class EmployeeController {
     @PreAuthorize("hasRole('ADMIN')")
     public String showAddEmployeeForm(Model model) {
         EmployeeDTO dto = new EmployeeDTO();
-
-        // Generate employee ID
-        dto.setEmployeeId(employeeService.generateEmployeeId("EMP"));
+        // Start with empty ID; JS will auto-fill based on role selection
+        dto.setEmployeeId("");
 
         model.addAttribute("employeeDTO", dto);
         model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
         model.addAttribute("designations", designationRepository.findByIsActive('Y'));
-        model.addAttribute("managers", employeeService.getActiveEmployees());
+        // Only show MANAGER-role employees in the Reporting Manager dropdown
+        model.addAttribute("managers",
+                employeeRepository.findActiveEmployeesByRoleName("MANAGER"));
         model.addAttribute("roles", roleRepository.findAll());
         model.addAttribute("statuses", EmployeeStatus.values());
         model.addAttribute("pageTitle", "Add Employee");
         model.addAttribute("isEdit", false);
 
-        return "admin/employees/form";
+        return "pages/admin/employee-form";
     }
 
     /**
@@ -121,11 +148,11 @@ public class EmployeeController {
         if (result.hasErrors()) {
             model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
             model.addAttribute("designations", designationRepository.findByIsActive('Y'));
-            model.addAttribute("managers", employeeService.getActiveEmployees());
+            model.addAttribute("managers", employeeRepository.findActiveEmployeesByRoleName("MANAGER"));
             model.addAttribute("roles", roleRepository.findAll());
             model.addAttribute("statuses", EmployeeStatus.values());
             model.addAttribute("isEdit", false);
-            return "admin/employees/form";
+            return "pages/admin/employee-form";
         }
 
         try {
@@ -138,11 +165,11 @@ public class EmployeeController {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
             model.addAttribute("designations", designationRepository.findByIsActive('Y'));
-            model.addAttribute("managers", employeeService.getActiveEmployees());
+            model.addAttribute("managers", employeeRepository.findActiveEmployeesByRoleName("MANAGER"));
             model.addAttribute("roles", roleRepository.findAll());
             model.addAttribute("statuses", EmployeeStatus.values());
             model.addAttribute("isEdit", false);
-            return "admin/employees/form";
+            return "pages/admin/employee-form";
         }
     }
 
@@ -158,13 +185,14 @@ public class EmployeeController {
         model.addAttribute("employeeDTO", dto);
         model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
         model.addAttribute("designations", designationRepository.findByIsActive('Y'));
-        model.addAttribute("managers", employeeService.getActiveEmployees());
+        model.addAttribute("managers",
+                employeeRepository.findActiveEmployeesByRoleName("MANAGER"));
         model.addAttribute("roles", roleRepository.findAll());
         model.addAttribute("statuses", EmployeeStatus.values());
         model.addAttribute("pageTitle", "Edit Employee");
         model.addAttribute("isEdit", true);
 
-        return "admin/employees/form";
+        return "pages/admin/employee-form";
     }
 
     /**
@@ -222,7 +250,7 @@ public class EmployeeController {
         model.addAttribute("teamMembers", teamMembers);
         model.addAttribute("pageTitle", "Employee Details");
 
-        return "admin/employees/view";
+        return "pages/admin/employee-view";
     }
 
     /**

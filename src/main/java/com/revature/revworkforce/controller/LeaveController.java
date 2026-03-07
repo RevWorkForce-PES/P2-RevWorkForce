@@ -115,4 +115,19 @@ public class LeaveController {
         return "redirect:/leave/manager/leave-approvals";
     }
 
+    // ================= ADMIN =================
+
+    @PostMapping("/admin/revoke/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String revokeLeave(@PathVariable Long id,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            leaveService.cancelLeave(id, "ADMIN");
+            redirectAttributes.addFlashAttribute("success", "Leave application #" + id + " has been revoked.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Could not revoke leave: " + e.getMessage());
+        }
+        return "redirect:/admin/audit-reports";
+    }
+
 }

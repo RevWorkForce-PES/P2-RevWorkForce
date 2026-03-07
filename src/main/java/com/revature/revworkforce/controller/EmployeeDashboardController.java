@@ -1,11 +1,11 @@
 package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.model.Employee;
-import com.revature.revworkforce.model.Holiday;
 import com.revature.revworkforce.repository.EmployeeRepository;
-import com.revature.revworkforce.repository.HolidayRepository;
 import com.revature.revworkforce.security.SecurityUtils;
 import com.revature.revworkforce.service.HolidayService;
+import com.revature.revworkforce.service.AnnouncementService;
+import com.revature.revworkforce.service.NotificationService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,7 +20,6 @@ import com.revature.revworkforce.service.LeaveService;
 import com.revature.revworkforce.service.GoalService;
 import com.revature.revworkforce.service.PerformanceReviewService;
 import com.revature.revworkforce.dto.LeaveBalanceDTO;
-import java.math.BigDecimal;
 
 /**
  * Employee Dashboard Controller.
@@ -49,6 +48,12 @@ public class EmployeeDashboardController {
 
         @Autowired
         private PerformanceReviewService reviewService;
+
+        @Autowired
+        private AnnouncementService announcementService;
+
+        @Autowired
+        private NotificationService notificationService;
 
         @GetMapping("/dashboard")
         public String employeeDashboard(Model model) {
@@ -107,6 +112,18 @@ public class EmployeeDashboardController {
                         } catch (Exception e) {
                                 model.addAttribute("recentLeaves", List.of());
                         }
+
+                        try {
+                                model.addAttribute("announcements", announcementService.getActiveAnnouncements());
+                        } catch (Exception e) {
+                                model.addAttribute("announcements", List.of());
+                        }
+
+                        try {
+                                model.addAttribute("unreadCount", notificationService.getUnreadCount(employeeId));
+                        } catch (Exception e) {
+                                model.addAttribute("unreadCount", 0);
+                        }
                 }
 
                 model.addAttribute("pageTitle", "Employee Dashboard");
@@ -118,6 +135,24 @@ public class EmployeeDashboardController {
         @GetMapping("/leave-management")
         public String redirectLeaveManagement() {
                 return "redirect:/leave/employee/leave-management";
+        }
+
+        /** Redirect /employee/performance → goals performance dashboard */
+        @GetMapping("/performance")
+        public String redirectPerformance() {
+                return "redirect:/employee/goals/dashboard";
+        }
+
+        /** Employee announcements page */
+        @GetMapping("/announcements")
+        public String announcements(Model model) {
+                try {
+                        model.addAttribute("announcements", announcementService.getActiveAnnouncements());
+                } catch (Exception e) {
+                        model.addAttribute("announcements", List.of());
+                }
+                model.addAttribute("pageTitle", "Company Announcements");
+                return "pages/employee/announcements";
         }
 
 }
