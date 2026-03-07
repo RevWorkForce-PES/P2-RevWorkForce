@@ -40,25 +40,23 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>EMP001</td>
-                                        <td>Alice Smith</td>
-                                        <td>Software Eng</td>
-                                        <td>alice@example.com</td>
-                                        <td><button class="btn btn-secondary btn-sm"
-                                                onclick="alert('Viewing profile for EMP001')"><i class="fas fa-eye"></i>
-                                                View
-                                                Profile</button></td>
+                                    <tr th:each="member : ${teamMembers}">
+                                        <td th:text="${member.employeeId}">EMP001</td>
+                                        <td th:text="${member.fullName}">Alice Smith</td>
+                                        <td
+                                            th:text="${member.designation != null ? member.designation.designationName : 'N/A'}">
+                                            Software Eng</td>
+                                        <td th:text="${member.email}">alice@example.com</td>
+                                        <td>
+                                            <a th:href="@{/employee/profile/{id}(id=${member.employeeId})}"
+                                                class="btn btn-secondary btn-sm">
+                                                <i class="fas fa-eye"></i> View Profile
+                                            </a>
+                                        </td>
                                     </tr>
-                                    <tr>
-                                        <td>EMP045</td>
-                                        <td>Charlie Brown</td>
-                                        <td>Software Eng II</td>
-                                        <td>charlie@example.com</td>
-                                        <td><button class="btn btn-secondary btn-sm"
-                                                onclick="alert('Viewing profile for EMP045')"><i class="fas fa-eye"></i>
-                                                View
-                                                Profile</button></td>
+                                    <tr th:if="${#lists.isEmpty(teamMembers)}">
+                                        <td colspan="5" class="text-center text-muted" style="padding: 1.5rem;">No
+                                            direct reportees found.</td>
                                     </tr>
                                 </tbody>
                             </table>

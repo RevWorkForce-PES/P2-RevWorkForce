@@ -168,16 +168,16 @@
                         <div class="card">
                             <div class="card-header">
                                 <h2 class="card-title">Company Announcements</h2>
+                                <a th:href="@{/employee/announcements}" class="btn btn-secondary btn-sm">View All</a>
                             </div>
                             <ul style="list-style: none; padding: 0;">
-                                <li
+                                <li th:each="ann : ${announcements}"
                                     style="padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem;">
-                                    <strong>Townhall Meeting</strong> <br>
-                                    <small class="text-muted">Friday, 3 PM EST</small>
+                                    <strong th:text="${ann.title}">Announcement</strong> <br>
+                                    <small class="text-muted" th:text="${ann.message}">Details here.</small>
                                 </li>
-                                <li>
-                                    <strong>New Health Policy</strong> <br>
-                                    <small class="text-muted">Effective next month. Read details in HR portal.</small>
+                                <li th:if="${#lists.isEmpty(announcements)}" class="text-muted"
+                                    style="padding: 0.5rem 0; font-size: 0.9rem;">No active announcements.
                                 </li>
                             </ul>
                         </div>

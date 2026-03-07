@@ -120,7 +120,7 @@ public class AnnouncementController {
         List<AnnouncementDTO> activeAnnouncements = announcementService.getActiveAnnouncements();
         model.addAttribute("announcements", activeAnnouncements);
         model.addAttribute("pageTitle", "Company Announcements");
-        return "employee/announcements/list";
+        return "pages/employee/announcements";
     }
 
     @GetMapping("/announcements/{id}")
@@ -129,7 +129,7 @@ public class AnnouncementController {
             AnnouncementDTO announcement = announcementService.getAnnouncementById(id);
             model.addAttribute("announcement", announcement);
             model.addAttribute("pageTitle", announcement.getTitle());
-            return "employee/announcements/details";
+            return "pages/employee/announcement-detail";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Announcement not found.");
             return "redirect:/announcements";

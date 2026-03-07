@@ -44,7 +44,8 @@
                                 </thead>
                                 <tbody>
                                     <tr th:each="review : ${reviews}">
-                                        <td th:text="${review.employeeName}">Alice Smith</td>
+                                        <td th:text="${review.employee != null ? review.employee.fullName : 'N/A'}">
+                                            Alice Smith</td>
                                         <td>
                                             <span class="badge"
                                                 th:classappend="${review.status.name() == 'SUBMITTED' || review.status.name() == 'REVIEWED' ? 'badge-approved' : 'badge-pending'}"

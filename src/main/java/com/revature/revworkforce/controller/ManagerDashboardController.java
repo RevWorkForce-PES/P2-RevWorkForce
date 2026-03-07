@@ -4,6 +4,7 @@ import com.revature.revworkforce.model.Employee;
 import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.security.SecurityUtils;
 import com.revature.revworkforce.service.LeaveService;
+import com.revature.revworkforce.service.NotificationService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,6 +32,8 @@ public class ManagerDashboardController {
     private EmployeeRepository employeeRepository;
     @Autowired
     private LeaveService leaveService;
+    @Autowired
+    private NotificationService notificationService;
 
     /**
      * Display manager dashboard.
@@ -52,9 +55,13 @@ public class ManagerDashboardController {
             List<Employee> teamMembers = employeeRepository.findByManager_EmployeeId(employeeId);
             model.addAttribute("teamSize", teamMembers.size());
 
-            // ✅ ADD THIS BLOCK
             model.addAttribute("pendingCount",
                     leaveService.getPendingLeavesForManager(employeeId).size());
+            try {
+                model.addAttribute("unreadCount", notificationService.getUnreadCount(employeeId));
+            } catch (Exception e) {
+                model.addAttribute("unreadCount", 0);
+            }
         }
 
         model.addAttribute("pageTitle", "Manager Dashboard");
@@ -84,5 +91,17 @@ public class ManagerDashboardController {
         model.addAttribute("teamMembers", teamMembers);
         model.addAttribute("pageTitle", "Team Management");
         return "pages/manager/team-management";
+    }
+
+    /** Redirect /manager/performance → performance review list */
+    @GetMapping("/performance")
+    public String redirectPerformance() {
+        return "redirect:/manager/reviews";
+    }
+
+    /** Redirect /manager/goals → team goals view */
+    @GetMapping("/goals")
+    public String redirectGoals() {
+        return "redirect:/goals/manager/team";
     }
 }

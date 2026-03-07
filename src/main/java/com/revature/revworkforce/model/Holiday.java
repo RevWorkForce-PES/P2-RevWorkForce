@@ -4,13 +4,14 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.revature.revworkforce.converter.HolidayTypeConverter;
 import com.revature.revworkforce.enums.HolidayType;
 
 /**
  * Entity class representing a Company Holiday.
- * 
+ *
  * Maps to database table: HOLIDAYS
- * 
+ *
  * @author RevWorkForce Team
  */
 @Entity
@@ -29,7 +30,7 @@ public class Holiday {
     @Column(name = "holiday_name", nullable = false, length = 100)
     private String holidayName;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = HolidayTypeConverter.class)
     @Column(name = "holiday_type", nullable = false, length = 50)
     private HolidayType holidayType;
 
@@ -44,7 +45,7 @@ public class Holiday {
 
     @Column(name = "created_by", length = 20)
     private String createdBy;
-    
+
     @Column(name = "is_active", length = 1)
     private Character isActive = 'Y';
 
@@ -136,6 +137,7 @@ public class Holiday {
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
+
     public Character getIsActive() {
         return isActive;
     }
@@ -160,19 +162,28 @@ public class Holiday {
         this.updatedBy = updatedBy;
     }
 
-    // Lifecycle callbacks
+    // Lifecycle
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
 
+    // Helper for template
+    public String getName() {
+        return holidayName;
+    }
+
+    public Long getId() {
+        return holidayId;
+    }
+
+    public LocalDate getDate() {
+        return holidayDate;
+    }
+
     @Override
     public String toString() {
-        return "Holiday{" +
-                "holidayId=" + holidayId +
-                ", holidayDate=" + holidayDate +
-                ", holidayName='" + holidayName + '\'' +
-                ", holidayType='" + holidayType + '\'' +
-                '}';
+        return "Holiday{holidayId=" + holidayId + ", holidayDate=" + holidayDate
+                + ", holidayName='" + holidayName + "', holidayType='" + holidayType + "'}";
     }
 }
