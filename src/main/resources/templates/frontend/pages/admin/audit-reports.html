@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audit & Reports - RevWorkForce Admin</title>
-    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
         .filter-bar {
             background: #f8fafc;
@@ -72,41 +72,21 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>#4092</td>
-                                        <td>2026-03-01 09:12 AM</td>
-                                        <td>ADM001</td>
-                                        <td><span class="badge"
-                                                style="background: #e0f2fe; color: #0284c7;">CREATE</span></td>
-                                        <td>EMPLOYEES</td>
-                                        <td>Inserted record EMP145</td>
+                                    <tr th:each="log : ${auditLogs}">
+                                        <td th:text="'#' + ${log.auditId}">#4092</td>
+                                        <td
+                                            th:text="${log.createdAt != null ? #temporals.format(log.createdAt, 'yyyy-MM-dd hh:mm a') : 'N/A'}">
+                                            2026-03-01 09:12 AM</td>
+                                        <td th:text="${log.employee != null ? log.employee.employeeId : 'SYSTEM'}">
+                                            ADM001
+                                        </td>
+                                        <td><span class="badge" th:text="${log.action}">ACTION</span></td>
+                                        <td th:text="${log.tableName}">EMPLOYEES</td>
+                                        <td th:text="${log.description}">Details</td>
                                     </tr>
-                                    <tr>
-                                        <td>#4091</td>
-                                        <td>2026-03-01 08:45 AM</td>
-                                        <td>MGR012</td>
-                                        <td><span class="badge"
-                                                style="background: #d1fae5; color: #059669;">APPROVE</span></td>
-                                        <td>LEAVE_APPLICATIONS</td>
-                                        <td>Approved Leave Req LR-998 (EMP023)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>#4090</td>
-                                        <td>2026-03-01 07:05 AM</td>
-                                        <td>EMP045</td>
-                                        <td><span class="badge"
-                                                style="background: #fee2e2; color: #dc2626;">LOCKOUT</span></td>
-                                        <td>ACCESS_CONTROL</td>
-                                        <td>Account locked due to 3 failed attempts</td>
-                                    </tr>
-                                    <tr>
-                                        <td>#4089</td>
-                                        <td>2026-03-01 02:30 AM</td>
-                                        <td>SYSTEM</td>
-                                        <td><span class="badge"
-                                                style="background: #f1f5f9; color: #475569;">EXECUTE</span></td>
-                                        <td>DAILY_JOBS</td>
-                                        <td>Database Backup Success</td>
+                                    <tr th:if="${#lists.isEmpty(auditLogs)}">
+                                        <td colspan="6" class="text-center text-muted" style="padding: 1.5rem;">No audit
+                                            logs found.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -212,25 +192,33 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>EMP001</td>
-                                        <td>Alice Smith</td>
-                                        <td>Sick Leave</td>
-                                        <td>Mar 20 - Mar 22</td>
-                                        <td><span class="badge badge-approved">Approved</span></td>
-                                        <td><button class="btn btn-danger btn-sm"
-                                                onclick="alert('ADMIN: Leave Revoked.')"><i class="fas fa-undo"></i>
-                                                Revoke Leave</button></td>
+                                    <tr th:each="app : ${leaveReports}">
+                                        <td th:text="${app.employee != null ? app.employee.employeeId : 'N/A'}">EMP001
+                                        </td>
+                                        <td th:text="${app.employee != null ? app.employee.fullName : 'N/A'}">Alice
+                                            Smith</td>
+                                        <td th:text="${app.leaveType != null ? app.leaveType.leaveName : 'N/A'}">Sick
+                                            Leave</td>
+                                        <td
+                                            th:text="${(app.startDate != null ? #temporals.format(app.startDate, 'MMM d') : '') + ' - ' + (app.endDate != null ? #temporals.format(app.endDate, 'MMM d') : '')}">
+                                            Mar 20 - Mar 22</td>
+                                        <td><span class="badge"
+                                                th:classappend="${app.status.name() == 'APPROVED' ? 'badge-approved' : (app.status.name() == 'REJECTED' ? 'badge-rejected' : 'badge-pending')}"
+                                                th:text="${app.status}">Approved</span></td>
+                                        <td>
+                                            <form th:action="@{/leave/admin/revoke/{id}(id=${app.applicationId})}"
+                                                method="POST" style="display:inline;">
+                                                <button type="submit" class="btn btn-danger btn-sm"
+                                                    onclick="return confirm('Revoke this approved leave?');"
+                                                    th:disabled="${app.status.name() != 'APPROVED'}">
+                                                    <i class="fas fa-undo"></i> Revoke
+                                                </button>
+                                            </form>
+                                        </td>
                                     </tr>
-                                    <tr>
-                                        <td>EMP045</td>
-                                        <td>Charlie Brown</td>
-                                        <td>Casual Leave</td>
-                                        <td>Apr 1 - Apr 5</td>
-                                        <td><span class="badge badge-approved">Approved</span></td>
-                                        <td><button class="btn btn-danger btn-sm"
-                                                onclick="alert('ADMIN: Leave Revoked.')"><i class="fas fa-undo"></i>
-                                                Revoke Leave</button></td>
+                                    <tr th:if="${#lists.isEmpty(leaveReports)}">
+                                        <td colspan="6" class="text-center text-muted" style="padding: 1.5rem;">No leave
+                                            records found.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -241,6 +229,7 @@
         </main>
     </div>
     <!-- Load Scripts -->
+
     <script src="../../js/components.js"></script>
     <script src="../../js/app.js"></script>
     <script>
@@ -315,6 +304,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 </script>
+
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+
 </body>
 
 </html>

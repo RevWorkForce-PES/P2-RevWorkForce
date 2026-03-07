@@ -7,6 +7,9 @@ import com.revature.revworkforce.enums.GoalStatus;
 import com.revature.revworkforce.model.Goal;
 import com.revature.revworkforce.security.SecurityUtils;
 import com.revature.revworkforce.service.GoalService;
+import com.revature.revworkforce.service.PerformanceReviewService;
+import com.revature.revworkforce.model.PerformanceReview;
+import com.revature.revworkforce.dto.PerformanceReviewDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,18 +21,22 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import jakarta.transaction.Transactional;
 
 /**
-* Goal Controller - P2 VERSION
-* Handles goal management web endpoints
-* 
-* @author RevWorkForce Team
-*/
+ * Goal Controller - P2 VERSION
+ * Handles goal management web endpoints
+ * 
+ * @author RevWorkForce Team
+ */
 @Controller
 public class GoalController {
 
     @Autowired
     private GoalService goalService;
+
+    @Autowired
+    private PerformanceReviewService reviewService;
 
     // ============================================
     // EMPLOYEE ENDPOINTS
@@ -38,24 +45,33 @@ public class GoalController {
     /**
      * P2: View all my goals with status
      */
-    @GetMapping("/employee/goals")
+    @GetMapping({ "/employee/performance", "/employee/goals", "/employee/reviews" })
     @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
-    public String viewMyGoals(Model model) {
+    public String viewPerformanceDashboard(Model model) {
         String employeeId = SecurityUtils.getCurrentUsername();
 
         List<Goal> goals = goalService.getEmployeeGoals(employeeId);
         List<GoalDTO> goalDTOs = goals.stream()
-            .map(goalService::convertToDTO)
-            .collect(Collectors.toList());
+                .map(goalService::convertToDTO)
+                .collect(Collectors.toList());
 
-        // Get statistics
         GoalStatistics stats = goalService.getEmployeeStatistics(employeeId);
 
         model.addAttribute("goals", goalDTOs);
         model.addAttribute("statistics", stats);
-        model.addAttribute("pageTitle", "My Goals");
+        model.addAttribute("goalDTO", new GoalDTO());
+        model.addAttribute("priorities", Priority.values());
 
-        return "employee/goals/list";
+        List<PerformanceReview> reviews = reviewService.getEmployeeReviews(employeeId);
+        List<PerformanceReviewDTO> reviewDTOs = reviews.stream()
+                .map(reviewService::convertToDTO)
+                .collect(Collectors.toList());
+
+        model.addAttribute("reviews", reviewDTOs);
+        model.addAttribute("averageRating", reviewService.getAverageRating(employeeId));
+        model.addAttribute("pageTitle", "Performance & Goals");
+
+        return "pages/employee/performance-goals";
     }
 
     /**
@@ -68,8 +84,8 @@ public class GoalController {
 
         List<Goal> goals = goalService.getActiveGoals(employeeId);
         List<GoalDTO> goalDTOs = goals.stream()
-            .map(goalService::convertToDTO)
-            .collect(Collectors.toList());
+                .map(goalService::convertToDTO)
+                .collect(Collectors.toList());
 
         model.addAttribute("goals", goalDTOs);
         model.addAttribute("pageTitle", "Active Goals");
@@ -114,16 +130,15 @@ public class GoalController {
 
         try {
             goalService.createGoal(
-                employeeId,
-                dto.getGoalTitle(),
-                dto.getGoalDescription(),
-                dto.getCategory(),
-                dto.getDeadline(),
-                dto.getPriority()
-            );
+                    employeeId,
+                    dto.getGoalTitle(),
+                    dto.getGoalDescription(),
+                    dto.getCategory(),
+                    dto.getDeadline(),
+                    dto.getPriority());
 
             redirectAttributes.addFlashAttribute("success", "Goal created successfully!");
-            return "redirect:/employee/goals";
+            return "redirect:/employee/performance";
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("priorities", Priority.values());
@@ -138,7 +153,7 @@ public class GoalController {
     @GetMapping("/employee/goals/edit/{goalId}")
     @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
     public String showEditForm(@PathVariable Long goalId, Model model,
-                              RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) {
         try {
             Goal goal = goalService.getGoalById(goalId);
             GoalDTO dto = goalService.convertToDTO(goal);
@@ -147,14 +162,14 @@ public class GoalController {
             String currentUser = SecurityUtils.getCurrentUsername();
             if (!dto.getEmployeeId().equals(currentUser)) {
                 redirectAttributes.addFlashAttribute("error", "You can only edit your own goals");
-                return "redirect:/employee/goals";
+                return "redirect:/employee/performance";
             }
 
             // Check if editable
             if (!dto.isEditable()) {
-                redirectAttributes.addFlashAttribute("error", 
-                    "Cannot edit completed or cancelled goals");
-                return "redirect:/employee/goals";
+                redirectAttributes.addFlashAttribute("error",
+                        "Cannot edit completed or cancelled goals");
+                return "redirect:/employee/performance";
             }
 
             model.addAttribute("goalDTO", dto);
@@ -164,7 +179,7 @@ public class GoalController {
             return "employee/goals/form";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/employee/goals";
+            return "redirect:/employee/performance";
         }
     }
 
@@ -190,17 +205,16 @@ public class GoalController {
 
         try {
             goalService.updateGoal(
-                goalId,
-                employeeId,
-                dto.getGoalTitle(),
-                dto.getGoalDescription(),
-                dto.getCategory(),
-                dto.getDeadline(),
-                dto.getPriority()
-            );
+                    goalId,
+                    employeeId,
+                    dto.getGoalTitle(),
+                    dto.getGoalDescription(),
+                    dto.getCategory(),
+                    dto.getDeadline(),
+                    dto.getPriority());
 
             redirectAttributes.addFlashAttribute("success", "Goal updated successfully!");
-            return "redirect:/employee/goals";
+            return "redirect:/employee/performance";
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("priorities", Priority.values());
@@ -215,7 +229,7 @@ public class GoalController {
     @GetMapping("/employee/goals/progress/{goalId}")
     @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
     public String showProgressForm(@PathVariable Long goalId, Model model,
-                                  RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) {
         try {
             Goal goal = goalService.getGoalById(goalId);
             GoalDTO dto = goalService.convertToDTO(goal);
@@ -223,9 +237,9 @@ public class GoalController {
             // Check ownership
             String currentUser = SecurityUtils.getCurrentUsername();
             if (!dto.getEmployeeId().equals(currentUser)) {
-                redirectAttributes.addFlashAttribute("error", 
-                    "You can only update your own goals");
-                return "redirect:/employee/goals";
+                redirectAttributes.addFlashAttribute("error",
+                        "You can only update your own goals");
+                return "redirect:/employee/performance";
             }
 
             model.addAttribute("goalDTO", dto);
@@ -234,7 +248,7 @@ public class GoalController {
             return "employee/goals/progress";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/employee/goals";
+            return "redirect:/employee/performance";
         }
     }
 
@@ -252,9 +266,9 @@ public class GoalController {
 
         try {
             goalService.updateProgress(goalId, employeeId, progress);
-            redirectAttributes.addFlashAttribute("success", 
-                "Progress updated successfully!");
-            return "redirect:/employee/goals";
+            redirectAttributes.addFlashAttribute("success",
+                    "Progress updated successfully!");
+            return "redirect:/employee/performance";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/employee/goals/progress/" + goalId;
@@ -267,7 +281,7 @@ public class GoalController {
     @GetMapping("/employee/goals/view/{goalId}")
     @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
     public String viewGoalDetails(@PathVariable Long goalId, Model model,
-                                  RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) {
         try {
             Goal goal = goalService.getGoalById(goalId);
             GoalDTO dto = goalService.convertToDTO(goal);
@@ -278,7 +292,7 @@ public class GoalController {
             return "employee/goals/view";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/employee/goals";
+            return "redirect:/employee/performance";
         }
     }
 
@@ -288,7 +302,7 @@ public class GoalController {
     @PostMapping("/employee/goals/delete/{goalId}")
     @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
     public String deleteGoal(@PathVariable Long goalId,
-                            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) {
         String employeeId = SecurityUtils.getCurrentUsername();
 
         try {
@@ -298,7 +312,7 @@ public class GoalController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        return "redirect:/employee/goals";
+        return "redirect:/employee/performance";
     }
 
     /**
@@ -311,8 +325,8 @@ public class GoalController {
 
         List<Goal> goals = goalService.getUpcomingDeadlines(employeeId, 30);
         List<GoalDTO> goalDTOs = goals.stream()
-            .map(goalService::convertToDTO)
-            .collect(Collectors.toList());
+                .map(goalService::convertToDTO)
+                .collect(Collectors.toList());
 
         model.addAttribute("goals", goalDTOs);
         model.addAttribute("pageTitle", "Upcoming Deadlines (30 Days)");
@@ -330,8 +344,8 @@ public class GoalController {
 
         List<Goal> goals = goalService.getOverdueGoals(employeeId);
         List<GoalDTO> goalDTOs = goals.stream()
-            .map(goalService::convertToDTO)
-            .collect(Collectors.toList());
+                .map(goalService::convertToDTO)
+                .collect(Collectors.toList());
 
         model.addAttribute("goals", goalDTOs);
         model.addAttribute("pageTitle", "Overdue Goals");
@@ -346,20 +360,34 @@ public class GoalController {
     /**
      * P2: View team member goal progress
      */
-    @GetMapping("/manager/goals/team")
+    @GetMapping({ "/manager/goals/performance", "/manager/goals/team", "/manager/reviews/team", "/manager/reviews/pending" })
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    public String viewTeamGoals(Model model) {
+    @Transactional
+    public String viewTeamPerformance(Model model) {
         String managerId = SecurityUtils.getCurrentUsername();
 
         List<Goal> teamGoals = goalService.getTeamGoals(managerId);
         List<GoalDTO> goalDTOs = teamGoals.stream()
-            .map(goalService::convertToDTO)
-            .collect(Collectors.toList());
+                .map(goalService::convertToDTO)
+                .collect(Collectors.toList());
 
         model.addAttribute("goals", goalDTOs);
-        model.addAttribute("pageTitle", "Team Goals");
 
-        return "manager/goals/team";
+        List<PerformanceReview> teamReviews = reviewService.getTeamReviews(managerId);
+        List<PerformanceReviewDTO> reviewDTOs = teamReviews.stream()
+                .map(reviewService::convertToDTO)
+                .collect(Collectors.toList());
+
+        model.addAttribute("reviews", reviewDTOs);
+
+        List<PerformanceReview> pendingReviews = reviewService.getPendingReviewsForManager(managerId);
+        model.addAttribute("pendingReviews", pendingReviews.stream()
+                .map(reviewService::convertToDTO)
+                .collect(Collectors.toList()));
+
+        model.addAttribute("pageTitle", "Team Performance Review");
+
+        return "pages/manager/performance-review";
     }
 
     /**
@@ -368,7 +396,7 @@ public class GoalController {
     @GetMapping("/manager/goals/comment/{goalId}")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public String showCommentForm(@PathVariable Long goalId, Model model,
-                                 RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) {
         try {
             Goal goal = goalService.getGoalById(goalId);
             GoalDTO dto = goalService.convertToDTO(goal);
@@ -379,7 +407,7 @@ public class GoalController {
             return "manager/goals/comment";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/manager/goals/team";
+            return "redirect:/manager/performance";
         }
     }
 
@@ -397,9 +425,9 @@ public class GoalController {
 
         try {
             goalService.addManagerComments(goalId, managerId, managerComments);
-            redirectAttributes.addFlashAttribute("success", 
-                "Comments added successfully!");
-            return "redirect:/manager/goals/team";
+            redirectAttributes.addFlashAttribute("success",
+                    "Comments added successfully!");
+            return "redirect:/manager/performance";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/manager/goals/comment/" + goalId;
@@ -412,7 +440,7 @@ public class GoalController {
     @GetMapping("/manager/goals/view/{goalId}")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public String viewTeamGoalDetails(@PathVariable Long goalId, Model model,
-                                     RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) {
         try {
             Goal goal = goalService.getGoalById(goalId);
             GoalDTO dto = goalService.convertToDTO(goal);

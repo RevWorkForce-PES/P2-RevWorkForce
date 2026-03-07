@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Questions - RevWorkForce</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--bg-main) 0%, #fff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-page::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 140, 0, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+            z-index: 0;
+        }
+
+        .login-page::after {
+            content: '';
+            position: absolute;
+            bottom: -20%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 160, 122, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+            z-index: 0;
+        }
+
+        .login-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: var(--border-radius-lg);
+            padding: 3rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .login-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0 auto 1.5rem auto;
+            box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .login-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-box {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(249, 115, 22, 0.1));
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 1rem;
+        }
+
+        .question-box label {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            margin-top: 1rem;
+            border-radius: var(--border-radius-sm);
+        }
+
+        .back-to-login {
+            display: block;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-top: 1.5rem;
+            transition: color var(--transition-speed);
+        }
+
+        .back-to-login:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .alert-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            padding: 1rem;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .alert-box p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+        }
+
+        .alert-box strong {
+            color: #f59e0b;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-page">
+        <div class="login-card">
+            <div class="login-logo">❔</div>
+            <h1 class="login-title">Security Questions</h1>
+            <p class="login-subtitle">Answer these questions to verify your identity</p>
+
+            <!-- Error Message -->
+            <div th:if="${error}" class="alert alert-danger"
+                style="color: #dc3545; background-color: #f8d7da; border-color: #f5c6cb; padding: .75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: .25rem; text-align: left;"
+                th:text="${error}"></div>
+
+            <!-- Alert Box -->
+            <div class="alert-box">
+                <p><strong>Important:</strong> Answers are case-insensitive. Please answer accurately.</p>
+            </div>
+
+            <!-- Form -->
+            <form th:action="@{/forgot-password/verify-answers}" method="post">
+                <!-- Hidden Email Field -->
+                <input type="hidden" name="email" th:value="${email}">
+                
+                <!-- Question 1 -->
+                <div class="form-group">
+                    <div class="question-box">
+                        <label class="form-label">
+                            <span style="color: #f59e0b; margin-right: 0.5rem;">①</span>
+                            <span th:text="${question1}">Security Question 1</span>
+                        </label>
+                    </div>
+                    <input type="text" 
+                           name="answer1" 
+                           class="form-control" 
+                           placeholder="Your answer"
+                           required
+                           autofocus>
+                </div>
+                
+                <!-- Question 2 -->
+                <div class="form-group">
+                    <div class="question-box">
+                        <label class="form-label">
+                            <span style="color: #f59e0b; margin-right: 0.5rem;">②</span>
+                            <span th:text="${question2}">Security Question 2</span>
+                        </label>
+                    </div>
+                    <input type="text" 
+                           name="answer2" 
+                           class="form-control" 
+                           placeholder="Your answer"
+                           required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-login">Verify Answers</button>
+            </form>
+
+            <a th:href="@{/login}" class="back-to-login">← Back to Login</a>
+        </div>
+    </div>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

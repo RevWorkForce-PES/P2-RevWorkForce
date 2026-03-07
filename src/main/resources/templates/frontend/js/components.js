@@ -4,8 +4,16 @@ class AppSidebar extends HTMLElement {
     }
 
     connectedCallback() {
-        // Always fetch the freshest role when connecting to DOM, in case app.js updated it
-        this.role = localStorage.getItem('userRole') || 'employee';
+        const path = window.location.pathname;
+        if (path.includes('/admin/')) {
+            this.role = 'admin';
+        } else if (path.includes('/manager/')) {
+            this.role = 'manager';
+        } else {
+            this.role = 'employee';
+        }
+        localStorage.setItem('userRole', this.role);
+
         this.render();
         this.setupEventListeners();
     }
@@ -13,35 +21,27 @@ class AppSidebar extends HTMLElement {
     render() {
         let linksHtml = '';
 
-        const path = window.location.pathname;
-        let prefix = '../'; // default for 1 level deep
-        if (path.includes('/pages/admin/') || path.includes('/pages/manager/') || path.includes('/pages/employee/')) {
-            prefix = '../../';
-        } else if (path.includes('/pages/auth/')) {
-            prefix = '../../';
-        } else if (path.endsWith('index.html') || path === '/' || path.endsWith('/frontend/')) {
-            prefix = './';
-        }
+        const basePath = window.location.pathname.startsWith('/RevWorkForce') ? '/RevWorkForce' : '';
 
         if (this.role === 'admin') {
             linksHtml = `
                 <li class="nav-item">
-                    <a href="${prefix}pages/admin/dashboard.html" class="nav-link">
+                    <a href="${basePath}/admin/dashboard" class="nav-link">
                         <i class="fas fa-home"></i> <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/admin/employee-management.html" class="nav-link">
+                    <a href="${basePath}/admin/employees" class="nav-link">
                         <i class="fas fa-users"></i> <span>Employee Mgt</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/admin/system-config.html" class="nav-link">
+                    <a href="${basePath}/admin/system-config" class="nav-link">
                         <i class="fas fa-cogs"></i> <span>System Config</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/admin/audit-reports.html" class="nav-link">
+                    <a href="${basePath}/admin/dashboard" class="nav-link">
                         <i class="fas fa-file-alt"></i> <span>Audit & Reports</span>
                     </a>
                 </li>
@@ -49,22 +49,22 @@ class AppSidebar extends HTMLElement {
         } else if (this.role === 'manager') {
             linksHtml = `
                 <li class="nav-item">
-                    <a href="${prefix}pages/manager/dashboard.html" class="nav-link">
+                    <a href="${basePath}/manager/dashboard" class="nav-link">
                         <i class="fas fa-home"></i> <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/manager/team-management.html" class="nav-link">
-                        <i class="fas fa-users-cog"></i> <span>Team Mgt</span>
+                    <a href="${basePath}/manager/team-management" class="nav-link">
+                        <i class="fas fa-users-cog"></i> <span>Team Directory</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/manager/leave-approvals.html" class="nav-link">
+                    <a href="${basePath}/manager/leave-approvals" class="nav-link">
                         <i class="fas fa-calendar-check"></i> <span>Leave Approvals</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/manager/performance-review.html" class="nav-link">
+                    <a href="${basePath}/manager/performance" class="nav-link">
                         <i class="fas fa-chart-line"></i> <span>Performance</span>
                     </a>
                 </li>
@@ -73,22 +73,22 @@ class AppSidebar extends HTMLElement {
             // Employee
             linksHtml = `
                 <li class="nav-item">
-                    <a href="${prefix}pages/employee/dashboard.html" class="nav-link">
+                    <a href="${basePath}/employee/dashboard" class="nav-link">
                         <i class="fas fa-home"></i> <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/employee/profile-directory.html" class="nav-link">
+                    <a href="${basePath}/employee/directory" class="nav-link">
                         <i class="fas fa-id-card"></i> <span>Profile & Directory</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/employee/leave-management.html" class="nav-link">
+                    <a href="${basePath}/employee/leave-management" class="nav-link">
                         <i class="fas fa-calendar-alt"></i> <span>Leave Management</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${prefix}pages/employee/performance-goals.html" class="nav-link">
+                    <a href="${basePath}/employee/performance" class="nav-link">
                         <i class="fas fa-bullseye"></i> <span>Performance Goals</span>
                     </a>
                 </li>
@@ -229,8 +229,8 @@ class AppSidebar extends HTMLElement {
                         <i class="fas fa-user"></i>
                     </div>
                     <div class="user-info">
-                        <span class="user-name">John Doe</span>
-                        <span class="user-role">${this.role}</span>
+                        <span class="user-name" id="sidebarUserName">Loading...</span>
+                        <span class="user-role" id="sidebarUserRole">${this.role}</span>
                     </div>
                     <button class="logout-btn" id="logoutBtn" title="Logout">
                         <i class="fas fa-sign-out-alt"></i>
@@ -240,6 +240,14 @@ class AppSidebar extends HTMLElement {
         `;
 
         this.highlightActiveLink();
+
+        // Populate user name/role from injected meta tags
+        const nameEl = this.querySelector('#sidebarUserName');
+        const roleEl = this.querySelector('#sidebarUserRole');
+        const metaName = document.querySelector('meta[name="user-fullname"]');
+        const metaRole = document.querySelector('meta[name="user-role"]');
+        if (nameEl && metaName) nameEl.textContent = metaName.content;
+        if (roleEl && metaRole) roleEl.textContent = metaRole.content;
     }
 
     highlightActiveLink() {
@@ -259,14 +267,8 @@ class AppSidebar extends HTMLElement {
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => {
                 localStorage.removeItem('userRole');
-                const path = window.location.pathname;
-                let prefix = '../'; // default for 1 level deep
-                if (path.includes('/pages/admin/') || path.includes('/pages/manager/') || path.includes('/pages/employee/')) {
-                    prefix = '../../';
-                } else if (path.includes('/pages/auth/')) {
-                    prefix = '../../';
-                }
-                window.location.href = prefix + 'pages/auth/index.html';
+                const basePath = window.location.pathname.startsWith('/RevWorkForce') ? '/RevWorkForce' : '';
+                window.location.href = basePath + '/logout';
             });
         }
     }
@@ -285,15 +287,7 @@ class AppNavbar extends HTMLElement {
 
     render() {
         const title = this.getAttribute('page-title') || 'Dashboard';
-        const path = window.location.pathname;
-        let prefix = '../'; // default for 1 level deep
-        if (path.includes('/pages/admin/') || path.includes('/pages/manager/') || path.includes('/pages/employee/')) {
-            prefix = '../../';
-        } else if (path.includes('/pages/auth/')) {
-            prefix = '../../';
-        } else if (path.endsWith('index.html') || path === '/' || path.endsWith('/frontend/')) {
-            prefix = './';
-        }
+        const basePath = window.location.pathname.startsWith('/RevWorkForce') ? '/RevWorkForce' : '';
 
         this.innerHTML = `
             <style>
@@ -447,21 +441,24 @@ class AppNavbar extends HTMLElement {
                         <div class="notification-dropdown" id="notificationDropdown">
                             <div class="notification-header">
                                 <h3>Notifications</h3>
-                                <button style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.8rem;">Mark all as read</button>
-                            </div>
+								<button id="markAllReadBtn"
+								        style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.8rem;">
+								    Mark all as read
+								</button>
+								  </div>
                             <ul class="notification-list" id="notificationList">
                                 <!-- Populated dynamically -->
                             </ul>
                             <div class="notification-footer">
-                                <a href="#">View All Activity</a>
+                               <a href="/notifications">View All Activity</a>
                             </div>
                         </div>
                     </div>
                     
-                    <button class="icon-btn" title="Change Password" onclick="window.location.href = '${prefix}pages/auth/reset-password.html'">
+                    <button class="icon-btn" title="Change Password" onclick="window.location.href = '${basePath}/change-password'">
                         <i class="fas fa-key"></i>
                     </button>
-                    <button class="icon-btn" title="Settings" onclick="window.location.href = '${prefix}pages/auth/settings.html'">
+                    <button class="icon-btn" title="Settings" onclick="window.location.href = '${basePath}/employee/profile'">
                         <i class="fas fa-cog"></i>
                     </button>
                 </div>
@@ -471,61 +468,112 @@ class AppNavbar extends HTMLElement {
         this.setupDropdownLogic();
     }
 
-    setupDropdownLogic() {
-        const role = localStorage.getItem('userRole') || 'employee';
-        const dropdown = this.querySelector('#notificationDropdown');
-        const btn = this.querySelector('#notificationBtn');
-        const list = this.querySelector('#notificationList');
-        const badge = this.querySelector('#notificationBadge');
+	setupDropdownLogic() {
 
-        // Role-based mock data
-        let notifications = [];
-        if (role === 'admin') {
-            notifications = [
-                { icon: 'fa-shield-alt', text: 'System backup completed successfully.', time: '10 mins ago' },
-                { icon: 'fa-exclamation-triangle', text: 'High CPU usage detected on server 2.', time: '1 hour ago' },
-                { icon: 'fa-user-plus', text: '5 new employees pending onboarding.', time: '2 hours ago' }
-            ];
-        } else if (role === 'manager') {
-            notifications = [
-                { icon: 'fa-calendar-check', text: 'Alice placed a leave request (Sick Leave).', time: '5 mins ago' },
-                { icon: 'fa-bullseye', text: 'Charlie updated his Q1 OKRs.', time: '1 hour ago' },
-                { icon: 'fa-envelope', text: 'HR sent a reminder for performance reviews.', time: 'Yesterday' }
-            ];
-        } else {
-            // Employee
-            notifications = [
-                { icon: 'fa-check-circle', text: 'Your Casual Leave request was approved.', time: 'Just now' },
-                { icon: 'fa-bullhorn', text: 'Company Townhall meeting tomorrow.', time: '2 hours ago' },
-                { icon: 'fa-birthday-cake', text: 'It is Diana\'s birthday today!', time: '4 hours ago' }
-            ];
-        }
+		const dropdown = this.querySelector('#notificationDropdown');
+		const btn = this.querySelector('#notificationBtn');
+		const list = this.querySelector('#notificationList');
+		const badge = this.querySelector('#notificationBadge');
+		const markAllBtn = this.querySelector('#markAllReadBtn');
 
-        // Populate HTML
-        badge.innerText = notifications.length;
-        list.innerHTML = notifications.map(n => `
-            <li class="notification-item" onclick="alert('Navigating to notification context...')">
-                <div class="notify-icon"><i class="fas ${n.icon}"></i></div>
-                <div class="notify-content">
-                    <p>${n.text}</p>
-                    <span>${n.time}</span>
-                </div>
-            </li>
-        `).join('');
+		if(markAllBtn){
+		    markAllBtn.addEventListener("click", function(){
 
-        // Toggle logic
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdown.classList.toggle('show');
-        });
+		        const token = document.querySelector('meta[name="_csrf"]').content;
+		        const header = document.querySelector('meta[name="_csrf_header"]').content;
 
-        // Close when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!dropdown.contains(e.target) && e.target !== btn) {
-                dropdown.classList.remove('show');
-            }
-        });
-    }
+		        fetch("/api/notifications/mark-all-read", {
+		            method: "POST",
+		            headers: {
+		                [header]: token
+		            }
+		        })
+		        .then(res => {
+		            if(!res.ok) throw new Error("Failed");
+
+		            badge.innerText = 0;
+		            badge.style.display = "none";
+
+		            list.innerHTML =
+		                "<li class='notification-item'>No new notifications</li>";
+		        })
+		        .catch(err => console.error(err));
+		    });
+		}
+		function loadUnreadCount(){
+
+		    fetch("/api/notifications/unread-count")
+		    .then(res => res.text())
+		    .then(count => {
+
+		        const num = parseInt(count);
+
+		        badge.innerText = num;
+		        badge.style.display = num > 0 ? "flex" : "none";
+		    });
+		}
+	    // Toggle dropdown
+	    btn.addEventListener('click', (e) => {
+	        e.stopPropagation();
+	        dropdown.classList.toggle('show');
+
+	        loadNavbarNotifications();
+	    });
+
+	    document.addEventListener('click', (e) => {
+	        if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+	            dropdown.classList.remove('show');
+	        }
+			
+	    }
+		
+	);
+
+	function loadNavbarNotifications() {
+
+	    fetch("/api/notifications/recent?limit=5")
+	    .then(res => res.json())
+	    .then(data => {
+
+	        list.innerHTML = "";
+
+	        if (!data || data.length === 0) {
+	            list.innerHTML = `<li class="notification-item">No notifications</li>`;
+	            return;
+	        }
+
+	        data.forEach(n => {
+
+	            const li = document.createElement("li");
+
+	            li.className = "notification-item";
+
+	            li.innerHTML = `
+	                <div class="notify-icon">
+	                    <i class="fas fa-bell"></i>
+	                </div>
+	                <div class="notify-content">
+	                    <p>${n.message}</p>
+<span>${new Date(n.createdAt).toLocaleString()}</span>
+	                </div>
+	            `;
+
+	            li.addEventListener("click", () => {
+	                window.location.href = "/notifications";
+	            });
+
+	            list.appendChild(li);
+
+	        });
+
+	       loadUnreadCount();
+	    });
+
+	}
+	loadUnreadCount();
+
+	}
+	
 }
 
 customElements.define('app-navbar', AppNavbar);

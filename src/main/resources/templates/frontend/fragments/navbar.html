@@ -1,0 +1,71 @@
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+
+        <a class="navbar-brand fw-bold" th:href="@{/dashboard}">
+            <i class="fas fa-briefcase me-2"></i>RevWorkForce
+        </a>
+
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+
+            <ul class="navbar-nav me-auto">
+
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" th:href="@{/admin/dashboard}">
+                        <i class="fas fa-tachometer-alt me-1"></i>Admin Dashboard
+                    </a>
+                </li>
+
+                <li class="nav-item" sec:authorize="hasAnyRole('MANAGER','ADMIN')">
+                    <a class="nav-link" th:href="@{/manager/dashboard}">
+                        <i class="fas fa-users me-1"></i>Team Management
+                    </a>
+                </li>
+
+                <li class="nav-item" sec:authorize="hasAnyRole('EMPLOYEE','MANAGER','ADMIN')">
+                    <a class="nav-link" th:href="@{/employee/dashboard}">
+                        <i class="fas fa-user me-1"></i>My Dashboard
+                    </a>
+                </li>
+
+            </ul>
+
+            <ul class="navbar-nav align-items-center">
+
+                <li class="nav-item me-3">
+                    <div th:replace="~{fragments/notification-bell :: notificationBell}"></div>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle"
+                       href="#"
+                       id="userDropdown"
+                       data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>
+                        <span sec:authentication="name">User</span>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" th:href="@{/employee/profile}">
+                                My Profile
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" th:href="@{/logout}">
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+
+        </div>
+    </div>
+</nav>

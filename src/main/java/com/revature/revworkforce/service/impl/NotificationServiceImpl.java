@@ -69,49 +69,48 @@ private int maxUnread;
                                    String message,
                                    NotificationPriority priority) {
 
-        // 1️⃣ Check unread count
-        long unreadCount = notificationRepository
-                .countByEmployeeAndIsRead(employee, 'N');
+        long unreadCount =
+                notificationRepository.countByEmployeeAndIsRead(employee, 'N');
 
-        // 2️⃣ If limit reached → delete oldest unread
         if (unreadCount >= maxUnread) {
 
-            List<Notification> unreadList =
-                    notificationRepository
-                            .findByEmployeeAndIsReadOrderByCreatedAtDesc(employee, 'N');
+            List<Notification> oldestList =
+                    notificationRepository.findByEmployeeAndIsRead(
+                            employee,
+                            'N',
+                            PageRequest.of(
+                                    0,
+                                    1,
+                                    org.springframework.data.domain.Sort.by("createdAt").ascending()
+                            )
+                    );
 
-            if (!unreadList.isEmpty()) {
-                Notification oldest =
-                        unreadList.get(unreadList.size() - 1);
-
-                notificationRepository.delete(oldest);
+            if (!oldestList.isEmpty()) {
+                notificationRepository.delete(oldestList.get(0));
             }
         }
 
-        // 3️⃣ Create new notification
         Notification notification =
                 new Notification(employee, type, title, message, priority);
 
-        // 4️⃣ Set expiry dynamically
-        notification.setExpiresAt(
-                java.time.LocalDateTime.now().plusDays(expiryDays)
-        );
+        notification.setExpiresAt(LocalDateTime.now().plusDays(expiryDays));
 
-        // 5️⃣ Save
         notificationRepository.save(notification);
     }
+
+       
     
     private Employee getEmployeeOrThrow(String employeeId) {
         return employeeRepository.findById(employeeId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Employee", "employeeId", employeeId));
     }
-    private NotificationDTO mapToDTO(Notification notification) {
+    private NotificationDTO mapToDTO(Notification notification, String employeeId){
 
         NotificationDTO dto = new NotificationDTO();
 
         dto.setNotificationId(notification.getNotificationId());
-        dto.setEmployeeId(notification.getEmployee().getEmployeeId());
+        dto.setEmployeeId(employeeId);
         dto.setTitle(notification.getTitle());
         dto.setMessage(notification.getMessage());
         dto.setNotificationType(notification.getNotificationType());
@@ -133,7 +132,7 @@ private int maxUnread;
         return notificationRepository
                 .findByEmployeeOrderByCreatedAtDesc(employee)
                 .stream()
-                .map(this::mapToDTO)
+                .map(n -> mapToDTO(n, employeeId))   // ✅ FIXED
                 .collect(Collectors.toList());
     }
     @Override
@@ -144,7 +143,7 @@ private int maxUnread;
         return notificationRepository
                 .findByEmployeeAndIsReadOrderByCreatedAtDesc(employee, 'N')
                 .stream()
-                .map(this::mapToDTO)
+                .map(n -> mapToDTO(n, employeeId))
                 .collect(Collectors.toList());
     }
     @Override
@@ -158,9 +157,12 @@ private int maxUnread;
     @Override
     public void markAsRead(Long notificationId, String employeeId) {
 
-        Notification notification = notificationRepository.findById(notificationId)
-        		.orElseThrow(() ->
-                new ResourceNotFoundException("Notification", "notificationId", notificationId));
+        Notification notification = notificationRepository.findById(notificationId).orElse(null);
+
+        if (notification == null) {
+            throw new ResourceNotFoundException("Notification", "notificationId", notificationId);
+        }
+
         if (!notification.getEmployee().getEmployeeId().equals(employeeId)) {
             throw new UnauthorizedException();
         }
@@ -171,6 +173,7 @@ private int maxUnread;
         notificationRepository.save(notification);
     }
     @Override
+    @Transactional
     public void markAllAsRead(String employeeId) {
 
         Employee employee = getEmployeeOrThrow(employeeId);
@@ -180,9 +183,11 @@ private int maxUnread;
     @Override
     public void deleteNotification(Long notificationId, String employeeId) {
 
-        Notification notification = notificationRepository.findById(notificationId)
-        		.orElseThrow(() ->
-                new ResourceNotFoundException("Notification", "notificationId", notificationId));
+    	Notification notification = notificationRepository.findById(notificationId)
+    	        .orElseThrow(() -> 
+    	            new ResourceNotFoundException("Notification", "notificationId", notificationId)
+    	        );
+
         if (!notification.getEmployee().getEmployeeId().equals(employeeId)) {
             throw new UnauthorizedException();
         }
@@ -205,12 +210,12 @@ private int maxUnread;
                 );
 
         return notifications.stream()
-                .map(this::mapToDTO)
+        		.map(n -> mapToDTO(n, employeeId))
                 .collect(Collectors.toList());
     }
     
-    
-    @Scheduled(cron = "0 0 2 * * ?") // Every day at 2 AM
+  
+   
     @Transactional
     public void scheduledCleanup() {
         notificationRepository.deleteExpiredNotifications(LocalDateTime.now());

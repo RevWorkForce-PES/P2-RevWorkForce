@@ -219,4 +219,14 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
         * @return list of employees
         */
        List<Employee> findByFirstLogin(Character firstLogin);
+
+       /**
+        * Find all ACTIVE employees that have a given role name (case-insensitive).
+        * Used to show only managers in the Reporting Manager dropdown.
+        */
+       @Query("SELECT DISTINCT e FROM Employee e JOIN e.roles r "
+                     + "WHERE UPPER(r.roleName) = UPPER(:roleName) "
+                     + "AND e.status = com.revature.revworkforce.enums.EmployeeStatus.ACTIVE "
+                     + "ORDER BY e.firstName ASC")
+       List<Employee> findActiveEmployeesByRoleName(@Param("roleName") String roleName);
 }

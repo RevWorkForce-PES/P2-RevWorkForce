@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mt-4">
+
+    <h3 class="mb-4">
+        <i class="fas fa-bell me-2"></i>All Notifications
+    </h3>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div th:if="${#lists.isEmpty(notifications)}"
+                 class="alert alert-info">
+                No notifications available.
+            </div>
+
+            <div th:each="n : ${notifications}" class="mb-3 p-3 border rounded">
+
+                <div class="d-flex justify-content-between">
+                    <strong th:text="${n.title}">Title</strong>
+
+                  <span th:if="${n.isRead == 'N'}" class="badge bg-primary">New</span>
+                </div>
+
+                <p class="mb-1 text-muted"
+                   th:text="${n.message}">
+                    Message
+                </p>
+
+                <small class="text-secondary"
+       th:text="${#temporals.format(n.createdAt,'dd MMM yyyy HH:mm')}">
+</small>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/footer :: scripts}"></div>
+
+</body>
+</html>

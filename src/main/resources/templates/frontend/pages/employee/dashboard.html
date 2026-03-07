@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="user-fullname" th:content="${fullName} ?: 'Employee'">
+    <meta name="user-role" content="Employee">
     <title>Employee Dashboard - RevWorkForce</title>
-    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
         .stats-grid {
             display: grid;
@@ -56,8 +58,10 @@
                     style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border: none;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <h2 style="color: white; margin-bottom: 0.5rem;">Welcome back, John!</h2>
-                            <p style="opacity: 0.9; margin-bottom: 0;">Here is a summary of your workspace today.</p>
+                            <h2 style="color: white; margin-bottom: 0.5rem;"
+                                th:text="'Welcome back, ' + ${fullName} + '!'">Welcome back, John!</h2>
+                            <p style="opacity: 0.9; margin-bottom: 0;" th:text="${designation} + ' • ' + ${department}">
+                                Here is a summary of your workspace today.</p>
                         </div>
                         <button class="btn btn-secondary" onclick="alert('Checked in successfully!');"
                             style="color: var(--primary-dark);">
@@ -70,14 +74,14 @@
                     <div class="card stat-card" style="margin-bottom: 0;">
                         <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                         <div class="stat-info">
-                            <h3>12</h3>
+                            <h3 th:text="${availableLeaves}">12</h3>
                             <p>Available Leaves</p>
                         </div>
                     </div>
                     <div class="card stat-card" style="margin-bottom: 0;">
                         <div class="stat-icon"><i class="fas fa-tasks"></i></div>
                         <div class="stat-info">
-                            <h3>3</h3>
+                            <h3 th:text="${activeGoals}">3</h3>
                             <p>Active Goals</p>
                         </div>
                     </div>
@@ -85,7 +89,7 @@
                         <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;"><i
                                 class="fas fa-exclamation-circle"></i></div>
                         <div class="stat-info">
-                            <h3>1</h3>
+                            <h3 th:text="${pendingActions}">1</h3>
                             <p>Pending Action</p>
                         </div>
                     </div>
@@ -95,92 +99,115 @@
                     <div class="card">
                         <div class="card-header">
                             <h2 class="card-title">My Recent Activity</h2>
+                            <ul style="list-style: none; padding: 0;">
+                                <!-- Show up to 2 recent leaves -->
+                                <li th:each="leave, iterStat : ${recentLeaves}" th:if="${iterStat.index < 2}"
+                                    style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; display: flex; align-items: flex-start; gap: 1rem;">
+                                    <div th:if="${#strings.equals(leave.status.name(), 'APPROVED')}"
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: #d1fae5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div th:if="${#strings.equals(leave.status.name(), 'PENDING')}"
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div th:if="${#strings.equals(leave.status.name(), 'REJECTED')}"
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                        <i class="fas fa-times"></i>
+                                    </div>
+                                    <div>
+                                        <h4 style="margin-bottom: 0.25rem;" th:text="'Leave ' + ${leave.status}">Leave
+                                            Approved</h4>
+                                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0;"
+                                            th:text="'Your ' + ${leave.leaveType.leaveName} + ' request for ' + ${leave.startDate} + ' is ' + ${leave.status} + '.'">
+                                            Your request has been processed.</p>
+                                        <small style="color: var(--text-muted);"><span
+                                                th:text="${leave.appliedOn != null ? #temporals.format(leave.appliedOn, 'MMM dd, yyyy') : ''}">Date</span></small>
+                                    </div>
+                                </li>
+                                <!-- Show up to 2 recent active goals -->
+                                <li th:each="goal, iterStat : ${recentGoals}" th:if="${iterStat.index < 2}"
+                                    style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; display: flex; align-items: flex-start; gap: 1rem;">
+                                    <div
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                        <i class="fas fa-bullseye"></i>
+                                    </div>
+                                    <div>
+                                        <h4 style="margin-bottom: 0.25rem;">Goal Assigned</h4>
+                                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0;"
+                                            th:text="${goal.goalTitle} + ' - ' + ${goal.progress} + '%'">You
+                                            updated progress.</p>
+                                        <small style="color: var(--text-muted);"><span
+                                                th:text="${goal.status}">Status</span></small>
+                                    </div>
+                                </li>
+                                <li th:if="${#lists.isEmpty(recentLeaves) and #lists.isEmpty(recentGoals)}">
+                                    <p style="color: var(--text-muted); font-size: 0.9rem;">No recent activities found.
+                                    </p>
+                                </li>
+                            </ul>
                         </div>
-                        <ul style="list-style: none; padding: 0;">
-                            <li
-                                style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; display: flex; align-items: flex-start; gap: 1rem;">
-                                <div
-                                    style="width: 40px; height: 40px; border-radius: 50%; background: #d1fae5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-                                    <i class="fas fa-check"></i>
-                                </div>
-                                <div>
-                                    <h4 style="margin-bottom: 0.25rem;">Leave Approved</h4>
-                                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0;">Your Sick
-                                        Leave request for Mar 2 has been approved by your manager.</p>
-                                    <small style="color: var(--text-muted);">2 hours ago</small>
-                                </div>
-                            </li>
-                            <li
-                                style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; display: flex; align-items: flex-start; gap: 1rem;">
-                                <div
-                                    style="width: 40px; height: 40px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-                                    <i class="fas fa-bullseye"></i>
-                                </div>
-                                <div>
-                                    <h4 style="margin-bottom: 0.25rem;">Goal Updated</h4>
-                                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0;">You
-                                        updated progress on 'Q1 API Refactoring' to 60%.</p>
-                                    <small style="color: var(--text-muted);">Yesterday</small>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">Quick Links</h2>
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Quick Links</h2>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                               <a th:href="@{/leave/employee/leave-management}"
+   class="btn btn-secondary"
+   style="justify-content: flex-start;">
+    <i class="fas fa-calendar-plus" style="width:20px;"></i>
+    Apply for Leave
+</a>
+                                <a th:href="@{/employee/performance}" class="btn btn-secondary"
+                                    style="justify-content: flex-start;"><i class="fas fa-bullseye"
+                                        style="width: 20px;"></i> Update OKRs</a>
+                                <a th:href="@{/employee/directory}" class="btn btn-secondary"
+                                    style="justify-content: flex-start;"><i class="fas fa-address-book"
+                                        style="width: 20px;"></i> Colleague Directory</a>
+                            </div>
                         </div>
-                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                            <a href="leave-management.html" class="btn btn-secondary"
-                                style="justify-content: flex-start;"><i class="fas fa-calendar-plus"
-                                    style="width: 20px;"></i> Apply for Leave</a>
-                            <a href="performance-goals.html" class="btn btn-secondary"
-                                style="justify-content: flex-start;"><i class="fas fa-bullseye"
-                                    style="width: 20px;"></i> Update OKRs</a>
-                            <a href="profile-directory.html" class="btn btn-secondary"
-                                style="justify-content: flex-start;"><i class="fas fa-address-book"
-                                    style="width: 20px;"></i> Colleague Directory</a>
-                        </div>
-                    </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">Company Announcements</h2>
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Company Announcements</h2>
+                                <a th:href="@{/employee/announcements}" class="btn btn-secondary btn-sm">View All</a>
+                            </div>
+                            <ul style="list-style: none; padding: 0;">
+                                <li th:each="ann : ${announcements}"
+                                    style="padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem;">
+                                    <strong th:text="${ann.title}">Announcement</strong> <br>
+                                    <small class="text-muted" th:text="${ann.message}">Details here.</small>
+                                </li>
+                                <li th:if="${#lists.isEmpty(announcements)}" class="text-muted"
+                                    style="padding: 0.5rem 0; font-size: 0.9rem;">No active announcements.
+                                </li>
+                            </ul>
                         </div>
-                        <ul style="list-style: none; padding: 0;">
-                            <li
-                                style="padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.5rem;">
-                                <strong>Townhall Meeting</strong> <br>
-                                <small class="text-muted">Friday, 3 PM EST</small>
-                            </li>
-                            <li>
-                                <strong>New Health Policy</strong> <br>
-                                <small class="text-muted">Effective next month. Read details in HR portal.</small>
-                            </li>
-                        </ul>
-                    </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">Upcoming Celebrations</h2>
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Upcoming Celebrations</h2>
+                            </div>
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <i class="fas fa-birthday-cake text-primary"></i> <span>Diana Prince
+                                        (Tomorrow)</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-award text-success" style="color:#10b981;"></i> <span>Bruce Wayne
+                                        (5
+                                        Yrs - Next Week)</span>
+                                </li>
+                            </ul>
                         </div>
-                        <ul style="list-style: none; padding: 0;">
-                            <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                <i class="fas fa-birthday-cake text-primary"></i> <span>Diana Prince (Tomorrow)</span>
-                            </li>
-                            <li style="display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="fas fa-award text-success" style="color:#10b981;"></i> <span>Bruce Wayne (5
-                                    Yrs - Next Week)</span>
-                            </li>
-                        </ul>
                     </div>
                 </div>
-            </div>
         </main>
     </div>
     <!-- Load Scripts -->
-    <script src="../../js/components.js"></script>
-    <script src="../../js/app.js"></script>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
 </body>
 
 </html>

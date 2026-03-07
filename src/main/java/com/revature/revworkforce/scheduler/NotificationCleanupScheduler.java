@@ -1,6 +1,7 @@
 package com.revature.revworkforce.scheduler;
 
 import com.revature.revworkforce.service.NotificationService;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

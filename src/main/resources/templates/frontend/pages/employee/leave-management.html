@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leave Management - RevWorkForce</title>
-    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
         .grid-2 {
             display: grid;
@@ -39,31 +39,31 @@
                         <div class="grid-2">
                             <div>
                                 <h3 class="mb-3">Apply for Leave</h3>
-                                <form
-                                    onsubmit="event.preventDefault(); alert('Leave Application Submitted Successfully! Status: PENDING');"
+                                <form th:action="@{/leave/employee/apply}" th:object="${leaveApplicationDTO}"
+                                    method="POST"
                                     style="background: #f8fafc; padding: 1.5rem; border: 1px solid var(--border-color); border-radius: 8px;">
                                     <div class="form-group">
                                         <label class="form-label">Leave Type</label>
-                                        <select class="form-control" required>
+                                        <select class="form-control" th:field="*{leaveType}" required>
                                             <option value="">Select leave type...</option>
-                                            <option>Sick Leave</option>
-                                            <option>Casual Leave</option>
-                                            <option>Earned Leave</option>
+                                            <option th:each="type : ${leaveTypes}" th:value="${type.leaveCode}"
+                                                th:text="${type.leaveName}">Sick Leave
+                                            </option>
                                         </select>
                                     </div>
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                                         <div class="form-group">
                                             <label class="form-label">Start Date</label>
-                                            <input type="date" class="form-control" required>
+                                            <input type="date" class="form-control" th:field="*{startDate}" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">End Date</label>
-                                            <input type="date" class="form-control" required>
+                                            <input type="date" class="form-control" th:field="*{endDate}" required>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Reason</label>
-                                        <textarea class="form-control" rows="3"
+                                        <textarea class="form-control" rows="3" th:field="*{reason}"
                                             placeholder="Briefly explain the reason for your leave..."
                                             required></textarea>
                                     </div>
@@ -75,33 +75,38 @@
                             <div>
                                 <h3 class="mb-3">Recent Requests</h3>
                                 <div style="display: flex; flex-direction: column; gap: 1rem;">
-                                    <div
+                                    <div th:each="leave : ${history}"
                                         style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
                                         <div class="flex-space-between mb-1">
-                                            <span style="font-weight: 500;">Sick Leave (2 Days)</span>
-                                            <span class="badge badge-pending">Pending</span>
+                                            <span style="font-weight: 500;"
+                                                th:text="${leave.leaveType.leaveName + ' (' + (T(java.time.temporal.ChronoUnit).DAYS.between(leave.startDate, leave.endDate) + 1) + ' Days)'}">Sick
+                                                Leave (2 Days)</span>
+                                            <span class="badge"
+                                                th:classappend="${#strings.toLowerCase(leave.status) == 'approved' ? 'badge-approved' : (#strings.toLowerCase(leave.status) == 'rejected' ? 'badge-rejected' : 'badge-pending')}"
+                                                th:text="${leave.status}">Pending</span>
                                         </div>
                                         <div class="flex-space-between mt-2">
-                                            <p class="text-muted mb-0" style="font-size: 0.85rem;">Mar 2, 2026 - Mar 3,
-                                                2026</p>
-                                            <button class="btn btn-danger btn-sm"
-                                                onclick="alert('Are you sure you want to cancel this request?')"><i
-                                                    class="fas fa-times"></i> Cancel Request</button>
+                                            <p class="text-muted mb-0" style="font-size: 0.85rem;"
+                                                th:text="${#temporals.format(leave.startDate, 'MMM d, yyyy')} + ' - ' + ${#temporals.format(leave.endDate, 'MMM d, yyyy')}">
+                                                Mar 2, 2026 - Mar 3, 2026</p>
+                                            <form th:if="${leave.status.name() == 'PENDING'}"
+                                                th:action="@{/leave/employee/cancel/{id}(id=${leave.applicationId})}"
+                                                method="POST" style="margin: 0;">
+                                                <button type="submit" class="btn btn-danger btn-sm"><i
+                                                        class="fas fa-times"></i> Cancel Request</button>
+                                            </form>
                                         </div>
+                                        <p th:if="${leave.status.name() == 'REJECTED'}" class="text-danger mt-1 mb-0"
+                                            style="font-size: 0.8rem;"><i class="fas fa-info-circle"></i> Reason: <span
+                                                th:text="${leave.rejectionReason}"></span></p>
                                     </div>
-                                    <div
-                                        style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
-                                        <div class="flex-space-between mb-1">
-                                            <span style="font-weight: 500;">Casual Leave (1 Day)</span>
-                                            <span class="badge badge-rejected">Rejected</span>
-                                        </div>
-                                        <p class="text-muted mb-0" style="font-size: 0.85rem;">Feb 14, 2026</p>
-                                        <p class="text-danger mt-1 mb-0" style="font-size: 0.8rem;"><i
-                                                class="fas fa-info-circle"></i> Reason: Project deadline</p>
-                                    </div>
+                                    <div th:if="${#lists.isEmpty(history)}" class="text-muted"
+                                        style="text-align: center; padding: 1rem;">No recent leave requests.</div>
                                 </div>
-                                <button class="btn btn-secondary mt-3 w-100" style="width: 100%;">View Full
-                                    History</button>
+                               <a th:href="@{/leave/employee/history}"
+   class="btn btn-secondary mt-3 w-100">
+View Full History
+</a>
                             </div>
                         </div>
                     </div>
@@ -111,51 +116,23 @@
                         <div
                             style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
                             <!-- Balance Card -->
-                            <div
+                            <div th:each="balance : ${balances}"
                                 style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center; background: #fff;">
-                                <h4 class="text-muted mb-3" style="font-weight: 500;">Sick Leave</h4>
+                                <h4 class="text-muted mb-3" style="font-weight: 500;"
+                                    th:text="${balance.leaveTypeName}">Sick Leave</h4>
                                 <div
-                                    style="position: relative; width: 100px; height: 100px; margin: 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: conic-gradient(var(--primary) calc(58%), #e2e8f0 0);">
+                                    th:style="'position: relative; width: 100px; height: 100px; margin: 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: conic-gradient(var(--primary) calc(' + (${balance.totalAllocated > 0 ? (balance.remainingBalance * 100 / balance.totalAllocated) : 0}) + '%), #e2e8f0 0);'">
                                     <div
                                         style="position: absolute; width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                                         <span
-                                            style="font-size: 1.5rem; font-weight: bold; color: var(--text-dark); line-height: 1;">7</span>
+                                            style="font-size: 1.5rem; font-weight: bold; color: var(--text-dark); line-height: 1;"
+                                            th:text="${balance.remainingBalance}">7</span>
                                         <span style="font-size: 0.7rem; color: var(--text-muted);">Available</span>
                                     </div>
                                 </div>
-                                <p class="mt-3 text-muted" style="font-size: 0.85rem;">Total Quota: 12 days</p>
-                            </div>
-
-                            <!-- Balance Card -->
-                            <div
-                                style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center; background: #fff;">
-                                <h4 class="text-muted mb-3" style="font-weight: 500;">Casual Leave</h4>
-                                <div
-                                    style="position: relative; width: 100px; height: 100px; margin: 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: conic-gradient(var(--primary) calc(75%), #e2e8f0 0);">
-                                    <div
-                                        style="position: absolute; width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                                        <span
-                                            style="font-size: 1.5rem; font-weight: bold; color: var(--text-dark); line-height: 1;">11.5</span>
-                                        <span style="font-size: 0.7rem; color: var(--text-muted);">Available</span>
-                                    </div>
-                                </div>
-                                <p class="mt-3 text-muted" style="font-size: 0.85rem;">Total Quota: 15 days</p>
-                            </div>
-
-                            <!-- Balance Card -->
-                            <div
-                                style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center; background: #fff;">
-                                <h4 class="text-muted mb-3" style="font-weight: 500;">Earned Leave</h4>
-                                <div
-                                    style="position: relative; width: 100px; height: 100px; margin: 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: conic-gradient(var(--primary) calc(90%), #e2e8f0 0);">
-                                    <div
-                                        style="position: absolute; width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                                        <span
-                                            style="font-size: 1.5rem; font-weight: bold; color: var(--text-dark); line-height: 1;">18</span>
-                                        <span style="font-size: 0.7rem; color: var(--text-muted);">Available</span>
-                                    </div>
-                                </div>
-                                <p class="mt-3 text-muted" style="font-size: 0.85rem;">Total Quota: 20 days</p>
+                                <p class="mt-3 text-muted" style="font-size: 0.85rem;"
+                                    th:text="'Total Quota: ' + ${balance.totalAllocated} + ' days'">Total Quota: 12 days
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -176,26 +153,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>January 1, 2026</td>
-                                        <td>Thursday</td>
-                                        <td>New Year's Day</td>
-                                    </tr>
-                                    <tr>
-                                        <td>May 1, 2026</td>
-                                        <td>Friday</td>
-                                        <td>Labor Day</td>
-                                    </tr>
-                                    <tr>
-                                        <td>July 4, 2026</td>
-                                        <td>Saturday</td>
-                                        <td>Independence Day</td>
-                                    </tr>
-                                    <tr>
-                                        <td>December 25, 2026</td>
-                                        <td>Friday</td>
-                                        <td>Christmas Day</td>
-                                    </tr>
+                                   <tr th:each="holiday : ${holidays}">
+    <td th:text="${#temporals.format(holiday.holidayDate,'MMMM d, yyyy')}"></td>
+    <td th:text="${#temporals.format(holiday.holidayDate,'EEEE')}"></td>
+    <td th:text="${holiday.holidayName}"></td>
+</tr>
                                 </tbody>
                             </table>
                         </div>
@@ -205,8 +167,8 @@
         </main>
     </div>
     <!-- Load Scripts -->
-    <script src="../../js/components.js"></script>
-    <script src="../../js/app.js"></script>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
 </body>
 
 </html>

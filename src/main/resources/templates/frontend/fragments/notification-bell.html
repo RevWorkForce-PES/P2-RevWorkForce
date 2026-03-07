@@ -1,0 +1,52 @@
+<div th:fragment="notificationBell">
+  
+    <div class="dropdown">
+        <a class="nav-link position-relative"
+           href="#"
+           id="notificationDropdown"
+           role="button"
+           data-bs-toggle="dropdown"
+           aria-expanded="false">
+
+            <i class="fas fa-bell fa-lg"></i>
+
+            <span id="notificationBadge"
+                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                  style="font-size: 0.7rem; display: none;">
+                0
+            </span>
+        </a>
+
+        <ul class="dropdown-menu dropdown-menu-end shadow"
+            aria-labelledby="notificationDropdown"
+            style="width: 350px; max-height: 400px; overflow-y: auto;">
+
+           
+              <li class="dropdown-header d-flex justify-content-between align-items-center">
+    <strong>Notifications</strong>
+
+    <div>
+        <form th:action="@{/notifications/mark-all-read}" method="post" style="display:inline;">
+            <button type="submit"
+                    class="btn btn-link btn-sm p-0 me-2">
+                Mark all as read
+            </button>
+        </form>
+
+        <a href="/notifications" onclick="viewAllNotifications(event)">View All Activity</a>
+         
+    </div>
+</li>
+
+            <li><hr class="dropdown-divider"></li>
+
+            <li id="notificationDropdownList">
+    <div class="text-center p-3 text-muted">
+        Loading...
+    </div>
+</li>
+
+        </ul>
+    </div>
+
+</div>

@@ -1,16 +1,19 @@
 package com.revature.revworkforce.controller;
 
+import com.revature.revworkforce.dto.LeaveBalanceDTO;
 import com.revature.revworkforce.model.Employee;
-import com.revature.revworkforce.model.Holiday;
 import com.revature.revworkforce.repository.EmployeeRepository;
-import com.revature.revworkforce.repository.HolidayRepository;
 import com.revature.revworkforce.security.SecurityUtils;
+import com.revature.revworkforce.service.AnnouncementService;
+import com.revature.revworkforce.service.GoalService;
 import com.revature.revworkforce.service.HolidayService;
+import com.revature.revworkforce.service.LeaveService;
+import com.revature.revworkforce.service.NotificationService;
+import com.revature.revworkforce.service.PerformanceReviewService;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,10 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * Employee Dashboard Controller.
- * 
+ *
  * Handles employee self-service dashboard and operations.
  * Accessible by all authenticated users.
- * 
+ *
  * @author RevWorkForce Team
  */
 @Controller
@@ -30,37 +33,135 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
 public class EmployeeDashboardController {
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
+        private final LeaveService leaveService;
+        private final EmployeeRepository employeeRepository;
+        private final HolidayService holidayService;
+        private final NotificationService notificationService;
+        private final GoalService goalService;
+        private final PerformanceReviewService reviewService;
+        private final AnnouncementService announcementService;
 
-    @Autowired
-    private HolidayService holidayService;  // ✅ use service
-
-    @GetMapping("/dashboard")
-    public String employeeDashboard(Model model) {
-
-        String employeeId = SecurityUtils.getCurrentUsername();
-
-        Employee currentUser =
-                employeeRepository.findById(employeeId).orElse(null);
-
-        if (currentUser != null) {
-            model.addAttribute("fullName", currentUser.getFullName());
-            model.addAttribute("designation",
-                    currentUser.getDesignation() != null ?
-                            currentUser.getDesignation().getDesignationName() : "N/A");
-            model.addAttribute("department",
-                    currentUser.getDepartment() != null ?
-                            currentUser.getDepartment().getDepartmentName() : "N/A");
+        public EmployeeDashboardController(EmployeeRepository employeeRepository,
+                        HolidayService holidayService,
+                        NotificationService notificationService,
+                        LeaveService leaveService,
+                        GoalService goalService,
+                        PerformanceReviewService reviewService,
+                        AnnouncementService announcementService) {
+                this.employeeRepository = employeeRepository;
+                this.holidayService = holidayService;
+                this.notificationService = notificationService;
+                this.leaveService = leaveService;
+                this.goalService = goalService;
+                this.reviewService = reviewService;
+                this.announcementService = announcementService;
         }
 
-        // ✅ Use service method
-        model.addAttribute("upcomingHolidays",
-                holidayService.getUpcomingHolidays());
+        @GetMapping("/dashboard")
+        public String employeeDashboard(Model model) {
+                String employeeId = SecurityUtils.getCurrentUsername();
 
-        model.addAttribute("pageTitle", "Employee Dashboard");
+                // Get current user info
+                Employee currentUser = employeeRepository.findById(employeeId).orElse(null);
+                if (currentUser != null) {
+                        model.addAttribute("currentUser", currentUser);
+                        model.addAttribute("fullName", currentUser.getFullName());
+                        model.addAttribute("designation",
+                                        currentUser.getDesignation() != null
+                                                        ? currentUser.getDesignation().getDesignationName()
+                                                        : "N/A");
+                        model.addAttribute("department",
+                                        currentUser.getDepartment() != null
+                                                        ? currentUser.getDepartment().getDepartmentName()
+                                                        : "N/A");
+                        leaveService.initializeLeaveBalances(currentUser);
+                }
 
-        return "employee/dashboard";
+                // ===============================
+                // Leave Balance
+                // ===============================
+                int currentYear = LocalDate.now().getYear();
+                int totalRemaining = leaveService
+                                .getLeaveBalances(employeeId, currentYear)
+                                .stream()
+                                .mapToInt(lb -> lb.getRemainingBalance())
+                                .sum();
+                model.addAttribute("leaveBalance", totalRemaining);
+
+                // Notification count for bell badge
+                model.addAttribute("notificationCount",
+                                notificationService.getUnreadCount(employeeId));
+
+                // Upcoming holidays and leave history
+                model.addAttribute("upcomingHolidays", holidayService.getUpcomingHolidays());
+                model.addAttribute("leaveHistory", leaveService.getEmployeeLeaveHistory(employeeId));
+
+                // Active goals
+                try {
+                        int activeGoals = goalService.getActiveGoals(employeeId).size();
+                        model.addAttribute("activeGoals", activeGoals);
+                        model.addAttribute("recentGoals", goalService.getEmployeeGoals(employeeId));
+                } catch (Exception e) {
+                        model.addAttribute("activeGoals", 0);
+                        model.addAttribute("recentGoals", List.of());
+                }
+
+                // Pending performance review actions
+                try {
+                        long pendingActions = reviewService.getEmployeeReviews(employeeId).stream()
+                                        .filter(r -> "SELF_ASSESSMENT_PENDING".equals(r.getStatus().name()))
+                                        .count();
+                        model.addAttribute("pendingActions", pendingActions);
+                } catch (Exception e) {
+                        model.addAttribute("pendingActions", 0);
+                }
+
+                // Recent leaves
+                try {
+                        model.addAttribute("recentLeaves", leaveService.getEmployeeLeaveHistory(employeeId));
+                } catch (Exception e) {
+                        model.addAttribute("recentLeaves", List.of());
+                }
+
+                // Announcements
+                try {
+                        model.addAttribute("announcements", announcementService.getActiveAnnouncements());
+                } catch (Exception e) {
+                        model.addAttribute("announcements", List.of());
+                }
+
+                // Unread notification count (for sidebar badge)
+                try {
+                        model.addAttribute("unreadCount", notificationService.getUnreadCount(employeeId));
+                } catch (Exception e) {
+                        model.addAttribute("unreadCount", 0);
+                }
+
+                model.addAttribute("pageTitle", "Employee Dashboard");
+                return "pages/employee/dashboard";
         }
 
+        /** Redirect /employee/leave-management → actual leave controller */
+        @GetMapping("/leave-management")
+        public String redirectLeaveManagement() {
+                return "redirect:/leave/employee/leave-management";
+        }
+
+        /** Redirect /employee/performance → goals performance dashboard */
+        @GetMapping("/performance")
+        public String redirectPerformance() {
+                return "redirect:/employee/goals/dashboard";
+        }
+
+        /** Employee announcements page */
+        @GetMapping("/announcements")
+        public String announcements(Model model) {
+                try {
+                        model.addAttribute("announcements", announcementService.getActiveAnnouncements());
+                } catch (Exception e) {
+                        model.addAttribute("announcements", List.of());
+                }
+                model.addAttribute("pageTitle", "Company Announcements");
+                return "pages/employee/announcements";
+        }
 }

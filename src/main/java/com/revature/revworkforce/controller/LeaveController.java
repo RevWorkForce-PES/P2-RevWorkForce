@@ -1,6 +1,8 @@
 package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.dto.LeaveApplicationDTO;
+import com.revature.revworkforce.repository.LeaveTypeRepository;
+import com.revature.revworkforce.service.HolidayService;
 import com.revature.revworkforce.service.LeaveService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -11,108 +13,90 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/leave")
 public class LeaveController {
-
+	private final HolidayService holidayService;
     private final LeaveService leaveService;
+    private final LeaveTypeRepository leaveTypeRepository;
+    public LeaveController(
+            LeaveService leaveService,
+            LeaveTypeRepository leaveTypeRepository,
+            HolidayService holidayService) {
 
-    public LeaveController(LeaveService leaveService) {
         this.leaveService = leaveService;
+        this.leaveTypeRepository = leaveTypeRepository;
+        this.holidayService = holidayService;
     }
 
     // ================= EMPLOYEE =================
 
-    @GetMapping("/employee/apply")
-    @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
-    public String showApplyPage(Model model, Authentication auth) {
+    @GetMapping({ "/employee/apply", "/employee/history", "/employee/balance", "/employee/leave-management" })
+    public String showApplyPage(Model model, Authentication auth,
+                                @RequestParam(required = false) Integer year) {
 
         String employeeId = auth.getName();
 
-        model.addAttribute("leaveApplicationDTO", new LeaveApplicationDTO());
-        model.addAttribute("balances",
-                leaveService.getLeaveBalances(employeeId,
-                        java.time.LocalDate.now().getYear()));
+        if (year == null) {
+            year = java.time.LocalDate.now().getYear();
+        }
 
-        return "employee/leave/apply";
+        model.addAttribute("leaveApplicationDTO", new LeaveApplicationDTO());
+
+        model.addAttribute("balances",
+                leaveService.getLeaveBalances(employeeId, year));
+
+        model.addAttribute("leaveTypes",
+                leaveTypeRepository.findAll());
+
+        model.addAttribute("history",
+                leaveService.getEmployeeLeaveHistory(employeeId));
+
+        model.addAttribute("holidays",
+                holidayService.getAllActiveHolidays());
+
+        return "pages/employee/leave-management";
     }
 
     @PostMapping("/employee/apply")
     @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
     public String applyLeave(@ModelAttribute LeaveApplicationDTO dto,
-                             Authentication auth) {
+            Authentication auth) {
 
         leaveService.applyLeave(dto, auth.getName());
-        return "redirect:/leave/employee/history";
+        return "redirect:/leave/employee/leave-management";
     }
 
-    @GetMapping("/employee/history")
-    @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
-    public String showHistory(Model model, Authentication auth) {
-
-        model.addAttribute("history",
-                leaveService.getEmployeeLeaveHistory(auth.getName()));
-
-        return "employee/leave/history";
-    }
+    // History endpoint merged into leave-management
 
     @PostMapping("/employee/cancel/{id}")
     @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
     public String cancel(@PathVariable Long id, Authentication auth) {
 
         leaveService.cancelLeave(id, auth.getName());
-        return "redirect:/leave/employee/history";
+        return "redirect:/leave/employee/leave-management";
     }
 
-    @GetMapping("/employee/balance")
-    @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
-    public String showBalance(Model model,
-                              Authentication auth,
-                              @RequestParam(required = false) Integer year) {
+    // Balance endpoint merged into leave-management
 
-        if (year == null) {
-            year = java.time.LocalDate.now().getYear();
-        }
+    // ================= MANAGER =================
 
-        model.addAttribute("balances",
-                leaveService.getLeaveBalances(auth.getName(), year));
-
-        model.addAttribute("selectedYear", year);
-
-        return "employee/leave/balance";
-    }
-   
-
- // ================= MANAGER =================
-
-    @GetMapping("/manager/pending")
+    @GetMapping({ "/manager/pending", "/manager/team", "/manager/leave-approvals" })
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String showPendingLeaves(Model model, Authentication auth) {
 
         String managerId = auth.getName();
 
-        model.addAttribute("pending",
-                leaveService.getPendingLeavesForManager(managerId));
+        model.addAttribute("pending", leaveService.getPendingLeavesForManager(managerId));
+        model.addAttribute("team", leaveService.getTeamLeaves(managerId));
 
-        return "manager/leave/pending";
+        return "pages/manager/leave-approvals";
     }
 
-   
-    @GetMapping("/manager/team")
-    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
-    public String showTeamLeaves(Model model, Authentication auth) {
-
-        String managerId = auth.getName();
-
-        model.addAttribute("team",
-                leaveService.getTeamLeaves(managerId));
-
-        return "manager/leave/team";
-    }
-    
+    // Team endpoint merged into leave-approvals
 
     @GetMapping("/manager/review/{id}")
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String reviewLeave(@PathVariable Long id,
-                              Model model,
-                              Authentication auth) {
+            Model model,
+            Authentication auth) {
 
         model.addAttribute("leave",
                 leaveService.getLeaveById(id));
@@ -123,27 +107,42 @@ public class LeaveController {
     @PostMapping("/manager/approve/{id}")
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String approve(@PathVariable Long id,
-                          @RequestParam(required = false) String comments,
-                          Authentication authentication) {
+            @RequestParam(required = false) String comments,
+            Authentication authentication) {
 
         leaveService.approveLeave(id,
                 authentication.getName(),
                 comments);
 
-        return "redirect:/leave/manager/pending";
+        return "redirect:/leave/manager/leave-approvals";
     }
 
     @PostMapping("/manager/reject/{id}")
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String reject(@PathVariable Long id,
-                         @RequestParam String rejectionReason,
-                         Authentication authentication) {
+            @RequestParam String rejectionReason,
+            Authentication authentication) {
 
         leaveService.rejectLeave(id,
                 authentication.getName(),
                 rejectionReason);
 
-        return "redirect:/leave/manager/pending";
+        return "redirect:/leave/manager/leave-approvals";
     }
-   
+
+    // ================= ADMIN =================
+
+    @PostMapping("/admin/revoke/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String revokeLeave(@PathVariable Long id,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            leaveService.cancelLeave(id, "ADMIN");
+            redirectAttributes.addFlashAttribute("success", "Leave application #" + id + " has been revoked.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Could not revoke leave: " + e.getMessage());
+        }
+        return "redirect:/admin/audit-reports";
+    }
+
 }
