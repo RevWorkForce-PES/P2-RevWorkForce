@@ -146,12 +146,6 @@ public class EmployeeDashboardController {
                 return "pages/employee/dashboard";
         }
 
-        /** Redirect /employee/leave-management → actual leave controller */
-        @GetMapping("/leave-management")
-        public String redirectLeaveManagement() {
-                return "redirect:/leave/employee/leave-management";
-        }
-
         /** Employee announcements page */
         @GetMapping("/announcements")
         public String announcements(Model model) {
