@@ -24,18 +24,27 @@
                     <!-- My Profile Tab -->
                     <div id="my-profile" class="tab-content active">
                         <div style="display: flex; gap: 2rem; align-items: flex-start;">
-                            <div style="text-align: center;">
+                            <div th:if="${currentUser != null}" style="text-align: center;">
                                 <div
                                     style="width: 120px; height: 120px; border-radius: 50%; background: var(--primary-light); color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 1rem auto; box-shadow: var(--shadow-sm);">
                                     <i class="fas fa-user-circle"></i>
                                 </div>
                                 <h3 style="margin-bottom: 0.25rem;" th:text="${currentUser.fullName}">John Doe</h3>
                                 <p class="text-muted" style="font-size: 0.9rem;"
-                                    th:text="${currentUser.employeeId} + ' - ' + (${currentUser.designation != null ? currentUser.designation.designationName : 'N/A'})">
+                                    th:text="${currentUser.employeeId} + ' - ' + (${currentUser.designationName != null ? currentUser.designationName : 'N/A'})">
                                     EMP012 - Software Engineer</p>
                                 <span class="badge badge-approved mt-2" th:text="${currentUser.status}">Active</span>
                             </div>
-                            <div style="flex-grow: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div th:if="${currentUser == null}" style="text-align: center;">
+                                <div
+                                    style="width: 120px; height: 120px; border-radius: 50%; background: var(--bg-main); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 1rem auto;">
+                                    <i class="fas fa-user-shield"></i>
+                                </div>
+                                <h3 style="margin-bottom: 0.25rem;">Administrator</h3>
+                                <p class="text-muted" style="font-size: 0.9rem;">System Access Only</p>
+                            </div>
+                            <div th:if="${currentUser != null}"
+                                style="flex-grow: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                                 <div>
                                     <h4 class="mb-2"
                                         style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
@@ -58,7 +67,7 @@
                                         Professional Details</h4>
                                     <p class="mb-1"><span class="text-muted"
                                             style="display:inline-block; width:100px;">Department:</span> <span
-                                            th:text="${currentUser.department != null ? currentUser.department.departmentName : 'N/A'}">Engineering</span>
+                                            th:text="${currentUser.departmentName != null ? currentUser.departmentName : 'N/A'}">Engineering</span>
                                     </p>
                                     <p class="mb-1"><span class="text-muted"
                                             style="display:inline-block; width:100px;">Join Date:</span> <span
@@ -119,20 +128,23 @@
 
                     <!-- Company Directory Tab -->
                     <div id="directory" class="tab-content">
-                        <div class="flex-space-between mb-3">
-                            <div class="form-group" style="margin-bottom: 0; width: 350px;">
-                                <input type="text" class="form-control"
+                        <form th:action="@{/employee/directory}" method="get" class="flex-space-between mb-3">
+                            <input type="hidden" name="tab" value="directory">
+                            <div class="form-group" style="margin-bottom: 0; width: 350px; display: flex; gap: 0.5rem;">
+                                <input type="text" name="search" class="form-control" th:value="${search}"
                                     placeholder="Search colleagues by name or department...">
+                                <button type="submit" class="btn btn-primary btn-sm"><i
+                                        class="fas fa-search"></i></button>
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
-                                <select class="form-control" name="departmentId">
+                                <select class="form-control" name="departmentId" onchange="this.form.submit()">
                                     <option value="">All Departments</option>
                                     <option th:each="dept : ${departments}" th:value="${dept.departmentId}"
                                         th:text="${dept.departmentName}"
                                         th:selected="${dept.departmentId == selectedDepartmentId}"></option>
                                 </select>
                             </div>
-                        </div>
+                        </form>
                         <div
                             style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;">
                             <!-- Notice: In standard EmployeeDirectory, if it's empty -->
@@ -145,13 +157,13 @@
                             <div th:each="emp : ${employees}"
                                 style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; display: flex; gap: 1rem; align-items: center; transition: box-shadow 0.2s;">
                                 <div style="width: 50px; height: 50px; border-radius: 50%; background: #dbeafe; color: #1e40af; display: flex; align-items: center; justify-content: center; font-weight: bold;"
-                                    th:text="${#strings.substring(emp.firstName,0,1) + #strings.substring(emp.lastName,0,1)}">
+                                    th:text="${(emp.firstName != null && !#strings.isEmpty(emp.firstName) ? #strings.substring(emp.firstName,0,1) : '?') + (emp.lastName != null && !#strings.isEmpty(emp.lastName) ? #strings.substring(emp.lastName,0,1) : '?')}">
                                     AS</div>
                                 <div>
                                     <h4 style="margin-bottom: 0.1rem; font-size: 1rem;"
                                         th:text="${emp.firstName + ' ' + emp.lastName}">Alice Smith</h4>
                                     <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.25rem;"
-                                        th:text="${emp.department != null ? emp.department.departmentName : 'N/A'}">
+                                        th:text="${emp.departmentName != null ? emp.departmentName : 'N/A'}">
                                         Engineering</p>
                                     <a th:href="'mailto:' + ${emp.email}"
                                         style="color: var(--primary); font-size: 0.8rem;"><i

@@ -470,9 +470,19 @@ public class EmployeeController {
                 .collect(Collectors.toList());
 
         String employeeId = SecurityUtils.getCurrentUsername();
-        Employee currentUser = employeeService.getEmployeeById(employeeId);
-        model.addAttribute("currentUser", currentUser);
-        model.addAttribute("manager", currentUser.getManager());
+        EmployeeDTO currentUserDTO = null;
+        Employee manager = null;
+
+        try {
+            Employee currentUser = employeeService.getEmployeeById(employeeId);
+            currentUserDTO = employeeService.convertToDTO(currentUser);
+            manager = currentUser.getManager();
+        } catch (com.revature.revworkforce.exception.ResourceNotFoundException e) {
+            // User might be a system admin without an employee record
+        }
+
+        model.addAttribute("currentUser", currentUserDTO);
+        model.addAttribute("manager", manager);
 
         model.addAttribute("employees", employeeDTOs);
         model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
