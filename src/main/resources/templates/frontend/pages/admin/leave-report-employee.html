@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Employee Leave Report</title>
+
+<link rel="stylesheet" th:href="@{/css/style.css}">
+
+</head>
+
+<body>
+
+<div class="app-container">
+
+<app-sidebar></app-sidebar>
+
+<main class="main-content">
+
+<app-navbar page-title="Employee Leave Report"></app-navbar>
+
+<div class="page-wrapper">
+
+<div class="card">
+
+<h2 style="margin-bottom:1rem;">Employee Leave Report</h2>
+
+<form method="get" action="/admin/reports/employee"
+      style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+
+<select name="employeeId" required>
+
+<option value="">Select Employee</option>
+
+<option th:each="emp : ${employees}"
+        th:value="${emp.employeeId}"
+        th:text="${emp.fullName}">
+</option>
+
+</select>
+
+<button type="submit" class="btn btn-primary">
+Generate Report
+</button>
+
+</form>
+
+<br>
+
+<table class="table" th:if="${leaves != null}">
+
+<thead>
+
+<tr>
+<th>Employee</th>
+<th>Leave Type</th>
+<th>Start Date</th>
+<th>End Date</th>
+<th>Status</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr th:if="${#lists.isEmpty(leaves)}">
+<td colspan="5" style="text-align:center;padding:20px;color:#777;">
+<i class="fas fa-info-circle"></i>
+No leave records found for the selected employee.
+</td>
+</tr>
+
+<tr th:each="l : ${leaves}">
+<td th:text="${l.employee.fullName}"></td>
+<td th:text="${l.leaveType.leaveName}"></td>
+<td th:text="${#temporals.format(l.startDate,'dd MMM yyyy')}"></td>
+<td th:text="${#temporals.format(l.endDate,'dd MMM yyyy')}"></td>
+<td th:text="${l.status}"></td>
+</tr>
+
+</tbody>
+</table>
+
+</div>
+
+</div>
+
+</main>
+
+</div>
+
+<script th:src="@{/js/components.js}"></script>
+<script th:src="@{/js/app.js}"></script>
+
+</body>
+</html>

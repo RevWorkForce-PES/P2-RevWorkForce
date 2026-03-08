@@ -1,12 +1,15 @@
 package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.model.Employee;
+import com.revature.revworkforce.model.LeaveApplication;
 import com.revature.revworkforce.model.LeaveBalance;
 import com.revature.revworkforce.model.LeaveType;
+import com.revature.revworkforce.repository.DepartmentRepository;
 import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.repository.LeaveBalanceRepository;
 import com.revature.revworkforce.repository.LeaveTypeRepository;
 import com.revature.revworkforce.service.AdminService;
+import com.revature.revworkforce.service.LeaveService;
 import com.revature.revworkforce.service.LeaveTypeService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +30,11 @@ import java.util.Map;
 @RequestMapping("/admin")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
-	 
+	@Autowired
+	private LeaveService leaveService;
+
+	@Autowired
+	private DepartmentRepository departmentRepository;
 	    @Autowired
 	    private LeaveTypeService leaveTypeService;
     @Autowired
@@ -196,5 +203,36 @@ public class AdminController {
         leaveTypeRepository.deleteById(id);
 
         return "redirect:/admin/system-config?tab=leave-config";
+    }
+    @GetMapping("/reports/department")
+    public String departmentReport(
+            @RequestParam(required = false) Long departmentId,
+            Model model) {
+
+        if (departmentId != null) {
+            List<LeaveApplication> leaves =
+                    leaveService.getLeavesByDepartment(departmentId);
+
+            model.addAttribute("leaves", leaves);
+        }
+
+        model.addAttribute("departments", departmentRepository.findAll());
+
+        return "pages/admin/leave-report-department";
+    }
+    @GetMapping("/reports/employee")
+    public String employeeReport(
+            @RequestParam(required = false) String employeeId,
+            Model model) {
+
+        if(employeeId != null){
+            List<LeaveApplication> leaves =
+                    leaveService.getLeavesByEmployee(employeeId);
+            model.addAttribute("leaves", leaves);
+        }
+
+        model.addAttribute("employees", employeeRepository.findAll());
+
+        return "pages/admin/leave-report-employee";
     }
 }
