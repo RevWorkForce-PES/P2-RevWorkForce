@@ -2,8 +2,26 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
+<<<<<<< HEAD
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+=======
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="user-fullname" th:content="${fullName} ?: 'Employee'">
+    <meta name="user-role" content="Employee">
+    <meta name="global-user-fullname" th:content="${globalFullName}">
+    <meta name="global-user-role" th:content="${globalUserRole}">
+    <title>Employee Dashboard - RevWorkForce</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+>>>>>>> UI_templates
 
 <meta name="user-fullname" th:content="${fullName} ?: 'Employee'">
 <meta name="user-role" content="Employee">

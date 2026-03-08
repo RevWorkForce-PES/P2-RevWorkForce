@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="global-user-fullname" th:content="${globalFullName}">
+    <meta name="global-user-role" th:content="${globalUserRole}">
+    <title th:text="${pageTitle} + ' - RevWorkForce'">Goal List</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar th:attr="page-title=${pageTitle}"></app-navbar>
+            <div class="page-wrapper">
+                <div class="card">
+                    <div class="flex-space-between mb-4">
+                        <h2 th:text="${pageTitle}" style="margin:0;">Goals</h2>
+                        <a th:href="@{/employee/performance}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Priority</th>
+                                    <th>Deadline</th>
+                                    <th>Progress</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="goal : ${goals}">
+                                    <td>
+                                        <div style="font-weight:500;" th:text="${goal.goalTitle}"></div>
+                                        <div class="text-muted small" th:text="${goal.category}"></div>
+                                    </td>
+                                    <td th:text="${goal.category}">Technical</td>
+                                    <td>
+                                        <span class="badge"
+                                            th:classappend="${goal.priority.name() == 'HIGH' ? 'badge-rejected' : 'badge-pending'}"
+                                            th:text="${goal.priority}">MEDIUM</span>
+                                    </td>
+                                    <td th:text="${#temporals.format(goal.deadline, 'MMM dd, yyyy')}"
+                                        th:classappend="${goal.deadline != null and goal.deadline.isBefore(#temporals.createNow().toLocalDate()) ? 'text-danger' : ''}">
+                                    </td>
+                                    <td>
+                                        <div style="display:flex; align-items:center; gap:0.5rem; min-width: 100px;">
+                                            <div
+                                                style="background: #e2e8f0; height: 6px; flex: 1; border-radius: 3px; overflow: hidden;">
+                                                <div
+                                                    th:style="'background: var(--primary); height: 100%; width: ' + ${goal.progress} + '%;'">
+                                                </div>
+                                            </div>
+                                            <span class="small" th:text="${goal.progress} + '%'">80%</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="display:flex; gap:0.5rem;">
+                                            <a th:href="@{/employee/goals/view/{id}(id=${goal.goalId})}"
+                                                class="btn btn-secondary btn-sm">View</a>
+                                            <a th:href="@{/employee/goals/progress/{id}(id=${goal.goalId})}"
+                                                class="btn btn-primary btn-sm">Update</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(goals)}">
+                                    <td colspan="6" class="text-center text-muted" style="padding: 2rem;">No goals found
+                                        in this category.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

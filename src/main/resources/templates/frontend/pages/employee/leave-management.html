@@ -5,6 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="global-user-fullname" th:content="${globalFullName}">
+    <meta name="global-user-role" th:content="${globalUserRole}">
     <title>Leave Management - RevWorkForce</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
@@ -44,8 +46,7 @@
                         <div class="grid-2">
                             <div>
                                 <h3 class="mb-3">Apply for Leave</h3>
-                                <form th:action="@{/leave/employee/apply}" th:object="${leaveApplicationDTO}"
-                                    method="POST"
+                                <form th:action="@{/employee/apply}" th:object="${leaveApplicationDTO}" method="POST"
                                     style="background: #f8fafc; padding: 1.5rem; border: 1px solid var(--border-color); border-radius: 8px;">
                                     <div class="form-group">
                                         <label class="form-label">Leave Type</label>
@@ -95,7 +96,7 @@
                                                 th:text="${#temporals.format(leave.startDate, 'MMM d, yyyy')} + ' - ' + ${#temporals.format(leave.endDate, 'MMM d, yyyy')}">
                                                 Mar 2, 2026 - Mar 3, 2026</p>
                                             <form th:if="${leave.status.name() == 'PENDING'}"
-                                                th:action="@{/leave/employee/cancel/{id}(id=${leave.applicationId})}"
+                                                th:action="@{/employee/cancel/{id}(id=${leave.applicationId})}"
                                                 method="POST" style="margin: 0;">
                                                 <button type="submit" class="btn btn-danger btn-sm"><i
                                                         class="fas fa-times"></i> Cancel Request</button>

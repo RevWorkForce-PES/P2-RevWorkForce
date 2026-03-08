@@ -124,19 +124,45 @@ public class EmployeeServiceImpl implements EmployeeService {
 		}
 
 		// Update basic info
-		employee.setFirstName(dto.getFirstName());
-		employee.setLastName(dto.getLastName());
-		employee.setEmail(dto.getEmail());
-		employee.setPhone(dto.getPhone());
-		employee.setDateOfBirth(dto.getDateOfBirth());
-		employee.setGender(dto.getGender());
-		employee.setAddress(dto.getAddress());
-		employee.setCity(dto.getCity());
-		employee.setState(dto.getState());
-		employee.setPostalCode(dto.getPostalCode());
-		employee.setCountry(dto.getCountry());
-		employee.setEmergencyContactName(dto.getEmergencyContactName());
-		employee.setEmergencyContactPhone(dto.getEmergencyContactPhone());
+		if (dto.getFirstName() != null && !dto.getFirstName().trim().isEmpty()) {
+			employee.setFirstName(dto.getFirstName());
+		}
+		if (dto.getLastName() != null && !dto.getLastName().trim().isEmpty()) {
+			employee.setLastName(dto.getLastName());
+		}
+		if (dto.getEmail() != null && !dto.getEmail().trim().isEmpty()) {
+			employee.setEmail(dto.getEmail());
+		}
+		if (dto.getPhone() != null && !dto.getPhone().trim().isEmpty()) {
+			employee.setPhone(dto.getPhone());
+		}
+		if (dto.getDateOfBirth() != null) {
+			employee.setDateOfBirth(dto.getDateOfBirth());
+		}
+		if (dto.getGender() != null) {
+			employee.setGender(dto.getGender());
+		}
+		if (dto.getAddress() != null) {
+			employee.setAddress(dto.getAddress());
+		}
+		if (dto.getCity() != null) {
+			employee.setCity(dto.getCity());
+		}
+		if (dto.getState() != null) {
+			employee.setState(dto.getState());
+		}
+		if (dto.getPostalCode() != null) {
+			employee.setPostalCode(dto.getPostalCode());
+		}
+		if (dto.getCountry() != null) {
+			employee.setCountry(dto.getCountry());
+		}
+		if (dto.getEmergencyContactName() != null) {
+			employee.setEmergencyContactName(dto.getEmergencyContactName());
+		}
+		if (dto.getEmergencyContactPhone() != null) {
+			employee.setEmergencyContactPhone(dto.getEmergencyContactPhone());
+		}
 
 		// Update department
 		if (dto.getDepartmentId() != null) {
@@ -160,14 +186,22 @@ public class EmployeeServiceImpl implements EmployeeService {
 		}
 
 		// Update employment details
-		employee.setJoiningDate(dto.getJoiningDate());
-		employee.setLeavingDate(dto.getLeavingDate());
-		employee.setSalary(dto.getSalary());
-		employee.setStatus(dto.getStatus());
+		if (dto.getJoiningDate() != null) {
+			employee.setJoiningDate(dto.getJoiningDate());
+		}
+		if (dto.getLeavingDate() != null) {
+			employee.setLeavingDate(dto.getLeavingDate());
+		}
+		if (dto.getSalary() != null) {
+			employee.setSalary(dto.getSalary());
+		}
+		if (dto.getStatus() != null) {
+			employee.setStatus(dto.getStatus());
+		}
 		employee.setUpdatedAt(LocalDateTime.now());
 
 		// Update roles
-		if (dto.getRoleIds() != null) {
+		if (dto.getRoleIds() != null && !dto.getRoleIds().isEmpty()) {
 			employeeRoleRepository.deleteByEmployeeId(employeeId);
 			for (Long roleId : dto.getRoleIds()) {
 				assignRole(employeeId, roleId);
@@ -370,7 +404,20 @@ public class EmployeeServiceImpl implements EmployeeService {
 		dto.setFirstName(employee.getFirstName());
 		dto.setLastName(employee.getLastName());
 		dto.setEmail(employee.getEmail());
+		dto.setPhone(employee.getPhone());
+		dto.setDateOfBirth(employee.getDateOfBirth());
+		dto.setGender(employee.getGender());
+		dto.setAddress(employee.getAddress());
+		dto.setCity(employee.getCity());
+		dto.setState(employee.getState());
+		dto.setPostalCode(employee.getPostalCode());
+		dto.setCountry(employee.getCountry());
+		dto.setJoiningDate(employee.getJoiningDate());
+		dto.setLeavingDate(employee.getLeavingDate());
+		dto.setSalary(employee.getSalary());
 		dto.setStatus(employee.getStatus());
+		dto.setEmergencyContactName(employee.getEmergencyContactName());
+		dto.setEmergencyContactPhone(employee.getEmergencyContactPhone());
 
 		if (employee.getDepartment() != null) {
 			dto.setDepartmentId(employee.getDepartment().getDepartmentId());

@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="global-user-fullname" th:content="${globalFullName}">
+    <meta name="global-user-role" th:content="${globalUserRole}">
     <title>Performance Review - RevWorkForce Manager</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -44,7 +46,7 @@
                                 </thead>
                                 <tbody>
                                     <tr th:each="review : ${reviews}">
-                                        <td th:text="${review.employee != null ? review.employee.fullName : 'N/A'}">
+                                        <td th:text="${review.employeeName != null ? review.employeeName : 'N/A'}">
                                             Alice Smith</td>
                                         <td>
                                             <span class="badge"

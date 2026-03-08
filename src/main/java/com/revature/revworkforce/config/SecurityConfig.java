@@ -15,32 +15,35 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-
 /**
  * Configuration class for Spring Security.
  *
- * <p>This class defines authentication, authorization, and security policies
+ * <p>
+ * This class defines authentication, authorization, and security policies
  * used throughout the application. It enables secure access control,
- * password encryption, session handling, and login management.</p>
+ * password encryption, session handling, and login management.
+ * </p>
  *
  * <h2>Security Features</h2>
  * <ul>
- *   <li>Form-based authentication</li>
- *   <li>BCrypt password encoding</li>
- *   <li>Role-Based Access Control (RBAC)</li>
- *   <li>Session management</li>
- *   <li>CSRF protection</li>
- *   <li>Remember-me authentication</li>
- *   <li>Custom authentication success handler</li>
+ * <li>Form-based authentication</li>
+ * <li>BCrypt password encoding</li>
+ * <li>Role-Based Access Control (RBAC)</li>
+ * <li>Session management</li>
+ * <li>CSRF protection</li>
+ * <li>Remember-me authentication</li>
+ * <li>Custom authentication success handler</li>
  * </ul>
  *
  * <h2>Access Control Rules</h2>
  * <ul>
- *   <li><b>Public Access:</b> "/", "/login", "/css/**", "/js/**", "/images/**"</li>
- *   <li><b>ADMIN:</b> "/admin/**"</li>
- *   <li><b>MANAGER:</b> "/manager/**" (accessible by ADMIN as well)</li>
- *   <li><b>EMPLOYEE:</b> "/employee/**" (accessible by MANAGER and ADMIN)</li>
- *   <li><b>Authenticated Users:</b> "/api/**" and all other secured endpoints</li>
+ * <li><b>Public Access:</b> "/", "/login", "/css/**", "/js/**",
+ * "/images/**"</li>
+ * <li><b>ADMIN:</b> "/admin/**"</li>
+ * <li><b>MANAGER:</b> "/manager/**" (accessible by ADMIN as well)</li>
+ * <li><b>EMPLOYEE:</b> "/employee/**" (accessible by MANAGER and ADMIN)</li>
+ * <li><b>Authenticated Users:</b> "/api/**" and all other secured
+ * endpoints</li>
  * </ul>
  *
  * @author RevWorkForce Team
@@ -64,83 +67,77 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Authorize HTTP requests
-            .authorizeHttpRequests(auth -> auth
-            		
-            	    .requestMatchers("/error", "/error/**").permitAll()
+                // Authorize HTTP requests
+                .authorizeHttpRequests(auth -> auth
 
-                // Public endpoints (no authentication required)
-                .requestMatchers(
-                    "/", 
-                    "/login", 
-                    "/forgot-password", 
-                    "/forgot-password/**" // <-- allow all forgot password paths
-                ).permitAll()
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/error", "/error/**").permitAll()
 
-                // Admin endpoints (ADMIN role required)
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                
+                        // Public endpoints (no authentication required)
+                        .requestMatchers(
+                                "/",
+                                "/login",
+                                "/forgot-password",
+                                "/forgot-password/**" // <-- allow all forgot password paths
+                        ).permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
 
-                // Manager endpoints (MANAGER or ADMIN role required)
-                .requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
+                        // Admin endpoints (ADMIN role required)
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                // Employee endpoints (any authenticated user)
-                .requestMatchers("/employee/**").hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")
+                        // Manager endpoints (MANAGER or ADMIN role required)
+                        .requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
 
-                // Dashboard (authenticated users)
-                .requestMatchers("/dashboard").authenticated()
+                        // Employee endpoints (any authenticated user)
+                        .requestMatchers("/employee/**").hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")
 
-                // API endpoints (authenticated users)
-                .requestMatchers("/api/**").authenticated()
+                        // Dashboard (authenticated users)
+                        .requestMatchers("/dashboard").authenticated()
 
-                // All other requests require authentication
-                .anyRequest().authenticated()
-            )
+                        // API endpoints (authenticated users)
+                        .requestMatchers("/api/**").authenticated()
 
-            // Form login configuration
-            .formLogin(form -> form
-                .loginPage("/login")
-                .loginProcessingUrl("/login")
-                .successHandler(authenticationSuccessHandler)
-                .failureUrl("/login?error=true")
-                .usernameParameter("username") // Can be email or employee ID
-                .passwordParameter("password")
-                .permitAll()
-            )
+                        // All other requests require authentication
+                        .anyRequest().authenticated())
 
-            // Logout configuration
-            .logout(logout -> logout
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
-                .logoutSuccessUrl("/login?logout=true")
-                .invalidateHttpSession(true)
-                .clearAuthentication(true)
-                .deleteCookies("JSESSIONID", "remember-me")
-                .permitAll()
-            )
+                // Form login configuration
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .successHandler(authenticationSuccessHandler)
+                        .failureUrl("/login?error=true")
+                        .usernameParameter("username") // Can be email or employee ID
+                        .passwordParameter("password")
+                        .permitAll())
 
-            // Session management
-            .sessionManagement(session -> session
-                .maximumSessions(1)
-                .maxSessionsPreventsLogin(false)
-                .expiredUrl("/login?expired=true")
-            )
+                // Logout configuration
+                .logout(logout -> logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+                        .logoutSuccessUrl("/login?logout=true")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID", "remember-me")
+                        .permitAll())
+                .sessionManagement(session -> session
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
+                        .expiredUrl("/login?expired=true"))
 
-            // Remember me configuration
-            .rememberMe(remember -> remember
-                .key("revworkforce-remember-me-key")
-                .tokenValiditySeconds(86400) // 24 hours
-                .rememberMeParameter("remember-me")
-                .userDetailsService(userDetailsService)
-            )
+                // Remember me configuration
+                .rememberMe(remember -> remember
+                        .key("revworkforce-remember-me-key")
+                        .tokenValiditySeconds(86400) // 24 hours
+                        .rememberMeParameter("remember-me")
+                        .userDetailsService(userDetailsService))
 
-            // Exception handling
-            .exceptionHandling(ex -> ex.accessDeniedPage("/error/403"))
+                // Exception handling (removing explicit accessDeniedPage mapping to prevent
+                // Thymeleaf rendering errors)
+                .exceptionHandling(ex -> ex.accessDeniedPage("/error"))
 
-            // CSRF configuration
-            .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/api/**", "/forgot-password/**") // <-- ignore CSRF for forgot-password
-            );
+                // CSRF configuration
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/**", "/forgot-password/**") // <-- ignore CSRF for
+                                                                                   // forgot-password
+                );
 
         System.out.println("\n========================================");
         System.out.println("Spring Security Configuration Loaded");

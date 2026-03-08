@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="global-user-fullname" th:content="${globalFullName}">
+    <meta name="global-user-role" th:content="${globalUserRole}">
+    <title>Create New Goal - RevWorkForce</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar page-title="Create New Goal"></app-navbar>
+            <div class="page-wrapper">
+                <div class="card" style="max-width: 800px; margin: 0 auto;">
+                    <div class="flex-space-between mb-4">
+                        <h2 style="margin: 0;">New Objective/Goal</h2>
+                        <a th:href="@{/employee/performance}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+
+                    <div th:if="${error}" class="alert alert-danger mb-3" th:text="${error}"></div>
+
+                    <form th:action="@{/employee/goals/create}" th:object="${goalDTO}" method="POST">
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="goalTitle">Goal Title</label>
+                            <input type="text" id="goalTitle" th:field="*{goalTitle}" class="form-control"
+                                placeholder="e.g., Revamp Authentication API" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('goalTitle')}" th:errors="*{goalTitle}">
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="goalDescription">Description</label>
+                            <textarea id="goalDescription" th:field="*{goalDescription}" class="form-control" rows="4"
+                                placeholder="Detail the key deliverables and expected outcomes..." required></textarea>
+                            <div class="text-danger" th:if="${#fields.hasErrors('goalDescription')}"
+                                th:errors="*{goalDescription}"></div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group mb-3">
+                                <label class="form-label" for="category">Category</label>
+                                <select id="category" th:field="*{category}" class="form-control">
+                                    <option value="Technical">Technical</option>
+                                    <option value="Process">Process</option>
+                                    <option value="Learning">Learning</option>
+                                    <option value="Leadership">Leadership</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label" for="priority">Priority</label>
+                                <select id="priority" th:field="*{priority}" class="form-control">
+                                    <option th:each="p : ${priorities}" th:value="${p}" th:text="${p}">MEDIUM</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label" for="deadline">Target Completion Date</label>
+                            <input type="date" id="deadline" th:field="*{deadline}" class="form-control" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('deadline')}" th:errors="*{deadline}">
+                            </div>
+                        </div>
+
+                        <div class="flex-space-between mt-4">
+                            <p class="text-muted small">Goals are visible to your manager for review and feedback.</p>
+                            <button type="submit" class="btn btn-primary">Create Goal</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

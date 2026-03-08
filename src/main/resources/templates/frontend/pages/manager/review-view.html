@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View team member review - RevWorkForce Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar th:attr="page-title='Team Review: ' + ${review.employeeName}"></app-navbar>
+            <div class="page-wrapper">
+                <div class="card" style="max-width: 900px; margin: 0 auto;">
+                    <div class="flex-space-between mb-4">
+                        <h2 style="margin: 0;"><i class="fas fa-search"></i> Review Analysis</h2>
+                        <a th:href="@{/manager/performance}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+
+                    <!-- Header Summary -->
+                    <div class="mb-4 p-3"
+                        style="background:#f8fafc; border-radius:8px; border:1px solid var(--border-color); display:flex; justify-content:space-around; text-align:center;">
+                        <div>
+                            <p class="text-muted small text-uppercase mb-1">Employee</p>
+                            <h4 th:text="${review.employeeName}" style="margin:0;">John Doe</h4>
+                        </div>
+                        <div>
+                            <p class="text-muted small text-uppercase mb-1">Status</p>
+                            <span class="badge"
+                                th:classappend="${review.status.name() == 'REVIEWED' ? 'badge-approved' : 'badge-pending'}"
+                                th:text="${review.status}">Status</span>
+                        </div>
+                        <div>
+                            <p class="text-muted small text-uppercase mb-1">Self Rating</p>
+                            <h3 th:text="${review.selfAssessmentRating} + ' / 5.0'" style="margin:0;">4.0</h3>
+                        </div>
+                        <div th:if="${review.managerRating != null}">
+                            <p class="text-muted small text-uppercase mb-1">Manager Rating</p>
+                            <h3 th:text="${review.managerRating} + ' / 5.0'" style="margin:0; color:var(--primary);">4.5
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <!-- Self Assessment View -->
+                        <div>
+                            <h4 class="mb-3 text-muted"><i class="fas fa-user"></i> Employee Assessment</h4>
+                            <div class="mb-4">
+                                <label class="font-weight-bold small text-muted text-uppercase">Key Deliverables</label>
+                                <p th:text="${review.keyDeliverables}"
+                                    style="white-space: pre-wrap; font-size: 0.95rem;"></p>
+                            </div>
+                            <div class="mb-4">
+                                <label class="font-weight-bold small text-muted text-uppercase">Major
+                                    Accomplishments</label>
+                                <p th:text="${review.majorAccomplishments}"
+                                    style="white-space: pre-wrap; font-size: 0.95rem;"></p>
+                            </div>
+                            <div class="mb-4">
+                                <label class="font-weight-bold small text-muted text-uppercase">Areas of
+                                    Improvement</label>
+                                <p th:text="${review.areasOfImprovement}"
+                                    style="white-space: pre-wrap; font-size: 0.95rem;"></p>
+                            </div>
+                            <div class="mb-4" th:if="${review.selfAssessmentComments != null}">
+                                <label class="font-weight-bold small text-muted text-uppercase">Self Comments</label>
+                                <p th:text="${review.selfAssessmentComments}" style="font-style: italic;"></p>
+                            </div>
+                        </div>
+
+                        <!-- Manager Feedback View -->
+                        <div style="border-left: 1px solid var(--border-color); padding-left: 2rem;">
+                            <h4 class="mb-3 text-primary"><i class="fas fa-clipboard-check"></i> Manager Feedback</h4>
+                            <div class="mb-4">
+                                <label class="font-weight-bold small text-muted text-uppercase">Feedback</label>
+                                <p th:text="${review.managerFeedback}" style="white-space: pre-wrap; line-height:1.6;">
+                                </p>
+                            </div>
+                            <div class="mb-4"
+                                th:if="${review.managerComments != null and !review.managerComments.isEmpty()}">
+                                <label class="font-weight-bold small text-muted text-uppercase">Internal Notes
+                                    (Privileged)</label>
+                                <p th:text="${review.managerComments}" class="text-muted" style="font-size: 0.9rem;">
+                                </p>
+                            </div>
+
+                            <div class="mt-5 p-3"
+                                style="background:var(--primary-light); border-radius:8px; border-left:4px solid var(--primary);">
+                                <label class="font-weight-bold small text-uppercase">Final Outcome</label>
+                                <h3 th:text="${review.finalRating != null ? review.finalRating + ' / 5.0' : 'Pending'}"
+                                    style="margin:0; font-weight:bold;">4.25</h3>
+                                <p class="text-muted small mt-1" th:if="${review.reviewedDate != null}">Finalized on:
+                                    <span th:text="${#temporals.format(review.reviewedDate, 'MMM dd, yyyy')}"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 text-center">
+                        <button class="btn btn-secondary" onclick="window.print()"><i class="fas fa-file-export"></i>
+                            Export Report</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

@@ -17,7 +17,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/leave")
 public class LeaveController {
 	private final HolidayService holidayService;
     private final LeaveService leaveService;
@@ -92,7 +91,7 @@ public class LeaveController {
             Authentication auth) {
 
         leaveService.applyLeave(dto, auth.getName());
-        return "redirect:/leave/employee/leave-management";
+        return "redirect:/employee/leave-management";
     }
 
     // History endpoint merged into leave-management
@@ -102,7 +101,7 @@ public class LeaveController {
     public String cancel(@PathVariable Long id, Authentication auth) {
 
         leaveService.cancelLeave(id, auth.getName());
-        return "redirect:/leave/employee/leave-management";
+        return "redirect:/employee/leave-management";
     }
 
     // Balance endpoint merged into leave-management
@@ -161,7 +160,7 @@ public class LeaveController {
                 authentication.getName(),
                 comments);
 
-        return "redirect:/leave/manager/leave-approvals";
+        return "redirect:/manager/leave-approvals";
     }
 
     @PostMapping("/manager/reject/{id}")
@@ -174,12 +173,12 @@ public class LeaveController {
                 authentication.getName(),
                 rejectionReason);
 
-        return "redirect:/leave/manager/leave-approvals";
+        return "redirect:/manager/leave-approvals";
     }
 
     // ================= ADMIN =================
 
-    @PostMapping("/admin/revoke/{id}")
+    @PostMapping("/admin/leave/revoke/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public String revokeLeave(@PathVariable Long id,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
