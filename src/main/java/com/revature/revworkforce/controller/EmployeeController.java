@@ -359,19 +359,7 @@ public class EmployeeController {
     /**
      * View own profile.
      */
-//    @GetMapping("/employee/profile")
-//    @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
-//    public String viewProfile(Model model) {
-//        String employeeId = SecurityUtils.getCurrentUsername();
-//        Employee employee = employeeService.getEmployeeById(employeeId);
-//        EmployeeDTO dto = employeeService.convertToDTO(employee);
-//
-//        model.addAttribute("employee", dto);
-//        model.addAttribute("pageTitle", "My Profile");
-//
-//        return "redirect:/employee/profile-directory";
-//    }
-
+//   
     @GetMapping("/employee/profile/{employeeId}")
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String viewEmployeeProfileForManager(
