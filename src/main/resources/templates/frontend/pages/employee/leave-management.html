@@ -2,173 +2,328 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leave Management - RevWorkForce</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 1.5rem;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        @media (max-width: 992px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+<title>Leave Management - RevWorkForce</title>
+
+<link rel="stylesheet" th:href="@{/css/style.css}">
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+<style>
+.grid-2{
+display:grid;
+grid-template-columns:2fr 1fr;
+gap:1.5rem;
+}
+
+@media (max-width:992px){
+.grid-2{
+grid-template-columns:1fr;
+}
+}
+
+#teamCalendar{
+background:white;
+padding:10px;
+border-radius:8px;
+min-height:500px;
+}
+</style>
+
 </head>
 
 <body>
-    <div class="app-container">
-        <app-sidebar></app-sidebar>
-        <main class="main-content">
-            <app-navbar page-title="Leave Management"></app-navbar>
-            <div class="page-wrapper">
-                <div class="card">
-                    <div class="tabs">
-                        <button class="tab-btn active" data-target="apply-leave">Apply / History</button>
-                        <button class="tab-btn" data-target="leave-balances">My Balances</button>
-                        <button class="tab-btn" data-target="holiday-calendar">Holiday Calendar</button>
-                    </div>
 
-                    <!-- Apply Leave & History -->
-                    <div id="apply-leave" class="tab-content active">
-                        <div class="grid-2">
-                            <div>
-                                <h3 class="mb-3">Apply for Leave</h3>
-                                <form th:action="@{/leave/employee/apply}" th:object="${leaveApplicationDTO}"
-                                    method="POST"
-                                    style="background: #f8fafc; padding: 1.5rem; border: 1px solid var(--border-color); border-radius: 8px;">
-                                    <div class="form-group">
-                                        <label class="form-label">Leave Type</label>
-                                        <select class="form-control" th:field="*{leaveType}" required>
-                                            <option value="">Select leave type...</option>
-                                            <option th:each="type : ${leaveTypes}" th:value="${type.leaveCode}"
-                                                th:text="${type.leaveName}">Sick Leave
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                                        <div class="form-group">
-                                            <label class="form-label">Start Date</label>
-                                            <input type="date" class="form-control" th:field="*{startDate}" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">End Date</label>
-                                            <input type="date" class="form-control" th:field="*{endDate}" required>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Reason</label>
-                                        <textarea class="form-control" rows="3" th:field="*{reason}"
-                                            placeholder="Briefly explain the reason for your leave..."
-                                            required></textarea>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i>
-                                        Submit Application</button>
-                                </form>
-                            </div>
+<div class="app-container">
 
-                            <div>
-                                <h3 class="mb-3">Recent Requests</h3>
-                                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                                    <div th:each="leave : ${history}"
-                                        style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
-                                        <div class="flex-space-between mb-1">
-                                            <span style="font-weight: 500;"
-                                                th:text="${leave.leaveType.leaveName + ' (' + (T(java.time.temporal.ChronoUnit).DAYS.between(leave.startDate, leave.endDate) + 1) + ' Days)'}">Sick
-                                                Leave (2 Days)</span>
-                                            <span class="badge"
-                                                th:classappend="${#strings.toLowerCase(leave.status) == 'approved' ? 'badge-approved' : (#strings.toLowerCase(leave.status) == 'rejected' ? 'badge-rejected' : 'badge-pending')}"
-                                                th:text="${leave.status}">Pending</span>
-                                        </div>
-                                        <div class="flex-space-between mt-2">
-                                            <p class="text-muted mb-0" style="font-size: 0.85rem;"
-                                                th:text="${#temporals.format(leave.startDate, 'MMM d, yyyy')} + ' - ' + ${#temporals.format(leave.endDate, 'MMM d, yyyy')}">
-                                                Mar 2, 2026 - Mar 3, 2026</p>
-                                            <form th:if="${leave.status.name() == 'PENDING'}"
-                                                th:action="@{/leave/employee/cancel/{id}(id=${leave.applicationId})}"
-                                                method="POST" style="margin: 0;">
-                                                <button type="submit" class="btn btn-danger btn-sm"><i
-                                                        class="fas fa-times"></i> Cancel Request</button>
-                                            </form>
-                                        </div>
-                                        <p th:if="${leave.status.name() == 'REJECTED'}" class="text-danger mt-1 mb-0"
-                                            style="font-size: 0.8rem;"><i class="fas fa-info-circle"></i> Reason: <span
-                                                th:text="${leave.rejectionReason}"></span></p>
-                                    </div>
-                                    <div th:if="${#lists.isEmpty(history)}" class="text-muted"
-                                        style="text-align: center; padding: 1rem;">No recent leave requests.</div>
-                                </div>
-                               <a th:href="@{/leave/employee/history}"
-   class="btn btn-secondary mt-3 w-100">
+<app-sidebar></app-sidebar>
+
+<main class="main-content">
+
+<app-navbar page-title="Leave Management"></app-navbar>
+
+<div class="page-wrapper">
+
+<div class="card">
+
+<div class="text-muted mb-3" style="font-size:0.9rem;">
+Reporting Manager:
+<strong th:text="${managerName} ?: 'N/A'">Manager Name</strong>
+</div>
+
+<div class="tabs">
+<button class="tab-btn active" data-target="apply-leave">Apply / History</button>
+<button class="tab-btn" data-target="leave-balances">My Balances</button>
+<button class="tab-btn" data-target="holiday-calendar">Holiday Calendar</button>
+<button class="tab-btn" data-target="team-calendar">Team Calendar</button>
+</div>
+
+
+<!-- Apply Leave -->
+<div id="apply-leave" class="tab-content active">
+
+<div class="grid-2">
+
+<div>
+
+<h3 class="mb-3">Apply for Leave</h3>
+
+<form th:action="@{/leave/employee/apply}"
+th:object="${leaveApplicationDTO}"
+method="POST"
+style="background:#f8fafc;padding:1.5rem;border:1px solid var(--border-color);border-radius:8px;">
+
+<div class="form-group">
+<label class="form-label">Leave Type</label>
+
+<select class="form-control" th:field="*{leaveType}" required>
+<option value="">Select leave type...</option>
+
+<option th:each="type : ${leaveTypes}"
+th:value="${type.leaveCode}"
+th:text="${type.leaveName}">
+Sick Leave
+</option>
+
+</select>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+
+<div class="form-group">
+<label class="form-label">Start Date</label>
+<input type="date" class="form-control" th:field="*{startDate}" required>
+</div>
+
+<div class="form-group">
+<label class="form-label">End Date</label>
+<input type="date" class="form-control" th:field="*{endDate}" required>
+</div>
+
+</div>
+
+<div class="form-group">
+<label class="form-label">Reason</label>
+
+<textarea class="form-control"
+rows="3"
+th:field="*{reason}"
+placeholder="Briefly explain the reason for your leave..."
+required>
+</textarea>
+
+</div>
+
+<button type="submit" class="btn btn-primary">
+<i class="fas fa-paper-plane"></i>
+Submit Application
+</button>
+
+</form>
+
+</div>
+
+
+
+<div>
+
+<h3 class="mb-3">Recent Requests</h3>
+
+<div style="display:flex;flex-direction:column;gap:1rem;">
+
+<div th:each="leave : ${history}"
+style="border:1px solid var(--border-color);border-radius:8px;padding:1rem;">
+
+<div class="flex-space-between mb-1">
+
+<span style="font-weight:500;"
+th:text="${leave.leaveType.leaveName + ' (' + (T(java.time.temporal.ChronoUnit).DAYS.between(leave.startDate, leave.endDate) + 1) + ' Days)'}">
+Sick Leave (2 Days)
+</span>
+
+<span class="badge"
+th:classappend="${#strings.toLowerCase(leave.status) == 'approved' ? 'badge-approved' : (#strings.toLowerCase(leave.status) == 'rejected' ? 'badge-rejected' : 'badge-pending')}"
+th:text="${leave.status}">
+Pending
+</span>
+
+</div>
+
+<div class="flex-space-between mt-2">
+
+<p class="text-muted mb-0"
+style="font-size:0.85rem;"
+th:text="${#temporals.format(leave.startDate,'MMM d, yyyy')} + ' - ' + ${#temporals.format(leave.endDate,'MMM d, yyyy')}">
+Mar 2, 2026 - Mar 3, 2026
+</p>
+
+<form th:if="${leave.status.name() == 'PENDING'}"
+th:action="@{/leave/employee/cancel/{id}(id=${leave.applicationId})}"
+method="POST"
+style="margin:0;">
+
+<button type="submit" class="btn btn-danger btn-sm">
+<i class="fas fa-times"></i> Cancel Request
+</button>
+
+</form>
+
+</div>
+
+<p th:if="${leave.status.name() == 'REJECTED'}"
+class="text-danger mt-1 mb-0"
+style="font-size:0.8rem;">
+<i class="fas fa-info-circle"></i>
+Reason:
+<span th:text="${leave.rejectionReason}"></span>
+</p>
+
+</div>
+
+<div th:if="${#lists.isEmpty(history)}"
+class="text-muted"
+style="text-align:center;padding:1rem;">
+No recent leave requests.
+</div>
+
+</div>
+
+<a th:href="@{/leave/employee/history}"
+class="btn btn-secondary mt-3 w-100">
 View Full History
 </a>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- My Balances Tab -->
-                    <div id="leave-balances" class="tab-content">
-                        <div
-                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
-                            <!-- Balance Card -->
-                            <div th:each="balance : ${balances}"
-                                style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center; background: #fff;">
-                                <h4 class="text-muted mb-3" style="font-weight: 500;"
-                                    th:text="${balance.leaveTypeName}">Sick Leave</h4>
-                                <div
-                                    th:style="'position: relative; width: 100px; height: 100px; margin: 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: conic-gradient(var(--primary) calc(' + (${balance.totalAllocated > 0 ? (balance.remainingBalance * 100 / balance.totalAllocated) : 0}) + '%), #e2e8f0 0);'">
-                                    <div
-                                        style="position: absolute; width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                                        <span
-                                            style="font-size: 1.5rem; font-weight: bold; color: var(--text-dark); line-height: 1;"
-                                            th:text="${balance.remainingBalance}">7</span>
-                                        <span style="font-size: 0.7rem; color: var(--text-muted);">Available</span>
-                                    </div>
-                                </div>
-                                <p class="mt-3 text-muted" style="font-size: 0.85rem;"
-                                    th:text="'Total Quota: ' + ${balance.totalAllocated} + ' days'">Total Quota: 12 days
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+</div>
 
-                    <!-- Holiday Calendar Tab -->
-                    <div id="holiday-calendar" class="tab-content">
-                        <div class="flex-space-between mb-3">
-                            <h3>Company Holidays - 2026</h3>
-                            <button class="btn btn-secondary"><i class="fas fa-file-pdf"></i> Download PDF</button>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Day</th>
-                                        <th>Holiday Description</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                   <tr th:each="holiday : ${holidays}">
-    <td th:text="${#temporals.format(holiday.holidayDate,'MMMM d, yyyy')}"></td>
-    <td th:text="${#temporals.format(holiday.holidayDate,'EEEE')}"></td>
-    <td th:text="${holiday.holidayName}"></td>
+</div>
+
+</div>
+
+
+<!-- My Balances -->
+<div id="leave-balances" class="tab-content">
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;">
+
+<div th:each="balance : ${balances}"
+style="border:1px solid var(--border-color);border-radius:8px;padding:1.5rem;text-align:center;background:#fff;">
+
+<h4 class="text-muted mb-3"
+style="font-weight:500;"
+th:text="${balance.leaveTypeName}">
+Sick Leave
+</h4>
+
+<span th:text="${balance.remainingBalance}">7</span>
+
+<p class="mt-3 text-muted"
+style="font-size:0.85rem;"
+th:text="'Total Quota: ' + ${balance.totalAllocated} + ' days'">
+Total Quota
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- Holiday Calendar -->
+<div id="holiday-calendar" class="tab-content">
+
+<h3>Company Holidays - <span th:text="${selectedYear}"></span></h3>
+
+<table class="table">
+
+<thead>
+<tr>
+<th>Date</th>
+<th>Day</th>
+<th>Holiday Description</th>
 </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-    <!-- Load Scripts -->
-    <script th:src="@{/js/components.js}"></script>
-    <script th:src="@{/js/app.js}"></script>
-</body>
+</thead>
 
+<tbody>
+
+<tr th:each="holiday : ${holidays}">
+<td th:text="${#temporals.format(holiday.holidayDate,'MMMM d, yyyy')}"></td>
+<td th:text="${#temporals.format(holiday.holidayDate,'EEEE')}"></td>
+<td th:text="${holiday.holidayName}"></td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+
+
+<!-- TEAM CALENDAR -->
+<div id="team-calendar" class="tab-content">
+
+<h3 class="mb-3">Team Leave Calendar</h3>
+
+<div id="teamCalendar"></div>
+
+</div>
+
+</div>
+
+</div>
+
+</main>
+
+</div>
+
+<script th:inline="javascript">
+
+const teamLeaves = /*[[${calendarLeaves}]]*/ [];
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const calendarEl = document.getElementById("teamCalendar");
+
+    if (!calendarEl) return;
+
+    const events = [];
+
+    if (teamLeaves && teamLeaves.length > 0) {
+
+        teamLeaves.forEach(function(leave) {
+
+            events.push({
+                title: leave.employeeName + " (" + leave.leaveCode + ")",
+                start: leave.startDate,
+                end: leave.endDate,
+                allDay: true,
+                color: "#2563eb"
+            });
+
+        });
+
+    }
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: "dayGridMonth",
+        height: 500,
+        events: events
+    });
+
+    calendar.render();
+
+});
+
+</script>
+
+
+<script th:src="@{/js/components.js}"></script>
+<script th:src="@{/js/app.js}"></script>
+
+</body>
 </html>

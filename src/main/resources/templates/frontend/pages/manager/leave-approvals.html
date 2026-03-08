@@ -2,26 +2,34 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leave Approvals - RevWorkForce Manager</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 1.5rem;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        @media (max-width: 992px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
+<title>Leave Approvals - RevWorkForce Manager</title>
 
-<body>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+
+<style>
+.grid-2 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 992px) {
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<!-- FullCalendar CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
+
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+</head><body>
     <div class="app-container">
         <app-sidebar></app-sidebar>
         <main class="main-content">
@@ -124,76 +132,111 @@
                     </div>
 
                     <!-- Team Calendar Tab -->
-                    <div id="team-calendar" class="tab-content">
-                        <div class="grid-2">
-                            <div>
-                                <h3 class="mb-3">March 2026</h3>
-                                <!-- Simple Mock Calendar -->
-                                <div
-                                    style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-bottom: 1rem;">
-                                    <div style="font-weight: 500; color: var(--text-muted);">S</div>
-                                    <div style="font-weight: 500; color: var(--text-muted);">M</div>
-                                    <div style="font-weight: 500; color: var(--text-muted);">T</div>
-                                    <div style="font-weight: 500; color: var(--text-muted);">W</div>
-                                    <div style="font-weight: 500; color: var(--text-muted);">T</div>
-                                    <div style="font-weight: 500; color: var(--text-muted);">F</div>
-                                    <div style="font-weight: 500; color: var(--text-muted);">S</div>
-                                    <div
-                                        style="padding: 1rem; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 4px; position:relative;">
-                                        1</div>
-                                    <div
-                                        style="padding: 1rem; background: rgba(255, 140, 0, 0.1); border: 1px solid var(--primary-light); border-radius: 4px; color: var(--primary-dark); font-weight: bold;">
-                                        2<br><small style="font-size: 0.6rem;">Charlie (SL)</small></div>
-                                    <div
-                                        style="padding: 1rem; background: rgba(255, 140, 0, 0.1); border: 1px solid var(--primary-light); border-radius: 4px; color: var(--primary-dark); font-weight: bold;">
-                                        3<br><small style="font-size: 0.6rem;">Charlie (SL)</small></div>
-                                    <div
-                                        style="padding: 1rem; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 4px;">
-                                        4</div>
-                                    <div
-                                        style="padding: 1rem; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 4px;">
-                                        5</div>
-                                </div>
-                                <p class="text-muted" style="font-size: 0.85rem;">Note: Demonstrative mock-up of team
-                                    leave calendar.</p>
-                            </div>
-                            <div>
-                                <h4 class="mb-2">Team Leave Balances</h4>
-                                <div class="table-responsive">
-                                    <table class="table" style="font-size: 0.85rem;">
-                                        <thead>
-                                            <tr>
-                                                <th>Employee</th>
-                                                <th>Sick</th>
-                                                <th>Casual</th>
-                                                <th>Earned</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>Alice Smith</td>
-                                                <td>5/12</td>
-                                                <td>12/15</td>
-                                                <td>18/20</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Charlie Brown</td>
-                                                <td>0/12</td>
-                                                <td>5/15</td>
-                                                <td>10/20</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Diana Prince</td>
-                                                <td>10/12</td>
-                                                <td>10/15</td>
-                                                <td>15/20</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
+<!-- Team Calendar Tab -->
+<div id="team-calendar" class="tab-content">
+
+<div class="grid-2">
+
+<!-- LEFT SIDE -->
+<div>
+
+<h3 class="mb-3">Team Leave Calendar</h3>
+
+<div id="leaveCalendar" style="background:white;padding:10px;border-radius:8px;min-height:500px;"></div>
+<h4 class="mt-4">Upcoming Holidays</h4>
+
+<table class="table">
+<thead>
+<tr>
+<th>Date</th>
+<th>Holiday</th>
+<th>Type</th>
+</tr>
+</thead>
+
+<tbody>
+<tr th:each="holiday : ${holidays}">
+<td th:text="${#temporals.format(holiday.holidayDate,'dd MMM yyyy')}"></td>
+<td th:text="${holiday.holidayName}"></td>
+<td th:text="${holiday.type}"></td>
+</tr>
+</tbody>
+</table>
+
+</div>
+
+
+<!-- RIGHT SIDE -->
+<div>
+
+<h4 class="mb-2">Team Leave Balances</h4>
+
+<div class="table-responsive">
+<table class="table" style="font-size:0.85rem;">
+
+<thead>
+<tr>
+<th>Employee</th>
+<th>Sick</th>
+<th>Casual</th>
+<th>Privilege</th>
+<th>Paid</th>
+</tr>
+</thead>
+<tbody>
+
+<tr th:each="member : ${teamMembers}">
+
+<td th:text="${member.fullName}"></td>
+
+<td>
+<th:block th:each="b : ${teamBalances}">
+<span th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'SL'}"
+      th:text="${b.balance}"
+      th:remove="tag">
+</span>
+</th:block>
+</td>
+
+<td>
+<th:block th:each="b : ${teamBalances}">
+<span th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'CL'}"
+      th:text="${b.balance}"
+      th:remove="tag">
+</span>
+</th:block>
+</td>
+
+<td>
+<th:block th:each="b : ${teamBalances}">
+<span th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'PreL'}"
+      th:text="${b.balance}"
+      th:remove="tag">
+</span>
+</th:block>
+</td>
+
+<td>
+<th:block th:each="b : ${teamBalances}">
+<span th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'PL'}"
+      th:text="${b.balance}"
+      th:remove="tag">
+</span>
+</th:block>
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+</div>
+
+</div>
+
+</div>
+</div>
                 </div>
             </div>
         </main>
@@ -201,6 +244,94 @@
     <!-- Load Scripts -->
     <script th:src="@{/js/components.js}"></script>
     <script th:src="@{/js/app.js}"></script>
+<script th:inline="javascript">
+document.addEventListener("DOMContentLoaded", function () {
+
+    var calendarEl = document.getElementById("leaveCalendar");
+
+    var events = [];
+
+    /*[# th:each="leave : ${team}"]*/
+    events.push({
+        title: '[[${leave.employee.fullName}]] ([[${leave.leaveType.leaveCode}]])',
+        start: '[[${leave.startDate}]]T00:00:00',
+        end: '[[${leave.endDate.plusDays(1)}]]T00:00:00',
+        allDay: true,
+        color: '#3498db'
+    });
+    /*[/]*/
+/*[# th:each="holiday : ${holidays}"]*/
+events.push({
+    title: 'Holiday - [[${holiday.holidayName}]]',
+    start: '[[${holiday.holidayDate}]]T00:00:00',
+    allDay: true,
+    color: '#2ecc71'
+});
+/*[/]*/
+
+    console.log("Calendar Events:", events);
+
+    window.calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        height: 500,
+        events: events,
+        eventDisplay: 'block'
+    });
+
+    window.calendar.render();
+});
+
+</script>
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const tabs = document.querySelectorAll(".tab-btn");
+    const contents = document.querySelectorAll(".tab-content");
+
+    // Restore saved tab
+    const savedTab = localStorage.getItem("activeManagerTab");
+
+    if (savedTab) {
+        tabs.forEach(btn => btn.classList.remove("active"));
+        contents.forEach(c => c.classList.remove("active"));
+
+        const activeBtn = document.querySelector(`[data-target="${savedTab}"]`);
+        const activeContent = document.getElementById(savedTab);
+
+        if (activeBtn && activeContent) {
+            activeBtn.classList.add("active");
+            activeContent.classList.add("active");
+        }
+    }
+
+ // Tab click handler
+    tabs.forEach(btn => {
+    btn.addEventListener("click", function () {
+
+        const target = this.dataset.target;
+
+        localStorage.setItem("activeManagerTab", target);
+
+        tabs.forEach(b => b.classList.remove("active"));
+        contents.forEach(c => c.classList.remove("active"));
+
+        this.classList.add("active");
+        document.getElementById(target).classList.add("active");
+
+        if (target === "team-calendar") {
+            setTimeout(function () {
+                if (window.calendar) {
+                    window.calendar.updateSize();
+                }
+            }, 300);
+        }
+
+    });
+});
+});
+
+</script>
 </body>
 
 </html>

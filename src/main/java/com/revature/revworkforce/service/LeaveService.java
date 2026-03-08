@@ -91,6 +91,10 @@ public interface LeaveService {
     /**
      * Get all leave applications of team members.
      */
+    /**
+     * Get leave balances for all team members.
+     */
+    List<LeaveBalance> getTeamLeaveBalances(String managerId);
     List<LeaveApplication> getTeamLeaves(String managerId);
 
 
@@ -102,7 +106,7 @@ public interface LeaveService {
      * Get leave balances for employee for a specific year.
      */
     List<LeaveBalanceDTO> getLeaveBalances(String employeeId, Integer year);
-
+    List<LeaveBalance> findByEmployee_Manager_EmployeeIdAndYear(String managerId, Integer year);
     /**
      * Initialize leave balances for new employee.
      */

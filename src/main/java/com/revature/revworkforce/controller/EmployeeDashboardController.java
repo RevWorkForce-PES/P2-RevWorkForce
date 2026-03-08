@@ -77,16 +77,20 @@ public class EmployeeDashboardController {
                         leaveService.initializeLeaveBalances(currentUser);
                 }
 
-                // ===============================
-                // Leave Balance
-                // ===============================
-                int currentYear = LocalDate.now().getYear();
-                int totalRemaining = leaveService
-                                .getLeaveBalances(employeeId, currentYear)
-                                .stream()
-                                .mapToInt(lb -> lb.getRemainingBalance())
-                                .sum();
-                model.addAttribute("leaveBalance", totalRemaining);
+             // ===============================
+             // Leave Balance
+             // ===============================
+             int currentYear = LocalDate.now().getYear();
+
+             List<LeaveBalanceDTO> balances =
+                     leaveService.getLeaveBalances(employeeId, currentYear);
+
+             int totalRemaining = balances.stream()
+                     .mapToInt(LeaveBalanceDTO::getRemainingBalance)
+                     .sum();
+
+             model.addAttribute("leaveBalance", totalRemaining);
+             model.addAttribute("leaveBalances", balances);
 
                 // Notification count for bell badge
                 model.addAttribute("notificationCount",
@@ -160,4 +164,6 @@ public class EmployeeDashboardController {
                 model.addAttribute("pageTitle", "Company Announcements");
                 return "pages/employee/announcements";
         }
+        
+      
 }

@@ -1,6 +1,8 @@
 package com.revature.revworkforce.repository;
 
+import com.revature.revworkforce.enums.LeaveStatus;
 import com.revature.revworkforce.model.Employee;
+import com.revature.revworkforce.model.LeaveApplication;
 import com.revature.revworkforce.model.LeaveBalance;
 import com.revature.revworkforce.model.LeaveType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -66,7 +68,6 @@ public interface LeaveBalanceRepository extends JpaRepository<LeaveBalance, Long
      * @return list of leave balances
      */
     List<LeaveBalance> findByYear(Integer year);
-    
     /**
      * Get total remaining balance for employee in a year.
      * 
@@ -77,8 +78,14 @@ public interface LeaveBalanceRepository extends JpaRepository<LeaveBalance, Long
     @Query("SELECT SUM(lb.balance) FROM LeaveBalance lb WHERE lb.employee.employeeId = :employeeId AND lb.year = :year")
     Integer getTotalBalanceByEmployeeAndYear(@Param("employeeId") String employeeId, 
                                              @Param("year") Integer year);
-    
-    /**
+    @Query("""
+    	       SELECT lb 
+    	       FROM LeaveBalance lb
+    	       JOIN FETCH lb.leaveType
+    	       JOIN FETCH lb.employee
+    	       WHERE lb.employee.employeeId = :employeeId
+    	       """) 
+    List<LeaveBalance> findByEmployeeIdWithLeaveType(@Param("employeeId") String employeeId); /**
      * Check if leave balance exists for employee, leave type, and year.
      * 
      * @param employee the employee
@@ -86,5 +93,20 @@ public interface LeaveBalanceRepository extends JpaRepository<LeaveBalance, Long
      * @param year the year
      * @return true if exists
      */
+   
+    
+    @Query("""
+    		SELECT lb
+    		FROM LeaveBalance lb
+    		JOIN FETCH lb.leaveType
+    		JOIN FETCH lb.employee e
+    		JOIN e.manager m
+    		WHERE m.employeeId = :managerId
+    		AND lb.year = :year
+    		""")
+    		List<LeaveBalance> findTeamBalances(@Param("managerId") String managerId,
+    		                                    @Param("year") Integer year);
     boolean existsByEmployeeAndLeaveTypeAndYear(Employee employee, LeaveType leaveType, Integer year);
+    List<LeaveBalance> findByEmployee_Manager_EmployeeIdAndYear(String managerId, Integer year);
+	List<LeaveBalance> findByEmployee_EmployeeIdIn(List<String> ids);
 }

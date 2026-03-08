@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -332,6 +333,24 @@ public class LeaveServiceImpl implements LeaveService {
                     return leaveBalanceRepository.save(balance);
                 });
     }
+    @Override
+    public List<LeaveBalance> getTeamLeaveBalances(String managerId) {
+
+        List<Employee> teamMembers =
+                employeeRepository.findByManager_EmployeeId(managerId);
+
+        List<LeaveBalance> balances = new ArrayList<>();
+
+        for (Employee emp : teamMembers) {
+
+            List<LeaveBalance> empBalances =
+            		leaveBalanceRepository.findByEmployeeIdWithLeaveType(emp.getEmployeeId());
+
+            balances.addAll(empBalances);
+        }
+
+        return balances;
+    }
 
     // =========================================================
     // VALIDATIONS
@@ -407,8 +426,17 @@ public class LeaveServiceImpl implements LeaveService {
 
     @Override
     public List<LeaveApplication> getTeamLeaves(String managerId) {
+
         return leaveApplicationRepository
-                .findTeamLeavesByManagerId(managerId);
+                .findTeamLeavesByManagerIdAndStatus(
+                        managerId,
+                        LeaveStatus.APPROVED
+                );
+    }
+
+    @Override
+    public List<LeaveBalance> findByEmployee_Manager_EmployeeIdAndYear(String managerId, Integer year) {
+        return leaveBalanceRepository.findTeamBalances(managerId, year);
     }
     
 }

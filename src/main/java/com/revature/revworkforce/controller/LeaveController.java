@@ -1,9 +1,15 @@
 package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.dto.LeaveApplicationDTO;
+import com.revature.revworkforce.model.LeaveBalance;
+import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.repository.LeaveTypeRepository;
 import com.revature.revworkforce.service.HolidayService;
 import com.revature.revworkforce.service.LeaveService;
+
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -16,17 +22,22 @@ public class LeaveController {
 	private final HolidayService holidayService;
     private final LeaveService leaveService;
     private final LeaveTypeRepository leaveTypeRepository;
+    private final EmployeeRepository employeeRepository;
     public LeaveController(
             LeaveService leaveService,
             LeaveTypeRepository leaveTypeRepository,
-            HolidayService holidayService) {
+            HolidayService holidayService,
+            EmployeeRepository employeeRepository) {
 
         this.leaveService = leaveService;
         this.leaveTypeRepository = leaveTypeRepository;
         this.holidayService = holidayService;
+        this.employeeRepository = employeeRepository;
     }
 
     // ================= EMPLOYEE =================
+
+ // ================= EMPLOYEE =================
 
     @GetMapping({ "/employee/apply", "/employee/history", "/employee/balance", "/employee/leave-management" })
     public String showApplyPage(Model model, Authentication auth,
@@ -34,27 +45,47 @@ public class LeaveController {
 
         String employeeId = auth.getName();
 
+        // Get employee
+        var employee = employeeRepository.findById(employeeId).orElse(null);
+
+        String managerName = "N/A";
+
+        // Initialize leave balances
+        if (employee != null) {
+            leaveService.initializeLeaveBalances(employee);
+
+            if (employee.getManager() != null) {
+                managerName = employee.getManager().getFullName();
+            }
+        }
+
+        model.addAttribute("managerName", managerName);
+
+        // Set current year if null
         if (year == null) {
             year = java.time.LocalDate.now().getYear();
         }
 
+        // Get balances
+        var balances = leaveService.getLeaveBalances(employeeId, year);
+
         model.addAttribute("leaveApplicationDTO", new LeaveApplicationDTO());
+        model.addAttribute("balances", balances);
+        model.addAttribute("leaveTypes", leaveTypeRepository.findAll());
+        model.addAttribute("history", leaveService.getEmployeeLeaveHistory(employeeId));
+        model.addAttribute("holidays", holidayService.getHolidaysByYear(year));
+        model.addAttribute("selectedYear", year);
 
-        model.addAttribute("balances",
-                leaveService.getLeaveBalances(employeeId, year));
+        // Year dropdown
+        java.util.List<Integer> years = java.util.stream.IntStream
+                .rangeClosed(year - 2, year + 3)
+                .boxed()
+                .toList();
 
-        model.addAttribute("leaveTypes",
-                leaveTypeRepository.findAll());
-
-        model.addAttribute("history",
-                leaveService.getEmployeeLeaveHistory(employeeId));
-
-        model.addAttribute("holidays",
-                holidayService.getAllActiveHolidays());
+        model.addAttribute("years", years);
 
         return "pages/employee/leave-management";
     }
-
     @PostMapping("/employee/apply")
     @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
     public String applyLeave(@ModelAttribute LeaveApplicationDTO dto,
@@ -77,19 +108,35 @@ public class LeaveController {
     // Balance endpoint merged into leave-management
 
     // ================= MANAGER =================
-
     @GetMapping({ "/manager/pending", "/manager/team", "/manager/leave-approvals" })
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String showPendingLeaves(Model model, Authentication auth) {
 
         String managerId = auth.getName();
 
-        model.addAttribute("pending", leaveService.getPendingLeavesForManager(managerId));
-        model.addAttribute("team", leaveService.getTeamLeaves(managerId));
+        model.addAttribute("pending",
+                leaveService.getPendingLeavesForManager(managerId));
+
+        model.addAttribute("team",
+                leaveService.getTeamLeaves(managerId));
+
+        model.addAttribute("holidays",
+                holidayService.getAllActiveHolidays());
+
+        List<LeaveBalance> balances =
+                leaveService.findByEmployee_Manager_EmployeeIdAndYear(
+                        managerId,
+                        LocalDate.now().getYear()
+                );
+
+        model.addAttribute("teamBalances", balances);
+
+        model.addAttribute("teamMembers",
+                employeeRepository.findByManager_EmployeeId(managerId));
 
         return "pages/manager/leave-approvals";
     }
-
+    
     // Team endpoint merged into leave-approvals
 
     @GetMapping("/manager/review/{id}")
