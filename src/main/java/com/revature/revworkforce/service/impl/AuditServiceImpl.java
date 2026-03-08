@@ -272,14 +272,39 @@ public class AuditServiceImpl implements AuditService {
                 .collect(Collectors.toList());
     }
 
-	@Override
-	public void logAction(String employeeId,
-	                          AuditAction passwordReset,
-	                          String entity,
-	                          String entityId,
-	                          Object details,
-	                          String ipAddress) {
+    @Override
+    public void logAction(String employeeId,
+                          AuditAction action,
+                          String tableName,
+                          String recordId,
+                          Object details,
+                          String ipAddress) {
 
-	        System.out.println("AUDIT ACTION: " + passwordReset + " by " + employeeId);
-	    }
+        Employee employee = null;
+
+        try {
+            employee = employeeRepository.findById(employeeId).orElse(null);
+        } catch (Exception e) {
+            logger.warn("Employee not found for audit log: {}", employeeId);
+        }
+
+        AuditLog log = new AuditLog();
+
+        log.setEmployee(employee);
+        log.setAction(action.name());
+        log.setTableName(tableName);
+        log.setRecordId(recordId);
+
+        if(details != null){
+            log.setNewValue(details.toString());
+            log.setDescription(details.toString());
+        }
+
+        log.setIpAddress(ipAddress);
+        log.setCreatedAt(LocalDateTime.now());
+
+        auditLogRepository.save(log);
+
+        logger.info("Audit log stored: {} - {}", action, tableName);
+    }
 }

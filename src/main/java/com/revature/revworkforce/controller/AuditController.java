@@ -29,17 +29,39 @@ import java.util.stream.Collectors;
  * 
  * @author RevWorkForce Team
  */
-@RestController
-@RequestMapping("/admin/audit")
+
+
+import com.revature.revworkforce.dto.AuditLogDTO;
+import com.revature.revworkforce.service.AuditService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
+
 @Controller
-
-
+@RequestMapping("/admin/audit")
 @PreAuthorize("hasRole('ADMIN')")
 public class AuditController {
 
     @Autowired
     private AuditService auditService;
 
+    @GetMapping("/audit-reports")
+    public String auditReports(Model model) {
+
+        List<AuditLogDTO> logs =
+                auditService.getRecentAuditLogsAsDTO(100);
+
+        model.addAttribute("auditLogs", logs);
+        model.addAttribute("pageTitle", "Audit & Reports");
+
+        return "frontend/pages/admin/audit-reports";
+    }
 
     @GetMapping
     public List<AuditLog> getAuditLogs(
@@ -57,15 +79,17 @@ public class AuditController {
     }
     
 
-   
-    @GetMapping("/audit-reports")
-    public String auditReports(Model model) {
-        List<AuditLogDTO> auditLogs = auditService.getRecentAuditLogsAsDTO(100);
-        model.addAttribute("auditLogs", auditLogs);
-        model.addAttribute("pageTitle", "Audit & Reports");
-        return "frontend/pages/admin/audit-reports";
-    }
-
+//    @GetMapping("/audit-reports")
+//    public String auditReports(Model model){
+//
+//        List<AuditLogDTO> logs =
+//                auditService.getRecentAuditLogsAsDTO(100);
+//
+//        model.addAttribute("auditLogs", logs);
+//
+//        return "frontend/pages/admin/audit-reports";
+//    }
+//   
     @GetMapping("/audit-logins")
     public String loginActivities(Model model) {
         List<AuditLogDTO> loginLogs = auditService.getLoginActivities()

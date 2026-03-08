@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Designation Management - RevWorkForce Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .badge-active {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            padding: 0.25rem 0.6rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-inactive {
+            background: rgba(239, 68, 68, 0.12);
+            color: #ef4444;
+            padding: 0.25rem 0.6rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .page-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+
+        .page-actions h2 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .salary-range {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar page-title="Designation Management"></app-navbar>
+            <div class="page-wrapper">
+
+                <!-- Flash messages -->
+                <div th:if="${success}"
+                    style="margin-bottom:1rem; padding:0.75rem 1rem; background:#d4edda; border-radius:6px; color:#155724; display:flex; align-items:center; gap:0.5rem;">
+                    <i class="fas fa-check-circle"></i>
+                    <span th:text="${success}">Success</span>
+                </div>
+                <div th:if="${error}"
+                    style="margin-bottom:1rem; padding:0.75rem 1rem; background:#f8d7da; border-radius:6px; color:#721c24; display:flex; align-items:center; gap:0.5rem;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${error}">Error</span>
+                </div>
+
+                <div class="card">
+                    <div class="page-actions">
+                        <div>
+                            <h2><i class="fas fa-id-badge"
+                                    style="color:var(--primary); margin-right:0.5rem;"></i>Designations</h2>
+                            <p class="text-muted" style="margin:0.15rem 0 0; font-size:0.85rem;"
+                                th:text="${'Total: ' + designations.size() + ' designation(s)'}">Total: 0 designations
+                            </p>
+                        </div>
+                        <div style="display:flex; gap:0.75rem; align-items:center;">
+                            <a th:href="@{/admin/system-config}" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left"></i> Back to Config
+                            </a>
+                            <a th:href="@{/admin/designations/add}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add Designation
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Designation Name</th>
+                                    <th>Level / Band</th>
+                                    <th>Salary Range</th>
+                                    <th>Employees</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="desig, stat : ${designations}">
+                                    <td th:text="${stat.index + 1}" style="color:var(--text-muted); width:50px;">1</td>
+                                    <td>
+                                        <span style="font-weight:600;" th:text="${desig.designationName}">Software
+                                            Engineer</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${desig.designationLevel != null}"
+                                            style="background:rgba(255,140,0,0.1); color:var(--primary); padding:0.2rem 0.55rem; border-radius:4px; font-size:0.8rem; font-weight:600;"
+                                            th:text="${desig.designationLevel}">L3</span>
+                                        <span th:unless="${desig.designationLevel != null}" class="text-muted">—</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${desig.minSalary != null or desig.maxSalary != null}"
+                                            class="salary-range">
+                                            ₹<span
+                                                th:text="${#numbers.formatDecimal(desig.minSalary ?: 0, 1, 'COMMA', 0, 'POINT')}">0</span>
+                                            &ndash;
+                                            ₹<span
+                                                th:text="${#numbers.formatDecimal(desig.maxSalary ?: 0, 1, 'COMMA', 0, 'POINT')}">0</span>
+                                        </span>
+                                        <span th:unless="${desig.minSalary != null or desig.maxSalary != null}"
+                                            class="text-muted">—</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info" th:text="${desig.employeeCount + ' member(s)'}">0
+                                            member(s)</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${desig.isActive == 'Y'}" class="badge-active">
+                                            <i class="fas fa-circle"
+                                                style="font-size:0.5rem; margin-right:3px;"></i>Active
+                                        </span>
+                                        <span th:unless="${desig.isActive == 'Y'}" class="badge-inactive">
+                                            <i class="fas fa-circle"
+                                                style="font-size:0.5rem; margin-right:3px;"></i>Inactive
+                                        </span>
+                                    </td>
+                                    <td style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                                        <a th:href="@{/admin/designations/edit/{id}(id=${desig.designationId})}"
+                                            class="btn btn-secondary btn-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <form th:action="@{/admin/designations/delete/{id}(id=${desig.designationId})}"
+                                            method="POST" style="display:inline;"
+                                            onsubmit="return confirm('Delete designation \'' + this.dataset.name + '\'? This action cannot be undone.');"
+                                            th:data-name="${desig.designationName}">
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(designations)}">
+                                    <td colspan="7" class="text-center text-muted" style="padding:3rem;">
+                                        <i class="fas fa-id-badge"
+                                            style="font-size:2rem; opacity:0.3; display:block; margin-bottom:0.75rem;"></i>
+                                        No designations found. <a th:href="@{/admin/designations/add}">Add the first
+                                            one.</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

@@ -2,222 +2,252 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audit & Reports - RevWorkForce Admin</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .filter-bar {
-            background: #f8fafc;
-            padding: 1rem;
-            border-radius: var(--border-radius-sm);
-            border: 1px solid var(--border-color);
-            margin-bottom: 1rem;
-            display: flex;
-            gap: 1rem;
-            align-items: flex-end;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit & Reports - RevWorkForce Admin</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<style>
+.filter-bar {
+	background: #f8fafc;
+	padding: 1rem;
+	border-radius: var(--border-radius-sm);
+	border: 1px solid var(--border-color);
+	margin-bottom: 1rem;
+	display: flex;
+	gap: 1rem;
+	align-items: flex-end;
+}
+</style>
 </head>
 
 <body>
-    <div class="app-container">
-        <app-sidebar></app-sidebar>
-        <main class="main-content">
-            <app-navbar page-title="Audit & Reports"></app-navbar>
-            <div class="page-wrapper">
-                <div class="card">
-                    <div class="tabs">
-                        <button class="tab-btn active" data-target="audit-logs">Audit Logs</button>
-                        <button class="tab-btn" data-target="daily-jobs">Daily Jobs</button>
-                        <button class="tab-btn" data-target="system-notifications">System Notifications</button>
-                        <button class="tab-btn" data-target="leave-reports">Leave Reports & Revoke</button>
-                    </div>
+	<div class="app-container">
+		<app-sidebar></app-sidebar>
+		<main class="main-content">
+			<app-navbar page-title="Audit & Reports"></app-navbar>
+			<div class="page-wrapper">
+				<div class="card">
+					<div class="tabs">
+						<button class="tab-btn active" data-target="audit-logs">Audit
+							Logs</button>
+						<button class="tab-btn" data-target="daily-jobs">Daily
+							Jobs</button>
+						<button class="tab-btn" data-target="system-notifications">System
+							Notifications</button>
+						<button class="tab-btn" data-target="leave-reports">Leave
+							Reports & Revoke</button>
+					</div>
 
-                    <!-- Audit Logs Tab -->
-                    <div id="audit-logs" class="tab-content active">
-                        <div class="filter-bar">
-                            <div class="form-group" style="margin-bottom: 0;">
-                                <label class="form-label">Date Range</label>
-                                <input type="date" class="form-control">
-                            </div>
-                            <div class="form-group" style="margin-bottom: 0;">
-                                <label class="form-label">Module</label>
-                                <select class="form-control">
-                                    <option>All Modules</option>
-                                    <option>Authentication</option>
-                                    <option>Employee Management</option>
-                                    <option>Leave Processing</option>
-                                </select>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 0; flex-grow: 1;">
-                                <label class="form-label">Search Keyword</label>
-                                <input type="text" class="form-control" placeholder="Search by User ID or Action">
-                            </div>
-                            <button class="btn btn-primary" onclick="alert('Applying filters...')">Filter</button>
-                            <button class="btn btn-secondary" onclick="alert('Exporting data...')"><i
-                                    class="fas fa-download"></i> Export</button>
-                        </div>
+					<!-- Audit Logs Tab -->
+					<div id="audit-logs" class="tab-content active">
+						<div class="filter-bar">
+							<div class="form-group" style="margin-bottom: 0;">
+								<label class="form-label">Date Range</label> <input type="date"
+									class="form-control">
+							</div>
+							<div class="form-group" style="margin-bottom: 0;">
+								<label class="form-label">Module</label> <select
+									class="form-control">
+									<option>All Modules</option>
+									<option>Authentication</option>
+									<option>Employee Management</option>
+									<option>Leave Processing</option>
+								</select>
+							</div>
+							<div class="form-group" style="margin-bottom: 0; flex-grow: 1;">
+								<label class="form-label">Search Keyword</label> <input
+									type="text" class="form-control"
+									placeholder="Search by User ID or Action">
+							</div>
+							<button class="btn btn-primary"
+								onclick="alert('Applying filters...')">Filter</button>
+							<button class="btn btn-secondary"
+								onclick="alert('Exporting data...')">
+								<i class="fas fa-download"></i> Export
+							</button>
+						</div>
 
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Log ID</th>
-                                        <th>Timestamp</th>
-                                        <th>User ID</th>
-                                        <th>Action Type</th>
-                                        <th>Table / Module</th>
-                                        <th>Details</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="log : ${auditLogs}">
-                                        <td th:text="'#' + ${log.auditId}">#4092</td>
-                                        <td
-                                            th:text="${log.createdAt != null ? #temporals.format(log.createdAt, 'yyyy-MM-dd hh:mm a') : 'N/A'}">
-                                            2026-03-01 09:12 AM</td>
-                                        <td th:text="${log.employee != null ? log.employee.employeeId : 'SYSTEM'}">
-                                            ADM001
-                                        </td>
-                                        <td><span class="badge" th:text="${log.action}">ACTION</span></td>
-                                        <td th:text="${log.tableName}">EMPLOYEES</td>
-                                        <td th:text="${log.description}">Details</td>
-                                    </tr>
-                                    <tr th:if="${#lists.isEmpty(auditLogs)}">
-                                        <td colspan="6" class="text-center text-muted" style="padding: 1.5rem;">No audit
-                                            logs found.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+						<div class="table-responsive">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Log ID</th>
+										<th>Timestamp</th>
+										<th>User ID</th>
+										<th>Action Type</th>
+										<th>Table / Module</th>
+										<th>Details</th>
+									</tr>
+								</thead>
+								<tbody>
+<tr th:each="log : ${auditLogs}">
 
-                    <!-- Daily Jobs Tab -->
-                    <div id="daily-jobs" class="tab-content">
-                        <div class="table-responsive mb-3">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Job Name</th>
-                                        <th>Last Run</th>
-                                        <th>Next Scheduled Run</th>
-                                        <th>Status</th>
-                                        <th>Manual Trigger</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>DB Nightly Backup</td>
-                                        <td>2026-03-01 02:30 AM</td>
-                                        <td>2026-03-02 02:30 AM</td>
-                                        <td><span class="badge badge-approved">Success</span></td>
-                                        <td><button class="btn btn-secondary btn-sm"
-                                                onclick="alert('Job Triggered')">Run Now</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Leave Balance Carry Forward</td>
-                                        <td>2025-12-31 11:59 PM</td>
-                                        <td>2026-12-31 11:59 PM</td>
-                                        <td><span class="badge badge-approved">Success</span></td>
-                                        <td><button class="btn btn-secondary btn-sm" disabled>Run Now</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Performance Cycle Archiver</td>
-                                        <td>2026-01-15 01:00 AM</td>
-                                        <td>2026-07-15 01:00 AM</td>
-                                        <td><span class="badge badge-approved">Success</span></td>
-                                        <td><button class="btn btn-secondary btn-sm"
-                                                onclick="alert('Job Triggered')">Run Now</button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+<td th:text="'#' + ${log.auditId}"></td>
 
-                    <!-- System Notifications Tab -->
-                    <div id="system-notifications" class="tab-content">
-                        <h3 class="mb-3">Broadcast Announcement</h3>
-                        <form class="mb-4" onsubmit="event.preventDefault(); alert('Announcement sent to all users!');">
-                            <div class="form-group">
-                                <label class="form-label">Subject</label>
-                                <input type="text" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Message Body</label>
-                                <textarea class="form-control" rows="4" required></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Target Audience</label>
-                                <select class="form-control">
-                                    <option>All Employees</option>
-                                    <option>Managers Only</option>
-                                    <option>Specific Department</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Send
-                                Notification</button>
-                        </form>
-                    </div>
+<td th:text="${log.performedAt != null ? #temporals.format(log.performedAt,'yyyy-MM-dd HH:mm') : 'N/A'}"></td>
 
-                    <!-- Leave Reports Tab -->
-                    <div id="leave-reports" class="tab-content">
-                        <div class="filter-bar">
-                            <div class="form-group" style="margin-bottom: 0;">
-                                <label class="form-label">Employee ID</label>
-                                <input type="text" class="form-control" placeholder="e.g. EMP001">
-                            </div>
-                            <div class="form-group" style="margin-bottom: 0;">
-                                <label class="form-label">Leave Status</label>
-                                <select class="form-control">
-                                    <option>Approved Leaves</option>
-                                    <option>Pending</option>
-                                    <option>Rejected</option>
-                                </select>
-                            </div>
-                            <button class="btn btn-primary" onclick="alert('Filtering leaves...')">Filter</button>
-                            <button class="btn btn-secondary" onclick="alert('Exporting Master Leave Report...')"><i
-                                    class="fas fa-download"></i> Master Report</button>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Employee ID</th>
-                                        <th>Name</th>
-                                        <th>Leave Type</th>
-                                        <th>Dates</th>
-                                        <th>Status</th>
-                                        <th>Emergency Revoke</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="app : ${leaveReports}">
-                                        <td th:text="${app.employee != null ? app.employee.employeeId : 'N/A'}">EMP001
-                                        </td>
-                                        <td th:text="${app.employee != null ? app.employee.fullName : 'N/A'}">Alice
-                                            Smith</td>
-                                        <td th:text="${app.leaveType != null ? app.leaveType.leaveName : 'N/A'}">Sick
-                                            Leave</td>
-                                        <td
-                                            th:text="${(app.startDate != null ? #temporals.format(app.startDate, 'MMM d') : '') + ' - ' + (app.endDate != null ? #temporals.format(app.endDate, 'MMM d') : '')}">
-                                            Mar 20 - Mar 22</td>
-                                        <td><span class="badge"
-                                                th:classappend="${app.status.name() == 'APPROVED' ? 'badge-approved' : (app.status.name() == 'REJECTED' ? 'badge-rejected' : 'badge-pending')}"
-                                                th:text="${app.status}">Approved</span></td>
-                                        <td>
-                                            <form th:action="@{/leave/admin/revoke/{id}(id=${app.applicationId})}"
-                                                method="POST" style="display:inline;">
-                                                <button type="submit" class="btn btn-danger btn-sm"
-                                                    onclick="return confirm('Revoke this approved leave?');"
-                                                    th:disabled="${app.status.name() != 'APPROVED'}">
-                                                    <i class="fas fa-undo"></i> Revoke
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    <tr th:if="${#lists.isEmpty(leaveReports)}">
-                                        <td colspan="6" class="text-center text-muted" style="padding: 1.5rem;">No leave
+<td th:text="${log.performedByName != null ? log.performedByName : 'SYSTEM'}"></td>
+
+<td>
+<span class="badge" th:text="${log.actionLabel}"></span>
+</td>
+
+<td th:text="${log.tableName}"></td>
+
+<td th:text="${log.newValue != null ? log.newValue : '-'}"></td>
+
+</tr>
+
+<tr th:if="${#lists.isEmpty(auditLogs)}">
+<td colspan="6" style="text-align:center">No audit logs found</td>
+</tr>
+</tbody>
+							</table>
+						</div>
+					</div>
+
+					<!-- Daily Jobs Tab -->
+					<div id="daily-jobs" class="tab-content">
+						<div class="table-responsive mb-3">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Job Name</th>
+										<th>Last Run</th>
+										<th>Next Scheduled Run</th>
+										<th>Status</th>
+										<th>Manual Trigger</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>DB Nightly Backup</td>
+										<td>2026-03-01 02:30 AM</td>
+										<td>2026-03-02 02:30 AM</td>
+										<td><span class="badge badge-approved">Success</span></td>
+										<td><button class="btn btn-secondary btn-sm"
+												onclick="alert('Job Triggered')">Run Now</button></td>
+									</tr>
+									<tr>
+										<td>Leave Balance Carry Forward</td>
+										<td>2025-12-31 11:59 PM</td>
+										<td>2026-12-31 11:59 PM</td>
+										<td><span class="badge badge-approved">Success</span></td>
+										<td><button class="btn btn-secondary btn-sm" disabled>Run
+												Now</button></td>
+									</tr>
+									<tr>
+										<td>Performance Cycle Archiver</td>
+										<td>2026-01-15 01:00 AM</td>
+										<td>2026-07-15 01:00 AM</td>
+										<td><span class="badge badge-approved">Success</span></td>
+										<td><button class="btn btn-secondary btn-sm"
+												onclick="alert('Job Triggered')">Run Now</button></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<!-- System Notifications Tab -->
+					<div id="system-notifications" class="tab-content">
+						<h3 class="mb-3">Broadcast Announcement</h3>
+						<form class="mb-4"
+							onsubmit="event.preventDefault(); alert('Announcement sent to all users!');">
+							<div class="form-group">
+								<label class="form-label">Subject</label> <input type="text"
+									class="form-control" required>
+							</div>
+							<div class="form-group">
+								<label class="form-label">Message Body</label>
+								<textarea class="form-control" rows="4" required></textarea>
+							</div>
+							<div class="form-group">
+								<label class="form-label">Target Audience</label> <select
+									class="form-control">
+									<option>All Employees</option>
+									<option>Managers Only</option>
+									<option>Specific Department</option>
+								</select>
+							</div>
+							<button type="submit" class="btn btn-primary">
+								<i class="fas fa-paper-plane"></i> Send Notification
+							</button>
+						</form>
+					</div>
+
+					<!-- Leave Reports Tab -->
+					<div id="leave-reports" class="tab-content">
+						<div class="filter-bar">
+							<div class="form-group" style="margin-bottom: 0;">
+								<label class="form-label">Employee ID</label> <input type="text"
+									class="form-control" placeholder="e.g. EMP001">
+							</div>
+							<div class="form-group" style="margin-bottom: 0;">
+								<label class="form-label">Leave Status</label> <select
+									class="form-control">
+									<option>Approved Leaves</option>
+									<option>Pending</option>
+									<option>Rejected</option>
+								</select>
+							</div>
+							<button class="btn btn-primary"
+								onclick="alert('Filtering leaves...')">Filter</button>
+							<button class="btn btn-secondary"
+								onclick="alert('Exporting Master Leave Report...')">
+								<i class="fas fa-download"></i> Master Report
+							</button>
+						</div>
+						<div class="table-responsive">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Employee ID</th>
+										<th>Name</th>
+										<th>Leave Type</th>
+										<th>Dates</th>
+										<th>Status</th>
+										<th>Emergency Revoke</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="app : ${leaveReports}">
+										<td
+											th:text="${log.employee != null ? log.employee.employeeId : 'SYSTEM'}">EMP001
+										</td>
+
+										<td
+											th:text="${app.employee != null ? app.employee.fullName : 'N/A'}">Alice
+											Smith</td>
+										<td
+											th:text="${app.leaveType != null ? app.leaveType.leaveName : 'N/A'}">Sick
+											Leave</td>
+										<td
+											th:text="${(app.startDate != null ? #temporals.format(app.startDate, 'MMM d') : '') + ' - ' + (app.endDate != null ? #temporals.format(app.endDate, 'MMM d') : '')}">
+											Mar 20 - Mar 22</td>
+										<td><span class="badge"
+											th:classappend="${app.status.name() == 'APPROVED' ? 'badge-approved' : (app.status.name() == 'REJECTED' ? 'badge-rejected' : 'badge-pending')}"
+											th:text="${app.status}">Approved</span></td>
+										<td>
+											<tr th:if="${#lists.isEmpty(auditLogs)}">
+										<td colspan="6">No logs found</td>
+</tr>
+                                            <form
+												th:action="@{/leave/admin/revoke/{id}(id=${app.applicationId})}"
+												method="POST" style="display: inline;">
+												<button type="submit" class="btn btn-danger btn-sm"
+													onclick="return confirm('Revoke this approved leave?');"
+													th:disabled="${app.status.name() != 'APPROVED'}">
+													<i class="fas fa-undo"></i> Revoke
+												</button>
+											</form>
+										</td>
+									</tr>
+									
+                                    <tr
+										th:if="${#lists.isEmpty(leaveReports)}">
+                                        <td colspan="6"
+											class="text-center text-muted" style="padding: 1.5rem;">No leave
                                             records found.</td>
                                     </tr>
                                 </tbody>
@@ -230,8 +260,7 @@
     </div>
     <!-- Load Scripts -->
 
-    <script src="../../js/components.js"></script>
-    <script src="../../js/app.js"></script>
+    
     <script>
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -306,8 +335,7 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
     <script th:src="@{/js/components.js}"></script>
-    <script th:src="@{/js/app.js}"></script>
-
+<script th:src="@{/js/app.js}"></script>
 </body>
 
 </html>
