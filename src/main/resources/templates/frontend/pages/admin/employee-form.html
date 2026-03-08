@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="global-user-fullname" th:content="${globalFullName}">
+    <meta name="global-user-role" th:content="${globalUserRole}">
     <title th:text="${isEdit ? 'Edit Employee' : 'Add Employee'} + ' - RevWorkForce Admin'">Employee Form</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>

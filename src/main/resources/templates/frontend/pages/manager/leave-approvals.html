@@ -2,8 +2,23 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
+<<<<<<< HEAD
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+=======
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="global-user-fullname" th:content="${globalFullName}">
+    <meta name="global-user-role" th:content="${globalUserRole}">
+    <title>Leave Approvals - RevWorkForce Manager</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+>>>>>>> UI_templates
 
 <title>Leave Approvals - RevWorkForce Manager</title>
 
@@ -68,12 +83,12 @@
                                             2 Days</td>
                                         <td th:text="${leave.reason}">Flu symptoms</td>
                                         <td style="display: flex; gap: 0.5rem;">
-                                            <form th:action="@{/leave/manager/approve/{id}(id=${leave.applicationId})}"
+                                            <form th:action="@{/manager/approve/{id}(id=${leave.applicationId})}"
                                                 method="POST" style="margin: 0;">
                                                 <button type="submit" class="btn btn-success btn-sm"><i
                                                         class="fas fa-check"></i> Approve</button>
                                             </form>
-                                            <form th:action="@{/leave/manager/reject/{id}(id=${leave.applicationId})}"
+                                            <form th:action="@{/manager/reject/{id}(id=${leave.applicationId})}"
                                                 method="POST" style="margin: 0;"
                                                 onsubmit="let reason = prompt('Please enter a rejection reason:'); if(reason){this.rejectionReason.value = reason; return true;} else return false;">
                                                 <input type="hidden" name="rejectionReason" value="">

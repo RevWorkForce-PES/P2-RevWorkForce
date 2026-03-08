@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #FB8C00;
+    --primary-light: #FFB74D;
+    --primary-dark: #EF6C00;
+    --secondary-color: #5D4037;
+
+    /* Mapping for components.js compatibility */
+    --primary: var(--primary-color);
+
+    --bg-main: #FFF8F1;
+    --bg-white: #ffffff;
+    --bg-glass: rgba(255, 255, 255, 0.85);
+
+    --text-dark: #212121;
+    --text-muted: #757575;
+    --text-light: #ffffff;
+
+    --border-color: #e2e8f0;
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --transition-speed: 0.3s;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-dark);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 260px;
+    /* Essential for sidebar layout */
+    transition: margin-left var(--transition-speed) ease;
+}
+
+.card {
+    background: var(--bg-white);
+    border-radius: var(--border-radius-md);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: none;
+}
