@@ -2,6 +2,7 @@ package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.repository.LeaveTypeRepository;
+import com.revature.revworkforce.service.EmployeeService;
 import com.revature.revworkforce.service.HolidayService;
 import com.revature.revworkforce.service.LeaveService;
 
@@ -35,19 +36,18 @@ class LeaveControllerTest {
     @MockBean
     private EmployeeRepository employeeRepository;
 
+    @MockBean
+    private EmployeeService employeeService;
+
     // =========================================================
     // EMPLOYEE APPLY PAGE
     // =========================================================
-
     @Test
     @WithMockUser(username = "EMP001", roles = {"EMPLOYEE"})
     void showApplyPage_ReturnsLeaveManagementPage() throws Exception {
-
-        // Arrange
         when(leaveTypeRepository.findAll()).thenReturn(java.util.List.of());
 
-        // Act + Assert
-        mockMvc.perform(get("/leave/employee/apply"))
+        mockMvc.perform(get("/employee/apply"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("pages/employee/leave-management"));
     }
@@ -55,45 +55,38 @@ class LeaveControllerTest {
     // =========================================================
     // APPLY LEAVE
     // =========================================================
-
     @Test
     @WithMockUser(username = "EMP001", roles = {"EMPLOYEE"})
     void applyLeave_RedirectsToLeaveManagement() throws Exception {
-
-        mockMvc.perform(post("/leave/employee/apply")
-                .with(csrf()))
+        mockMvc.perform(post("/employee/apply")
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/leave/employee/leave-management"));
+                .andExpect(redirectedUrl("/employee/leave-management"));
     }
+
     // =========================================================
     // CANCEL LEAVE
     // =========================================================
-
     @Test
     @WithMockUser(username = "EMP001", roles = {"EMPLOYEE"})
     void cancelLeave_RedirectsToLeaveManagement() throws Exception {
-
-        mockMvc.perform(post("/leave/employee/cancel/1")
-                .with(csrf()))
+        mockMvc.perform(post("/employee/cancel/1")
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/leave/employee/leave-management"));
+                .andExpect(redirectedUrl("/employee/leave-management"));
     }
 
     // =========================================================
     // MANAGER PAGE
     // =========================================================
-
     @Test
-    @WithMockUser(username = "M001", roles = {"MANAGER"})
+    @WithMockUser(username = "MGR001", roles = {"MANAGER"})
     void showPendingLeaves_ReturnsManagerPage() throws Exception {
-
-        // Arrange
-        when(leaveService.getPendingLeavesForManager("M001")).thenReturn(java.util.List.of());
-        when(leaveService.getTeamLeaves("M001")).thenReturn(java.util.List.of());
+        when(leaveService.getPendingLeavesForManager("MGR001")).thenReturn(java.util.List.of());
+        when(leaveService.getTeamLeaves("MGR001")).thenReturn(java.util.List.of());
         when(holidayService.getAllActiveHolidays()).thenReturn(java.util.List.of());
 
-        // Act + Assert
-        mockMvc.perform(get("/leave/manager/pending"))
+        mockMvc.perform(get("/manager/pending"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("pages/manager/leave-approvals"));
     }
@@ -101,29 +94,37 @@ class LeaveControllerTest {
     // =========================================================
     // APPROVE LEAVE
     // =========================================================
-
     @Test
-    @WithMockUser(username = "M001", roles = {"MANAGER"})
+    @WithMockUser(username = "MGR001", roles = {"MANAGER"})
     void approveLeave_RedirectsToManagerPage() throws Exception {
-
-        mockMvc.perform(post("/leave/manager/approve/1")
-                .with(csrf()))
+        mockMvc.perform(post("/manager/approve/1")
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/leave/manager/leave-approvals"));
+                .andExpect(redirectedUrl("/manager/leave-approvals"));
     }
 
     // =========================================================
     // REJECT LEAVE
     // =========================================================
-
     @Test
-    @WithMockUser(username = "M001", roles = {"MANAGER"})
+    @WithMockUser(username = "MGR001", roles = {"MANAGER"})
     void rejectLeave_RedirectsToManagerPage() throws Exception {
-
-        mockMvc.perform(post("/leave/manager/reject/1")
-                .param("rejectionReason", "Invalid")
-                .with(csrf()))
+        mockMvc.perform(post("/manager/reject/1")
+                        .param("rejectionReason", "Invalid")
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/leave/manager/leave-approvals"));
+                .andExpect(redirectedUrl("/manager/leave-approvals"));
+    }
+
+    // =========================================================
+    // ADMIN REVOKE LEAVE
+    // =========================================================
+    @Test
+    @WithMockUser(username = "ADM001", roles = {"ADMIN"})
+    void revokeLeave_RedirectsToAdminAudit() throws Exception {
+        mockMvc.perform(post("/admin/leave/revoke/1")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/audit-reports"));
     }
 }
