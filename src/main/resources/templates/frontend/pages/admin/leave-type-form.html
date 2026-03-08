@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Leave Type</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+<div class="page-wrapper">
+
+<h2 th:text="${leaveType.leaveTypeId != null} ? 'Edit Leave Type' : 'Add Leave Type'">
+    Leave Type Form
+</h2>
+
+<form th:action="@{/admin/leave-types/save}" method="post" th:object="${leaveType}">
+
+<!-- Hidden ID (needed for edit) -->
+<input type="hidden" th:field="*{leaveTypeId}"/>
+
+<!-- Leave Code -->
+<div class="form-group" th:if="${leaveType.leaveTypeId == null}">
+<label class="form-label">Leave Code</label>
+
+<input type="text"
+       th:field="*{leaveCode}"
+       class="form-control"
+       
+        style="text-transform:uppercase"
+        placeholder="Example: CL, SL, ML"
+       maxlength="10"
+       required>
+
+</div>
+<div class="form-group" th:if="${leaveType.leaveTypeId != null}">
+<label class="form-label">Leave Code</label>
+
+<input type="text"
+       th:value="${leaveType.leaveCode}"
+       class="form-control"
+       readonly>
+
+<input type="hidden"
+       th:field="*{leaveCode}">
+
+</div>
+
+<!-- Leave Name -->
+<div class="form-group">
+<label class="form-label">Leave Name</label>
+<input type="text"
+       th:field="*{leaveName}"
+       class="form-control"
+       placeholder="Enter leave name"
+       required>
+</div>
+
+<!-- Default Days -->
+<div class="form-group">
+<label class="form-label">Default Annual Days</label>
+<input type="number"
+       th:field="*{defaultDays}"
+       class="form-control"
+       min="0"
+       required>
+</div>
+
+<!-- Carry Forward -->
+<div class="form-group">
+<label class="form-label">Max Carry Forward</label>
+<input type="number"
+       th:field="*{maxCarryForward}"
+       class="form-control"
+       min="0">
+</div>
+
+<br>
+
+<button type="submit" class="btn btn-primary">
+Save Leave Type
+</button>
+
+<a th:href="@{/admin/system-config}" class="btn btn-secondary">
+Cancel
+</a>
+
+</form>
+
+</div>
+
+</body>
+</html>

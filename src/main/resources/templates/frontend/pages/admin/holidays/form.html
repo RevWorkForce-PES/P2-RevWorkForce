@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<title>Add Holiday</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+<div class="app-container">
+
+<app-sidebar></app-sidebar>
+
+<main class="main-content">
+
+<app-navbar page-title="Add Holiday"></app-navbar>
+
+<div class="page-wrapper">
+
+<h2>Add Holiday</h2>
+
+<form th:action="@{/admin/holidays/add}" method="post" th:object="${holiday}">
+
+<input type="hidden" th:field="*{holidayId}">
+
+<div class="form-group">
+<label>Date</label>
+<input type="date" th:field="*{holidayDate}" class="form-control">
+</div>
+
+<div class="form-group">
+<label>Holiday Name</label>
+<input type="text" th:field="*{holidayName}" class="form-control">
+</div>
+
+<div class="form-group">
+<label>Holiday Type</label>
+
+<select th:field="*{type}" class="form-control">
+
+<option value="">Select Type</option>
+<option value="NATIONAL">National Holiday</option>
+<option value="REGIONAL">Regional Holiday</option>
+<option value="FESTIVAL">Festival</option>
+<option value="COMPANY">Company Holiday</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+<label>Description</label>
+<textarea th:field="*{description}" class="form-control"></textarea>
+</div>
+
+<button class="btn btn-primary">Save Holiday</button>
+
+</form>
+
+</div>
+</main>
+</div>
+
+<script th:src="@{/js/components.js}"></script>
+<script th:src="@{/js/app.js}"></script>
+
+</body>
+</html>

@@ -144,8 +144,10 @@
                     <div id="leave-config" class="tab-content">
                         <div class="flex-space-between mb-2">
                             <h3>Leave Category Config</h3>
-                            <button class="btn btn-primary"><i class="fas fa-plus"></i> New Leave Type</button>
-                        </div>
+                            <a href="/admin/leave-types/add" class="btn btn-primary">
+        <i class="fas fa-plus"></i> New Leave Type
+    </a>
+                   </div>
                         <div class="table-responsive mb-4">
                             <table class="table">
                                 <thead>
@@ -157,47 +159,77 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="leaveType : ${@leaveTypeRepository.findAll()}">
-                                        <td th:text="${leaveType.name}">Sick Leave</td>
-                                        <td th:text="${leaveType.defaultDays}">12</td>
-                                        <td
-                                            th:text="${leaveType.isCarryForwardAllowed ? 'Yes (Max ' + (leaveType.maxCarryForwardDays != null ? leaveType.maxCarryForwardDays : 0) + ')' : 'No'}">
-                                            No</td>
-                                        <td><button class="btn btn-secondary btn-sm" disabled>Edit</button></td>
-                                    </tr>
-                                    <tr th:if="${#lists.isEmpty(@leaveTypeRepository.findAll())}">
-                                        <td colspan="4" class="text-center text-muted">No leave types found</td>
+                                <tr th:each="leaveType : ${leaveTypes}">
+    
+    <td th:text="${leaveType.leaveName}"></td>
+
+    <td th:text="${leaveType.defaultDays}"></td>
+
+    <td th:text="${leaveType.maxCarryForward != null ? 'Yes (Max ' + leaveType.maxCarryForward + ')' : 'No'}"></td>
+
+    <td>
+        <a th:href="@{/admin/leave-types/edit/{id}(id=${leaveType.leaveTypeId})}"
+           class="btn btn-secondary btn-sm">
+           Edit
+        </a>
+     <a th:href="@{/admin/leave-types/delete/{id}(id=${leaveType.leaveTypeId})}"
+   class="btn btn-danger btn-sm"
+   onclick="return confirm('Are you sure you want to delete this leave type?');">
+   Delete
+</a>
+    </td>
+
+</tr>
+                                   <tr th:if="${#lists.isEmpty(leaveTypes)}">
+                                       <td colspan="4" class="text-center text-muted">No leave types found</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
 
-                        <h3 class="mb-2">Assign Global Quota Adjustment</h3>
-                        <form class="grid-2"
-                            style="background:#f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
-                            <div class="form-group">
-                                <label class="form-label">Leave Type</label>
-                                <select class="form-control">
-                                    <option>Casual Leave</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Days to Add/Revoke</label>
-                                <input type="number" class="form-control" placeholder="+2 or -1">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Employee Target</label>
-                                <select class="form-control">
-                                    <option>All Employees</option>
-                                    <option>Alice Smith (EMP001)</option>
-                                    <option>Bob Johnson (MGR012)</option>
-                                </select>
-                            </div>
-                            <div class="form-group" style="grid-column: span 2;">
-                                <button class="btn btn-primary" onclick="alert('Leave balance adjusted.')">Apply
-                                    Adjustment</button>
-                            </div>
-                        </form>
+                        <h3 class="mb-2">Assign Leave Quota</h3>
+
+<form th:action="@{/admin/leave-quota/assign}" method="post"
+style="background:#f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+
+<div class="grid-2">
+
+<div class="form-group">
+<label class="form-label">Employee</label>
+<select class="form-control" name="employeeId">
+<option th:each="emp : ${employees}"
+        th:value="${emp.employeeId}"
+        th:text="${emp.fullName}">
+</option>
+</select>
+</div>
+
+<div class="form-group">
+<label class="form-label">Leave Type</label>
+<select class="form-control" name="leaveTypeId">
+<option th:each="type : ${leaveTypes}"
+        th:value="${type.leaveTypeId}"
+        th:text="${type.leaveName}">
+</option>
+</select>
+</div>
+
+<div class="form-group">
+<label class="form-label">Year</label>
+<input type="number" name="year" class="form-control" value="2026">
+</div>
+
+<div class="form-group">
+<label class="form-label">Total Quota</label>
+<input type="number" name="days" class="form-control">
+</div>
+
+</div>
+
+<button class="btn btn-primary mt-2">Assign Quota</button>
+
+</form>
+                      
 
                         <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border-color);">
 
@@ -217,19 +249,23 @@
                                 </thead>
                                 <tbody>
                                     <tr th:each="holiday : ${holidays}">
-                                        <td th:text="${#temporals.format(holiday.date, 'MMM d, yyyy')}">Jan 1, 2026</td>
-                                        <td th:text="${holiday.name}">New Year's Day</td>
-                                        <td>
-                                            <a th:href="@{/admin/holidays/edit/{id}(id=${holiday.holidayId})}"
-                                                class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></a>
-                                            <form th:action="@{/admin/holidays/delete/{id}(id=${holiday.holidayId})}"
-                                                method="POST" style="display:inline;">
-                                                <button class="btn btn-secondary btn-sm" type="submit"
-                                                    onclick="return confirm('Are you sure you want to delete this holiday?');"><i
-                                                        class="fas fa-trash"></i></button>
-                                            </form>
-                                        </td>
-                                    </tr>
+    <td th:text="${#temporals.format(holiday.holidayDate, 'MMM d, yyyy')}"></td>
+    <td th:text="${holiday.holidayName}">New Year's Day</td>
+    <td>
+        <a th:href="@{/admin/holidays/edit/{id}(id=${holiday.holidayId})}"
+           class="btn btn-secondary btn-sm">
+           <i class="fas fa-edit"></i>
+        </a>
+
+        <form th:action="@{/admin/holidays/delete/{id}(id=${holiday.holidayId})}"
+              method="POST" style="display:inline;">
+            <button class="btn btn-secondary btn-sm" type="submit"
+                    onclick="return confirm('Are you sure you want to delete this holiday?');">
+                <i class="fas fa-trash"></i>
+            </button>
+        </form>
+    </td>
+</tr>
                                     <tr th:if="${#lists.isEmpty(holidays)}">
                                         <td colspan="3" class="text-center text-muted">No holidays found</td>
                                     </tr>
@@ -290,6 +326,49 @@
     <!-- Load Scripts -->
     <script th:src="@{/js/components.js}"></script>
     <script th:src="@{/js/app.js}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const tabs = document.querySelectorAll(".tab-btn");
+    const contents = document.querySelectorAll(".tab-content");
+
+    function hideAllTabs(){
+        contents.forEach(c => {
+            c.style.display = "none";
+            c.classList.remove("active");
+        });
+        tabs.forEach(t => t.classList.remove("active"));
+    }
+
+    tabs.forEach(tab => {
+        tab.addEventListener("click", function(){
+
+            const targetId = this.getAttribute("data-target");
+            const target = document.getElementById(targetId);
+
+            hideAllTabs();
+
+            this.classList.add("active");
+
+            if(target){
+                target.style.display = "block";
+                target.classList.add("active");
+            }
+
+        });
+    });
+
+    // ensure first tab visible
+    const firstTab = document.querySelector(".tab-btn.active");
+    if(firstTab){
+        const firstTarget = document.getElementById(firstTab.dataset.target);
+        if(firstTarget){
+            firstTarget.style.display = "block";
+        }
+    }
+
+});
+</script>
 </body>
 
 </html>
