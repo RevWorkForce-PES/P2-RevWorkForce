@@ -62,6 +62,8 @@ public class AdminDashboardController {
 
         return "pages/admin/dashboard";
     }
+    @Autowired
+    private com.revature.revworkforce.repository.LeaveTypeRepository leaveTypeRepository;
 
     @Autowired
     private com.revature.revworkforce.service.DepartmentService departmentService;
@@ -74,10 +76,16 @@ public class AdminDashboardController {
 
     @GetMapping("/system-config")
     public String systemConfig(Model model) {
+
         model.addAttribute("departments", departmentService.getAllDepartments());
         model.addAttribute("designations", designationService.getAllDesignations());
         model.addAttribute("holidays", holidayService.getAllHolidays());
+
+        model.addAttribute("employees", employeeRepository.findAll());
+        model.addAttribute("leaveTypes", leaveTypeRepository.findAll());
+
         model.addAttribute("pageTitle", "System Configuration");
+
         return "pages/admin/system-config";
     }
 

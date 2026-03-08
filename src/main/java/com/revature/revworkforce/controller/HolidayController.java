@@ -30,28 +30,34 @@ public class HolidayController {
 	@GetMapping("/admin/holidays")
 	public String getAllHolidays(Model model) {
 	    model.addAttribute("holidays", holidayService.getAllHolidays());
-	    return "admin/holidays/list";  // matches list.html
+	    return "pages/admin/holidays/list";  // matches list.html
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/admin/holidays/add")
 	public String showAddForm(Model model) {
 	    model.addAttribute("holiday", new HolidayDTO());
-	    return "admin/holidays/form";   // matches form.html
+	    return "pages/admin/holidays/form";
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/admin/holidays/add")
-	public String createHoliday(@Valid @ModelAttribute("holiday") HolidayDTO dto) {
-	    holidayService.createHoliday(dto);
-	    return "redirect:/admin/holidays";
+	public String saveHoliday(@Valid @ModelAttribute("holiday") HolidayDTO dto) {
+
+	    if(dto.getHolidayId() != null){
+	        holidayService.updateHoliday(dto.getHolidayId(), dto);
+	    } else {
+	        holidayService.createHoliday(dto);
+	    }
+
+	    return "redirect:/admin/system-config?tab=leave-config";
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/admin/holidays/edit/{id}")
 	public String showEditForm(@PathVariable Long id, Model model) {
 	    model.addAttribute("holiday", holidayService.getHolidayById(id));
-	    return "admin/holidays/form";   // reuse same form.html
+	    return "pages/admin/holidays/form";   // reuse same form.html
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
@@ -59,21 +65,21 @@ public class HolidayController {
 	public String updateHoliday(@PathVariable Long id,
 	                            @Valid @ModelAttribute("holiday") HolidayDTO dto) {
 	    holidayService.updateHoliday(id, dto);
-	    return "redirect:/admin/holidays";
+	    return "redirect:/admin/system-config?tab=leave-config";
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/admin/holidays/delete/{id}")
 	public String deleteHoliday(@PathVariable Long id) {
 	    holidayService.deleteHoliday(id);
-	    return "redirect:/admin/holidays";
+	    return "redirect:/admin/system-config?tab=leave-config";
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/admin/holidays/delete-year")
 	public String deleteByYear(@RequestParam int year) {
 	    holidayService.deleteHolidaysByYear(year);
-	    return "redirect:/admin/holidays";
+	    return "redirect:/admin/system-config?tab=leave-config";
 	}
 
 	// ===============================
