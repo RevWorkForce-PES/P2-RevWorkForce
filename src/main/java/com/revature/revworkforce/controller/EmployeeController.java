@@ -295,7 +295,7 @@ public class EmployeeController {
 
         return "redirect:/admin/employees";
     }
-    
+
     /**
      * Reactivate employee
      */
@@ -307,21 +307,21 @@ public class EmployeeController {
 
         try {
             Employee employee = employeeService.getEmployeeById(employeeId);
-            
+
             // Set status to ACTIVE
             employee.setStatus(EmployeeStatus.ACTIVE);
             employeeRepository.save(employee);
-            
-//            // Log the action
-//            auditService.logAction(
-//                SecurityUtils.getCurrentUsername(),
-//                AuditAction.UPDATE,
-//                "EMPLOYEES",
-//                employeeId,
-//                null,
-//                "Employee reactivated"
-//            );
-            
+
+            // // Log the action
+            // auditService.logAction(
+            // SecurityUtils.getCurrentUsername(),
+            // AuditAction.UPDATE,
+            // "EMPLOYEES",
+            // employeeId,
+            // null,
+            // "Employee reactivated"
+            // );
+
             redirectAttributes.addFlashAttribute("success",
                     "Employee " + employee.getFullName() + " reactivated successfully!");
         } catch (Exception e) {
@@ -385,7 +385,7 @@ public class EmployeeController {
         model.addAttribute("employeeDTO", dto);
         model.addAttribute("pageTitle", "Edit Profile");
 
-        return "redirect:/employee/directory";
+        return "pages/employee/profile-edit";
     }
 
     /**
@@ -402,7 +402,7 @@ public class EmployeeController {
         String employeeId = SecurityUtils.getCurrentUsername();
 
         if (result.hasErrors()) {
-            return "employee/profile-edit";
+            return "pages/employee/profile-edit";
         }
 
         try {
@@ -412,6 +412,7 @@ public class EmployeeController {
             employee.setCity(dto.getCity());
             employee.setState(dto.getState());
             employee.setPostalCode(dto.getPostalCode());
+            employee.setCountry(dto.getCountry());
             employee.setEmergencyContactName(dto.getEmergencyContactName());
             employee.setEmergencyContactPhone(dto.getEmergencyContactPhone());
 
@@ -421,6 +422,7 @@ public class EmployeeController {
             fullDto.setCity(dto.getCity());
             fullDto.setState(dto.getState());
             fullDto.setPostalCode(dto.getPostalCode());
+            fullDto.setCountry(dto.getCountry());
             fullDto.setEmergencyContactName(dto.getEmergencyContactName());
             fullDto.setEmergencyContactPhone(dto.getEmergencyContactPhone());
 
@@ -430,7 +432,7 @@ public class EmployeeController {
             return "redirect:/employee/profile";
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
-            return "employee/profile-edit";
+            return "pages/employee/profile-edit";
         }
     }
 

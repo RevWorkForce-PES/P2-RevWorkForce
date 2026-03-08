@@ -82,6 +82,7 @@ public class EmployeeDTO {
 
     @NotNull(message = "Salary is required")
     @DecimalMin(value = "0.0", inclusive = false, message = "Salary must be greater than 0")
+    @Digits(integer = 8, fraction = 2, message = "Salary must be less than 100,000,000")
     private BigDecimal salary;
 
     private EmployeeStatus status = EmployeeStatus.ACTIVE;
