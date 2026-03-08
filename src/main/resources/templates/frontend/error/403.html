@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - Access Denied | RevWorkForce</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error-container {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .error-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .error-title {
+            font-size: 2rem;
+            color: #1f2937;
+            margin: 1rem 0 0.5rem;
+            font-weight: 700;
+        }
+
+        .error-message {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin: 0 0 2rem;
+            line-height: 1.6;
+        }
+
+        .error-icon {
+            font-size: 6rem;
+            margin-bottom: 1rem;
+            animation: shake 2s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .btn-home {
+            display: inline-block;
+            padding: 0.875rem 2rem;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+        }
+
+        .btn-secondary {
+            display: inline-block;
+            padding: 0.875rem 2rem;
+            background: transparent;
+            color: #ef4444;
+            text-decoration: none;
+            border: 2px solid #ef4444;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            margin-left: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .error-details {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: #991b1b;
+            text-align: left;
+        }
+
+        .error-details strong {
+            color: #7f1d1d;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.875rem;
+            color: #1e40af;
+        }
+
+        @media (max-width: 640px) {
+            .error-code {
+                font-size: 6rem;
+            }
+
+            .error-title {
+                font-size: 1.5rem;
+            }
+
+            .error-message {
+                font-size: 1rem;
+            }
+
+            .btn-secondary {
+                display: block;
+                margin: 1rem 0 0 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="error-container">
+        <div class="error-card">
+            <div class="error-icon">🚫</div>
+            <h1 class="error-code">403</h1>
+            <h2 class="error-title">Access Denied</h2>
+            <p class="error-message">
+                You don't have permission to access this resource. 
+                This area is restricted to authorized users only.
+            </p>
+
+            <div>
+                <a th:href="@{/dashboard}" class="btn-home">
+                    <i class="fas fa-home"></i> Go to Dashboard
+                </a>
+                <a href="javascript:history.back()" class="btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Go Back
+                </a>
+            </div>
+
+            <div class="error-details">
+                <strong><i class="fas fa-info-circle"></i> Why am I seeing this?</strong><br>
+                You may be seeing this error because:
+                <ul style="margin: 0.5rem 0 0 1.5rem; padding: 0;">
+                    <li>You don't have the required role to access this page</li>
+                    <li>Your session may have expired</li>
+                    <li>The resource requires special permissions</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <strong><i class="fas fa-lightbulb"></i> Need Access?</strong><br>
+                Contact your administrator if you believe you should have access to this resource.
+            </div>
+        </div>
+    </div>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</body>
+
+</html>

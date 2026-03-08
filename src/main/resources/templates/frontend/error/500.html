@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Server Error | RevWorkForce</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error-container {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .error-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .error-title {
+            font-size: 2rem;
+            color: #1f2937;
+            margin: 1rem 0 0.5rem;
+            font-weight: 700;
+        }
+
+        .error-message {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin: 0 0 2rem;
+            line-height: 1.6;
+        }
+
+        .error-icon {
+            font-size: 6rem;
+            margin-bottom: 1rem;
+            animation: spin 4s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn-home {
+            display: inline-block;
+            padding: 0.875rem 2rem;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+        }
+
+        .btn-secondary {
+            display: inline-block;
+            padding: 0.875rem 2rem;
+            background: transparent;
+            color: #f59e0b;
+            text-decoration: none;
+            border: 2px solid #f59e0b;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            margin-left: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .error-details {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: #92400e;
+            text-align: left;
+        }
+
+        .error-details strong {
+            color: #78350f;
+        }
+
+        .stack-trace {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            margin-top: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .stack-trace.show {
+            display: block;
+        }
+
+        .toggle-details {
+            margin-top: 1rem;
+            background: none;
+            border: none;
+            color: #f59e0b;
+            font-size: 0.875rem;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .toggle-details:hover {
+            color: #d97706;
+        }
+
+        @media (max-width: 640px) {
+            .error-code {
+                font-size: 6rem;
+            }
+
+            .error-title {
+                font-size: 1.5rem;
+            }
+
+            .error-message {
+                font-size: 1rem;
+            }
+
+            .btn-secondary {
+                display: block;
+                margin: 1rem 0 0 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="error-container">
+        <div class="error-card">
+            <div class="error-icon">⚙️</div>
+            <h1 class="error-code">500</h1>
+            <h2 class="error-title">Internal Server Error</h2>
+            <p class="error-message">
+                Oops! Something went wrong on our end. 
+                Our team has been notified and we're working to fix it.
+            </p>
+
+            <div>
+                <a th:href="@{/dashboard}" class="btn-home">
+                    <i class="fas fa-home"></i> Go to Dashboard
+                </a>
+                <a href="javascript:location.reload()" class="btn-secondary">
+                    <i class="fas fa-redo"></i> Try Again
+                </a>
+            </div>
+
+            <div class="error-details">
+                <strong><i class="fas fa-exclamation-triangle"></i> What happened?</strong><br>
+                The server encountered an unexpected condition that prevented it from fulfilling your request.
+                <ul style="margin: 0.5rem 0 0 1.5rem; padding: 0;">
+                    <li>This is usually a temporary issue</li>
+                    <li>Try refreshing the page in a few moments</li>
+                    <li>If the problem persists, contact support</li>
+                </ul>
+            </div>
+
+            <!-- Technical Details (only shown in dev mode) -->
+            <div th:if="${error}" style="margin-top: 1rem;">
+                <button class="toggle-details" onclick="toggleStackTrace()">
+                    <i class="fas fa-code"></i> Show Technical Details
+                </button>
+                <div id="stackTrace" class="stack-trace">
+                    <strong>Error Message:</strong><br>
+                    <span th:text="${error}">Error details</span>
+                    <br><br>
+                    <span th:if="${trace}">
+                        <strong>Stack Trace:</strong><br>
+                        <span th:text="${trace}">Stack trace</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        function toggleStackTrace() {
+            const stackTrace = document.getElementById('stackTrace');
+            const button = document.querySelector('.toggle-details');
+            
+            if (stackTrace.classList.contains('show')) {
+                stackTrace.classList.remove('show');
+                button.innerHTML = '<i class="fas fa-code"></i> Show Technical Details';
+            } else {
+                stackTrace.classList.add('show');
+                button.innerHTML = '<i class="fas fa-code"></i> Hide Technical Details';
+            }
+        }
+    </script>
+</body>
+
+</html>
