@@ -37,7 +37,6 @@ public interface LeaveService {
      * - Leave balance sufficiency
      */
     LeaveApplication applyLeave(LeaveApplicationDTO dto, String employeeId);
-
     /**
      * Cancel a leave application.
      *
@@ -148,5 +147,7 @@ public interface LeaveService {
     void validateLeaveBalance(LeaveBalance leaveBalance,
                               int requestedDays);
     
-   
+    List<LeaveApplication> getLeavesByDepartment(Long departmentId);
+
+    List<LeaveApplication> getLeavesByEmployee(String employeeId);
 }

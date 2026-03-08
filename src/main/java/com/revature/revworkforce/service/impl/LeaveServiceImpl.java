@@ -438,5 +438,14 @@ public class LeaveServiceImpl implements LeaveService {
     public List<LeaveBalance> findByEmployee_Manager_EmployeeIdAndYear(String managerId, Integer year) {
         return leaveBalanceRepository.findTeamBalances(managerId, year);
     }
+    @Override
+    public List<LeaveApplication> getLeavesByDepartment(Long departmentId) {
+        return leaveApplicationRepository.findLeavesByDepartment(departmentId);
+    }
+
+    @Override
+    public List<LeaveApplication> getLeavesByEmployee(String employeeId) {
+        return leaveApplicationRepository.findLeavesByEmployee(employeeId);
+    }
     
 }

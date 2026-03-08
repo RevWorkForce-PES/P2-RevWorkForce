@@ -212,8 +212,32 @@
 					</div>
 
 				</div>
+<!-- Reports Section -->
+    <div class="card" style="margin-top:2rem;">
 
-			</div>
+        <h2 style="margin-bottom:1rem;">Reports</h2>
+
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+
+            <a th:href="@{/admin/reports/employee}"
+               class="btn btn-primary"
+               style="display:flex;align-items:center;gap:0.5rem;">
+                <i class="fas fa-user"></i>
+                Employee Leave Report
+            </a>
+
+            <a th:href="@{/admin/reports/department}"
+               class="btn btn-primary"
+               style="display:flex;align-items:center;gap:0.5rem;">
+                <i class="fas fa-building"></i>
+                Department Leave Report
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
 
 		</main>
 

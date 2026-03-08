@@ -181,4 +181,25 @@ public interface LeaveApplicationRepository extends JpaRepository<LeaveApplicati
        @Query("SELECT SUM(la.totalDays) FROM LeaveApplication la WHERE EXTRACT(YEAR FROM la.startDate) = :year AND la.status = :status")
        Long sumTotalLeaveDaysByStatus(@Param("year") Integer year, @Param("status") LeaveStatus status);
 
-	}
+       /**
+        * Get leaves by department
+        */
+       @Query("""
+              SELECT la
+              FROM LeaveApplication la
+              WHERE la.employee.department.departmentId = :departmentId
+              ORDER BY la.startDate DESC
+              """)
+       List<LeaveApplication> findLeavesByDepartment(@Param("departmentId") Long departmentId);
+
+
+       /**
+        * Get leaves by employee
+        */
+       @Query("""
+              SELECT la
+              FROM LeaveApplication la
+              WHERE la.employee.employeeId = :employeeId
+              ORDER BY la.startDate DESC
+              """)
+       List<LeaveApplication> findLeavesByEmployee(@Param("employeeId") String employeeId);}
