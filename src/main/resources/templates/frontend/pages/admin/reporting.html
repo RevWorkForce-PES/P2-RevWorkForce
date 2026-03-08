@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Reports - RevWorkForce Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-card {
+            background: var(--bg-card, #fff);
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 10px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .metric-card .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary, #FB8C00);
+        }
+
+        .metric-card .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-muted, #64748b);
+            margin-top: 0.25rem;
+        }
+
+        .dist-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .dist-table th,
+        .dist-table td {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .dist-table thead th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--text-muted, #64748b);
+        }
+
+        .bar-wrap {
+            background: #e2e8f0;
+            border-radius: 4px;
+            height: 8px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: var(--primary, #FB8C00);
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.75rem;
+            color: var(--dark-text, #212121);
+            border-left: 3px solid var(--primary, #FB8C00);
+            padding-left: 0.5rem;
+        }
+
+        /* tabs */
+        .tabs {
+            display: flex;
+            gap: 0.25rem;
+            border-bottom: 2px solid var(--border-color, #e2e8f0);
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted, #64748b);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary, #FB8C00);
+            border-bottom-color: var(--primary, #FB8C00);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar page-title="HR Reports"></app-navbar>
+            <div class="page-wrapper">
+                <div class="card">
+                    <div class="tabs">
+                        <button class="tab-btn active" data-target="tab-metrics">HR Metrics Dashboard</button>
+                        <button class="tab-btn" data-target="tab-employees">Employee Report</button>
+                        <button class="tab-btn" data-target="tab-leaves">Leave Utilization</button>
+                    </div>
+
+                    <!-- ══════════════════ TAB 1: HR METRICS ══════════════════ -->
+                    <div id="tab-metrics" class="tab-content active">
+                        <p class="text-muted mb-3" style="font-size:0.9rem;">Live snapshot of key HR metrics across the
+                            organisation.</p>
+
+                        <div class="metric-grid">
+                            <div class="metric-card">
+                                <div class="metric-value" th:text="${dashboard.totalEmployees}">0</div>
+                                <div class="metric-label"><i class="fas fa-users"></i> Total Employees</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value" style="color:#43A047;" th:text="${dashboard.activeEmployees}">
+                                    0</div>
+                                <div class="metric-label"><i class="fas fa-user-check"></i> Active Employees</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value" style="color:#E53935;"
+                                    th:text="${dashboard.inactiveEmployees}">0</div>
+                                <div class="metric-label"><i class="fas fa-user-times"></i> Inactive Employees</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value" th:text="${dashboard.totalDepartments}">0</div>
+                                <div class="metric-label"><i class="fas fa-building"></i> Departments</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value" style="color:#FFA000;" th:text="${dashboard.pendingLeaves}">0
+                                </div>
+                                <div class="metric-label"><i class="fas fa-hourglass-half"></i> Pending Leaves</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value" style="color:#43A047;" th:text="${dashboard.approvedLeaves}">0
+                                </div>
+                                <div class="metric-label"><i class="fas fa-calendar-check"></i> Approved Leaves</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value" th:text="${dashboard.totalGoals}">0</div>
+                                <div class="metric-label"><i class="fas fa-bullseye"></i> Total Goals</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value" style="color:#43A047;" th:text="${dashboard.completedGoals}">0
+                                </div>
+                                <div class="metric-label"><i class="fas fa-trophy"></i> Completed Goals</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══════════════════ TAB 2: EMPLOYEE REPORT ══════════════════ -->
+                    <div id="tab-employees" class="tab-content">
+                        <p class="text-muted mb-3" style="font-size:0.9rem;">Distribution of employees across
+                            departments, designations, gender and status.</p>
+
+                        <!-- By Department -->
+                        <div class="section-title">Employees by Department</div>
+                        <table class="dist-table">
+                            <thead>
+                                <tr>
+                                    <th>Department</th>
+                                    <th>Count</th>
+                                    <th style="width:40%;">Distribution</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="entry : ${empReport.employeeDistribution}">
+                                    <td th:text="${entry.key}">Department</td>
+                                    <td th:text="${entry.value}">0</td>
+                                    <td>
+                                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                                            <div class="bar-wrap">
+                                                <div class="bar-fill"
+                                                    th:style="'width:' + (${empReport.totalEmployees != null && empReport.totalEmployees > 0} ? (${entry.value} * 100 / ${empReport.totalEmployees}) : 0) + '%'">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr
+                                    th:if="${empReport.employeeDistribution == null or #maps.isEmpty(empReport.employeeDistribution)}">
+                                    <td colspan="3" class="text-center text-muted" style="padding:1rem;">No data
+                                        available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- By Status -->
+                        <div class="section-title">Employees by Status</div>
+                        <table class="dist-table"
+                            th:with="byStatus=${empReport.departmentStatistics != null ? empReport.departmentStatistics['byStatus'] : null}">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="entry : ${byStatus}">
+                                    <td th:text="${entry.key}">Status</td>
+                                    <td th:text="${entry.value}">0</td>
+                                </tr>
+                                <tr th:if="${byStatus == null or #maps.isEmpty(byStatus)}">
+                                    <td colspan="2" class="text-center text-muted" style="padding:1rem;">No data
+                                        available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- By Gender -->
+                        <div class="section-title">Employees by Gender</div>
+                        <table class="dist-table"
+                            th:with="byGender=${empReport.departmentStatistics != null ? empReport.departmentStatistics['byGender'] : null}">
+                            <thead>
+                                <tr>
+                                    <th>Gender</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="entry : ${byGender}">
+                                    <td th:text="${entry.key}">Gender</td>
+                                    <td th:text="${entry.value}">0</td>
+                                </tr>
+                                <tr th:if="${byGender == null or #maps.isEmpty(byGender)}">
+                                    <td colspan="2" class="text-center text-muted" style="padding:1rem;">No data
+                                        available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- ══════════════════ TAB 3: LEAVE UTILIZATION ══════════════════ -->
+                    <div id="tab-leaves" class="tab-content">
+                        <p class="text-muted mb-3" style="font-size:0.9rem;">Leave utilization metrics for the current
+                            year.</p>
+
+                        <!-- Summary cards -->
+                        <div class="metric-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px,1fr));"
+                            th:with="ls=${leaveReport.departmentStatistics}">
+                            <div class="metric-card">
+                                <div class="metric-value" th:text="${ls != null ? ls['totalLeaveDaysTaken'] : 0}">0
+                                </div>
+                                <div class="metric-label"><i class="fas fa-calendar-minus"></i> Total Leave Days Taken
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value"
+                                    th:text="${ls != null ? ls['averageLeaveDaysPerEmployee'] : 0}">0</div>
+                                <div class="metric-label"><i class="fas fa-chart-bar"></i> Avg Days / Employee</div>
+                            </div>
+                        </div>
+
+                        <!-- By Leave Type -->
+                        <div class="section-title">Leaves by Type</div>
+                        <table class="dist-table"
+                            th:with="byType=${leaveReport.departmentStatistics != null ? leaveReport.departmentStatistics['byType'] : null}">
+                            <thead>
+                                <tr>
+                                    <th>Leave Type</th>
+                                    <th>Applications</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="entry : ${byType}">
+                                    <td th:text="${entry.key}">Type</td>
+                                    <td th:text="${entry.value}">0</td>
+                                </tr>
+                                <tr th:if="${byType == null or #maps.isEmpty(byType)}">
+                                    <td colspan="2" class="text-center text-muted" style="padding:1rem;">No data
+                                        available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- By Status -->
+                        <div class="section-title">Leaves by Status</div>
+                        <table class="dist-table"
+                            th:with="byStatus=${leaveReport.departmentStatistics != null ? leaveReport.departmentStatistics['byStatus'] : null}">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="entry : ${byStatus}">
+                                    <td th:text="${entry.key}">Status</td>
+                                    <td th:text="${entry.value}">0</td>
+                                </tr>
+                                <tr th:if="${byStatus == null or #maps.isEmpty(byStatus)}">
+                                    <td colspan="2" class="text-center text-muted" style="padding:1rem;">No data
+                                        available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- By Month -->
+                        <div class="section-title">Leaves by Month</div>
+                        <table class="dist-table"
+                            th:with="byMonth=${leaveReport.departmentStatistics != null ? leaveReport.departmentStatistics['byMonth'] : null}">
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Applications</th>
+                                    <th style="width:40%;">Volume</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="entry : ${byMonth}">
+                                    <td th:text="${entry.key}">Month</td>
+                                    <td th:text="${entry.value}">0</td>
+                                    <td>
+                                        <div class="bar-wrap">
+                                            <div class="bar-fill" style="width:50%; background:#1E88E5;"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${byMonth == null or #maps.isEmpty(byMonth)}">
+                                    <td colspan="3" class="text-center text-muted" style="padding:1rem;">No data
+                                        available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div><!-- /.card -->
+            </div><!-- /.page-wrapper -->
+        </main>
+    </div>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.tab-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+                    document.querySelectorAll('.tab-content').forEach(function (p) { p.classList.remove('active'); });
+                    btn.classList.add('active');
+                    var panel = document.getElementById(btn.getAttribute('data-target'));
+                    if (panel) panel.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

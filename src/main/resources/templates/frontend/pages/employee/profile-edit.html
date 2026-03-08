@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit My Profile - RevWorkForce</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar page-title="Edit My Profile"></app-navbar>
+            <div class="page-wrapper">
+                <div class="card" style="max-width: 700px; margin: 0 auto;">
+                    <h3 class="mb-4"><i class="fas fa-user-edit me-2"></i>Edit Contact Info</h3>
+
+                    <!-- Alerts -->
+                    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+                    <form th:action="@{/employee/profile/update}" method="post" th:object="${employeeDTO}">
+                        <input type="hidden" th:field="*{employeeId}">
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+
+                            <!-- Phone -->
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-phone text-muted me-1"></i>Phone</label>
+                                <input type="text" class="form-control" th:field="*{phone}"
+                                    placeholder="+91 XXXXXXXXXX">
+                            </div>
+
+                            <!-- Country -->
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-globe text-muted me-1"></i>Country</label>
+                                <input type="text" class="form-control" th:field="*{country}">
+                            </div>
+
+                            <!-- Address (full width) -->
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label class="form-label"><i class="fas fa-home text-muted me-1"></i>Address</label>
+                                <input type="text" class="form-control" th:field="*{address}"
+                                    placeholder="Street address">
+                            </div>
+
+                            <!-- City -->
+                            <div class="form-group">
+                                <label class="form-label">City</label>
+                                <input type="text" class="form-control" th:field="*{city}">
+                            </div>
+
+                            <!-- State -->
+                            <div class="form-group">
+                                <label class="form-label">State</label>
+                                <input type="text" class="form-control" th:field="*{state}">
+                            </div>
+
+                            <!-- Postal Code -->
+                            <div class="form-group">
+                                <label class="form-label">Postal Code</label>
+                                <input type="text" class="form-control" th:field="*{postalCode}">
+                            </div>
+
+                            <!-- Separator -->
+                            <div
+                                style="grid-column: span 2; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                                <h5><i class="fas fa-user-shield text-muted me-1"></i>Emergency Contact</h5>
+                            </div>
+
+                            <!-- Emergency Contact Name -->
+                            <div class="form-group">
+                                <label class="form-label">Contact Name</label>
+                                <input type="text" class="form-control" th:field="*{emergencyContactName}"
+                                    placeholder="Full name">
+                            </div>
+
+                            <!-- Emergency Contact Phone -->
+                            <div class="form-group">
+                                <label class="form-label">Contact Phone</label>
+                                <input type="text" class="form-control" th:field="*{emergencyContactPhone}"
+                                    placeholder="+91 XXXXXXXXXX">
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Save Changes
+                            </button>
+                            <a th:href="@{/employee/profile}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>
