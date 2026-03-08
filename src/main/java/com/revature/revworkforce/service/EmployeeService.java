@@ -149,4 +149,7 @@ public interface EmployeeService {
      * @return EmployeeDTO
      */
     EmployeeDTO convertToDTO(Employee employee);
+
+	Object getEmployeeGoals(String employeeId);
+	
 }

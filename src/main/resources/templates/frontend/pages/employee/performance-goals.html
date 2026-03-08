@@ -2,196 +2,197 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Performance & Goals - RevWorkForce</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Performance & Goals - RevWorkForce</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
 <body>
-    <div class="app-container">
-        <app-sidebar></app-sidebar>
-        <main class="main-content">
-            <app-navbar page-title="Performance & Goals"></app-navbar>
-            <div class="page-wrapper">
-                <div class="card">
-                    <div class="tabs">
-                        <button class="tab-btn active" data-target="manage-goals">My Goals (OKRs)</button>
-                        <button class="tab-btn" data-target="self-review">Self-Review</button>
-                        <button class="tab-btn" data-target="view-feedback">Feedback & Ratings</button>
-                    </div>
+	<div class="app-container">
+		<app-sidebar></app-sidebar>
+		<main class="main-content">
+			<app-navbar page-title="Performance & Goals"></app-navbar>
+			<div class="page-wrapper">
+				<div class="card">
+					<div class="tabs">
+						<button class="tab-btn active" data-target="manage-goals">My
+							Goals (OKRs)</button>
+						<button class="tab-btn" data-target="self-review">Self-Review</button>
+						<button class="tab-btn" data-target="view-feedback">Feedback
+							& Ratings</button>
+					</div>
 
-                    <!-- Manage Goals Tab -->
-                    <div id="manage-goals" class="tab-content active">
-                        <div class="flex-space-between mb-3">
-                            <h3 style="margin: 0;">FY2026 Q1 OKRs</h3>
-                            <button class="btn btn-primary"><i class="fas fa-plus"></i> Add Objective</button>
-                        </div>
+					<!-- Manage Goals Tab -->
+					<div id="manage-goals" class="tab-content active">
+						<div class="flex-space-between mb-3">
+							<h3 style="margin: 0;">FY2026 Q1 OKRs</h3>
+							<button class="btn btn-primary">
+								<i class="fas fa-plus"></i> Add Objective
+							</button>
+						</div>
 
-                        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                            <!-- Goal block -->
-                            <div th:each="goal : ${goals}"
-                                style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem;">
-                                <div class="flex-space-between mb-2">
-                                    <h4 style="margin: 0;" th:text="${goal.goalTitle}">Revamp Authentication API</h4>
-                                    <span class="badge"
-                                        th:classappend="${goal.progress >= 100 ? 'badge-approved' : 'badge-pending'}"
-                                        style="font-size: 0.85rem;" th:text="${goal.progress} + '% Complete'">80%
-                                        Complete</span>
-                                </div>
-                                <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 1rem;"
-                                    th:text="${goal.goalDescription}">Implement OAuth2
-                                    and rewrite legacy endpoints.</p>
+						<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+							<!-- Goal block -->
+							<div th:each="goal : ${goals}"
+								style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem;">
+								<div class="flex-space-between mb-2">
+									<h4 style="margin: 0;" th:text="${goal.goalTitle}">Revamp
+										Authentication API</h4>
+									<span class="badge"
+										th:classappend="${goal.progress >= 100 ? 'badge-approved' : 'badge-pending'}"
+										style="font-size: 0.85rem;"
+										th:text="${goal.progress} + '% Complete'">80% Complete</span>
+								</div>
+								<p class="text-muted"
+									style="font-size: 0.9rem; margin-bottom: 1rem;"
+									th:text="${goal.goalDescription}">Implement OAuth2 and
+									rewrite legacy endpoints.</p>
 
-                                <div
-                                    style="background: #e2e8f0; border-radius: 4px; height: 10px; width: 100%; margin-bottom: 1rem; overflow: hidden;">
-                                    <div
-                                        th:style="'background: var(--primary); width: ' + ${goal.progress} + '%; height: 100%;'">
-                                    </div>
-                                </div>
+								<div
+									style="background: #e2e8f0; border-radius: 4px; height: 10px; width: 100%; margin-bottom: 1rem; overflow: hidden;">
+									<div
+										th:style="'background: var(--primary); width: ' + ${goal.progress} + '%; height: 100%;'">
+									</div>
+								</div>
 
-                                <div style="display: flex; gap: 1rem; align-items: center;">
-                                    <a th:href="@{/employee/goals/progress/{id}(id=${goal.goalId})}"
-                                        class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i> Update
-                                        Progress</a>
-                                    <a th:href="@{/employee/goals/edit/{id}(id=${goal.goalId})}"
-                                        class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i> Edit Goal</a>
-                                    <span class="text-muted" style="font-size: 0.8rem;"
-                                        th:text="'Deadline: ' + ${#temporals.format(goal.deadline, 'MMM dd, yyyy')}">Last
-                                        updated: 3 days ago</span>
-                                </div>
-                            </div>
-                            <div th:if="${#lists.isEmpty(goals)}" class="text-center text-muted" style="padding: 2rem;">
-                                No goals found.</div>
-                        </div>
-                    </div>
+								<div style="display: flex; gap: 1rem; align-items: center;">
+									<a
+										th:href="@{/employee/goals/progress/{id}(id=${goal.goalId})}"
+										class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i>
+										Update Progress</a> <a
+										th:href="@{/employee/goals/edit/{id}(id=${goal.goalId})}"
+										class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i>
+										Edit Goal</a> <span class="text-muted" style="font-size: 0.8rem;"
+										th:text="'Deadline: ' + ${#temporals.format(goal.deadline, 'MMM dd, yyyy')}">Last
+										updated: 3 days ago</span>
+								</div>
+							</div>
+							<div th:if="${#lists.isEmpty(goals)}"
+								class="text-center text-muted" style="padding: 2rem;">No
+								goals found.</div>
+						</div>
+					</div>
 
-                    <!-- Self Review Tab -->
-                    <div id="self-review" class="tab-content">
-                        <!-- Find draft review -->
-                        <div th:with="draftReview=${reviews.^[status.name() == 'DRAFT']}">
-                            <div th:if="${draftReview != null}">
-                                <div class="mb-4 p-3"
-                                    style="background: #fdf6e3; border: 1px solid #fde047; border-radius: 8px; display: flex; gap: 1rem; align-items: flex-start;">
-                                    <i class="fas fa-exclamation-triangle text-warning"
-                                        style="color: #ca8a04; font-size: 1.5rem; margin-top: 0.2rem;"></i>
-                                    <div>
-                                        <h4 style="margin-bottom: 0.25rem;">Action Required: Performance Review DRAFT
-                                        </h4>
-                                        <p style="margin-bottom: 0; font-size: 0.9rem; color: #854d0e;">Please submit
-                                            your
-                                            self-review. This is required for your manager's appraisal
-                                            phase.</p>
-                                    </div>
-                                </div>
+					<!-- SELF REVIEW TAB -->
+					<div id="self-review" class="tab-content">
 
-                                <form th:action="@{/employee/reviews/submit/{id}(id=${draftReview.reviewId})}"
-                                    method="POST">
-                                    <h3 class="mb-3" th:text="${draftReview.reviewYear} + ' Self-Evaluation'">2026
-                                        Self-Evaluation</h3>
-                                    <div class="form-group mb-4">
-                                        <label class="form-label font-weight-bold">1. Key Deliverables</label>
-                                        <textarea class="form-control" name="keyDeliverables" rows="4"
-                                            th:text="${draftReview.keyDeliverables}" required></textarea>
-                                    </div>
-                                    <div class="form-group mb-4">
-                                        <label class="form-label font-weight-bold">2. Major Accomplishments</label>
-                                        <textarea class="form-control" name="majorAccomplishments" rows="4"
-                                            th:text="${draftReview.majorAccomplishments}" required></textarea>
-                                    </div>
-                                    <div class="form-group mb-4">
-                                        <label class="form-label font-weight-bold">3. Areas of Improvement</label>
-                                        <textarea class="form-control" name="areasOfImprovement" rows="4"
-                                            th:text="${draftReview.areasOfImprovement}" required></textarea>
-                                    </div>
-                                    <div class="form-group mb-4">
-                                        <label class="form-label font-weight-bold">4. Self Rating (1-5)</label>
-                                        <input type="number" step="0.5" min="1" max="5" class="form-control"
-                                            name="selfAssessmentRating" style="max-width: 200px;"
-                                            th:value="${draftReview.selfAssessmentRating}" required>
-                                    </div>
-                                    <div class="form-group mb-4">
-                                        <label class="form-label font-weight-bold">5. Additional Comments
-                                            (Optional)</label>
-                                        <textarea class="form-control" name="selfAssessmentComments" rows="2"
-                                            th:text="${draftReview.selfAssessmentComments}"></textarea>
-                                    </div>
-                                    <div style="display: flex; gap: 1rem;">
-                                        <button type="submit" class="btn btn-primary">Submit to Manager</button>
-                                    </div>
-                                </form>
-                            </div>
-                            <div th:if="${draftReview == null}">
-                                <div class="mb-4 p-3"
-                                    style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px;">
-                                    <h4 style="margin-bottom: 0.5rem;"><i class="fas fa-check-circle text-success"></i>
-                                        No pending action</h4>
-                                    <p style="margin-bottom: 1rem; color: var(--text-muted);">You don't have any
-                                        self-reviews currently in DRAFT status.</p>
-                                    <form th:action="@{/employee/reviews/create}" method="POST">
-                                        <input type="hidden" name="reviewYear"
-                                            th:value="${#dates.year(#dates.createNow())}">
-                                        <button class="btn btn-primary btn-sm">Start New Self-Review</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+						<div th:with="draftReview=${reviews.^[status.name() == 'DRAFT']}">
 
-                    <!-- View Feedback Tab -->
-                    <div id="view-feedback" class="tab-content">
-                        <h3 class="mb-3">Past Reviews & Feedback</h3>
+							<div th:if="${draftReview != null}">
 
-                        <div th:each="review : ${reviews}" th:if="${review.status.name() != 'DRAFT'}" class="mb-4">
-                            <div class="flex-space-between mb-2">
-                                <h4 style="margin: 0; font-size: 1.1rem;"
-                                    th:text="${review.reviewYear} + ' Annual Review'">FY2025 Q4 Annual Review</h4>
-                                <span class="text-muted" style="font-size: 0.85rem;"
-                                    th:text="'Status: ' + ${review.status}">Status</span>
-                            </div>
-                            <div
-                                style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem;">
-                                <div
-                                    style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;">
-                                    <div>
-                                        <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.2rem;">Manager
-                                            Rating</p>
-                                        <div style="display: flex; align-items: baseline; gap: 0.25rem;">
-                                            <span style="font-size: 2rem; font-weight: bold; color: var(--primary);"
-                                                th:text="${review.managerRating != null ? review.managerRating : 'N/A'}">4.5</span>
-                                            <span class="text-muted" th:if="${review.managerRating != null}">/
-                                                5.0</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.2rem;">Self
-                                            Rating</p>
-                                        <div style="display: flex; align-items: baseline; gap: 0.25rem;">
-                                            <span style="font-size: 1.5rem; font-weight: bold;"
-                                                th:text="${review.selfAssessmentRating}">4.0</span>
-                                            <span class="text-muted">/ 5.0</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <h5 class="mb-2">Manager Feedback</h5>
-                                    <p style="font-size: 0.95rem; line-height: 1.6;"
-                                        th:text="${review.managerFeedback != null ? review.managerFeedback : 'No feedback yet.'}">
-                                        Good job.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div th:if="${#lists.isEmpty(reviews)}" class="text-center text-muted" style="padding: 2rem;">No
-                            past feedback found.</div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-    <!-- Load Scripts -->
-    <script th:src="@{/js/components.js}"></script>
-    <script th:src="@{/js/app.js}"></script>
+								<form
+									th:action="@{/employee/reviews/submit/{id}(id=${draftReview.reviewId})}"
+									method="post">
+
+									<h3 th:text="${draftReview.reviewYear} + ' Self Review'"></h3>
+
+									<label>Key Deliverables</label>
+									<textarea name="keyDeliverables" rows="4"
+										th:text="${draftReview.keyDeliverables}" required></textarea>
+
+									<label>Major Accomplishments</label>
+									<textarea name="majorAccomplishments" rows="4"
+										th:text="${draftReview.majorAccomplishments}" required></textarea>
+
+									<label>Areas of Improvement</label>
+									<textarea name="areasOfImprovement" rows="4"
+										th:text="${draftReview.areasOfImprovement}" required></textarea>
+
+									<label>Self Rating</label> <input type="number"
+										name="selfAssessmentRating" min="1" max="5" step="0.5"
+										th:value="${draftReview.selfAssessmentRating}" required /> <label>Comments</label>
+									<textarea name="selfAssessmentComments"
+										th:text="${draftReview.selfAssessmentComments}"></textarea>
+
+									<button type="submit" class="btn btn-primary">Submit
+										Review</button>
+
+								</form>
+
+							</div>
+
+
+							<div th:if="${draftReview == null}">
+
+								<p>No draft review available.</p>
+
+								<form th:action="@{/employee/reviews/create}" method="post">
+
+									<input type="hidden" name="reviewYear"
+										th:value="${#temporals.year(#temporals.createNow())}" />
+
+									<button class="btn btn-primary">Start Self Review</button>
+
+								</form>
+
+							</div>
+
+						</div>
+
+					</div>
+
+					<!-- View Feedback Tab -->
+					<div id="view-feedback" class="tab-content">
+						<h3 class="mb-3">Past Reviews & Feedback</h3>
+
+						<div th:each="review : ${reviews}"
+							th:if="${review.status.name() != 'DRAFT'}" class="mb-4">
+							<div class="flex-space-between mb-2">
+								<h4 style="margin: 0; font-size: 1.1rem;"
+									th:text="${review.reviewYear} + ' Annual Review'">FY2025
+									Q4 Annual Review</h4>
+								<span class="text-muted" style="font-size: 0.85rem;"
+									th:text="'Status: ' + ${review.status}">Status</span>
+							</div>
+							<div
+								style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem;">
+								<div
+									style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;">
+									<div>
+										<p class="text-muted"
+											style="font-size: 0.85rem; margin-bottom: 0.2rem;">Manager
+											Rating</p>
+										<div
+											style="display: flex; align-items: baseline; gap: 0.25rem;">
+											<span
+												style="font-size: 2rem; font-weight: bold; color: var(--primary);"
+												th:text="${review.managerRating != null ? review.managerRating : 'N/A'}">4.5</span>
+											<span class="text-muted"
+												th:if="${review.managerRating != null}">/ 5.0</span>
+										</div>
+									</div>
+									<div>
+										<p class="text-muted"
+											style="font-size: 0.85rem; margin-bottom: 0.2rem;">Self
+											Rating</p>
+										<div
+											style="display: flex; align-items: baseline; gap: 0.25rem;">
+											<span style="font-size: 1.5rem; font-weight: bold;"
+												th:text="${review.selfAssessmentRating}">4.0</span> <span
+												class="text-muted">/ 5.0</span>
+										</div>
+									</div>
+								</div>
+								<div>
+									<h5 class="mb-2">Manager Feedback</h5>
+									<p style="font-size: 0.95rem; line-height: 1.6;"
+										th:text="${review.managerFeedback != null ? review.managerFeedback : 'No feedback yet.'}">
+										Good job.</p>
+								</div>
+							</div>
+						</div>
+						<div th:if="${#lists.isEmpty(reviews)}"
+							class="text-center text-muted" style="padding: 2rem;">No
+							past feedback found.</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+	<!-- Load Scripts -->
+	<script th:src="@{/js/components.js}"></script>
+	<script th:src="@{/js/app.js}"></script>
 </body>
 
 </html>

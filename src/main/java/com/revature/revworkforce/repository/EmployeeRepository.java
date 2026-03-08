@@ -168,6 +168,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
         * Used to populate the Reporting Manager dropdown with both MANAGER and ADMIN
         * employees.
         */
+       List<Employee> findByManagerEmployeeId(String managerId);
        @Query("SELECT DISTINCT e FROM Employee e JOIN e.roles r "
                      + "WHERE UPPER(r.roleName) IN :roleNames "
                      + "AND e.status = com.revature.revworkforce.enums.EmployeeStatus.ACTIVE "

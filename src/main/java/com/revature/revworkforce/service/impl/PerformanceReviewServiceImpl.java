@@ -100,6 +100,8 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
         review.setSelfAssessmentRating(selfAssessmentRating);
         review.setSelfAssessmentComments(selfAssessmentComments);
         review.setSubmittedDate(LocalDate.now());
+
+        review.setStatus(ReviewStatus.SUBMITTED);   // ✅ FIX
      // 🔔 Notify Manager
         Employee manager = review.getEmployee().getManager();
 
@@ -315,22 +317,46 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
         PerformanceReviewDTO dto = new PerformanceReviewDTO();
 
         dto.setReviewId(review.getReviewId());
+
         dto.setEmployeeId(review.getEmployee().getEmployeeId());
         dto.setEmployeeName(review.getEmployee().getFullName());
+
+        if (review.getEmployee().getDepartment() != null) {
+            dto.setDepartmentName(review.getEmployee().getDepartment().getDepartmentName());
+        }
+
+        if (review.getEmployee().getDesignation() != null) {
+            dto.setDesignationName(review.getEmployee().getDesignation().getDesignationName());
+        }
+
+        if (review.getEmployee().getManager() != null) {
+            dto.setManagerId(review.getEmployee().getManager().getEmployeeId());
+            dto.setManagerName(review.getEmployee().getManager().getFullName());
+        }
+
         dto.setReviewYear(review.getReviewYear());
         dto.setReviewPeriod(review.getReviewPeriod());
         dto.setStatus(review.getStatus());
+
         dto.setKeyDeliverables(review.getKeyDeliverables());
         dto.setMajorAccomplishments(review.getMajorAccomplishments());
         dto.setAreasOfImprovement(review.getAreasOfImprovement());
+
         dto.setSelfAssessmentRating(review.getSelfAssessmentRating());
         dto.setSelfAssessmentComments(review.getSelfAssessmentComments());
+
         dto.setManagerFeedback(review.getManagerFeedback());
         dto.setManagerRating(review.getManagerRating());
         dto.setManagerComments(review.getManagerComments());
+
         dto.setFinalRating(review.getFinalRating());
+
         dto.setSubmittedDate(review.getSubmittedDate());
         dto.setReviewedDate(review.getReviewedDate());
+
+        if (review.getReviewedBy() != null) {
+            dto.setReviewedByName(review.getReviewedBy().getFullName());
+        }
 
         return dto;
     }

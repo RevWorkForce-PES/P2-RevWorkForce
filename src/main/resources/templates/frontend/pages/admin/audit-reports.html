@@ -79,7 +79,8 @@
 										<th>Details</th>
 									</tr>
 								</thead>
-								<tbody>
+								<tbody id="auditTableBody">
+
 <tr th:each="log : ${auditLogs}">
 
 <td th:text="'#' + ${log.auditId}"></td>
@@ -99,8 +100,9 @@
 </tr>
 
 <tr th:if="${#lists.isEmpty(auditLogs)}">
-<td colspan="6" style="text-align:center">No audit logs found</td>
+<td colspan="6" style="text-align:center;padding:20px;">No audit logs found</td>
 </tr>
+
 </tbody>
 							</table>
 						</div>
@@ -262,76 +264,76 @@
 
     
     <script>
-document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function () {
 
-    loadAuditLogs();
+        loadAuditLogs();
 
-    function loadAuditLogs(limit = 100) {
+        function loadAuditLogs(limit = 100) {
 
-        fetch("/admin/audit/logs?limit=" + limit)
-            .then(response => response.json())
-            .then(data => {
+            fetch("/admin/audit/logs?limit=" + limit)
+                .then(response => response.json())
+                .then(data => {
 
-                const tableBody = document.getElementById("auditTableBody");
-                tableBody.innerHTML = "";
+                    const tableBody = document.getElementById("auditTableBody");
+                    tableBody.innerHTML = "";
 
-                if (data.length === 0) {
-                    tableBody.innerHTML =
-                        "<tr><td colspan='6' style='text-align:center;'>No Logs Found</td></tr>";
-                    return;
-                }
+                    if (data.length === 0) {
+                        tableBody.innerHTML =
+                            "<tr><td colspan='6' style='text-align:center;'>No Logs Found</td></tr>";
+                        return;
+                    }
 
-                data.forEach(log => {
+                    data.forEach(log => {
 
-                    const row = `
-                        <tr>
-                            <td>#${log.auditId}</td>
-                            <td>${new Date(log.createdAt).toLocaleString()}</td>
-                            <td>${log.employeeId || "SYSTEM"}</td>
-                            <td>${getBadge(log.action)}</td>
-                            <td>${log.tableName || "-"}</td>
-                            <td>${log.description || ""}</td>
-                        </tr>
-                    `;
+                        const row = `
+                            <tr>
+                                <td>#${log.auditId}</td>
+                                <td>${log.performedAt ? new Date(log.performedAt).toLocaleString() : "-"}</td>
+                                <td>${log.performedByName || "SYSTEM"}</td>
+                                <td>${getBadge(log.action)}</td>
+                                <td>${log.tableName || "-"}</td>
+                                <td>${log.newValue || "-"}</td>
+                            </tr>
+                        `;
 
-                    tableBody.innerHTML += row;
+                        tableBody.innerHTML += row;
+                    });
                 });
-            });
-    }
-
-    function getBadge(action) {
-
-        let style = "";
-
-        switch (action) {
-            case "INSERT":
-                style = "background:#e0f2fe;color:#0284c7;";
-                break;
-            case "UPDATE":
-                style = "background:#fef3c7;color:#b45309;";
-                break;
-            case "DELETE":
-                style = "background:#fee2e2;color:#dc2626;";
-                break;
-            case "APPROVE":
-                style = "background:#d1fae5;color:#059669;";
-                break;
-            case "REJECT":
-                style = "background:#fee2e2;color:#dc2626;";
-                break;
-            case "LOGIN":
-                style = "background:#e0f2fe;color:#0284c7;";
-                break;
-            case "LOGOUT":
-                style = "background:#f1f5f9;color:#475569;";
-                break;
-            default:
-                style = "background:#f1f5f9;color:#475569;";
         }
 
-        return `<span class="badge" style="${style}">${action}</span>`;
-    }
-});
+        function getBadge(action) {
+
+            let style = "";
+
+            switch (action) {
+                case "INSERT":
+                    style = "background:#e0f2fe;color:#0284c7;";
+                    break;
+                case "UPDATE":
+                    style = "background:#fef3c7;color:#b45309;";
+                    break;
+                case "DELETE":
+                    style = "background:#fee2e2;color:#dc2626;";
+                    break;
+                case "APPROVE":
+                    style = "background:#d1fae5;color:#059669;";
+                    break;
+                case "REJECT":
+                    style = "background:#fee2e2;color:#dc2626;";
+                    break;
+                case "LOGIN":
+                    style = "background:#e0f2fe;color:#0284c7;";
+                    break;
+                case "LOGOUT":
+                    style = "background:#f1f5f9;color:#475569;";
+                    break;
+                default:
+                    style = "background:#f1f5f9;color:#475569;";
+            }
+
+            return `<span class="badge" style="${style}">${action}</span>`;
+        }
+    });
 </script>
 
     <script th:src="@{/js/components.js}"></script>

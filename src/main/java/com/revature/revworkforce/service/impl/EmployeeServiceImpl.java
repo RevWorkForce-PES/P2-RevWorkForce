@@ -186,6 +186,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 		return employeeRepository.findById(employeeId)
 				.orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", employeeId));
 	}
+	
 
 	/**
 	 * {@inheritDoc}
@@ -273,10 +274,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public List<Employee> getTeamMembers(String managerId) {
-		return employeeRepository.findByManager_EmployeeId(managerId);
-	}
-
+	
+    public List<Employee> getTeamMembers(String managerId) {
+        return employeeRepository.findByManagerEmployeeId(managerId);
+    }
 	/**
 	 * {@inheritDoc}
 	 */
@@ -437,5 +438,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 		employee.setStatus(dto.getStatus() != null ? dto.getStatus() : EmployeeStatus.ACTIVE);
 
 		return employee;
+	}
+
+	@Override
+	public Object getEmployeeGoals(String employeeId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
