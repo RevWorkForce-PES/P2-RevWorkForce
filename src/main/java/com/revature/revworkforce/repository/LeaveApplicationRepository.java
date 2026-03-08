@@ -161,7 +161,16 @@ public interface LeaveApplicationRepository extends JpaRepository<LeaveApplicati
         */
        @Query("SELECT EXTRACT(MONTH FROM la.startDate), COUNT(la) FROM LeaveApplication la WHERE EXTRACT(YEAR FROM la.startDate) = :year GROUP BY EXTRACT(MONTH FROM la.startDate)")
        List<Object[]> countLeavesByMonth(@Param("year") Integer year);
-
+       @Query("""
+    		   SELECT l
+    		   FROM LeaveApplication l
+    		   WHERE l.employee.manager.employeeId = :managerId
+    		   AND l.status = :status
+    		   """)
+    		   List<LeaveApplication> findTeamLeavesByManagerIdAndStatus(
+    		           String managerId,
+    		           LeaveStatus status
+    		   );
        /**
         * Sum the total leave days taken (approved) for a given year.
         * 
@@ -171,4 +180,5 @@ public interface LeaveApplicationRepository extends JpaRepository<LeaveApplicati
         */
        @Query("SELECT SUM(la.totalDays) FROM LeaveApplication la WHERE EXTRACT(YEAR FROM la.startDate) = :year AND la.status = :status")
        Long sumTotalLeaveDaysByStatus(@Param("year") Integer year, @Param("status") LeaveStatus status);
-}
+
+	}

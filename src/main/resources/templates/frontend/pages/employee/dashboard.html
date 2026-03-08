@@ -160,13 +160,7 @@
 
 						</div>
 
-						<button class="btn btn-secondary"
-							onclick="alert('Checked in successfully!');"
-							style="color: var(--primary-dark);">
-
-							<i class="fas fa-sign-in-alt"></i> Check In
-
-						</button>
+						
 
 					</div>
 
@@ -183,7 +177,7 @@
 						</div>
 
 						<div class="stat-info">
-							<h3 th:text="${availableLeaves}">12</h3>
+							<h3 th:text="${leaveBalance}">12</h3>
 							<p>Available Leaves</p>
 						</div>
 
@@ -217,7 +211,33 @@
 					</div>
 
 				</div>
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="card-title">Leave Balance Details</h2>
+    </div>
 
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Leave Type</th>
+                <th>Remaining Balance</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr th:each="balance : ${leaveBalances}">
+                <td th:text="${balance.leaveTypeName}"></td>
+                <td th:text="${balance.remainingBalance}"></td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(leaveBalances)}">
+                <td colspan="2" class="text-center text-muted">
+                    No leave balances found
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 				<!-- Grid -->
 
 				<div
