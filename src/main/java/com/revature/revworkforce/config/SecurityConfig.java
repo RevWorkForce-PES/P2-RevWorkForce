@@ -66,18 +66,21 @@ public class SecurityConfig {
         http
             // Authorize HTTP requests
             .authorizeHttpRequests(auth -> auth
+            		
+            	    .requestMatchers("/error", "/error/**").permitAll()
+
                 // Public endpoints (no authentication required)
                 .requestMatchers(
                     "/", 
                     "/login", 
                     "/forgot-password", 
-                    "/forgot-password/**", // <-- allow all forgot password paths
-                    "/error/**"
+                    "/forgot-password/**" // <-- allow all forgot password paths
                 ).permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
 
                 // Admin endpoints (ADMIN role required)
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                
 
                 // Manager endpoints (MANAGER or ADMIN role required)
                 .requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
