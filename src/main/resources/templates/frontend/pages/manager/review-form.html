@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="global-user-fullname" th:content="${globalFullName}">
+    <meta name="global-user-role" th:content="${globalUserRole}">
+    <title>Manager Review - RevWorkForce Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar th:attr="page-title='Reviewing: ' + ${reviewDTO.employeeName}"></app-navbar>
+            <div class="page-wrapper">
+                <div class="card" style="max-width: 900px; margin: 0 auto;">
+                    <div class="flex-space-between mb-4">
+                        <h2 style="margin: 0;" th:text="${reviewDTO.reviewYear} + ' Performance Review'">2026
+                            Performance Review</h2>
+                        <a th:href="@{/manager/performance}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+
+                    <!-- Read-only Self Assessment Section -->
+                    <div class="mb-5 p-4"
+                        style="background: #f8fafc; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <h4 class="mb-3 text-primary"><i class="fas fa-user-edit"></i> Employee Self-Assessment</h4>
+
+                        <div class="mb-3">
+                            <label class="font-weight-bold small text-muted text-uppercase">Key Deliverables</label>
+                            <p th:text="${reviewDTO.keyDeliverables}"
+                                style="white-space: pre-wrap; font-size: 0.95rem;"></p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="font-weight-bold small text-muted text-uppercase">Major
+                                Accomplishments</label>
+                            <p th:text="${reviewDTO.majorAccomplishments}"
+                                style="white-space: pre-wrap; font-size: 0.95rem;"></p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="font-weight-bold small text-muted text-uppercase">Areas of Improvement</label>
+                            <p th:text="${reviewDTO.areasOfImprovement}"
+                                style="white-space: pre-wrap; font-size: 0.95rem;"></p>
+                        </div>
+
+                        <div
+                            style="display:flex; gap: 2rem; align-items:center; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                            <div>
+                                <label class="font-weight-bold small text-muted text-uppercase mr-2">Self
+                                    Rating:</label>
+                                <span class="badge badge-approved"
+                                    th:text="${reviewDTO.selfAssessmentRating} + ' / 5.0'">4.5 / 5.0</span>
+                            </div>
+                            <div
+                                th:if="${reviewDTO.selfAssessmentComments != null and !reviewDTO.selfAssessmentComments.isEmpty()}">
+                                <label class="font-weight-bold small text-muted text-uppercase mr-2">Comments:</label>
+                                <span class="text-muted" th:text="${reviewDTO.selfAssessmentComments}"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manager Review Form -->
+                    <form th:action="@{/manager/reviews/review/{id}(id=${reviewDTO.reviewId})}" th:object="${reviewDTO}"
+                        method="POST">
+                        <input type="hidden" th:field="*{reviewId}">
+                        <h4 class="mb-3"><i class="fas fa-clipboard-check"></i> Manager Feedback & Rating</h4>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label font-weight-bold" for="managerFeedback">Performance
+                                Feedback</label>
+                            <textarea id="managerFeedback" th:field="*{managerFeedback}" class="form-control" rows="6"
+                                placeholder="Provide detailed feedback on performance, achievements, and behavioral competencies..."
+                                required></textarea>
+                            <div class="text-danger" th:if="${#fields.hasErrors('managerFeedback')}"
+                                th:errors="*{managerFeedback}"></div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label font-weight-bold" for="managerRating">Manager Rating (1-5)</label>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <input type="number" step="0.1" min="1" max="5" id="managerRating"
+                                    th:field="*{managerRating}" class="form-control" style="max-width: 150px;" required>
+                                <span class="text-muted small">1: Improvement Required | 3: Meets Expectations | 5:
+                                    Outstanding</span>
+                            </div>
+                            <div class="text-danger" th:if="${#fields.hasErrors('managerRating')}"
+                                th:errors="*{managerRating}"></div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label font-weight-bold" for="managerComments">Internal Comments
+                                (Optional)</label>
+                            <textarea id="managerComments" th:field="*{managerComments}" class="form-control" rows="2"
+                                placeholder="Any additional notes for HR or record..."></textarea>
+                            <div class="text-danger" th:if="${#fields.hasErrors('managerComments')}"
+                                th:errors="*{managerComments}"></div>
+                        </div>
+
+                        <div class="flex-space-between mt-5"
+                            style="border-top: 1px solid var(--border-color); padding-top: 2rem;">
+                            <p class="text-muted small" style="max-width: 60%;"><i class="fas fa-info-circle"></i> Once
+                                submitted, the final rating will be calculated (average of self and manager rating) and
+                                shared with the employee.</p>
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

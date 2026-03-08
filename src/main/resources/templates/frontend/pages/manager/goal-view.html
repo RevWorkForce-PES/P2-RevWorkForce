@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="global-user-fullname" th:content="${globalFullName}">
+    <meta name="global-user-role" th:content="${globalUserRole}">
+    <title>Team Member Goal - RevWorkForce Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar th:attr="page-title='Goal: ' + ${goal.employeeName}"></app-navbar>
+            <div class="page-wrapper">
+                <div class="card" style="max-width: 800px; margin: 0 auto;">
+                    <div class="flex-space-between mb-4">
+                        <h2 style="margin: 0;" th:text="${goal.goalTitle}">Goal Title</h2>
+                        <a th:href="@{/manager/performance}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to Team Board
+                        </a>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                        <div>
+                            <div class="mb-4">
+                                <label class="text-muted small text-uppercase font-weight-bold">Objective
+                                    Description</label>
+                                <p th:text="${goal.goalDescription}"
+                                    style="white-space: pre-wrap; font-size: 1.05rem; line-height: 1.6;"></p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="text-primary small text-uppercase font-weight-bold"><i
+                                        class="fas fa-comment"></i> Your Feedback</label>
+                                <div th:if="${goal.managerComments != null and !goal.managerComments.isEmpty()}"
+                                    class="p-3 mt-1"
+                                    style="background:#f8fafc; border-radius:8px; border:1px solid var(--border-color);">
+                                    <p th:text="${goal.managerComments}" style="margin:0;"></p>
+                                </div>
+                                <div th:if="${goal.managerComments == null or goal.managerComments.isEmpty()}"
+                                    class="mt-2">
+                                    <p class="text-muted small">No comments provided yet.</p>
+                                    <a th:href="@{/manager/goals/comment/{id}(id=${goal.goalId})}"
+                                        class="btn btn-primary btn-sm mt-1">Add Feedback</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); height: fit-content;">
+                            <div class="mb-3">
+                                <label class="text-muted small text-uppercase">Employee</label>
+                                <p th:text="${goal.employeeName}" style="margin: 0; font-weight: 500;"></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted small text-uppercase">Status</label>
+                                <div class="mt-1">
+                                    <span class="badge"
+                                        th:classappend="${goal.status.name() == 'COMPLETED' ? 'badge-approved' : 'badge-pending'}"
+                                        th:text="${goal.status}">Status</span>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted small text-uppercase">Priority</label>
+                                <p th:text="${goal.priority}" style="margin: 0; font-weight: 500;"></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted small text-uppercase">Deadline</label>
+                                <p th:text="${#temporals.format(goal.deadline, 'MMM dd, yyyy')}"
+                                    style="margin: 0; font-weight: 500;"></p>
+                            </div>
+                            <div class="mb-4">
+                                <label class="text-muted small text-uppercase">Current Progress</label>
+                                <div class="mt-1" style="display:flex; align-items:center; gap:0.5rem;">
+                                    <div
+                                        style="background: #e2e8f0; height: 8px; flex: 1; border-radius: 4px; overflow: hidden;">
+                                        <div
+                                            th:style="'background: var(--primary); height: 100%; width: ' + ${goal.progress} + '%;'">
+                                        </div>
+                                    </div>
+                                    <span th:text="${goal.progress} + '%'"
+                                        style="font-weight: bold; font-size: 0.9rem;">80%</span>
+                                </div>
+                            </div>
+
+                            <a th:href="@{/manager/goals/comment/{id}(id=${goal.goalId})}"
+                                class="btn btn-secondary btn-sm btn-block">Update Feedback</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

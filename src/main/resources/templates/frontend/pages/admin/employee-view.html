@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="global-user-fullname" th:content="${globalFullName}">
+    <meta name="global-user-role" th:content="${globalUserRole}">
     <title th:text="${employee.firstName + ' ' + employee.lastName + ' - RevWorkForce Admin'}">Employee Details</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -107,7 +109,7 @@
                             </tr>
                             <tr>
                                 <td style="padding:0.6rem 0; font-weight:500; color:var(--text-muted);">Manager</td>
-                                <td th:text="${employee.managerId != null ? employee.managerId : 'No Manager'}"
+                                <td th:text="${employee.managerName != null ? employee.managerName : 'No Manager'}"
                                     style="padding:0.6rem 0;"></td>
                             </tr>
                         </table>
@@ -117,7 +119,7 @@
                     <div class="card">
                         <h4 style="margin-bottom:1rem; color:var(--primary);"><i class="fas fa-map-marker-alt"></i>
                             Address</h4>
-                        <p th:text="${employee.address}" class="text-muted">—</p>
+                        <p th:text="${employee.address != null ? employee.address : '—'}" class="text-muted">—</p>
                         <p th:text="${(employee.city != null ? employee.city + ', ' : '') + (employee.state != null ? employee.state : '') + (employee.postalCode != null ? ' - ' + employee.postalCode : '')}"
                             class="text-muted"></p>
                     </div>
@@ -128,7 +130,8 @@
                             Contact</h4>
                         <table style="width:100%; border-collapse:collapse;">
                             <tr style="border-bottom:1px solid var(--border-color);">
-                                <td style="padding:0.6rem 0; font-weight:500; color:var(--text-muted); width:40%;">Name
+                                <td style="padding:0.6rem 0; font-weight:500; color:var(--text-muted); width:40%;">
+                                    Contact Name
                                 </td>
                                 <td th:text="${employee.emergencyContactName != null ? employee.emergencyContactName : 'N/A'}"
                                     style="padding:0.6rem 0;"></td>

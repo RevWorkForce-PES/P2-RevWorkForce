@@ -320,9 +320,6 @@ public class EmployeeController {
     // EMPLOYEE ENDPOINTS - Profile Management
     // ============================================
 
-    /**
-     * View own profile.
-     */
     @GetMapping("/employee/profile")
     @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
     public String viewProfile(Model model) {
@@ -330,10 +327,16 @@ public class EmployeeController {
         Employee employee = employeeService.getEmployeeById(employeeId);
         EmployeeDTO dto = employeeService.convertToDTO(employee);
 
-        model.addAttribute("employee", dto);
+        model.addAttribute("currentUser", dto);
+        model.addAttribute("manager", employee.getManager());
+        model.addAttribute("employees", employeeService.getActiveEmployees().stream()
+                .map(employeeService::convertToDTO)
+                .collect(Collectors.toList()));
+        model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
+        model.addAttribute("designations", designationRepository.findByIsActive('Y'));
         model.addAttribute("pageTitle", "My Profile");
 
-        return "redirect:/employee/directory";
+        return "pages/employee/profile-directory";
     }
 
     /**
@@ -349,7 +352,7 @@ public class EmployeeController {
         model.addAttribute("employeeDTO", dto);
         model.addAttribute("pageTitle", "Edit Profile");
 
-        return "redirect:/employee/directory";
+        return "pages/employee/profile-edit";
     }
 
     /**
@@ -358,43 +361,47 @@ public class EmployeeController {
     @PostMapping("/employee/profile/update")
     @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
     public String updateProfile(
-            @Valid @ModelAttribute("employeeDTO") EmployeeDTO dto,
+            @ModelAttribute("employeeDTO") EmployeeDTO dto,
             BindingResult result,
             Model model,
             RedirectAttributes redirectAttributes) {
 
         String employeeId = SecurityUtils.getCurrentUsername();
 
+        // Manual validation for allowed profile fields
+        if (dto.getPhone() != null && !dto.getPhone().isEmpty() && !dto.getPhone().matches("^[6-9]\\d{9}$")) {
+            result.rejectValue("phone", "error.phone", "Invalid phone number format (10 digits starting with 6-9)");
+        }
+        if (dto.getPostalCode() != null && !dto.getPostalCode().isEmpty()
+                && !dto.getPostalCode().matches("^[1-9][0-9]{5}$")) {
+            result.rejectValue("postalCode", "error.postalCode", "Invalid postal code format (6 digits)");
+        }
+        if (dto.getEmergencyContactPhone() != null && !dto.getEmergencyContactPhone().isEmpty()
+                && !dto.getEmergencyContactPhone().matches("^[6-9]\\d{9}$")) {
+            result.rejectValue("emergencyContactPhone", "error.emergencyContactPhone",
+                    "Invalid emergency contact phone (10 digits starting with 6-9)");
+        }
+        if (dto.getAddress() != null && dto.getAddress().length() > 500) {
+            result.rejectValue("address", "error.address", "Address cannot exceed 500 characters");
+        }
+
         if (result.hasErrors()) {
-            return "employee/profile-edit";
+            String errorSummary = result.getAllErrors().stream()
+                    .map(e -> e.getDefaultMessage())
+                    .collect(Collectors.joining("; "));
+            model.addAttribute("error", "Please fix the following errors: " + errorSummary);
+            model.addAttribute("pageTitle", "Edit Profile");
+            return "pages/employee/profile-edit";
         }
 
         try {
-            Employee employee = employeeService.getEmployeeById(employeeId);
-            employee.setPhone(dto.getPhone());
-            employee.setAddress(dto.getAddress());
-            employee.setCity(dto.getCity());
-            employee.setState(dto.getState());
-            employee.setPostalCode(dto.getPostalCode());
-            employee.setEmergencyContactName(dto.getEmergencyContactName());
-            employee.setEmergencyContactPhone(dto.getEmergencyContactPhone());
-
-            EmployeeDTO fullDto = employeeService.convertToDTO(employee);
-            fullDto.setPhone(dto.getPhone());
-            fullDto.setAddress(dto.getAddress());
-            fullDto.setCity(dto.getCity());
-            fullDto.setState(dto.getState());
-            fullDto.setPostalCode(dto.getPostalCode());
-            fullDto.setEmergencyContactName(dto.getEmergencyContactName());
-            fullDto.setEmergencyContactPhone(dto.getEmergencyContactPhone());
-
-            employeeService.updateEmployee(employeeId, fullDto);
-
+            employeeService.updateEmployee(employeeId, dto);
             redirectAttributes.addFlashAttribute("success", "Profile updated successfully!");
             return "redirect:/employee/profile";
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
-            return "employee/profile-edit";
+            model.addAttribute("pageTitle", "Edit Profile");
+            return "pages/employee/profile-edit";
         }
     }
 
@@ -432,10 +439,11 @@ public class EmployeeController {
                 .collect(Collectors.toList());
 
         String employeeId = SecurityUtils.getCurrentUsername();
-        Employee currentUser = employeeService.getEmployeeById(employeeId);
-        model.addAttribute("currentUser", currentUser);
-        model.addAttribute("manager", currentUser.getManager());
+        Employee employee = employeeService.getEmployeeById(employeeId);
+        EmployeeDTO currentUserDTO = employeeService.convertToDTO(employee);
 
+        model.addAttribute("currentUser", currentUserDTO);
+        model.addAttribute("manager", employee.getManager());
         model.addAttribute("employees", employeeDTOs);
         model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
         model.addAttribute("designations", designationRepository.findByIsActive('Y'));

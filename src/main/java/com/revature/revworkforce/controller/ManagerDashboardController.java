@@ -70,38 +70,33 @@ public class ManagerDashboardController {
     }
 
     /**
-     * Redirect sidebar shortcut /manager/leave-approvals → actual leave controller
-     */
-    @GetMapping("/leave-approvals")
-    public String redirectLeaveApprovals() {
-        return "redirect:/leave/manager/leave-approvals";
-    }
-
-    /**
      * Display team management page.
      *
-     * @param model the model
+     * @param search the search keyword
+     * @param model  the model
      * @return team management view
      */
     @GetMapping("/team-management")
-    public String teamManagement(Model model) {
+    public String teamManagement(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String search,
+            Model model) {
         String managerId = SecurityUtils.getCurrentUsername();
         List<com.revature.revworkforce.model.Employee> teamMembers = employeeRepository
                 .findByManager_EmployeeId(managerId);
+
+        if (search != null && !search.trim().isEmpty()) {
+            String keyword = search.toLowerCase();
+            teamMembers = teamMembers.stream()
+                    .filter(e -> e.getFullName().toLowerCase().contains(keyword) ||
+                            e.getEmail().toLowerCase().contains(keyword) ||
+                            e.getEmployeeId().toLowerCase().contains(keyword))
+                    .collect(java.util.stream.Collectors.toList());
+        }
+
         model.addAttribute("teamMembers", teamMembers);
+        model.addAttribute("search", search);
         model.addAttribute("pageTitle", "Team Management");
         return "pages/manager/team-management";
     }
 
-    /** Redirect /manager/performance → performance review list */
-    @GetMapping("/performance")
-    public String redirectPerformance() {
-        return "redirect:/manager/reviews";
-    }
-
-    /** Redirect /manager/goals → team goals view */
-    @GetMapping("/goals")
-    public String redirectGoals() {
-        return "redirect:/goals/manager/team";
-    }
 }

@@ -6,6 +6,7 @@ import com.revature.revworkforce.exception.AuthenticationException;
 import com.revature.revworkforce.exception.ValidationException;
 import com.revature.revworkforce.security.SecurityUtils;
 import com.revature.revworkforce.service.AuthService;
+import com.revature.revworkforce.service.EmployeeService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private EmployeeService employeeService;
 
     /**
      * Display login page.
@@ -72,6 +76,39 @@ public class AuthController {
 
         model.addAttribute("loginRequest", new LoginRequest());
         return "pages/auth/index";
+    }
+
+    /**
+     * Get current user info for sidebar.
+     */
+    @GetMapping("/api/auth/me")
+    @ResponseBody
+    public java.util.Map<String, String> getCurrentUserInfo() {
+        String fullName = "Guest";
+        String role = "employee";
+
+        if (SecurityUtils.isAuthenticated()) {
+            String employeeId = SecurityUtils.getCurrentUsername();
+            try {
+                com.revature.revworkforce.model.Employee employee = employeeService.getEmployeeById(employeeId);
+                if (employee != null) {
+                    fullName = employee.getFirstName() + " " + employee.getLastName();
+                }
+            } catch (Exception e) {
+                fullName = employeeId;
+            }
+
+            if (SecurityUtils.hasRole("ADMIN")) {
+                role = "admin";
+            } else if (SecurityUtils.hasRole("MANAGER")) {
+                role = "manager";
+            }
+        }
+
+        java.util.Map<String, String> userInfo = new java.util.HashMap<>();
+        userInfo.put("fullName", fullName);
+        userInfo.put("role", role);
+        return userInfo;
     }
 
     /**
@@ -150,18 +187,6 @@ public class AuthController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/change-password";
         }
-    }
-
-    /**
-     * Handle access denied errors.
-     * 
-     * @param model the model
-     * @return access denied view
-     */
-    @GetMapping("/error/403")
-    public String accessDenied(Model model) {
-        model.addAttribute("errorMessage", "You do not have permission to access this page.");
-        return "error/403";
     }
 
     /**

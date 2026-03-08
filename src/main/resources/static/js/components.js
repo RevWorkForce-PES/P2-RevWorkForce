@@ -41,7 +41,7 @@ class AppSidebar extends HTMLElement {
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="${basePath}/admin/audit-reports" class="nav-link">
+                    <a href="${basePath}/admin/dashboard" class="nav-link">
                         <i class="fas fa-file-alt"></i> <span>Audit & Reports</span>
                     </a>
                 </li>
@@ -90,6 +90,11 @@ class AppSidebar extends HTMLElement {
                 <li class="nav-item">
                     <a href="${basePath}/employee/performance" class="nav-link">
                         <i class="fas fa-bullseye"></i> <span>Performance Goals</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="${basePath}/announcements" class="nav-link">
+                        <i class="fas fa-bullhorn"></i> <span>Announcements</span>
                     </a>
                 </li>
             `;
@@ -241,56 +246,45 @@ class AppSidebar extends HTMLElement {
 
         this.highlightActiveLink();
 
-        // Populate user name/role from meta tags (local or global) or localStorage or fetch
+        // Initial attempt to populate user name/role from injected meta tags
+        this.populateFromMeta();
+
+        // If meta tags are missing (as on many pages), try to load from API
         const nameEl = this.querySelector('#sidebarUserName');
-        const roleEl = this.querySelector('#sidebarUserRole');
-
-        const metaName = document.querySelector('meta[name="user-fullname"]') || document.querySelector('meta[name="global-user-fullname"]');
-        const metaRole = document.querySelector('meta[name="user-role"]') || document.querySelector('meta[name="global-user-role"]');
-
-        let nameValue = (metaName && metaName.content && metaName.content !== 'null') ? metaName.content : null;
-        let roleValue = (metaRole && metaRole.content && metaRole.content !== 'null') ? metaRole.content : null;
-
-        if (nameEl && nameValue) {
-            nameEl.textContent = nameValue;
-            localStorage.setItem('userFullName', nameValue);
-            if (roleEl && roleValue) {
-                roleEl.textContent = roleValue;
-                localStorage.setItem('userRole', roleValue);
-            }
-        } else {
-            // Try localStorage first as fallback
-            const cachedName = localStorage.getItem('userFullName');
-            const cachedRole = localStorage.getItem('userRole');
-
-            if (nameEl && cachedName && cachedName !== 'undefined' && cachedName !== 'null') {
-                nameEl.textContent = cachedName;
-                if (roleEl && cachedRole && cachedRole !== 'undefined' && cachedRole !== 'null') {
-                    roleEl.textContent = cachedRole;
-                }
-            }
-
-            // Still fetch to ensure freshness if we don't have meta tags
-            this.fetchUserInfo(nameEl, roleEl);
+        if (nameEl && nameEl.textContent === 'Loading...') {
+            this.loadUserInfo();
         }
     }
 
-    async fetchUserInfo(nameEl, roleEl) {
+    populateFromMeta() {
+        const nameEl = this.querySelector('#sidebarUserName');
+        const roleEl = this.querySelector('#sidebarUserRole');
+        const metaName = document.querySelector('meta[name="user-fullname"]');
+        const metaRole = document.querySelector('meta[name="user-role"]');
+
+        if (nameEl && metaName && metaName.content !== 'User') {
+            nameEl.textContent = metaName.content;
+        }
+        if (roleEl && metaRole && metaRole.content !== 'User') {
+            roleEl.textContent = metaRole.content;
+        }
+    }
+
+    async loadUserInfo() {
+        const basePath = window.location.pathname.startsWith('/RevWorkForce') ? '/RevWorkForce' : '';
         try {
-            const basePath = window.location.pathname.startsWith('/RevWorkForce') ? '/RevWorkForce' : '';
-            const response = await fetch(`${basePath}/api/auth/me`);
+            const response = await fetch(`${basePath}/api/user/info`);
             if (response.ok) {
                 const data = await response.json();
-                if (nameEl) nameEl.textContent = data.fullName;
-                if (roleEl) {
-                    roleEl.textContent = data.role;
-                    this.role = data.role.toLowerCase();
-                }
-            } else {
-                if (nameEl) nameEl.textContent = 'Guest';
+                const nameEl = this.querySelector('#sidebarUserName');
+                const roleEl = this.querySelector('#sidebarUserRole');
+
+                if (nameEl && data.fullName) nameEl.textContent = data.fullName;
+                if (roleEl && data.role) roleEl.textContent = data.role;
             }
         } catch (error) {
-            console.error('Error fetching user info:', error);
+            console.error('Failed to load user info:', error);
+            const nameEl = this.querySelector('#sidebarUserName');
             if (nameEl) nameEl.textContent = 'User';
         }
     }
@@ -486,13 +480,16 @@ class AppNavbar extends HTMLElement {
                         <div class="notification-dropdown" id="notificationDropdown">
                             <div class="notification-header">
                                 <h3>Notifications</h3>
-                                <button style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.8rem;">Mark all as read</button>
-                            </div>
+								<button id="markAllReadBtn"
+								        style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.8rem;">
+								    Mark all as read
+								</button>
+								  </div>
                             <ul class="notification-list" id="notificationList">
                                 <!-- Populated dynamically -->
                             </ul>
                             <div class="notification-footer">
-                                <a href="#">View All Activity</a>
+                               <a href="/notifications">View All Activity</a>
                             </div>
                         </div>
                     </div>
@@ -510,94 +507,122 @@ class AppNavbar extends HTMLElement {
         this.setupDropdownLogic();
     }
 
-    async setupDropdownLogic() {
-        const basePath = window.location.pathname.startsWith('/RevWorkForce') ? '/RevWorkForce' : '';
+    setupDropdownLogic() {
         const dropdown = this.querySelector('#notificationDropdown');
         const btn = this.querySelector('#notificationBtn');
         const list = this.querySelector('#notificationList');
         const badge = this.querySelector('#notificationBadge');
+        const markAllBtn = this.querySelector('#markAllReadBtn');
 
-        // Find the 'Mark all as read' button specifically
-        const headerBtn = this.querySelector('.notification-header button');
-        const footerLink = this.querySelector('.notification-footer a');
+        const loadUnreadCount = () => {
+            fetch("/api/notifications/unread-count")
+                .then(res => res.text())
+                .then(count => {
+                    const num = parseInt(count);
+                    badge.innerText = num;
+                    badge.style.display = num > 0 ? "flex" : "none";
+                });
+        };
 
-        // Fetch notifications
-        try {
-            const res = await fetch(`${basePath}/notifications/unread`);
-            if (res.ok) {
-                const notifications = await res.json();
-                badge.innerText = notifications.length;
+        const markAsRead = (id) => {
+            const token = document.querySelector('meta[name="_csrf"]').content;
+            const header = document.querySelector('meta[name="_csrf_header"]').content;
 
-                if (notifications.length === 0) {
-                    list.innerHTML = '<li class="notification-item" style="justify-content:center; color:var(--text-muted);">No new notifications</li>';
-                } else {
-                    list.innerHTML = notifications.map(n => {
-                        let icon = 'fa-bell';
-                        if (n.notificationType === 'LEAVE_REQUEST' || n.notificationType === 'LEAVE_APPROVED' || n.notificationType === 'LEAVE_REJECTED') icon = 'fa-calendar-alt';
-                        if (n.notificationType === 'SYSTEM_ALERT') icon = 'fa-exclamation-triangle';
-                        if (n.notificationType === 'PERFORMANCE_REVIEW') icon = 'fa-chart-line';
-                        if (n.notificationType === 'GOAL_ASSIGNED') icon = 'fa-bullseye';
-
-                        return `
-                        <li class="notification-item" style="cursor:default;">
-                            <div class="notify-icon"><i class="fas ${icon}"></i></div>
-                            <div class="notify-content">
-                                <strong>${n.title || 'Notification'}</strong>
-                                <p style="margin-top: 4px;">${n.message}</p>
-                            </div>
-                        </li>
-                    `}).join('');
+            fetch(`/api/notifications/mark-read/${id}`, {
+                method: "POST",
+                headers: {
+                    [header]: token
                 }
-            }
-        } catch (e) {
-            console.error('Failed to load notifications', e);
+            })
+                .then(res => {
+                    if (res.ok) {
+                        loadUnreadCount();
+                        loadNavbarNotifications();
+                    }
+                })
+                .catch(err => console.error(err));
+        };
+
+        const loadNavbarNotifications = () => {
+            fetch("/api/notifications/recent?limit=5")
+                .then(res => res.json())
+                .then(data => {
+                    list.innerHTML = "";
+                    if (!data || data.length === 0) {
+                        list.innerHTML = `<li class="notification-item">No notifications</li>`;
+                        return;
+                    }
+
+                    data.forEach(n => {
+                        const li = document.createElement("li");
+                        li.className = "notification-item";
+                        if (n.isRead === 'N') li.style.background = "#f8fafc";
+
+                        li.innerHTML = `
+                            <div class="notify-icon" style="background: ${n.isRead === 'N' ? 'rgba(59,130,246,0.1)' : 'rgba(100,116,139,0.1)'}; color: ${n.isRead === 'N' ? '#3b82f6' : '#64748b'}">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="notify-content" style="flex-grow: 1;">
+                                <p style="font-weight: ${n.isRead === 'N' ? '600' : '400'}">${n.message}</p>
+                                <span style="font-size: 0.7rem; color: #94a3b8;">${new Date(n.createdAt).toLocaleString()}</span>
+                            </div>
+                            ${n.isRead === 'N' ? `
+                            <button class="mark-single-read" data-id="${n.notificationId}" title="Mark as read" 
+                                    style="background:none; border:none; color:#10b981; cursor:pointer; padding: 4px;">
+                                <i class="fas fa-check-circle"></i>
+                            </button>` : ''}
+                        `;
+
+                        li.addEventListener("click", (e) => {
+                            if (e.target.closest('.mark-single-read')) {
+                                e.stopPropagation();
+                                const id = e.target.closest('.mark-single-read').dataset.id;
+                                markAsRead(id);
+                                return;
+                            }
+                            window.location.href = "/notifications";
+                        });
+
+                        list.appendChild(li);
+                    });
+                });
+        };
+
+        if (markAllBtn) {
+            markAllBtn.addEventListener("click", () => {
+                const token = document.querySelector('meta[name="_csrf"]').content;
+                const header = document.querySelector('meta[name="_csrf_header"]').content;
+
+                fetch("/api/notifications/mark-all-read", {
+                    method: "POST",
+                    headers: {
+                        [header]: token
+                    }
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error("Failed");
+                        badge.innerText = 0;
+                        badge.style.display = "none";
+                        list.innerHTML = "<li class='notification-item'>No new notifications</li>";
+                    })
+                    .catch(err => console.error(err));
+            });
         }
 
-        // Toggle dropdown logic
+        // Toggle dropdown
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             dropdown.classList.toggle('show');
+            loadNavbarNotifications();
         });
 
-        // Close when clicking outside
         document.addEventListener('click', (e) => {
-            if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
                 dropdown.classList.remove('show');
             }
         });
 
-        // Mark all as read
-        if (headerBtn) {
-            headerBtn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                try {
-                    // Need to include CSRF if enabled, but let's try a standard POST first
-                    const res = await fetch(`${basePath}/notifications/mark-all-read`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    if (res.ok) {
-                        badge.innerText = '0';
-                        list.innerHTML = '<li class="notification-item" style="justify-content:center; color:var(--text-muted);">No new notifications</li>';
-                    } else {
-                        console.error('Failed to mark all as read. Status:', res.status);
-                    }
-                } catch (err) {
-                    console.error('Error marking notifications as read', err);
-                }
-            });
-        }
-
-        // View All Activity (Redirect to dashboard for now, or alert)
-        if (footerLink) {
-            footerLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                alert('All activity is summarized on your dashboard pages.');
-                dropdown.classList.remove('show');
-            });
-        }
+        loadUnreadCount();
     }
 }
 

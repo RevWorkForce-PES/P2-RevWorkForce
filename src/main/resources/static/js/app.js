@@ -39,7 +39,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Initialize tabs if present
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+
+    if (tab) {
+
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // remove all active classes
+        tabBtns.forEach(btn => btn.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+
+        const targetTab = document.getElementById(tab);
+        const targetButton = document.querySelector(`[data-target="${tab}"]`);
+
+        if (targetTab && targetButton) {
+            targetButton.classList.add("active");
+            targetTab.classList.add("active");
+        }
+    }
+
+    // Initialize tabs AFTER setting correct active tab
     initTabs();
+
 });
 
 // Tab switching logic for consolidated pages
@@ -47,22 +70,21 @@ function initTabs() {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
-    if (tabBtns.length === 0) return;
+    if (!tabBtns.length) return;
 
     tabBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = btn.getAttribute('data-target');
+        btn.addEventListener('click', function () {
 
-            // Remove active class from all buttons and contents
             tabBtns.forEach(b => b.classList.remove('active'));
             tabContents.forEach(c => c.classList.remove('active'));
 
-            // Add active class to clicked button and target content
-            btn.classList.add('active');
-            const targetContent = document.getElementById(targetId);
-            if (targetContent) {
-                targetContent.classList.add('active');
+            this.classList.add('active');
+
+            const targetId = this.dataset.target;
+            const target = document.getElementById(targetId);
+
+            if (target) {
+                target.classList.add('active');
             }
         });
     });

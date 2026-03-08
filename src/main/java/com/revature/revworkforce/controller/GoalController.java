@@ -45,7 +45,7 @@ public class GoalController {
     /**
      * P2: View all my goals with status
      */
-    @GetMapping({ "/employee/performance", "/employee/goals", "/employee/reviews" })
+    @GetMapping({ "/employee/performance", "/employee/goals" })
     @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
     public String viewPerformanceDashboard(Model model) {
         String employeeId = SecurityUtils.getCurrentUsername();
@@ -360,7 +360,7 @@ public class GoalController {
     /**
      * P2: View team member goal progress
      */
-    @GetMapping({ "/manager/performance", "/manager/goals/team", "/manager/reviews/team", "/manager/reviews/pending" })
+    @GetMapping({ "/manager/performance", "/manager/goals/team" })
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @Transactional
     public String viewTeamPerformance(Model model) {

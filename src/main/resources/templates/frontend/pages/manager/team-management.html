@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="global-user-fullname" th:content="${globalFullName}">
+    <meta name="global-user-role" th:content="${globalUserRole}">
     <title>Team Management - RevWorkForce Manager</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -16,18 +18,26 @@
             <div class="page-wrapper">
                 <div class="card">
                     <div class="tabs">
-                        <button class="tab-btn active" data-target="team-profiles">My Team / Profiles</button>
+                        <button class="tab-btn" th:classappend="${search == null ? 'active' : ''}"
+                            data-target="team-profiles">My Team / Profiles</button>
                         <button class="tab-btn" data-target="team-attendance">Team Attendance</button>
                         <button class="tab-btn" data-target="team-goals">Goals / Progress</button>
                     </div>
 
                     <!-- Profiles Tab -->
-                    <div id="team-profiles" class="tab-content active">
-                        <div class="flex-space-between mb-3">
-                            <div class="form-group" style="margin-bottom: 0; width: 350px;">
-                                <input type="text" class="form-control" placeholder="Search team members by name...">
+                    <div id="team-profiles" class="tab-content" th:classappend="${search != null ? 'active' : ''}">
+                        <form th:action="@{/manager/team-management}" method="get" class="flex-space-between mb-3">
+                            <div class="form-group" style="margin-bottom: 0; width: 400px; display: flex; gap: 0.5rem;">
+                                <input type="text" name="search" th:value="${search}" class="form-control"
+                                    placeholder="Search team members by name, email or ID...">
+                                <button type="submit" class="btn btn-primary btn-sm" title="Search">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                <a th:href="@{/manager/team-management}" class="btn btn-secondary btn-sm" title="Reset">
+                                    <i class="fas fa-undo"></i>
+                                </a>
                             </div>
-                        </div>
+                        </form>
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>

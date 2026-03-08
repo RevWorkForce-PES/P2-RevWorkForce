@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="global-user-fullname" th:content="${globalFullName}">
+    <meta name="global-user-role" th:content="${globalUserRole}">
     <meta name="user-fullname" th:content="${fullName} ?: 'Admin'">
     <meta name="user-role" content="Admin">
     <title>Admin Dashboard - RevWorkForce</title>

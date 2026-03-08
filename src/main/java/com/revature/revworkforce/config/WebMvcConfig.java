@@ -29,7 +29,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addViewController("/login").setViewName("auth/login");
 
         // Map error pages
-        registry.addViewController("/error/403").setViewName("error/403");
         registry.addViewController("/error/404").setViewName("error/404");
         registry.addViewController("/error/500").setViewName("error/500");
     }

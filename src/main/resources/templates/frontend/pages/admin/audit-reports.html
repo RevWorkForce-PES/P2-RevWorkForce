@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="global-user-fullname" th:content="${globalFullName}">
+    <meta name="global-user-role" th:content="${globalUserRole}">
     <title>Audit & Reports - RevWorkForce Admin</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
@@ -206,7 +208,7 @@
                                                 th:classappend="${app.status.name() == 'APPROVED' ? 'badge-approved' : (app.status.name() == 'REJECTED' ? 'badge-rejected' : 'badge-pending')}"
                                                 th:text="${app.status}">Approved</span></td>
                                         <td>
-                                            <form th:action="@{/leave/admin/revoke/{id}(id=${app.applicationId})}"
+                                            <form th:action="@{/admin/leave/revoke/{id}(id=${app.applicationId})}"
                                                 method="POST" style="display:inline;">
                                                 <button type="submit" class="btn btn-danger btn-sm"
                                                     onclick="return confirm('Revoke this approved leave?');"

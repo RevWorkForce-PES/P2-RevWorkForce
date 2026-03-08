@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="global-user-fullname" th:content="${globalFullName}">
+    <meta name="global-user-role" th:content="${globalUserRole}">
+    <title>Update Progress - RevWorkForce</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar page-title="Update Progress"></app-navbar>
+            <div class="page-wrapper">
+                <div class="card" style="max-width: 600px; margin: 0 auto;">
+                    <div class="flex-space-between mb-4">
+                        <h2 style="margin: 0;">Goal Progress</h2>
+                        <a th:href="@{/employee/performance}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+
+                    <div class="mb-4">
+                        <h4 th:text="${goalDTO.goalTitle}" class="text-primary" style="margin-bottom: 0.5rem;">Goal
+                            Title</h4>
+                        <p th:text="${goalDTO.goalDescription}" class="text-muted small">Description</p>
+                    </div>
+
+                    <form th:action="@{/employee/goals/progress/{id}(id=${goalDTO.goalId})}" method="POST">
+                        <div class="form-group mb-4">
+                            <label class="form-label font-weight-bold" for="progressRange">
+                                Completion: <span id="progressValue" th:text="${goalDTO.progress}">0</span>%
+                            </label>
+                            <input type="range" id="progressRange" name="progress" class="form-control" min="0"
+                                max="100" step="5" th:value="${goalDTO.progress}"
+                                oninput="document.getElementById('progressValue').innerText = this.value">
+
+                            <div
+                                style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">
+                                <span>0%</span>
+                                <span>25%</span>
+                                <span>50%</span>
+                                <span>75%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mb-4" th:if="${goalDTO.progress < 100}">
+                            <i class="fas fa-info-circle"></i> Setting progress to 100% will mark the goal as
+                            **Completed**.
+                        </div>
+                        <div class="alert alert-success mb-4" th:if="${goalDTO.progress == 100}">
+                            <i class="fas fa-check-circle"></i> This goal is currently **Completed**.
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary btn-block">Update Progress</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>
