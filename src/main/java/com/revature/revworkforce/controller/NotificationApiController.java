@@ -35,9 +35,15 @@ public class NotificationApiController {
 
     @PostMapping("/mark-read/{id}")
     public void markReadApi(@PathVariable Long id,
-                            Authentication authentication) {
+            Authentication authentication) {
 
         String employeeId = authentication.getName();
         notificationService.markAsRead(id, employeeId);
+    }
+
+    @PostMapping("/mark-all-read")
+    public void markAllReadApi(Authentication authentication) {
+        String employeeId = authentication.getName();
+        notificationService.markAllAsRead(employeeId);
     }
 }

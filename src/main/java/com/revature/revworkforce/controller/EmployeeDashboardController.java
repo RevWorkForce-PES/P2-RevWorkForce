@@ -149,12 +149,6 @@ public class EmployeeDashboardController {
                 return "redirect:/leave/employee/leave-management";
         }
 
-        /** Redirect /employee/performance → goals performance dashboard */
-        @GetMapping("/performance")
-        public String redirectPerformance() {
-                return "redirect:/employee/goals/dashboard";
-        }
-
         /** Employee announcements page */
         @GetMapping("/announcements")
         public String announcements(Model model) {

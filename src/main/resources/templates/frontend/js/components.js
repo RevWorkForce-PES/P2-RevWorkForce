@@ -241,13 +241,47 @@ class AppSidebar extends HTMLElement {
 
         this.highlightActiveLink();
 
-        // Populate user name/role from injected meta tags
+        // Initial attempt to populate user name/role from injected meta tags
+        this.populateFromMeta();
+
+        // If meta tags are missing (as on many pages), try to load from API
+        const nameEl = this.querySelector('#sidebarUserName');
+        if (nameEl && nameEl.textContent === 'Loading...') {
+            this.loadUserInfo();
+        }
+    }
+
+    populateFromMeta() {
         const nameEl = this.querySelector('#sidebarUserName');
         const roleEl = this.querySelector('#sidebarUserRole');
         const metaName = document.querySelector('meta[name="user-fullname"]');
         const metaRole = document.querySelector('meta[name="user-role"]');
-        if (nameEl && metaName) nameEl.textContent = metaName.content;
-        if (roleEl && metaRole) roleEl.textContent = metaRole.content;
+
+        if (nameEl && metaName && metaName.content !== 'User') {
+            nameEl.textContent = metaName.content;
+        }
+        if (roleEl && metaRole && metaRole.content !== 'User') {
+            roleEl.textContent = metaRole.content;
+        }
+    }
+
+    async loadUserInfo() {
+        const basePath = window.location.pathname.startsWith('/RevWorkForce') ? '/RevWorkForce' : '';
+        try {
+            const response = await fetch(`${basePath}/api/user/info`);
+            if (response.ok) {
+                const data = await response.json();
+                const nameEl = this.querySelector('#sidebarUserName');
+                const roleEl = this.querySelector('#sidebarUserRole');
+
+                if (nameEl && data.fullName) nameEl.textContent = data.fullName;
+                if (roleEl && data.role) roleEl.textContent = data.role;
+            }
+        } catch (error) {
+            console.error('Failed to load user info:', error);
+            const nameEl = this.querySelector('#sidebarUserName');
+            if (nameEl) nameEl.textContent = 'User';
+        }
     }
 
     highlightActiveLink() {
@@ -468,112 +502,123 @@ class AppNavbar extends HTMLElement {
         this.setupDropdownLogic();
     }
 
-	setupDropdownLogic() {
+    setupDropdownLogic() {
+        const dropdown = this.querySelector('#notificationDropdown');
+        const btn = this.querySelector('#notificationBtn');
+        const list = this.querySelector('#notificationList');
+        const badge = this.querySelector('#notificationBadge');
+        const markAllBtn = this.querySelector('#markAllReadBtn');
 
-		const dropdown = this.querySelector('#notificationDropdown');
-		const btn = this.querySelector('#notificationBtn');
-		const list = this.querySelector('#notificationList');
-		const badge = this.querySelector('#notificationBadge');
-		const markAllBtn = this.querySelector('#markAllReadBtn');
+        const loadUnreadCount = () => {
+            fetch("/api/notifications/unread-count")
+                .then(res => res.text())
+                .then(count => {
+                    const num = parseInt(count);
+                    badge.innerText = num;
+                    badge.style.display = num > 0 ? "flex" : "none";
+                });
+        };
 
-		if(markAllBtn){
-		    markAllBtn.addEventListener("click", function(){
+        const markAsRead = (id) => {
+            const token = document.querySelector('meta[name="_csrf"]').content;
+            const header = document.querySelector('meta[name="_csrf_header"]').content;
 
-		        const token = document.querySelector('meta[name="_csrf"]').content;
-		        const header = document.querySelector('meta[name="_csrf_header"]').content;
+            fetch(`/api/notifications/mark-read/${id}`, {
+                method: "POST",
+                headers: {
+                    [header]: token
+                }
+            })
+                .then(res => {
+                    if (res.ok) {
+                        loadUnreadCount();
+                        loadNavbarNotifications();
+                    }
+                })
+                .catch(err => console.error(err));
+        };
 
-		        fetch("/api/notifications/mark-all-read", {
-		            method: "POST",
-		            headers: {
-		                [header]: token
-		            }
-		        })
-		        .then(res => {
-		            if(!res.ok) throw new Error("Failed");
+        const loadNavbarNotifications = () => {
+            fetch("/api/notifications/recent?limit=5")
+                .then(res => res.json())
+                .then(data => {
+                    list.innerHTML = "";
+                    if (!data || data.length === 0) {
+                        list.innerHTML = `<li class="notification-item">No notifications</li>`;
+                        return;
+                    }
 
-		            badge.innerText = 0;
-		            badge.style.display = "none";
+                    data.forEach(n => {
+                        const li = document.createElement("li");
+                        li.className = "notification-item";
+                        if (n.isRead === 'N') li.style.background = "#f8fafc";
 
-		            list.innerHTML =
-		                "<li class='notification-item'>No new notifications</li>";
-		        })
-		        .catch(err => console.error(err));
-		    });
-		}
-		function loadUnreadCount(){
+                        li.innerHTML = `
+                            <div class="notify-icon" style="background: ${n.isRead === 'N' ? 'rgba(59,130,246,0.1)' : 'rgba(100,116,139,0.1)'}; color: ${n.isRead === 'N' ? '#3b82f6' : '#64748b'}">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="notify-content" style="flex-grow: 1;">
+                                <p style="font-weight: ${n.isRead === 'N' ? '600' : '400'}">${n.message}</p>
+                                <span style="font-size: 0.7rem; color: #94a3b8;">${new Date(n.createdAt).toLocaleString()}</span>
+                            </div>
+                            ${n.isRead === 'N' ? `
+                            <button class="mark-single-read" data-id="${n.notificationId}" title="Mark as read" 
+                                    style="background:none; border:none; color:#10b981; cursor:pointer; padding: 4px;">
+                                <i class="fas fa-check-circle"></i>
+                            </button>` : ''}
+                        `;
 
-		    fetch("/api/notifications/unread-count")
-		    .then(res => res.text())
-		    .then(count => {
+                        li.addEventListener("click", (e) => {
+                            if (e.target.closest('.mark-single-read')) {
+                                e.stopPropagation();
+                                const id = e.target.closest('.mark-single-read').dataset.id;
+                                markAsRead(id);
+                                return;
+                            }
+                            window.location.href = "/notifications";
+                        });
 
-		        const num = parseInt(count);
+                        list.appendChild(li);
+                    });
+                });
+        };
 
-		        badge.innerText = num;
-		        badge.style.display = num > 0 ? "flex" : "none";
-		    });
-		}
-	    // Toggle dropdown
-	    btn.addEventListener('click', (e) => {
-	        e.stopPropagation();
-	        dropdown.classList.toggle('show');
+        if (markAllBtn) {
+            markAllBtn.addEventListener("click", () => {
+                const token = document.querySelector('meta[name="_csrf"]').content;
+                const header = document.querySelector('meta[name="_csrf_header"]').content;
 
-	        loadNavbarNotifications();
-	    });
+                fetch("/api/notifications/mark-all-read", {
+                    method: "POST",
+                    headers: {
+                        [header]: token
+                    }
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error("Failed");
+                        badge.innerText = 0;
+                        badge.style.display = "none";
+                        list.innerHTML = "<li class='notification-item'>No new notifications</li>";
+                    })
+                    .catch(err => console.error(err));
+            });
+        }
 
-	    document.addEventListener('click', (e) => {
-	        if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
-	            dropdown.classList.remove('show');
-	        }
-			
-	    }
-		
-	);
+        // Toggle dropdown
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('show');
+            loadNavbarNotifications();
+        });
 
-	function loadNavbarNotifications() {
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
 
-	    fetch("/api/notifications/recent?limit=5")
-	    .then(res => res.json())
-	    .then(data => {
-
-	        list.innerHTML = "";
-
-	        if (!data || data.length === 0) {
-	            list.innerHTML = `<li class="notification-item">No notifications</li>`;
-	            return;
-	        }
-
-	        data.forEach(n => {
-
-	            const li = document.createElement("li");
-
-	            li.className = "notification-item";
-
-	            li.innerHTML = `
-	                <div class="notify-icon">
-	                    <i class="fas fa-bell"></i>
-	                </div>
-	                <div class="notify-content">
-	                    <p>${n.message}</p>
-<span>${new Date(n.createdAt).toLocaleString()}</span>
-	                </div>
-	            `;
-
-	            li.addEventListener("click", () => {
-	                window.location.href = "/notifications";
-	            });
-
-	            list.appendChild(li);
-
-	        });
-
-	       loadUnreadCount();
-	    });
-
-	}
-	loadUnreadCount();
-
-	}
-	
+        loadUnreadCount();
+    }
 }
 
 customElements.define('app-navbar', AppNavbar);
