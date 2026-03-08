@@ -1,0 +1,12 @@
+﻿src/main/java/com/revature/revworkforce/config/SecurityConfig.java
+src/main/java/com/revature/revworkforce/config/WebMvcConfig.java
+src/main/java/com/revature/revworkforce/controller/EmployeeController.java
+src/main/java/com/revature/revworkforce/controller/EmployeeDashboardController.java
+src/main/java/com/revature/revworkforce/controller/GoalController.java
+src/main/resources/templates/frontend/js/app.js
+src/main/resources/templates/frontend/js/components.js
+src/main/resources/templates/frontend/pages/admin/dashboard.html
+src/main/resources/templates/frontend/pages/employee/dashboard.html
+src/main/resources/templates/frontend/pages/employee/profile-directory.html
+src/main/resources/templates/frontend/pages/manager/dashboard.html
+src/main/resources/templates/frontend/pages/manager/leave-approvals.html
