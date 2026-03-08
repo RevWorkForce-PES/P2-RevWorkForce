@@ -65,6 +65,7 @@ public class ManagerDashboardController {
         }
 
         model.addAttribute("pageTitle", "Manager Dashboard");
+        model.addAttribute("currentDashboard", "manager");
 
         return "pages/manager/dashboard";
     }

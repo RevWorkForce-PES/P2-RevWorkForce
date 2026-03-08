@@ -138,6 +138,8 @@ public class EmployeeDashboardController {
                 }
 
                 model.addAttribute("pageTitle", "Employee Dashboard");
+                model.addAttribute("currentDashboard", "employee");
+
                 return "pages/employee/dashboard";
         }
 

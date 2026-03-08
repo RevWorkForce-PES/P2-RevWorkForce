@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Management - RevWorkForce Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .badge-active {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            padding: 0.25rem 0.6rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-inactive {
+            background: rgba(239, 68, 68, 0.12);
+            color: #ef4444;
+            padding: 0.25rem 0.6rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .page-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+
+        .page-actions h2 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar page-title="Department Management"></app-navbar>
+            <div class="page-wrapper">
+
+                <!-- Flash messages -->
+                <div th:if="${success}"
+                    style="margin-bottom:1rem; padding:0.75rem 1rem; background:#d4edda; border-radius:6px; color:#155724; display:flex; align-items:center; gap:0.5rem;">
+                    <i class="fas fa-check-circle"></i>
+                    <span th:text="${success}">Success</span>
+                </div>
+                <div th:if="${error}"
+                    style="margin-bottom:1rem; padding:0.75rem 1rem; background:#f8d7da; border-radius:6px; color:#721c24; display:flex; align-items:center; gap:0.5rem;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${error}">Error</span>
+                </div>
+
+                <div class="card">
+                    <div class="page-actions">
+                        <div>
+                            <h2><i class="fas fa-building"
+                                    style="color:var(--primary); margin-right:0.5rem;"></i>Departments</h2>
+                            <p class="text-muted" style="margin:0.15rem 0 0; font-size:0.85rem;"
+                                th:text="${'Total: ' + departments.size() + ' department(s)'}">Total: 0 departments</p>
+                        </div>
+                        <div style="display:flex; gap:0.75rem; align-items:center;">
+                            <a th:href="@{/admin/system-config}" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left"></i> Back to Config
+                            </a>
+                            <a th:href="@{/admin/departments/add}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add Department
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Department Name</th>
+                                    <th>Department Head</th>
+                                    <th>Employees</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="dept, stat : ${departments}">
+                                    <td th:text="${stat.index + 1}" style="color:var(--text-muted); width:50px;">1</td>
+                                    <td>
+                                        <span style="font-weight:600;"
+                                            th:text="${dept.departmentName}">Engineering</span>
+                                    </td>
+                                    <td th:text="${dept.departmentHead != null ? dept.departmentHead : '—'}">John Doe
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info" th:text="${dept.employeeCount + ' member(s)'}">0
+                                            member(s)</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${dept.isActive == 'Y'}" class="badge-active">
+                                            <i class="fas fa-circle"
+                                                style="font-size:0.5rem; margin-right:3px;"></i>Active
+                                        </span>
+                                        <span th:unless="${dept.isActive == 'Y'}" class="badge-inactive">
+                                            <i class="fas fa-circle"
+                                                style="font-size:0.5rem; margin-right:3px;"></i>Inactive
+                                        </span>
+                                    </td>
+                                    <td style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                                        <a th:href="@{/admin/departments/edit/{id}(id=${dept.departmentId})}"
+                                            class="btn btn-secondary btn-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <form th:action="@{/admin/departments/delete/{id}(id=${dept.departmentId})}"
+                                            method="POST" style="display:inline;"
+                                            onsubmit="return confirm('Delete department \'' + this.dataset.name + '\'? This action cannot be undone.');"
+                                            th:data-name="${dept.departmentName}">
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(departments)}">
+                                    <td colspan="6" class="text-center text-muted" style="padding:3rem;">
+                                        <i class="fas fa-building"
+                                            style="font-size:2rem; opacity:0.3; display:block; margin-bottom:0.75rem;"></i>
+                                        No departments found. <a th:href="@{/admin/departments/add}">Add the first
+                                            one.</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>
