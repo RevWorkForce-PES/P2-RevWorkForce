@@ -55,7 +55,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 performedBy,
                 Constants.AUDIT_INSERT,
                 "DEPARTMENTS",
-                department.getDepartmentId().toString(),
+                department.getDepartmentId() != null ? department.getDepartmentId().toString() : "NEW",
                 null,
                 "Created department: " + department.getDepartmentName(),
                 null,

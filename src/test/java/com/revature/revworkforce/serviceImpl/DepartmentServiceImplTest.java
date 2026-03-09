@@ -34,7 +34,7 @@ class DepartmentServiceImplTest {
     private EmployeeRepository employeeRepository;
 
     @Mock
-    private AuditService auditService;  // Mocking AuditService
+    private AuditService auditService; // Mocking AuditService
 
     @InjectMocks
     private DepartmentServiceImpl departmentService;
@@ -58,15 +58,20 @@ class DepartmentServiceImplTest {
     void createDepartment_ShouldReturnDepartmentDTO() {
         // Arrange: Create a mock department
         Department department = new Department("IT");
+        department.setDepartmentId(1L);
         department.setDepartmentHead("Alice");
         department.setDescription("IT Department");
         department.setIsActive('Y');
-        department.setDepartmentId(1L);  // Ensure department ID is set
+        department.setDepartmentId(1L); // Ensure department ID is set
 
         // Mock repository behaviors
-        when(departmentRepository.existsByDepartmentName(departmentDTO.getDepartmentName())).thenReturn(false);  // No duplicate department name
-        when(departmentRepository.save(any(Department.class))).thenReturn(department);  // Simulate saving the department
-        when(employeeRepository.countByDepartment(any(Department.class))).thenReturn((long) 10);  // Assume 10 employees in the department
+        when(departmentRepository.existsByDepartmentName(departmentDTO.getDepartmentName())).thenReturn(false); // No
+                                                                                                                // duplicate
+                                                                                                                // department
+                                                                                                                // name
+        when(departmentRepository.save(any(Department.class))).thenReturn(department); // Simulate saving the department
+        when(employeeRepository.countByDepartment(any(Department.class))).thenReturn((long) 10); // Assume 10 employees
+                                                                                                 // in the department
 
         // Act: Call the service method
         DepartmentDTO createdDepartment = departmentService.createDepartment(departmentDTO);
@@ -84,8 +89,8 @@ class DepartmentServiceImplTest {
 
         // Act & Assert: Assert that the exception is thrown
         assertThatThrownBy(() -> departmentService.createDepartment(departmentDTO))
-            .isInstanceOf(DuplicateResourceException.class)
-            .hasMessageContaining("already exists");
+                .isInstanceOf(DuplicateResourceException.class)
+                .hasMessageContaining("already exists");
     }
 
     @Test
@@ -98,10 +103,16 @@ class DepartmentServiceImplTest {
         existingDepartment.setIsActive('Y');
 
         // Mock repository interactions
-        when(departmentRepository.findById(1L)).thenReturn(Optional.of(existingDepartment));  // Finding the existing department by ID
-        when(departmentRepository.existsByDepartmentName(departmentDTO.getDepartmentName())).thenReturn(false);  // No duplicate department name
-        when(departmentRepository.save(any(Department.class))).thenReturn(existingDepartment);  // Simulating saving the updated department
-        when(employeeRepository.countByDepartment(any(Department.class))).thenReturn((long) 10);  // Assume 10 employees in the department
+        when(departmentRepository.findById(1L)).thenReturn(Optional.of(existingDepartment)); // Finding the existing
+                                                                                             // department by ID
+        when(departmentRepository.existsByDepartmentName(departmentDTO.getDepartmentName())).thenReturn(false); // No
+                                                                                                                // duplicate
+                                                                                                                // department
+                                                                                                                // name
+        when(departmentRepository.save(any(Department.class))).thenReturn(existingDepartment); // Simulating saving the
+                                                                                               // updated department
+        when(employeeRepository.countByDepartment(any(Department.class))).thenReturn((long) 10); // Assume 10 employees
+                                                                                                 // in the department
 
         // Act: Call the update method
         DepartmentDTO updatedDepartment = departmentService.updateDepartment(1L, departmentDTO);
@@ -119,8 +130,8 @@ class DepartmentServiceImplTest {
 
         // Act & Assert: Assert that the exception is thrown
         assertThatThrownBy(() -> departmentService.updateDepartment(1L, departmentDTO))
-            .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("Department not found");
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Department not found");
     }
 
     @Test
@@ -150,8 +161,8 @@ class DepartmentServiceImplTest {
 
         // Act & Assert: Assert that the exception is thrown
         assertThatThrownBy(() -> departmentService.getDepartmentById(1L))
-            .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("Department not found");
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Department not found");
     }
 
     @Test
@@ -164,7 +175,10 @@ class DepartmentServiceImplTest {
         department2.setDepartmentHead("Bob");
 
         // Mock the repository to return departments in sorted order
-        when(departmentRepository.findAllByOrderByDepartmentNameAsc()).thenReturn(List.of(department2, department1));  // HR first, IT second
+        when(departmentRepository.findAllByOrderByDepartmentNameAsc()).thenReturn(List.of(department2, department1)); // HR
+                                                                                                                      // first,
+                                                                                                                      // IT
+                                                                                                                      // second
         when(employeeRepository.countByDepartment(any(Department.class))).thenReturn((long) 10);
 
         // Act: Call the service method to get all departments
@@ -172,8 +186,8 @@ class DepartmentServiceImplTest {
 
         // Assert: Verify the returned departments are ordered correctly
         assertThat(departments).hasSize(2);
-        assertThat(departments.get(0).getDepartmentName()).isEqualTo("HR");  // HR should be first
-        assertThat(departments.get(1).getDepartmentName()).isEqualTo("IT");  // IT should be second
+        assertThat(departments.get(0).getDepartmentName()).isEqualTo("HR"); // HR should be first
+        assertThat(departments.get(1).getDepartmentName()).isEqualTo("IT"); // IT should be second
     }
 
     @Test
@@ -202,7 +216,7 @@ class DepartmentServiceImplTest {
 
         // Act & Assert: Assert that the exception is thrown
         assertThatThrownBy(() -> departmentService.deleteDepartment(1L))
-            .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("Department not found");
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Department not found");
     }
 }
