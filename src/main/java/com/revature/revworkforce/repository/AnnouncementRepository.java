@@ -104,7 +104,13 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
      * 
      * @return list of all announcements
      */
-    List<Announcement> findAllByOrderByCreatedAtDesc();
+    @Query("""
+    		SELECT a 
+    		FROM Announcement a
+    		LEFT JOIN FETCH a.createdBy
+    		ORDER BY a.createdAt DESC
+    		""")
+    		List<Announcement> findAllWithCreator();
 
     /**
      * Find active announcements.
