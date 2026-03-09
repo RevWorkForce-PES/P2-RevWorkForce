@@ -146,5 +146,4 @@ class LeaveControllerTest {
         verify(leaveService, times(1))
                 .rejectLeave(eq(1L), eq("MGR001"), eq("Invalid"));
     }
-
 }

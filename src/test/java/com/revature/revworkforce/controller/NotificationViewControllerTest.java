@@ -107,7 +107,6 @@ class NotificationViewControllerTest {
 
         verify(notificationService).markAllAsRead(EMPLOYEE_ID);
     }
-
     // =============================
     // Delete Notification
     // =============================
