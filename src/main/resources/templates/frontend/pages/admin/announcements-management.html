@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="user-fullname" th:content="${fullName} ?: 'Admin'">
+<meta name="user-role" content="Admin">
+<title>Announcement Management - RevWorkForce</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<style>
+.announcement-card {
+	background: rgba(255, 255, 255, 0.95);
+	border-radius: 12px;
+	padding: 1.5rem;
+	margin-bottom: 1rem;
+	border: 1px solid rgba(0, 0, 0, 0.05);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+	transition: all 0.3s ease;
+}
+
+.announcement-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.priority-URGENT {
+	background: #fee2e2;
+	color: #991b1b;
+}
+
+.priority-HIGH {
+	background: #fed7aa;
+	color: #9a3412;
+}
+
+.priority-MEDIUM {
+	background: #fef3c7;
+	color: #92400e;
+}
+
+.priority-LOW {
+	background: #dbeafe;
+	color: #1e40af;
+}
+
+/* ================= DASHBOARD STATS ================= */
+.stats-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
+	margin-top: 1rem;
+	
+}
+
+.stat-card {
+	background: white;
+	border-radius: 14px;
+	padding: 1.3rem 1.5rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	border: 1px solid #e5e7eb;
+	box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+	transition: all .2s ease;
+}
+s
+
+.stat-icon {
+	width: 48px;
+	height: 48px;
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.2rem;
+}
+
+.stat-details {
+	display: flex;
+	flex-direction: column;
+}
+
+.stat-label {
+	font-size: .85rem;
+	color: #6b7280;
+}
+
+.stat-value {
+	font-size: 1.5rem;
+	font-weight: 700;
+}
+
+.priority-badge {
+	display: inline-block;
+	padding: 0.25rem 0.75rem;
+	border-radius: 50px;
+	font-size: 0.875rem;
+	font-weight: 600;
+}
+
+.priority-URGENT {
+	background: #fee2e2;
+	color: #991b1b;
+}
+
+.priority-HIGH {
+	background: #fed7aa;
+	color: #9a3412;
+}
+
+.priority-MEDIUM {
+	background: #fef3c7;
+	color: #92400e;
+}
+
+.priority-LOW {
+	background: #dbeafe;
+	color: #1e40af;
+}
+
+.status-active {
+	background: #d1fae5;
+	color: #065f46;
+}
+
+.status-inactive {
+	background: #e5e7eb;
+	color: #374151;
+}
+
+.action-buttons {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.modal {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 1000;
+	align-items: center;
+	justify-content: center;
+}
+
+.modal.active {
+	display: flex;
+}
+
+.modal-content {
+	background: white;
+	border-radius: 16px;
+	padding: 2rem;
+	max-width: 600px;
+	width: 90%;
+	max-height: 90vh;
+	overflow-y: auto;
+}
+
+.search-box {
+	position: relative;
+}
+
+.search-box input {
+	padding: 8px 12px 8px 32px;
+	border-radius: 8px;
+	border: 1px solid #d1d5db;
+}
+
+.search-box i {
+	position: absolute;
+	left: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: #9ca3af;
+}
+</style>
+</head>
+
+<body>
+	<div class="app-container">
+		<!-- Sidebar Component -->
+		<app-sidebar></app-sidebar>
+
+		<main class="main-content">
+			<!-- Navbar Component -->
+			<app-navbar page-title="Announcement Management"></app-navbar>
+
+			<div class="page-wrapper">
+				<!-- Success/Error Messages -->
+				<div th:if="${success}" class="alert alert-success">
+					<i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+				</div>
+
+				<div th:if="${error}" class="alert alert-danger">
+					<i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+				</div>
+
+				<!-- Header with Create Button -->
+				<div class="page-header">
+					<div>
+						<h1>Announcements</h1>
+						<p class="text-muted">Create and manage company-wide
+							announcements</p>
+					</div>
+					<button class="btn btn-primary" onclick="showCreateModal()">
+						<i class="fas fa-plus"></i> Create Announcement
+					</button>
+				</div>
+
+				<!-- Statistics Cards -->
+				<div class="stats-grid" style="margin-bottom: 2rem;">
+					<div class="stat-card">
+						<div class="stat-icon" style="background: #dbeafe;">
+							<i class="fas fa-bullhorn" style="color: #1e40af;"></i>
+						</div>
+						<div class="stat-details">
+							<p class="stat-label">Total Announcements</p>
+							<h3 class="stat-value" th:text="${#lists.size(announcements)}">0</h3>
+						</div>
+					</div>
+
+					<div class="stat-card">
+						<div class="stat-icon" style="background: #fee2e2;">
+							<i class="fas fa-exclamation-triangle" style="color: #991b1b;"></i>
+						</div>
+						<div class="stat-details">
+							<p class="stat-label">Urgent</p>
+							<h3 class="stat-value"
+								th:text="${#lists.size(announcements.?[priority.name() == 'URGENT'])}">0</h3>
+						</div>
+					</div>
+				</div>
+
+				<!-- Announcements List -->
+				<div class="card">
+					<div class="card-header">
+						<h2>All Announcements</h2>
+						<div class="search-box">
+							<i class="fas fa-search"></i> <input type="text" id="searchInput"
+								placeholder="Search announcements..."
+								onkeyup="searchAnnouncements()">
+						</div>
+					</div>
+
+					<div id="announcementsList">
+						<div class="announcement-card" th:each="ann : ${announcements}">
+							<div class="d-flex justify-content-between align-items-start">
+								<div style="flex: 1;">
+									<div class="d-flex align-items-center gap-2 mb-2">
+										<h3 style="margin: 0; font-size: 1.25rem;"
+											th:text="${ann.title}">Announcement Title</h3>
+										<span class="priority-badge"
+											th:classappend="'priority-' + ${ann.priority}"
+											th:text="${ann.priority}">MEDIUM</span>
+									</div>
+
+									<p class="text-muted" style="margin-bottom: 0.75rem;"
+										th:text="${#strings.abbreviate(ann.message, 150)}">
+										Announcement message preview...</p>
+
+									<div class="d-flex gap-3"
+										style="font-size: 0.875rem; color: #6b7280;">
+										<span> <i class="fas fa-user"></i> <span
+											th:text="${ann.createdBy?.fullName}">Admin</span>
+										</span> <span> <i class="fas fa-calendar"></i> <span
+											th:text="${#temporals.format(ann.publishDate, 'MMM dd, yyyy')}">Mar
+												09, 2026</span>
+										</span> <span th:if="${ann.expiryDate != null}"> <i
+											class="fas fa-clock"></i> Expires: <span
+											th:text="${#temporals.format(ann.expiryDate, 'MMM dd, yyyy')}">Mar
+												20, 2026</span>
+										</span> <span> <i class="fas fa-tag"></i> <span
+											th:text="${ann.announcementType}">INFO</span>
+										</span>
+									</div>
+								</div>
+
+								<div class="action-buttons">
+
+
+
+									<form
+										th:action="@{/admin/announcements/delete/{id}(id=${ann.announcementId})}"
+										method="post" style="display: inline;">
+										<button type="submit" class="btn btn-danger btn-sm"
+											onclick="return confirm('Permanently delete this announcement?');">
+											<i class="fas fa-trash"></i> Delete
+										</button>
+									</form>
+								</div>
+							</div>
+						</div>
+
+						<div th:if="${#lists.isEmpty(announcements)}" class="empty-state">
+							<i class="fas fa-bullhorn"></i>
+							<h3>No Announcements Yet</h3>
+							<p>Create your first announcement to notify employees</p>
+							<button class="btn btn-primary" onclick="showCreateModal()">
+								<i class="fas fa-plus"></i> Create Announcement
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+
+	<!-- Create/Edit Modal -->
+	<div id="announcementModal" class="modal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2 id="modalTitle">Create Announcement</h2>
+				<button class="btn-close" onclick="closeModal()">&times;</button>
+			</div>
+
+			<form id="announcementForm"
+				th:action="@{/admin/announcements/create}" method="post">
+				<div class="form-group">
+					<label class="form-label">Title *</label> <input type="text"
+						name="title" class="form-control" required maxlength="200"
+						placeholder="Enter announcement title">
+				</div>
+
+				<div class="form-group">
+					<label class="form-label">Message *</label>
+					<textarea name="message" class="form-control" rows="5" required
+						placeholder="Enter announcement message..."></textarea>
+				</div>
+
+				<div class="row">
+					<div class="col-md-6">
+						<div class="form-group">
+							<label class="form-label">Type</label> <select name="type"
+								class="form-control">
+								<option value="INFO">Information</option>
+								<option value="WARNING">Warning</option>
+								<option value="POLICY">Policy Update</option>
+								<option value="EVENT">Event</option>
+								<option value="URGENT">Urgent Notice</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="col-md-6">
+						<div class="form-group">
+							<label class="form-label">Priority</label> <select
+								name="priority" class="form-control">
+								<option value="LOW">Low</option>
+								<option value="MEDIUM" selected>Medium</option>
+								<option value="HIGH">High</option>
+								<option value="URGENT">Urgent</option>
+							</select>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-6">
+						<div class="form-group">
+							<label class="form-label">Publish Date</label> <input type="date"
+								name="publishDate" class="form-control"
+								th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+						</div>
+					</div>
+
+					<div class="col-md-6">
+						<div class="form-group">
+							<label class="form-label">Expiry Date (Optional)</label> <input
+								type="date" name="expiryDate" class="form-control">
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="form-label">Target Audience</label> <select
+						name="targetAudience" class="form-control">
+						<option value="ALL">All Employees</option>
+						<option value="MANAGERS">Managers Only</option>
+						<option value="DEPARTMENT">Specific Department</option>
+					</select>
+				</div>
+
+				<div class="d-flex gap-2 justify-content-end">
+					<button type="button" class="btn btn-secondary"
+						onclick="closeModal()">Cancel</button>
+					<button type="submit" class="btn btn-primary">
+						<i class="fas fa-paper-plane"></i> Publish
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- Scripts -->
+	<script th:src="@{/js/components.js}"></script>
+	<script th:src="@{/js/app.js}"></script>
+
+	<script>
+        function showCreateModal() {
+            document.getElementById('modalTitle').textContent = 'Create Announcement';
+            document.getElementById('announcementForm').action = '/admin/announcements/create';
+            document.getElementById('announcementForm').reset();
+            document.getElementById('announcementModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('announcementModal').classList.remove('active');
+        }
+
+        function searchAnnouncements() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const cards = document.querySelectorAll('.announcement-card');
+
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(filter) ? '' : 'none';
+            });
+        }
+
+        // Close modal on outside click
+        document.getElementById('announcementModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+
+</html>
