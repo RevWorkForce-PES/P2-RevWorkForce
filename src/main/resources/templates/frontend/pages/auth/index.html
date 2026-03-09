@@ -240,12 +240,15 @@
 
 <body>
     <div class="login-page">
-        <div class="login-card">
-            <div id="gifContainer">
+        <div class="login-card" id="loginCard"
+            th:classappend="${error == null and message == null and success == null} ? 'gif-active' : ''">
+            <div id="gifContainer"
+                th:style="${error == null and message == null and success == null} ? 'display: flex;' : 'display: none;'">
                 <img th:src="@{/assets/logo.gif}" alt="Loading..." class="img-fluid">
             </div>
 
-            <div id="formContent">
+            <div id="formContent"
+                th:style="${error == null and message == null and success == null} ? 'display: none;' : ''">
                 <div class="login-logo">R</div>
                 <h1 class="login-title">Welcome Back</h1>
                 <p class="login-subtitle">Sign in to RevWorkForce</p>
@@ -358,25 +361,20 @@
         // Dynamically set current year in footer
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-        // Handle Form Submission with GIF Transition
-        document.getElementById('loginForm').addEventListener('submit', function (e) {
-            e.preventDefault(); // Prevent immediate submission
-
+        // Handle Startup GIF Transition
+        document.addEventListener("DOMContentLoaded", function () {
             const formContent = document.getElementById('formContent');
             const gifContainer = document.getElementById('gifContainer');
-            const loginCard = document.querySelector('.login-card');
+            const loginCard = document.getElementById('loginCard');
 
-            // Hide form and show GIF
-            formContent.style.display = 'none';
-            gifContainer.style.display = 'flex';
-
-            // Apply minimalist style
-            loginCard.classList.add('gif-active');
-
-            // Wait for GIF to play fully (4.4 seconds) then submit
-            setTimeout(() => {
-                this.submit();
-            }, 4400);
+            // If the GIF is initially shown (no errors), hide it after 4.4 seconds
+            if (gifContainer.style.display === 'flex') {
+                setTimeout(() => {
+                    gifContainer.style.display = 'none';
+                    formContent.style.display = 'block';
+                    loginCard.classList.remove('gif-active');
+                }, 4400);
+            }
         });
 
     </script>
