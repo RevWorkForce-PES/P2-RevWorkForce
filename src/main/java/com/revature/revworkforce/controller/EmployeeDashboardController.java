@@ -1,5 +1,6 @@
 package com.revature.revworkforce.controller;
 
+import com.revature.revworkforce.dto.AnnouncementDTO;
 import com.revature.revworkforce.dto.EmployeeDTO;
 import com.revature.revworkforce.dto.LeaveBalanceDTO;
 import com.revature.revworkforce.model.Employee;
@@ -64,7 +65,11 @@ public class EmployeeDashboardController {
         @GetMapping("/dashboard")
         public String employeeDashboard(Model model) {
                 String employeeId = SecurityUtils.getCurrentUsername();
-
+                
+                List<AnnouncementDTO> recentAnnouncements = 
+                        announcementService.getRecentAnnouncements(3);
+                    model.addAttribute("recentAnnouncements", recentAnnouncements);
+                    
                 // Get current user info
                 EmployeeDTO currentUser = employeeService.getEmployeeDTOById(employeeId);
                 if (currentUser != null) {
@@ -153,16 +158,6 @@ public class EmployeeDashboardController {
                 return "pages/employee/dashboard";
         }
 
-        /** Employee announcements page */
-        @GetMapping("/announcements")
-        public String announcements(Model model) {
-                try {
-                        model.addAttribute("announcements", announcementService.getActiveAnnouncements());
-                } catch (Exception e) {
-                        model.addAttribute("announcements", List.of());
-                }
-                model.addAttribute("pageTitle", "Company Announcements");
-                return "pages/employee/announcements";
-        }
+      
 
 }
