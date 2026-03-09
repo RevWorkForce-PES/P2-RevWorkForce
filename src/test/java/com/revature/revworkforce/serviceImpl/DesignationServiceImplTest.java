@@ -32,6 +32,9 @@ public class DesignationServiceImplTest {
     @Mock
     private EmployeeRepository employeeRepository;
 
+    @Mock
+    private com.revature.revworkforce.service.AuditService auditService;
+
     @InjectMocks
     private DesignationServiceImpl designationService;
 
@@ -61,6 +64,7 @@ public class DesignationServiceImplTest {
     void createDesignation_ShouldCreateDesignation() {
         // Arrange
         Designation newDesignation = new Designation(validDesignationDTO.getDesignationName());
+        newDesignation.setDesignationId(1L);
         newDesignation.setDesignationLevel(validDesignationDTO.getDesignationLevel());
         newDesignation.setMinSalary(validDesignationDTO.getMinSalary());
         newDesignation.setMaxSalary(validDesignationDTO.getMaxSalary());
@@ -75,7 +79,7 @@ public class DesignationServiceImplTest {
 
         // Assert
         assertThat(created.getDesignationName()).isEqualTo("Software Engineer");
-        verify(designationRepository).save(any(Designation.class));  // Ensure save is called
+        verify(designationRepository).save(any(Designation.class)); // Ensure save is called
     }
 
     @Test
@@ -105,7 +109,7 @@ public class DesignationServiceImplTest {
 
         // Assert
         assertThat(updatedDesignation.getDesignationName()).isEqualTo(validDesignationDTO.getDesignationName());
-        verify(designationRepository).save(any(Designation.class));  // Ensure save is called
+        verify(designationRepository).save(any(Designation.class)); // Ensure save is called
     }
 
     @Test
@@ -114,19 +118,21 @@ public class DesignationServiceImplTest {
         when(designationRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> designationService.updateDesignation(1L, validDesignationDTO));
+        assertThrows(ResourceNotFoundException.class,
+                () -> designationService.updateDesignation(1L, validDesignationDTO));
     }
 
     @Test
     void updateDesignation_ShouldThrowValidationException_WhenMinSalaryGreaterThanMaxSalary() {
         // Arrange: Create an existing Designation entity with valid data
-        Designation existingDesignation = new Designation("Software Engineer");  // Make sure to set designationName
+        Designation existingDesignation = new Designation("Software Engineer"); // Make sure to set designationName
         existingDesignation.setMinSalary(new BigDecimal("100000"));
-        existingDesignation.setMaxSalary(new BigDecimal("50000"));  // Min > Max salary to trigger validation
+        existingDesignation.setMaxSalary(new BigDecimal("50000")); // Min > Max salary to trigger validation
         when(designationRepository.findById(1L)).thenReturn(Optional.of(existingDesignation));
 
         // Act & Assert: Expect a ValidationException to be thrown
-        assertThrows(ValidationException.class, () -> designationService.updateDesignation(1L, invalidSalaryDesignationDTO));
+        assertThrows(ValidationException.class,
+                () -> designationService.updateDesignation(1L, invalidSalaryDesignationDTO));
     }
 
     @Test
@@ -163,7 +169,7 @@ public class DesignationServiceImplTest {
 
         // Assert
         assertThat(existingDesignation.getIsActive()).isEqualTo('N');
-        verify(designationRepository).save(any(Designation.class));  // Ensure save is called
+        verify(designationRepository).save(any(Designation.class)); // Ensure save is called
     }
 
     @Test

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login Activities - RevWorkForce</title>
+</head>
+
+<body>
+    <h1>Login Activities</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Action</th>
+                <th>Module</th>
+                <th>Details</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="log : ${auditLogs}">
+                <td th:text="${log.performedBy}"></td>
+                <td th:text="${log.action}"></td>
+                <td th:text="${log.moduleName}"></td>
+                <td th:text="${log.actionDetails}"></td>
+                <td th:text="${log.timestamp}"></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>

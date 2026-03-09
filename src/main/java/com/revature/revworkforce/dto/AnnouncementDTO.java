@@ -1,18 +1,21 @@
 package com.revature.revworkforce.dto;
 
+import com.revature.revworkforce.enums.Priority;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class AnnouncementDTO {
     private Long id;
     private String title;
-    private String content;
-    private String type; // INFO, WARNING, URGENT (mapping to priority or announcementType)
+    private String message;
+    private String type;
+    private Priority priority;
+    private LocalDate publishDate;
     private LocalDate expiryDate;
     private Character isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private String createdBy; // Employee ID
+    private String createdBy;
     private String creatorName;
 
     public AnnouncementDTO() {
@@ -34,12 +37,12 @@ public class AnnouncementDTO {
         this.title = title;
     }
 
-    public String getContent() {
-        return content;
+    public String getMessage() {
+        return message;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public String getType() {
@@ -48,6 +51,22 @@ public class AnnouncementDTO {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
+    }
+
+    public LocalDate getPublishDate() {
+        return publishDate;
+    }
+
+    public void setPublishDate(LocalDate publishDate) {
+        this.publishDate = publishDate;
     }
 
     public LocalDate getExpiryDate() {
