@@ -266,6 +266,7 @@ public class EmployeeController {
 
         return "pages/admin/employee-view";
     }
+    
 
     /**
      * Deactivate employee.
@@ -439,6 +440,7 @@ public class EmployeeController {
             return "pages/employee/profile-edit";
         }
     }
+    
 
     // ============================================
     // EMPLOYEE ENDPOINTS - Employee Directory
