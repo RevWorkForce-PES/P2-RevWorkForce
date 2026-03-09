@@ -568,7 +568,7 @@ CREATE INDEX idx_goal_deadline ON GOALS(deadline);
         title VARCHAR2(200) NOT NULL,
         message CLOB NOT NULL,
         announcement_type VARCHAR2(50) DEFAULT 'General',
-        priority VARCHAR2(20) DEFAULT 'NORMAL' CHECK (priority IN ('LOW', 'NORMAL', 'HIGH', 'URGENT')),
+        priority VARCHAR2(20) DEFAULT 'NORMAL' CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')),
         target_audience VARCHAR2(50) DEFAULT 'ALL',
         is_active CHAR(1) DEFAULT 'Y' CHECK (is_active IN ('Y', 'N')),
         publish_date DATE DEFAULT SYSDATE,

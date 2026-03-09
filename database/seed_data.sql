@@ -870,7 +870,7 @@ INSERT INTO ANNOUNCEMENTS (
     announce_seq.NEXTVAL,
     'Quarterly Town Hall Meeting',
     'Dear Team, We are pleased to invite you to our Q1 2024 Town Hall meeting. Join us to hear updates on company performance, upcoming projects, and strategic initiatives. Date: March 30, 2024, Time: 3:00 PM, Venue: Main Conference Hall. Your participation is highly encouraged!',
-    'Event', 'NORMAL', 'ALL',
+    'Event', 'MEDIUM', 'ALL',
     SYSDATE, DATE '2024-03-30', 'ADM001'
 );
 
@@ -892,7 +892,7 @@ INSERT INTO ANNOUNCEMENTS (
     announce_seq.NEXTVAL,
     'Team Outing - Save the Date!',
     'Mark your calendars! Our annual team outing is scheduled for April 20, 2024. We will be heading to Wonderla Amusement Park for a day of fun and team bonding. More details to follow. Get ready for an exciting day!',
-    'Celebration', 'NORMAL', 'ALL',
+    'Celebration', 'MEDIUM', 'ALL',
     SYSDATE, 'ADM001'
 );
 

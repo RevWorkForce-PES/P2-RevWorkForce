@@ -121,8 +121,9 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     @Override
     public List<Announcement> getAllAnnouncements() {
-        return announcementRepository.findAllByOrderByCreatedAtDesc();
+        return announcementRepository.findAllWithCreator();
     }
+    
 
     @Override
     public List<AnnouncementDTO> getActiveAnnouncements() {
@@ -175,6 +176,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                 null,
                 null);
     }
+    
 
     @Override
     @Scheduled(cron = "0 0 1 * * ?") // Runs daily at 1:00 AM

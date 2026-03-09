@@ -4,51 +4,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="global-user-fullname" th:content="${globalFullName}">
-    <meta name="global-user-role" th:content="${globalUserRole}">
-    <title th:text="${pageTitle + ' - RevWorkForce'}">Announcement - RevWorkForce</title>
+    <meta name="user-fullname" th:content="${fullName} ?: 'User'">
+    <meta name="user-role" th:content="${userRole} ?: 'Employee'">
+    <title th:text="${announcement?.title} + ' - RevWorkForce'">Announcement Details</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .announcement-detail {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .announcement-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+        }
+
+        .announcement-hero h1 {
+            margin: 0 0 1rem 0;
+            font-size: 2.5rem;
+        }
+
+        .announcement-hero-meta {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            opacity: 0.95;
+        }
+
+        .announcement-hero-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .priority-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .priority-URGENT {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .priority-HIGH {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+
+        .priority-MEDIUM {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .priority-LOW {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .announcement-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            line-height: 1.8;
+            font-size: 1.125rem;
+            color: #374151;
+        }
+
+        .announcement-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .back-button:hover {
+            color: #764ba2;
+        }
+
+        .info-box {
+            background: #f9fafb;
+            border-left: 4px solid #667eea;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .info-box h3 {
+            margin: 0 0 0.5rem 0;
+            color: #667eea;
+        }
+    </style>
 </head>
 
 <body>
     <div class="app-container">
+        <!-- Sidebar Component -->
         <app-sidebar></app-sidebar>
+
         <main class="main-content">
-            <app-navbar th:attr="page-title=${pageTitle}"></app-navbar>
+            <!-- Navbar Component -->
+            <app-navbar page-title="Announcement Details"></app-navbar>
+
             <div class="page-wrapper">
-                <div class="card" style="max-width: 800px;">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                        <a th:href="@{/employee/announcements}" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-arrow-left"></i> Back to Announcements
-                        </a>
-                        <span class="badge"
-                            th:classappend="${announcement.priority != null && announcement.priority.name() == 'HIGH' ? 'badge-rejected' : (announcement.priority != null && announcement.priority.name() == 'MEDIUM' ? 'badge-pending' : 'badge-approved')}"
-                            th:text="${announcement.priority != null ? announcement.priority : 'NORMAL'}">NORMAL</span>
+                <div class="announcement-detail">
+                    <!-- Back Button -->
+                    <a th:href="@{/employee/announcements}" class="back-button">
+                        <i class="fas fa-arrow-left"></i> Back to Announcements
+                    </a>
+
+                    <!-- Announcement Hero -->
+                    <div class="announcement-hero">
+                        <span class="priority-badge" th:classappend="'priority-' + ${announcement.priority}"
+                            style="background: white; color: #667eea;">
+                            <i class="fas fa-flag"></i>
+                            <span th:text="${announcement.priority}">MEDIUM</span> Priority
+                        </span>
+
+                        <h1 th:text="${announcement.title}">Announcement Title</h1>
+
+                        <div class="announcement-hero-meta">
+                            <span>
+                                <i class="fas fa-user"></i>
+                                Posted by <strong th:text="${announcement.creatorName}">Admin</strong>
+                            </span>
+                            <span>
+                                <i class="fas fa-calendar"></i>
+                                <span th:text="${#temporals.format(announcement.publishDate, 'MMMM dd, yyyy')}">March
+                                    09, 2026</span>
+                            </span>
+                            <span th:if="${announcement.expiryDate != null}">
+                                <i class="fas fa-clock"></i>
+                                Expires: <span th:text="${#temporals.format(announcement.expiryDate, 'MMMM dd, yyyy')}">March
+                                    20, 2026</span>
+                            </span>
+                            <span>
+                                <i class="fas fa-tag"></i>
+                                <span th:text="${announcement.type}">INFO</span>
+                            </span>
+                        </div>
                     </div>
 
-                    <h2 th:text="${announcement.title}" style="margin-bottom: 0.5rem;">Announcement Title</h2>
-                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.5rem;">
-                        <i class="fas fa-calendar-alt"></i>
-                        Published:
-                        <span
-                            th:text="${announcement.publishDate != null ? #temporals.format(announcement.publishDate, 'MMMM d, yyyy') : 'N/A'}">March
-                            1, 2026</span>
-                        <span th:if="${announcement.expiryDate != null}">
-                            &nbsp;·&nbsp; Expires:
-                            <span th:text="${#temporals.format(announcement.expiryDate, 'MMMM d, yyyy')}">March 31,
-                                2026</span>
-                        </span>
-                    </p>
+                    <!-- Announcement Content -->
+                    <div class="announcement-content">
+                        <div th:utext="${#strings.replace(announcement.message, '\n', '<br>')}">
+                            <p>This is the announcement message content...</p>
+                        </div>
 
-                    <div style="line-height: 1.75; color: var(--text-dark);" th:text="${announcement.message}">
-                        Announcement body text goes here.
+                        <!-- Additional Info Box (if urgent) -->
+                        <div th:if="${announcement.priority.name() == 'URGENT'}" class="info-box"
+                            style="border-left-color: #dc2626; background: #fee2e2;">
+                            <h3 style="color: #dc2626;">
+                                <i class="fas fa-exclamation-triangle"></i> Urgent Action Required
+                            </h3>
+                            <p style="margin: 0; color: #991b1b;">
+                                This announcement requires your immediate attention. Please take necessary action.
+                            </p>
+                        </div>
+
+                        <!-- Contact Info -->
+                        <div class="info-box">
+                            <h3>
+                                <i class="fas fa-info-circle"></i> Need More Information?
+                            </h3>
+                            <p style="margin: 0;">
+                                If you have questions about this announcement, please contact your manager or HR
+                                department.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="margin-top: 2rem; text-align: center;">
+                        <a th:href="@{/employee/announcements}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> Back to All Announcements
+                        </a>
                     </div>
                 </div>
             </div>
         </main>
     </div>
-    <!-- Load Scripts -->
+
+    <!-- Scripts -->
     <script th:src="@{/js/components.js}"></script>
     <script th:src="@{/js/app.js}"></script>
 </body>
