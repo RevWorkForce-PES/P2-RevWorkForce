@@ -2,12 +2,12 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="global-user-fullname" th:content="${globalFullName}">
-    <meta name="global-user-role" th:content="${globalUserRole}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="user-fullname" th:content="${fullName ?: 'Employee'}" />
+    <meta name="user-role" th:content="${userRole ?: 'EMPLOYEE'}" />
     <title>Edit Goal - RevWorkForce</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 
 <body>
@@ -24,24 +24,28 @@
                         </a>
                     </div>
 
+                    <!-- Enhanced Error Display -->
                     <div th:if="${error}" class="alert alert-danger mb-3" th:text="${error}"></div>
+                    <div th:if="${success}" class="alert alert-success mb-3" th:text="${success}"></div>
 
-                    <form th:action="@{/employee/goals/edit/{id}(id=${goalDTO.goalId})}" th:object="${goalDTO}"
-                        method="POST">
-                        <input type="hidden" th:field="*{goalId}">
+                    <form id="goalEditForm" th:if="${goalDTO != null}"
+                        th:action="@{'/employee/goals/edit/' + ${goalDTO.goalId}}" th:object="${goalDTO}" method="POST">
+
+                        <input type="hidden" th:field="*{goalId}" />
 
                         <div class="form-group mb-3">
                             <label class="form-label" for="goalTitle">Goal Title</label>
-                            <input type="text" id="goalTitle" th:field="*{goalTitle}" class="form-control" required>
-                            <div class="text-danger" th:if="${#fields.hasErrors('goalTitle')}" th:errors="*{goalTitle}">
-                            </div>
+                            <input type="text" id="goalTitle" th:field="*{goalTitle}" class="form-control"
+                                required="required" />
+                            <div class="text-danger small" th:if="${#fields.hasErrors('goalTitle')}"
+                                th:errors="*{goalTitle}"></div>
                         </div>
 
                         <div class="form-group mb-3">
                             <label class="form-label" for="goalDescription">Description</label>
                             <textarea id="goalDescription" th:field="*{goalDescription}" class="form-control" rows="4"
-                                required></textarea>
-                            <div class="text-danger" th:if="${#fields.hasErrors('goalDescription')}"
+                                required="required"></textarea>
+                            <div class="text-danger small" th:if="${#fields.hasErrors('goalDescription')}"
                                 th:errors="*{goalDescription}"></div>
                         </div>
 
@@ -49,49 +53,65 @@
                             <div class="form-group mb-3">
                                 <label class="form-label" for="category">Category</label>
                                 <select id="category" th:field="*{category}" class="form-control">
-                                    <option value="Technical">Technical</option>
-                                    <option value="Process">Process</option>
-                                    <option value="Learning">Learning</option>
-                                    <option value="Leadership">Leadership</option>
-                                    <option value="Other">Other</option>
+                                    <option
+                                        th:each="cat : ${categories ?: {'Technical', 'Process', 'Learning', 'Leadership', 'Other'}}"
+                                        th:value="${cat}" th:text="${cat}">
+                                        Technical</option>
                                 </select>
                             </div>
                             <div class="form-group mb-3">
                                 <label class="form-label" for="priority">Priority</label>
                                 <select id="priority" th:field="*{priority}" class="form-control">
-                                    <option th:each="p : ${priorities}" th:value="${p}" th:text="${p}"
-                                        th:selected="${p == goalDTO.priority}">MEDIUM</option>
+                                    <option
+                                        th:each="p : ${priorities ?: T(com.revature.revworkforce.enums.Priority).values()}"
+                                        th:value="${p}" th:text="${p.displayName}">MEDIUM</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="form-group mb-4">
                             <label class="form-label" for="deadline">Target Completion Date</label>
-                            <input type="date" id="deadline" th:field="*{deadline}" class="form-control" required>
-                            <div class="text-danger" th:if="${#fields.hasErrors('deadline')}" th:errors="*{deadline}">
-                            </div>
+                            <input type="date" id="deadline" th:field="*{deadline}" class="form-control"
+                                required="required" />
+                            <div class="text-danger small" th:if="${#fields.hasErrors('deadline')}"
+                                th:errors="*{deadline}"></div>
                         </div>
 
-                        <div class="mb-4" th:if="*{managerComments != null and !managerComments.isEmpty()}">
+                        <div class="mb-4" th:if="${goalDTO.managerComments != null and goalDTO.managerComments != ''}">
                             <label class="form-label text-primary"><i class="fas fa-comment-dots"></i> Manager
                                 Feedback</label>
                             <div class="p-3"
                                 style="background:#f8fafc; border-radius:8px; border:1px solid var(--border-color); font-size:0.95rem;">
-                                <p th:text="*{managerComments}" style="margin:0;"></p>
+                                <p th:text="${goalDTO.managerComments}" style="margin:0;"></p>
                             </div>
                         </div>
 
                         <div class="flex-space-between mt-4">
-                            <button type="button" class="btn btn-danger btn-sm"
-                                th:attr="onclick='if(confirm(\'Delete this goal?\')) { document.getElementById(\'delete-form\').submit(); }'">
-                                <i class="fas fa-trash"></i> Delete Goal
-                            </button>
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <div class="flex-gap-2">
+                                <button type="button" class="btn btn-danger btn-sm"
+                                    onclick="if(confirm('Delete this goal permanently?')) { document.getElementById('delete-form').submit(); }">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                                <button type="button" class="btn btn-warning btn-sm"
+                                    onclick="if(confirm('Cancel this goal?')) { document.getElementById('cancel-form').submit(); }">
+                                    <i class="fas fa-ban"></i> Cancel Goal
+                                </button>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="saveGoalBtn">Save Changes</button>
                         </div>
                     </form>
 
-                    <form id="delete-form" th:action="@{/employee/goals/delete/{id}(id=${goalDTO.goalId})}"
-                        method="POST" style="display:none;"></form>
+                    <div th:if="${goalDTO == null}" class="alert alert-warning">
+                        Goal information could not be loaded. Please return to the performance page and try again.
+                    </div>
+
+                    <form id="cancel-form" th:if="${goalDTO != null}"
+                        th:action="@{'/employee/goals/cancel/' + ${goalDTO.goalId}}" method="POST"
+                        style="display:none;"></form>
+
+                    <form id="delete-form" th:if="${goalDTO != null}"
+                        th:action="@{'/employee/goals/delete/' + ${goalDTO.goalId}}" method="POST"
+                        style="display:none;"></form>
                 </div>
             </div>
         </main>

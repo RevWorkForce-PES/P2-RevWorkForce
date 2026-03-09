@@ -27,40 +27,49 @@
 
                     <!-- Read-only Self Assessment Section -->
                     <div class="mb-5 p-4"
-                        style="background: #f8fafc; border-radius: 8px; border: 1px solid var(--border-color);">
-                        <h4 class="mb-3 text-primary"><i class="fas fa-user-edit"></i> Employee Self-Assessment</h4>
+                        style="background: #f8fafc; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
+                        <h4 class="mb-4 text-primary" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-user-edit"></i> Employee Self-Assessment
+                        </h4>
 
-                        <div class="mb-3">
-                            <label class="font-weight-bold small text-muted text-uppercase">Key Deliverables</label>
-                            <p th:text="${reviewDTO.keyDeliverables}"
-                                style="white-space: pre-wrap; font-size: 0.95rem;"></p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                            <div class="mb-3">
+                                <label class="font-weight-bold small text-muted text-uppercase">Achievements</label>
+                                <p th:text="${reviewDTO.achievements}"
+                                    style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;"></p>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="font-weight-bold small text-muted text-uppercase">Areas of
+                                    Improvement</label>
+                                <p th:text="${reviewDTO.improvementAreas}"
+                                    style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;"></p>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="font-weight-bold small text-muted text-uppercase">Major
-                                Accomplishments</label>
-                            <p th:text="${reviewDTO.majorAccomplishments}"
-                                style="white-space: pre-wrap; font-size: 0.95rem;"></p>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="font-weight-bold small text-muted text-uppercase">Areas of Improvement</label>
-                            <p th:text="${reviewDTO.areasOfImprovement}"
-                                style="white-space: pre-wrap; font-size: 0.95rem;"></p>
+                        <div class="mb-4">
+                            <label class="font-weight-bold small text-muted text-uppercase">Self Reflection</label>
+                            <p th:text="${reviewDTO.selfAssessmentText}"
+                                style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6; border-left: 3px solid var(--primary); padding-left: 1rem;">
+                            </p>
                         </div>
 
                         <div
-                            style="display:flex; gap: 2rem; align-items:center; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-                            <div>
-                                <label class="font-weight-bold small text-muted text-uppercase mr-2">Self
-                                    Rating:</label>
-                                <span class="badge badge-approved"
-                                    th:text="${reviewDTO.selfAssessmentRating} + ' / 5.0'">4.5 / 5.0</span>
+                            style="display:flex; justify-content: space-between; align-items:center; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <label class="font-weight-bold small text-muted text-uppercase">Self Rating:</label>
+                                <div style="display: flex; align-items: baseline; gap: 0.25rem;">
+                                    <span style="font-size: 1.75rem; font-weight: 700; color: var(--primary);"
+                                        th:text="${reviewDTO.selfAssessmentRating}">4.0</span>
+                                    <span class="text-muted">/ 5.0</span>
+                                </div>
                             </div>
-                            <div
-                                th:if="${reviewDTO.selfAssessmentComments != null and !reviewDTO.selfAssessmentComments.isEmpty()}">
-                                <label class="font-weight-bold small text-muted text-uppercase mr-2">Comments:</label>
-                                <span class="text-muted" th:text="${reviewDTO.selfAssessmentComments}"></span>
+                            <div th:if="${reviewDTO.selfAssessmentComments != null and !reviewDTO.selfAssessmentComments.isEmpty()}"
+                                style="max-width: 60%;">
+                                <label class="font-weight-bold small text-muted text-uppercase block mb-1">Employee
+                                    Comments:</label>
+                                <p class="text-muted small" th:text="${reviewDTO.selfAssessmentComments}"
+                                    style="margin: 0;"></p>
                             </div>
                         </div>
                     </div>
@@ -70,54 +79,86 @@
                         method="POST">
                         <input type="hidden" th:field="*{reviewId}">
                         <input type="hidden" th:field="*{reviewYear}">
-                        <input type="hidden" th:field="*{reviewPeriod}">
                         <input type="hidden" th:field="*{employeeId}">
-                        <input type="hidden" th:field="*{employeeName}">
-                        <input type="hidden" th:field="*{keyDeliverables}">
-                        <input type="hidden" th:field="*{majorAccomplishments}">
-                        <input type="hidden" th:field="*{areasOfImprovement}">
-                        <input type="hidden" th:field="*{selfAssessmentRating}">
-                        <input type="hidden" th:field="*{selfAssessmentComments}">
 
-                        <h4 class="mb-3"><i class="fas fa-clipboard-check"></i> Manager Feedback & Rating</h4>
+                        <h4 class="mb-4" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-clipboard-check"></i> Manager Evaluation
+                        </h4>
+
+                        <!-- Competency Ratings Grid -->
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+                            <div class="form-group p-3"
+                                style="background: #f8fafc; border-radius: 8px; border: 1px solid var(--border-color);">
+                                <label class="form-label font-weight-bold">Technical Skills</label>
+                                <input type="number" step="0.5" min="1" max="5" th:field="*{technicalSkills}"
+                                    class="form-control" required>
+                                <div class="text-danger small" th:if="${#fields.hasErrors('technicalSkills')}"
+                                    th:errors="*{technicalSkills}"></div>
+                            </div>
+                            <div class="form-group p-3"
+                                style="background: #f8fafc; border-radius: 8px; border: 1px solid var(--border-color);">
+                                <label class="form-label font-weight-bold">Communication</label>
+                                <input type="number" step="0.5" min="1" max="5" th:field="*{communication}"
+                                    class="form-control" required>
+                                <div class="text-danger small" th:if="${#fields.hasErrors('communication')}"
+                                    th:errors="*{communication}"></div>
+                            </div>
+                            <div class="form-group p-3"
+                                style="background: #f8fafc; border-radius: 8px; border: 1px solid var(--border-color);">
+                                <label class="form-label font-weight-bold">Teamwork</label>
+                                <input type="number" step="0.5" min="1" max="5" th:field="*{teamwork}"
+                                    class="form-control" required>
+                                <div class="text-danger small" th:if="${#fields.hasErrors('teamwork')}"
+                                    th:errors="*{teamwork}"></div>
+                            </div>
+                            <div class="form-group p-3"
+                                style="background: #f8fafc; border-radius: 8px; border: 1px solid var(--border-color);">
+                                <label class="form-label font-weight-bold">Leadership</label>
+                                <input type="number" step="0.5" min="1" max="5" th:field="*{leadership}"
+                                    class="form-control" required>
+                                <div class="text-danger small" th:if="${#fields.hasErrors('leadership')}"
+                                    th:errors="*{leadership}"></div>
+                            </div>
+                            <div class="form-group p-3"
+                                style="background: #f8fafc; border-radius: 8px; border: 1px solid var(--border-color);">
+                                <label class="form-label font-weight-bold">Punctuality & Reliability</label>
+                                <input type="number" step="0.5" min="1" max="5" th:field="*{punctuality}"
+                                    class="form-control" required>
+                                <div class="text-danger small" th:if="${#fields.hasErrors('punctuality')}"
+                                    th:errors="*{punctuality}"></div>
+                            </div>
+                        </div>
 
                         <div class="form-group mb-4">
-                            <label class="form-label font-weight-bold" for="managerFeedback">Performance
-                                Feedback</label>
-                            <textarea id="managerFeedback" th:field="*{managerFeedback}" class="form-control" rows="6"
-                                placeholder="Provide detailed feedback on performance, achievements, and behavioral competencies..."
+                            <label class="form-label font-weight-bold">Performance Feedback (Min. 50 characters)</label>
+                            <textarea th:field="*{managerFeedback}" class="form-control" rows="6"
+                                placeholder="Detail the employee's performance, strengths, and development needs..."
                                 required></textarea>
-                            <div class="text-danger" th:if="${#fields.hasErrors('managerFeedback')}"
+                            <div class="text-danger small" th:if="${#fields.hasErrors('managerFeedback')}"
                                 th:errors="*{managerFeedback}"></div>
                         </div>
 
                         <div class="form-group mb-4">
-                            <label class="form-label font-weight-bold" for="managerRating">Manager Rating (1-5)</label>
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <input type="number" step="0.1" min="1" max="5" id="managerRating"
-                                    th:field="*{managerRating}" class="form-control" style="max-width: 150px;" required>
-                                <span class="text-muted small">1: Improvement Required | 3: Meets Expectations | 5:
-                                    Outstanding</span>
-                            </div>
-                            <div class="text-danger" th:if="${#fields.hasErrors('managerRating')}"
-                                th:errors="*{managerRating}"></div>
-                        </div>
-
-                        <div class="form-group mb-4">
-                            <label class="form-label font-weight-bold" for="managerComments">Internal Comments
-                                (Optional)</label>
-                            <textarea id="managerComments" th:field="*{managerComments}" class="form-control" rows="2"
-                                placeholder="Any additional notes for HR or record..."></textarea>
-                            <div class="text-danger" th:if="${#fields.hasErrors('managerComments')}"
-                                th:errors="*{managerComments}"></div>
+                            <label class="form-label font-weight-bold">Manager Comments (Internal/Optional)</label>
+                            <textarea th:field="*{managerComments}" class="form-control" rows="2"
+                                placeholder="Additional notes for HR records..."></textarea>
                         </div>
 
                         <div class="flex-space-between mt-5"
-                            style="border-top: 1px solid var(--border-color); padding-top: 2rem;">
-                            <p class="text-muted small" style="max-width: 60%;"><i class="fas fa-info-circle"></i> Once
-                                submitted, the final rating will be calculated (average of self and manager rating) and
-                                shared with the employee.</p>
-                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                            style="border-top: 2px solid var(--border-color); padding-top: 2rem; align-items: flex-start;">
+                            <div
+                                style="background: #ecfeff; border-left: 4px solid #06b6d4; padding: 1rem; border-radius: 0 8px 8px 0; max-width: 60%;">
+                                <h5 style="color: #0891b2; margin-bottom: 0.25rem;"><i class="fas fa-info-circle"></i>
+                                    Submission Note</h5>
+                                <p class="small" style="color: #155e75; margin: 0;">
+                                    Submitting this evaluation will transition the review to COMPLETED status.
+                                    The overall rating will be automatically calculated as an average of the competency
+                                    scores.
+                                </p>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg" style="min-width: 200px;">Submit
+                                Evaluation</button>
                         </div>
                     </form>
                 </div>

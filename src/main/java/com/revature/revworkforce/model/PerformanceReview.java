@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
  * @author RevWorkForce Team
  */
 @Entity
-@Table(name = "PERFORMANCE_REVIEWS",
-       uniqueConstraints = @UniqueConstraint(columnNames = {"employee_id", "review_year"}))
+@Table(name = "PERFORMANCE_REVIEWS", uniqueConstraints = @UniqueConstraint(columnNames = { "employee_id",
+        "review_year" }))
 public class PerformanceReview {
 
     @Id
@@ -40,12 +40,12 @@ public class PerformanceReview {
     private String keyDeliverables;
 
     @Lob
-    @Column(name = "major_accomplishments")
-    private String majorAccomplishments;
+    @Column(name = "achievements")
+    private String achievements;
 
     @Lob
-    @Column(name = "areas_of_improvement")
-    private String areasOfImprovement;
+    @Column(name = "improvement_areas")
+    private String improvementAreas;
 
     @Column(name = "self_assessment_rating", precision = 2, scale = 1)
     private BigDecimal selfAssessmentRating;
@@ -57,6 +57,21 @@ public class PerformanceReview {
     @Column(name = "manager_feedback")
     private String managerFeedback;
 
+    @Column(name = "technical_skills", precision = 2, scale = 1)
+    private BigDecimal technicalSkills;
+
+    @Column(name = "communication", precision = 2, scale = 1)
+    private BigDecimal communication;
+
+    @Column(name = "teamwork", precision = 2, scale = 1)
+    private BigDecimal teamwork;
+
+    @Column(name = "leadership", precision = 2, scale = 1)
+    private BigDecimal leadership;
+
+    @Column(name = "punctuality", precision = 2, scale = 1)
+    private BigDecimal punctuality;
+
     @Column(name = "manager_rating", precision = 2, scale = 1)
     private BigDecimal managerRating;
 
@@ -67,8 +82,8 @@ public class PerformanceReview {
     private BigDecimal finalRating;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 20)
-    private ReviewStatus status = ReviewStatus.DRAFT;
+    @Column(name = "status", length = 30)
+    private ReviewStatus status = ReviewStatus.PENDING_SELF_ASSESSMENT;
 
     @Column(name = "submitted_date")
     private LocalDate submittedDate;
@@ -131,28 +146,20 @@ public class PerformanceReview {
         this.reviewPeriod = reviewPeriod;
     }
 
-    public String getKeyDeliverables() {
-        return keyDeliverables;
+    public String getAchievements() {
+        return achievements;
     }
 
-    public void setKeyDeliverables(String keyDeliverables) {
-        this.keyDeliverables = keyDeliverables;
+    public void setAchievements(String achievements) {
+        this.achievements = achievements;
     }
 
-    public String getMajorAccomplishments() {
-        return majorAccomplishments;
+    public String getImprovementAreas() {
+        return improvementAreas;
     }
 
-    public void setMajorAccomplishments(String majorAccomplishments) {
-        this.majorAccomplishments = majorAccomplishments;
-    }
-
-    public String getAreasOfImprovement() {
-        return areasOfImprovement;
-    }
-
-    public void setAreasOfImprovement(String areasOfImprovement) {
-        this.areasOfImprovement = areasOfImprovement;
+    public void setImprovementAreas(String improvementAreas) {
+        this.improvementAreas = improvementAreas;
     }
 
     public BigDecimal getSelfAssessmentRating() {
@@ -177,6 +184,46 @@ public class PerformanceReview {
 
     public void setManagerFeedback(String managerFeedback) {
         this.managerFeedback = managerFeedback;
+    }
+
+    public BigDecimal getTechnicalSkills() {
+        return technicalSkills;
+    }
+
+    public void setTechnicalSkills(BigDecimal technicalSkills) {
+        this.technicalSkills = technicalSkills;
+    }
+
+    public BigDecimal getCommunication() {
+        return communication;
+    }
+
+    public void setCommunication(BigDecimal communication) {
+        this.communication = communication;
+    }
+
+    public BigDecimal getTeamwork() {
+        return teamwork;
+    }
+
+    public void setTeamwork(BigDecimal teamwork) {
+        this.teamwork = teamwork;
+    }
+
+    public BigDecimal getLeadership() {
+        return leadership;
+    }
+
+    public void setLeadership(BigDecimal leadership) {
+        this.leadership = leadership;
+    }
+
+    public BigDecimal getPunctuality() {
+        return punctuality;
+    }
+
+    public void setPunctuality(BigDecimal punctuality) {
+        this.punctuality = punctuality;
     }
 
     public BigDecimal getManagerRating() {

@@ -6,26 +6,30 @@ import com.fasterxml.jackson.annotation.JsonCreator;
  * Represents the lifecycle state of a performance review
  * in the RevWorkForce system.
  *
- * <p>This enum maps to the {@code status} column
- * in the PERFORMANCE_REVIEWS table.</p>
+ * <p>
+ * This enum maps to the {@code status} column
+ * in the PERFORMANCE_REVIEWS table.
+ * </p>
  *
- * <p>Supported database values:
+ * <p>
+ * Supported database values:
  * <ul>
- *     <li>DRAFT</li>
- *     <li>SUBMITTED</li>
- *     <li>REVIEWED</li>
- *     <li>COMPLETED</li>
+ * <li>DRAFT</li>
+ * <li>SUBMITTED</li>
+ * <li>REVIEWED</li>
+ * <li>COMPLETED</li>
  * </ul>
  * </p>
  *
- * <p>This enum ensures consistent handling of performance
- * review states across the application.</p>
+ * <p>
+ * This enum ensures consistent handling of performance
+ * review states across the application.
+ * </p>
  */
 public enum ReviewStatus {
 
-    DRAFT,
-    SUBMITTED,
-    REVIEWED,
+    PENDING_SELF_ASSESSMENT,
+    PENDING_MANAGER_REVIEW,
     COMPLETED;
 
     /**

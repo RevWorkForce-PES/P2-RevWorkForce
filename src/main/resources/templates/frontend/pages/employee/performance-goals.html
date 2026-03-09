@@ -1,13 +1,10 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="global-user-fullname" th:content="${globalFullName}">
-    <meta name="global-user-role" th:content="${globalUserRole}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="user-fullname" th:content="${fullName}" />
+    <meta name="user-role" th:content="${userRole}" />
     <title>Performance & Goals - RevWorkForce</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 
 <body>
@@ -27,7 +24,9 @@
                     <div id="manage-goals" class="tab-content active">
                         <div class="flex-space-between mb-3">
                             <h3 style="margin: 0;">FY2026 Q1 OKRs</h3>
-                            <button class="btn btn-primary"><i class="fas fa-plus"></i> Add Objective</button>
+                            <a th:href="@{/employee/goals/create}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add Objective
+                            </a>
                         </div>
 
                         <div style="display: flex; flex-direction: column; gap: 1.5rem;">
@@ -70,122 +69,117 @@
 
                     <!-- Self Review Tab -->
                     <div id="self-review" class="tab-content">
-                        <!-- Find draft review -->
-                        <div th:with="draftReview=${reviews.^[status.name() == 'DRAFT']}">
-                            <div th:if="${draftReview != null}">
-                                <div class="mb-4 p-3"
-                                    style="background: #fdf6e3; border: 1px solid #fde047; border-radius: 8px; display: flex; gap: 1rem; align-items: flex-start;">
-                                    <i class="fas fa-exclamation-triangle text-warning"
-                                        style="color: #ca8a04; font-size: 1.5rem; margin-top: 0.2rem;"></i>
-                                    <div>
-                                        <h4 style="margin-bottom: 0.25rem;">Action Required: Performance Review DRAFT
-                                        </h4>
-                                        <p style="margin-bottom: 0; font-size: 0.9rem; color: #854d0e;">Please submit
-                                            your
-                                            self-review. This is required for your manager's appraisal
-                                            phase.</p>
-                                    </div>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div th:each="review : ${reviews}"
+                                th:if="${review.status.name() == 'PENDING_SELF_ASSESSMENT'}" class="mb-4 p-4"
+                                style="background: #fdf6e3; border: 1px solid #fde047; border-radius: 12px; display: flex; gap: 1.5rem; align-items: flex-start; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                                <div style="background: #fef3c7; padding: 1rem; border-radius: 50%;">
+                                    <i class="fas fa-edit" style="color: #ca8a04; font-size: 1.5rem;"></i>
                                 </div>
-
-                                <form th:action="@{/employee/reviews/submit/{id}(id=${draftReview.reviewId})}"
-                                    method="POST">
-                                    <h3 class="mb-3" th:text="${draftReview.reviewYear} + ' Self-Evaluation'">2026
-                                        Self-Evaluation</h3>
-                                    <div class="form-group mb-4">
-                                        <label class="form-label font-weight-bold">1. Key Deliverables</label>
-                                        <textarea class="form-control" name="keyDeliverables" rows="4"
-                                            th:text="${draftReview.keyDeliverables}" required></textarea>
-                                    </div>
-                                    <div class="form-group mb-4">
-                                        <label class="form-label font-weight-bold">2. Major Accomplishments</label>
-                                        <textarea class="form-control" name="majorAccomplishments" rows="4"
-                                            th:text="${draftReview.majorAccomplishments}" required></textarea>
-                                    </div>
-                                    <div class="form-group mb-4">
-                                        <label class="form-label font-weight-bold">3. Areas of Improvement</label>
-                                        <textarea class="form-control" name="areasOfImprovement" rows="4"
-                                            th:text="${draftReview.areasOfImprovement}" required></textarea>
-                                    </div>
-                                    <div class="form-group mb-4">
-                                        <label class="form-label font-weight-bold">4. Self Rating (1-5)</label>
-                                        <input type="number" step="0.5" min="1" max="5" class="form-control"
-                                            name="selfAssessmentRating" style="max-width: 200px;"
-                                            th:value="${draftReview.selfAssessmentRating}" required>
-                                    </div>
-                                    <div class="form-group mb-4">
-                                        <label class="form-label font-weight-bold">5. Additional Comments
-                                            (Optional)</label>
-                                        <textarea class="form-control" name="selfAssessmentComments" rows="2"
-                                            th:text="${draftReview.selfAssessmentComments}"></textarea>
-                                    </div>
-                                    <div style="display: flex; gap: 1rem;">
-                                        <button type="submit" class="btn btn-primary">Submit to Manager</button>
-                                    </div>
-                                </form>
+                                <div style="flex: 1;">
+                                    <h4 style="margin-bottom: 0.5rem; color: #854d0e;"
+                                        th:text="${review.reviewYear} + ' Performance Review - Self Assessment Required'">
+                                        2024 Performance Review - Self Assessment Required
+                                    </h4>
+                                    <p
+                                        style="margin-bottom: 1.5rem; color: #92400e; font-size: 0.95rem; line-height: 1.5;">
+                                        Your input is vital for the appraisal process. Please provide details about your
+                                        achievements,
+                                        technical skills, and areas where you'd like to grow.
+                                    </p>
+                                    <a th:href="@{/employee/reviews/self-assessment/{id}(id=${review.reviewId})}"
+                                        class="btn btn-primary" style="background: #d97706; border-color: #d97706;">
+                                        Complete Self-Assessment
+                                    </a>
+                                </div>
                             </div>
-                            <div th:if="${draftReview == null}">
-                                <div class="mb-4 p-3"
-                                    style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px;">
-                                    <h4 style="margin-bottom: 0.5rem;"><i class="fas fa-check-circle text-success"></i>
-                                        No pending action</h4>
-                                    <p style="margin-bottom: 1rem; color: var(--text-muted);">You don't have any
-                                        self-reviews currently in DRAFT status.</p>
-                                    <form th:action="@{/employee/reviews/create}" method="POST">
-                                        <input type="hidden" name="reviewYear"
-                                            th:value="${#dates.year(#dates.createNow())}">
-                                        <button class="btn btn-primary btn-sm">Start New Self-Review</button>
-                                    </form>
+
+                            <div th:if="${#lists.isEmpty(reviews.?[status.name() == 'PENDING_SELF_ASSESSMENT'])}"
+                                class="text-center p-5"
+                                style="background: #f8fafc; border: 1px dashed var(--border-color); border-radius: 12px;">
+                                <div style="margin-bottom: 1rem; opacity: 0.5;">
+                                    <i class="fas fa-check-double" style="font-size: 3rem;"></i>
                                 </div>
+                                <h4 style="color: var(--text-muted);">All caught up!</h4>
+                                <p class="text-muted">You have no pending self-assessments at this time.</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- View Feedback Tab -->
                     <div id="view-feedback" class="tab-content">
-                        <h3 class="mb-3">Past Reviews & Feedback</h3>
+                        <h3 class="mb-4">Historical Performance Reviews</h3>
 
-                        <div th:each="review : ${reviews}" th:if="${review.status.name() != 'DRAFT'}" class="mb-4">
-                            <div class="flex-space-between mb-2">
-                                <h4 style="margin: 0; font-size: 1.1rem;"
-                                    th:text="${review.reviewYear} + ' Annual Review'">FY2025 Q4 Annual Review</h4>
-                                <span class="text-muted" style="font-size: 0.85rem;"
-                                    th:text="'Status: ' + ${review.status}">Status</span>
-                            </div>
-                            <div
-                                style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem;">
-                                <div
-                                    style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;">
-                                    <div>
-                                        <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.2rem;">Manager
-                                            Rating</p>
-                                        <div style="display: flex; align-items: baseline; gap: 0.25rem;">
-                                            <span style="font-size: 2rem; font-weight: bold; color: var(--primary);"
-                                                th:text="${review.managerRating != null ? review.managerRating : 'N/A'}">4.5</span>
-                                            <span class="text-muted" th:if="${review.managerRating != null}">/
-                                                5.0</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.2rem;">Self
-                                            Rating</p>
-                                        <div style="display: flex; align-items: baseline; gap: 0.25rem;">
-                                            <span style="font-size: 1.5rem; font-weight: bold;"
-                                                th:text="${review.selfAssessmentRating}">4.0</span>
-                                            <span class="text-muted">/ 5.0</span>
-                                        </div>
-                                    </div>
+                        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                            <div th:each="review : ${reviews}"
+                                th:if="${review.status.name() != 'PENDING_SELF_ASSESSMENT'}" class="card"
+                                style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; transition: transform 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                <div class="p-3"
+                                    style="background: #f1f5f9; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                                    <h4 style="margin: 0; color: var(--text-dark);"
+                                        th:text="${review.reviewYear} + ' Annual Performance Review'">
+                                        2024 Annual Performance Review
+                                    </h4>
+                                    <span class="badge"
+                                        th:classappend="${review.status.name() == 'COMPLETED' ? 'badge-approved' : 'badge-pending'}"
+                                        th:text="${review.status.name() == 'COMPLETED' ? 'Finalized' : 'Under Manager Review'}">
+                                        Review Status
+                                    </span>
                                 </div>
-                                <div>
-                                    <h5 class="mb-2">Manager Feedback</h5>
-                                    <p style="font-size: 0.95rem; line-height: 1.6;"
-                                        th:text="${review.managerFeedback != null ? review.managerFeedback : 'No feedback yet.'}">
-                                        Good job.
-                                    </p>
+                                <div class="p-4">
+                                    <div
+                                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-bottom: 1.5rem;">
+                                        <div th:if="${review.overallRating != null}">
+                                            <p class="text-muted"
+                                                style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+                                                Final Performance Rating</p>
+                                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                                <div style="font-size: 2.5rem; font-weight: 800; color: var(--primary);"
+                                                    th:text="${review.overallRating}">4.8</div>
+                                                <div style="flex: 1;">
+                                                    <div
+                                                        style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
+                                                        <div
+                                                            th:style="'background: var(--primary); height: 100%; width: ' + (${review.overallRating} * 20) + '%'">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p class="text-muted"
+                                                style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+                                                Self Assessment Rating</p>
+                                            <div style="font-size: 1.5rem; font-weight: 600; color: var(--text-dark);"
+                                                th:text="${review.selfAssessmentRating}">4.0 / 5.0</div>
+                                        </div>
+                                    </div>
+
+                                    <div th:if="${review.status.name() == 'COMPLETED'}"
+                                        style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                                        <h5 class="mb-2"><i class="fas fa-comment-dots"
+                                                style="margin-right: 0.5rem;"></i> Manager Feedback Summary</h5>
+                                        <p class="text-muted" style="font-style: italic; line-height: 1.6;"
+                                            th:text="${review.managerFeedback}">
+                                            Manager's comments will appear here after the review is finalized.
+                                        </p>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <a th:href="@{/manager/reviews/view/{id}(id=${review.reviewId})}"
+                                            class="btn btn-secondary btn-sm">
+                                            <i class="fas fa-file-alt" style="margin-right: 0.4rem;"></i> View Detailed
+                                            Report
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div th:if="${#lists.isEmpty(reviews)}" class="text-center text-muted" style="padding: 2rem;">No
-                            past feedback found.</div>
+
+                        <div th:if="${#lists.isEmpty(reviews.?[status.name() != 'PENDING_SELF_ASSESSMENT'])}"
+                            class="text-center p-5 text-muted">
+                            <p>No historical review records found.</p>
+                        </div>
                     </div>
                 </div>
             </div>

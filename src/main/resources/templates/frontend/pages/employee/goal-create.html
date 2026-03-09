@@ -2,12 +2,12 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="global-user-fullname" th:content="${globalFullName}">
-    <meta name="global-user-role" th:content="${globalUserRole}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="user-fullname" th:content="${fullName}" />
+    <meta name="user-role" th:content="${userRole}" />
     <title>Create New Goal - RevWorkForce</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 
 <body>
@@ -30,7 +30,7 @@
                         <div class="form-group mb-3">
                             <label class="form-label" for="goalTitle">Goal Title</label>
                             <input type="text" id="goalTitle" th:field="*{goalTitle}" class="form-control"
-                                placeholder="e.g., Revamp Authentication API" required>
+                                placeholder="e.g., Revamp Authentication API" required="required" />
                             <div class="text-danger" th:if="${#fields.hasErrors('goalTitle')}" th:errors="*{goalTitle}">
                             </div>
                         </div>
@@ -38,7 +38,8 @@
                         <div class="form-group mb-3">
                             <label class="form-label" for="goalDescription">Description</label>
                             <textarea id="goalDescription" th:field="*{goalDescription}" class="form-control" rows="4"
-                                placeholder="Detail the key deliverables and expected outcomes..." required></textarea>
+                                placeholder="Detail the key deliverables and expected outcomes..."
+                                required="required"></textarea>
                             <div class="text-danger" th:if="${#fields.hasErrors('goalDescription')}"
                                 th:errors="*{goalDescription}"></div>
                         </div>
@@ -57,7 +58,9 @@
                             <div class="form-group mb-3">
                                 <label class="form-label" for="priority">Priority</label>
                                 <select id="priority" th:field="*{priority}" class="form-control">
-                                    <option th:each="p : ${priorities}" th:value="${p}" th:text="${p}">MEDIUM</option>
+                                    <option
+                                        th:each="p : ${priorities ?: T(com.revature.revworkforce.enums.Priority).values()}"
+                                        th:value="${p}" th:text="${p.displayName}">MEDIUM</option>
                                 </select>
                             </div>
                         </div>

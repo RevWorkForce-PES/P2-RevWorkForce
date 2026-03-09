@@ -3,12 +3,11 @@ package com.revature.revworkforce.controller;
 import com.revature.revworkforce.dto.GoalDTO;
 import com.revature.revworkforce.dto.GoalStatistics;
 import com.revature.revworkforce.enums.Priority;
-import com.revature.revworkforce.enums.GoalStatus;
-import com.revature.revworkforce.model.Goal;
+import com.revature.revworkforce.model.Employee;
 import com.revature.revworkforce.security.SecurityUtils;
 import com.revature.revworkforce.service.GoalService;
+import com.revature.revworkforce.service.EmployeeService;
 import com.revature.revworkforce.service.PerformanceReviewService;
-import com.revature.revworkforce.model.PerformanceReview;
 import com.revature.revworkforce.dto.PerformanceReviewDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import jakarta.transaction.Transactional;
 
 /**
@@ -37,6 +35,9 @@ public class GoalController {
 
     @Autowired
     private PerformanceReviewService reviewService;
+
+    @Autowired
+    private EmployeeService employeeService;
 
     // ============================================
     // EMPLOYEE ENDPOINTS
@@ -58,6 +59,16 @@ public class GoalController {
         model.addAttribute("statistics", stats);
         model.addAttribute("goalDTO", new GoalDTO());
         model.addAttribute("priorities", Priority.values());
+
+        // Sidebar/Navbar details
+        try {
+            Employee employee = employeeService.getEmployeeById(employeeId);
+            model.addAttribute("fullName", employee.getFullName());
+        } catch (Exception e) {
+            model.addAttribute("fullName", "User");
+        }
+        model.addAttribute("userRole",
+                SecurityUtils.hasRole("ADMIN") ? "ADMIN" : (SecurityUtils.hasRole("MANAGER") ? "MANAGER" : "EMPLOYEE"));
 
         List<PerformanceReviewDTO> reviewDTOs = reviewService.getEmployeeReviews(employeeId);
 
@@ -164,7 +175,13 @@ public class GoalController {
 
             model.addAttribute("goalDTO", dto);
             model.addAttribute("priorities", Priority.values());
+            model.addAttribute("categories", List.of("Technical", "Process", "Learning", "Leadership", "Other"));
             model.addAttribute("pageTitle", "Edit Goal");
+
+            // Sidebar/Navbar details
+            model.addAttribute("fullName", dto.getEmployeeName());
+            model.addAttribute("userRole", SecurityUtils.hasRole("ADMIN") ? "ADMIN"
+                    : (SecurityUtils.hasRole("MANAGER") ? "MANAGER" : "EMPLOYEE"));
 
             return "pages/employee/goal-edit";
         } catch (Exception e) {
@@ -187,7 +204,20 @@ public class GoalController {
 
         if (result.hasErrors()) {
             model.addAttribute("priorities", Priority.values());
+            model.addAttribute("categories", List.of("Technical", "Process", "Learning", "Leadership", "Other"));
             model.addAttribute("pageTitle", "Edit Goal");
+
+            // Sidebar/Navbar details
+            String employeeId = SecurityUtils.getCurrentUsername();
+            try {
+                Employee employee = employeeService.getEmployeeById(employeeId);
+                model.addAttribute("fullName", employee.getFullName());
+            } catch (Exception e) {
+                model.addAttribute("fullName", "User");
+            }
+            model.addAttribute("userRole", SecurityUtils.hasRole("ADMIN") ? "ADMIN"
+                    : (SecurityUtils.hasRole("MANAGER") ? "MANAGER" : "EMPLOYEE"));
+
             return "pages/employee/goal-edit";
         }
 
@@ -208,7 +238,19 @@ public class GoalController {
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("priorities", Priority.values());
+            model.addAttribute("categories", List.of("Technical", "Process", "Learning", "Leadership", "Other"));
             model.addAttribute("pageTitle", "Edit Goal");
+
+            // Sidebar/Navbar details
+            try {
+                Employee employee = employeeService.getEmployeeById(employeeId);
+                model.addAttribute("fullName", employee.getFullName());
+            } catch (Exception ex) {
+                model.addAttribute("fullName", "User");
+            }
+            model.addAttribute("userRole", SecurityUtils.hasRole("ADMIN") ? "ADMIN"
+                    : (SecurityUtils.hasRole("MANAGER") ? "MANAGER" : "EMPLOYEE"));
+
             return "pages/employee/goal-edit";
         }
     }
@@ -262,6 +304,22 @@ public class GoalController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/employee/goals/progress/" + goalId;
         }
+    }
+
+    /**
+     * P2: Cancel goal
+     */
+    @PostMapping("/employee/goals/cancel/{goalId}")
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
+    public String cancelGoal(@PathVariable Long goalId, RedirectAttributes redirectAttributes) {
+        String employeeId = SecurityUtils.getCurrentUsername();
+        try {
+            goalService.cancelGoal(goalId, employeeId);
+            redirectAttributes.addFlashAttribute("success", "Goal cancelled successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/employee/performance";
     }
 
     /**
@@ -362,7 +420,29 @@ public class GoalController {
 
         model.addAttribute("pageTitle", "Team Performance Review");
 
+        // Sidebar details
+        try {
+            Employee manager = employeeService.getEmployeeById(managerId);
+            model.addAttribute("fullName", manager.getFullName());
+        } catch (Exception e) {
+            model.addAttribute("fullName", "Manager");
+        }
+        model.addAttribute("userRole", "MANAGER");
+
         return "pages/manager/performance-review";
+    }
+
+    /**
+     * P2: View active team goals
+     */
+    @GetMapping("/manager/goals/active")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    public String viewTeamActiveGoals(Model model) {
+        String managerId = SecurityUtils.getCurrentUsername();
+        List<GoalDTO> goals = goalService.getTeamActiveGoals(managerId);
+        model.addAttribute("goals", goals);
+        model.addAttribute("pageTitle", "Active Team Goals");
+        return "pages/manager/goals-active"; // If template exists or reuse list
     }
 
     /**

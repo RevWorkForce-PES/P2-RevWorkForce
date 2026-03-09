@@ -96,6 +96,8 @@ public class SecurityConfig {
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
                                                 // Manager endpoints (MANAGER or ADMIN role required)
+                                                .requestMatchers("/manager/reviews/view/**")
+                                                .hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")
                                                 .requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
 
                                                 // Employee endpoints (any authenticated user)
