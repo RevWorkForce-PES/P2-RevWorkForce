@@ -173,15 +173,16 @@
 						</div>
 					</div>
 
-					<div class="card stat-card">
+					<a th:href="@{/manager/performance}" class="card stat-card"
+						style="text-decoration: none; color: inherit; transition: transform 0.2s;">
 						<div class="stat-icon">
 							<i class="fas fa-bullseye"></i>
 						</div>
 						<div class="stat-info">
-							<h3>2</h3>
+							<h3 th:text="${pendingReviewsCount ?: 2}">2</h3>
 							<p>Pending Reviews</p>
 						</div>
-					</div>
+					</a>
 
 					<div class="card stat-card">
 						<div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">

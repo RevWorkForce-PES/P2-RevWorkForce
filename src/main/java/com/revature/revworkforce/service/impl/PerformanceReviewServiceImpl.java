@@ -50,21 +50,25 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
     // CREATE REVIEW
     // =========================================================
 
+    // =========================================================
+    // CREATE REVIEW
+    // =========================================================
+
     @Override
-    public PerformanceReview createReview(String employeeId, Integer reviewYear, String createdByManagerId) {
+    public PerformanceReview createReview(PerformanceReviewDTO dto, String managerId) {
 
-        Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", employeeId));
+        Employee employee = employeeRepository.findById(dto.getEmployeeId())
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", dto.getEmployeeId()));
 
-        if (reviewRepository.existsByEmployeeAndReviewYear(employee, reviewYear)) {
+        if (reviewRepository.existsByEmployeeAndReviewYear(employee, dto.getReviewYear())) {
             throw new ValidationException("Review already exists for this employee and year");
         }
 
         PerformanceReview review = new PerformanceReview();
         review.setEmployee(employee);
-        review.setReviewYear(reviewYear);
-        review.setReviewPeriod(reviewYear + " Annual Review");
-        review.setStatus(ReviewStatus.DRAFT);
+        review.setReviewYear(dto.getReviewYear());
+        review.setReviewPeriod(dto.getReviewYear() + " Annual Review");
+        review.setStatus(ReviewStatus.PENDING_SELF_ASSESSMENT);
         review.setCreatedAt(LocalDateTime.now());
         review.setUpdatedAt(LocalDateTime.now());
 
@@ -77,7 +81,7 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
                 "PERFORMANCE_REVIEWS",
                 savedReview.getReviewId().toString(),
                 null,
-                "Created performance review for employee " + employeeId + " for year " + reviewYear,
+                "Created performance review for employee " + dto.getEmployeeId() + " for year " + dto.getReviewYear(),
                 null,
                 null);
 
@@ -89,14 +93,7 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
     // =========================================================
 
     @Override
-    public PerformanceReview submitSelfAssessment(
-            Long reviewId,
-            String employeeId,
-            String keyDeliverables,
-            String majorAccomplishments,
-            String areasOfImprovement,
-            BigDecimal selfAssessmentRating,
-            String selfAssessmentComments) {
+    public PerformanceReview submitSelfAssessment(Long reviewId, PerformanceReviewDTO dto, String employeeId) {
 
         PerformanceReview review = getReviewById(reviewId);
 
@@ -104,24 +101,28 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
             throw new UnauthorizedException("You can only submit assessment for your own review");
         }
 
-        if (review.getStatus() != ReviewStatus.DRAFT) {
-            throw new ValidationException("Can only edit review in DRAFT status");
+        if (review.getStatus() != ReviewStatus.PENDING_SELF_ASSESSMENT) {
+            throw new ValidationException("Can only submit self-assessment in PENDING_SELF_ASSESSMENT status");
         }
 
-        if (selfAssessmentRating != null &&
-                (selfAssessmentRating.compareTo(BigDecimal.ONE) < 0 ||
-                        selfAssessmentRating.compareTo(BigDecimal.valueOf(5)) > 0)) {
-            throw new ValidationException("Self-assessment rating must be between 1 and 5");
+        if (dto.getSelfAssessmentText() != null && dto.getSelfAssessmentText().length() < 100) {
+            throw new ValidationException("Self-assessment must be at least 100 characters");
+        }
+        if (dto.getAchievements() != null && dto.getAchievements().length() < 50) {
+            throw new ValidationException("Achievements must be at least 50 characters");
+        }
+        if (dto.getImprovementAreas() != null && dto.getImprovementAreas().length() < 50) {
+            throw new ValidationException("Improvement areas must be at least 50 characters");
         }
 
-        review.setKeyDeliverables(keyDeliverables);
-        review.setMajorAccomplishments(majorAccomplishments);
-        review.setAreasOfImprovement(areasOfImprovement);
-        review.setSelfAssessmentRating(selfAssessmentRating);
-        review.setSelfAssessmentComments(selfAssessmentComments);
+        review.setAchievements(dto.getAchievements());
+        review.setImprovementAreas(dto.getImprovementAreas());
+        review.setSelfAssessmentRating(dto.getSelfAssessmentRating());
+        review.setSelfAssessmentComments(dto.getSelfAssessmentComments());
         review.setSubmittedDate(LocalDate.now());
-        review.setStatus(ReviewStatus.SUBMITTED);
+        review.setStatus(ReviewStatus.PENDING_MANAGER_REVIEW);
         review.setUpdatedAt(LocalDateTime.now());
+
         // 🔔 Notify Manager
         Employee manager = review.getEmployee().getManager();
 
@@ -131,7 +132,7 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
                     NotificationType.PERFORMANCE,
                     "Performance Review Submitted",
                     review.getEmployee().getFullName() +
-                            " has submitted performance review for year " + review.getReviewYear(),
+                            " has submitted self-assessment for year " + review.getReviewYear(),
                     NotificationPriority.HIGH);
         }
 
@@ -143,8 +144,8 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
                 Constants.AUDIT_UPDATE,
                 "PERFORMANCE_REVIEWS",
                 reviewId.toString(),
-                ReviewStatus.DRAFT.name(),
-                ReviewStatus.SUBMITTED.name(),
+                ReviewStatus.PENDING_SELF_ASSESSMENT.name(),
+                ReviewStatus.PENDING_MANAGER_REVIEW.name(),
                 null,
                 null);
 
@@ -157,12 +158,7 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
 
     @Override
     @Transactional
-    public PerformanceReview submitManagerReview(
-            Long reviewId,
-            String managerId,
-            String managerFeedback,
-            BigDecimal managerRating,
-            String managerComments) {
+    public PerformanceReview submitManagerReview(Long reviewId, PerformanceReviewDTO dto, String managerId) {
 
         PerformanceReview review = getReviewById(reviewId);
 
@@ -174,31 +170,37 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
             throw new UnauthorizedException("You can only review your direct reports");
         }
 
-        if (review.getStatus() != ReviewStatus.SUBMITTED) {
-            throw new ValidationException("Can only review a SUBMITTED review");
+        if (review.getStatus() != ReviewStatus.PENDING_MANAGER_REVIEW) {
+            throw new ValidationException("Can only review a review in PENDING_MANAGER_REVIEW status");
         }
 
-        if (managerRating == null ||
-                managerRating.compareTo(BigDecimal.ONE) < 0 ||
-                managerRating.compareTo(BigDecimal.valueOf(5)) > 0) {
-            throw new ValidationException("Manager rating must be between 1 and 5");
+        validateRatings(dto);
+
+        if (dto.getManagerFeedback() != null && dto.getManagerFeedback().length() < 50) {
+            throw new ValidationException("Manager feedback must be at least 50 characters");
         }
 
-        review.setManagerFeedback(managerFeedback);
-        review.setManagerRating(managerRating);
-        review.setManagerComments(managerComments);
+        review.setManagerFeedback(dto.getManagerFeedback());
+        review.setTechnicalSkills(dto.getTechnicalSkills());
+        review.setCommunication(dto.getCommunication());
+        review.setTeamwork(dto.getTeamwork());
+        review.setLeadership(dto.getLeadership());
+        review.setPunctuality(dto.getPunctuality());
+        review.setManagerRating(dto.getManagerRating());
+        review.setManagerComments(dto.getManagerComments());
         review.setReviewedBy(manager);
         review.setReviewedDate(LocalDate.now());
 
-        if (review.getSelfAssessmentRating() != null) {
-            BigDecimal finalRating = review.getSelfAssessmentRating()
-                    .add(managerRating)
-                    .divide(BigDecimal.valueOf(2), 1, BigDecimal.ROUND_HALF_UP);
-            review.setFinalRating(finalRating);
-        } else {
-            review.setFinalRating(managerRating);
-        }
+        // Calculate Overall Rating (Average of technical, communication, teamwork,
+        // leadership, punctuality)
+        BigDecimal overallRating = dto.getTechnicalSkills()
+                .add(dto.getCommunication())
+                .add(dto.getTeamwork())
+                .add(dto.getLeadership())
+                .add(dto.getPunctuality())
+                .divide(BigDecimal.valueOf(5), 1, java.math.RoundingMode.HALF_UP);
 
+        review.setFinalRating(overallRating);
         review.setStatus(ReviewStatus.COMPLETED);
         review.setUpdatedAt(LocalDateTime.now());
 
@@ -206,9 +208,9 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
         notificationService.createNotification(
                 review.getEmployee(),
                 NotificationType.PERFORMANCE,
-                "Performance Review Reviewed",
+                "Performance Review Completed",
                 "Your performance review for year " + review.getReviewYear() +
-                        " has been reviewed by your manager.",
+                        " has been completed by your manager.",
                 NotificationPriority.HIGH);
 
         PerformanceReview savedReview = reviewRepository.save(review);
@@ -219,7 +221,7 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
                 Constants.AUDIT_UPDATE,
                 "PERFORMANCE_REVIEWS",
                 reviewId.toString(),
-                ReviewStatus.SUBMITTED.name(),
+                ReviewStatus.PENDING_MANAGER_REVIEW.name(),
                 ReviewStatus.COMPLETED.name(),
                 null,
                 null);
@@ -236,36 +238,14 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
 
         PerformanceReview review = getReviewById(reviewId);
 
-        if (review.getStatus() != ReviewStatus.REVIEWED) {
-            throw new ValidationException("Can only complete a REVIEWED review");
+        if (review.getStatus() == ReviewStatus.COMPLETED) {
+            throw new ValidationException("Review is already completed");
         }
-
-        // 🔔 Notify Employee
-        notificationService.createNotification(
-                review.getEmployee(),
-                NotificationType.PERFORMANCE,
-                "Performance Review Completed",
-                "Your performance review for year " + review.getReviewYear() +
-                        " has been marked as completed.",
-                NotificationPriority.NORMAL);
 
         review.setStatus(ReviewStatus.COMPLETED);
         review.setUpdatedAt(LocalDateTime.now());
 
-        PerformanceReview savedReview = reviewRepository.save(review);
-
-        String performedBy = SecurityUtils.getCurrentUsername() != null ? SecurityUtils.getCurrentUsername() : "SYSTEM";
-        auditService.createAuditLog(
-                performedBy,
-                Constants.AUDIT_UPDATE,
-                "PERFORMANCE_REVIEWS",
-                reviewId.toString(),
-                ReviewStatus.REVIEWED.name(),
-                ReviewStatus.COMPLETED.name(),
-                null,
-                null);
-
-        return savedReview;
+        return reviewRepository.save(review);
     }
 
     // =========================================================
@@ -301,7 +281,7 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<PerformanceReviewDTO> getPendingReviewsForManager(String managerId) {
-        return reviewRepository.findPendingReviewsByManagerId(managerId, ReviewStatus.SUBMITTED).stream()
+        return reviewRepository.findPendingReviewsByManagerId(managerId, ReviewStatus.PENDING_MANAGER_REVIEW).stream()
                 .map(this::convertToDTO)
                 .collect(java.util.stream.Collectors.toList());
     }
@@ -383,8 +363,8 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
         int count = 0;
 
         for (PerformanceReviewDTO review : reviews) {
-            if (review.getFinalRating() != null) {
-                sum = sum.add(review.getFinalRating());
+            if (review.getOverallRating() != null) {
+                sum = sum.add(review.getOverallRating());
                 count++;
             }
         }
@@ -407,30 +387,43 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
         dto.setReviewYear(review.getReviewYear());
         dto.setReviewPeriod(review.getReviewPeriod());
         dto.setStatus(review.getStatus());
-        dto.setKeyDeliverables(review.getKeyDeliverables());
-        dto.setMajorAccomplishments(review.getMajorAccomplishments());
-        dto.setAreasOfImprovement(review.getAreasOfImprovement());
+
+        // Populate Dept/Desig
+        if (review.getEmployee().getDepartment() != null) {
+            dto.setDepartmentName(review.getEmployee().getDepartment().getDepartmentName());
+        }
+        if (review.getEmployee().getDesignation() != null) {
+            dto.setDesignationName(review.getEmployee().getDesignation().getDesignationName());
+        }
+
+        dto.setAchievements(review.getAchievements());
+        dto.setImprovementAreas(review.getImprovementAreas());
         dto.setSelfAssessmentRating(review.getSelfAssessmentRating());
         dto.setSelfAssessmentComments(review.getSelfAssessmentComments());
+        dto.setSelfAssessmentText(review.getSelfAssessmentComments()); // Required for validation
         dto.setManagerFeedback(review.getManagerFeedback());
+        dto.setTechnicalSkills(review.getTechnicalSkills());
+        dto.setCommunication(review.getCommunication());
+        dto.setTeamwork(review.getTeamwork());
+        dto.setLeadership(review.getLeadership());
+        dto.setPunctuality(review.getPunctuality());
         dto.setManagerRating(review.getManagerRating());
         dto.setManagerComments(review.getManagerComments());
-        dto.setFinalRating(review.getFinalRating());
+        dto.setOverallRating(review.getFinalRating());
         dto.setSubmittedDate(review.getSubmittedDate());
         dto.setReviewedDate(review.getReviewedDate());
+
+        if (review.getReviewedBy() != null) {
+            dto.setReviewedByName(review.getReviewedBy().getFullName());
+            dto.setManagerId(review.getReviewedBy().getEmployeeId());
+            dto.setManagerName(review.getReviewedBy().getFullName());
+        }
 
         return dto;
     }
 
     @Override
-    public PerformanceReview updateDraft(
-            Long reviewId,
-            String employeeId,
-            String keyDeliverables,
-            String majorAccomplishments,
-            String areasOfImprovement,
-            BigDecimal selfAssessmentRating,
-            String selfAssessmentComments) {
+    public PerformanceReview updateDraft(Long reviewId, PerformanceReviewDTO dto, String employeeId) {
 
         PerformanceReview review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ResourceNotFoundException("PerformanceReview", "id", reviewId));
@@ -439,17 +432,32 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
             throw new UnauthorizedException("You can only edit your own review");
         }
 
-        if (review.getStatus() != ReviewStatus.DRAFT) {
-            throw new ValidationException("Can only edit review in DRAFT status");
+        if (review.getStatus() != ReviewStatus.PENDING_SELF_ASSESSMENT) {
+            throw new ValidationException("Can only edit review in PENDING_SELF_ASSESSMENT status");
         }
 
-        review.setKeyDeliverables(keyDeliverables);
-        review.setMajorAccomplishments(majorAccomplishments);
-        review.setAreasOfImprovement(areasOfImprovement);
-        review.setSelfAssessmentRating(selfAssessmentRating);
-        review.setSelfAssessmentComments(selfAssessmentComments);
+        review.setAchievements(dto.getAchievements());
+        review.setImprovementAreas(dto.getImprovementAreas());
+        review.setSelfAssessmentRating(dto.getSelfAssessmentRating());
+        review.setSelfAssessmentComments(dto.getSelfAssessmentComments());
         review.setUpdatedAt(LocalDateTime.now());
 
         return reviewRepository.save(review);
+    }
+
+    @Override
+    public void validateRatings(PerformanceReviewDTO dto) {
+        validateRating(dto.getTechnicalSkills(), "Technical Skills");
+        validateRating(dto.getCommunication(), "Communication");
+        validateRating(dto.getTeamwork(), "Teamwork");
+        validateRating(dto.getLeadership(), "Leadership");
+        validateRating(dto.getPunctuality(), "Punctuality");
+    }
+
+    private void validateRating(BigDecimal rating, String fieldName) {
+        if (rating == null || rating.compareTo(BigDecimal.valueOf(1.0)) < 0
+                || rating.compareTo(BigDecimal.valueOf(5.0)) > 0) {
+            throw new ValidationException(fieldName + " rating must be between 1.0 and 5.0");
+        }
     }
 }

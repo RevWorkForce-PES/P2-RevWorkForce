@@ -573,23 +573,33 @@ END;
 -- Submitted review (waiting for manager feedback)
 INSERT INTO PERFORMANCE_REVIEWS (
     review_id, employee_id, review_year, review_period,
-    key_deliverables, major_accomplishments, areas_of_improvement,
+    key_deliverables, achievements, improvement_areas,
     self_assessment_rating, self_assessment_comments, status, submitted_date
 ) VALUES (
-    review_seq.NEXTVAL, 'EMP001', 2023, 'Annual-2023',
-    'Developed 3 microservices, Led backend team, Mentored 2 junior developers',
-    'Completed project migration ahead of schedule, Improved system performance by 40%, Received client appreciation',
-    'Need to improve communication skills, Learn cloud technologies (AWS/Azure)',
-    4.0, 'Productive year with significant contributions to team success',
-    'SUBMITTED', DATE '2024-01-15'
+    review_seq.NEXTVAL, 'EMP001', 2023, 'Annual Review 2023',
+    'Core API stability, Team leadership, Internal documentation',
+    'Successfully migrated 3 critical microservices to the new architecture. Reduced API latency by 45%. Established a new mentoring program for junior developers.',
+    'Focus on growing cloud architecture skills (AWS/Azure). Improve cross-team communication protocols.',
+    4.0, 'Significant progress made on backend efficiency and team growth.',
+    'PENDING_MANAGER_REVIEW', DATE '2024-01-15'
+);
+
+-- Active Self-Assessment needed for current year
+INSERT INTO PERFORMANCE_REVIEWS (
+    review_id, employee_id, review_year, review_period,
+    status
+) VALUES (
+    review_seq.NEXTVAL, 'EMP001', 2024, 'FY2024 Annual Review',
+    'PENDING_SELF_ASSESSMENT'
 );
 
 -- Completed review (with manager feedback)
 INSERT INTO PERFORMANCE_REVIEWS (
     review_id, employee_id, review_year, review_period,
-    key_deliverables, major_accomplishments, areas_of_improvement,
+    key_deliverables, achievements, improvement_areas,
     self_assessment_rating, self_assessment_comments,
-    manager_feedback, manager_rating, manager_comments,
+    manager_feedback, technical_skills, communication, teamwork, leadership, punctuality,
+    manager_rating, manager_comments,
     final_rating, status, submitted_date, reviewed_by, reviewed_date
 ) VALUES (
     review_seq.NEXTVAL, 'EMP002', 2023, 'Annual-2023',
@@ -598,6 +608,7 @@ INSERT INTO PERFORMANCE_REVIEWS (
     'Explore backend technologies, Improve TypeScript skills',
     4.5, 'Excellent year with notable frontend achievements',
     'Outstanding performance! Your design system has become standard across projects. Keep up the excellent work.',
+    4.0, 4.5, 4.5, 4.0, 5.0,
     4.5, 'Highly recommend for promotion to Senior Engineer',
     4.5, 'COMPLETED', DATE '2024-01-10', 'MGR001', DATE '2024-01-20'
 );
@@ -609,15 +620,16 @@ INSERT INTO PERFORMANCE_REVIEWS (
 ) VALUES (
     review_seq.NEXTVAL, 'EMP003', 2023, 'Annual-2023',
     'Working on leave management module, Database optimization tasks',
-    3.5, 'DRAFT'
+    3.5, 'PENDING_SELF_ASSESSMENT'
 );
 
 -- Completed review for EMP001 (backend engineer)
 INSERT INTO PERFORMANCE_REVIEWS (
     review_id, employee_id, review_year, review_period,
-    key_deliverables, major_accomplishments, areas_of_improvement,
+    key_deliverables, achievements, improvement_areas,
     self_assessment_rating, self_assessment_comments,
-    manager_feedback, manager_rating, manager_comments,
+    manager_feedback, technical_skills, communication, teamwork, leadership, punctuality,
+    manager_rating, manager_comments,
     final_rating, status, submitted_date, reviewed_by, reviewed_date
 ) VALUES (
     review_seq.NEXTVAL, 'EMP001', 2022, 'Annual-2022',
@@ -626,6 +638,7 @@ INSERT INTO PERFORMANCE_REVIEWS (
     'Improve public speaking skills, Learn containerization (Docker/Kubernetes)',
     4.0, 'Solid year with impactful backend contributions',
     'Great work on backend infrastructure! The CI/CD improvements have significantly boosted team productivity.',
+    4.5, 3.5, 4.0, 4.0, 4.0,
     4.2, 'Good candidate for a tech lead role in future cycles',
     4.1, 'COMPLETED', DATE '2023-01-15', 'MGR001', DATE '2023-01-25'
 );
@@ -633,9 +646,10 @@ INSERT INTO PERFORMANCE_REVIEWS (
 -- Completed review for EMP003
 INSERT INTO PERFORMANCE_REVIEWS (
     review_id, employee_id, review_year, review_period,
-    key_deliverables, major_accomplishments, areas_of_improvement,
+    key_deliverables, achievements, improvement_areas,
     self_assessment_rating, self_assessment_comments,
-    manager_feedback, manager_rating, manager_comments,
+    manager_feedback, technical_skills, communication, teamwork, leadership, punctuality,
+    manager_rating, manager_comments,
     final_rating, status, submitted_date, reviewed_by, reviewed_date
 ) VALUES (
     review_seq.NEXTVAL, 'EMP003', 2022, 'Annual-2022',
@@ -644,6 +658,7 @@ INSERT INTO PERFORMANCE_REVIEWS (
     'Need to improve code documentation, Explore unit testing best practices',
     3.5, 'Decent progress with room for improvement',
     'Steady contributor. The leave management module was well-received. Focus on code quality going forward.',
+    3.5, 4.0, 4.0, 3.0, 4.0,
     3.8, 'Continue improving code coverage and documentation standards',
     3.65, 'COMPLETED', DATE '2023-01-18', 'MGR001', DATE '2023-01-28'
 );
@@ -670,10 +685,24 @@ INSERT INTO GOALS (
     deadline, priority, progress, status
 ) VALUES (
     goal_seq.NEXTVAL, 'EMP001', 
-    'Complete AWS Certification', 
-    'Prepare and pass AWS Solutions Architect Associate certification exam',
+    'Complete Cloud Architect Certification', 
+    'Achieve AWS Solutions Architect Professional certification to lead cloud migration efforts.',
     'Professional Development',
-    TRUNC(SYSDATE) + 120, 'HIGH', 60, 'IN_PROGRESS'
+    TRUNC(SYSDATE) + 90, 'HIGH', 60, 'IN_PROGRESS'
+);
+
+-- Goal 1.1: Completed Goal for EMP001
+INSERT INTO GOALS (
+    goal_id, employee_id, goal_title, goal_description, category, 
+    deadline, priority, progress, status, manager_comments, completed_at
+) VALUES (
+    goal_seq.NEXTVAL, 'EMP001', 
+    'Revamp Authentication System', 
+    'Implement OAuth2 and OpenID Connect for all internal tools.',
+    'Technical',
+    TRUNC(SYSDATE) - 10, 'HIGH', 100, 'COMPLETED',
+    'Great implementation! The new system is much more secure and user-friendly.',
+    SYSDATE - 12
 );
 
 -- Goal 2: Completed

@@ -65,6 +65,12 @@ public class GoalServiceImpl implements GoalService {
             throw new ValidationException("Deadline must be in the future");
         }
 
+        // Check max active goals (NOT_STARTED or IN_PROGRESS)
+        long activeCount = goalRepository.countActiveGoals(employee);
+        if (activeCount >= 10) {
+            throw new ValidationException("Maximum of 10 active goals allowed per employee");
+        }
+
         Goal goal = new Goal();
         goal.setEmployee(employee);
         goal.setGoalTitle(goalTitle);
@@ -139,6 +145,41 @@ public class GoalServiceImpl implements GoalService {
                 null);
 
         return updated;
+    }
+
+    /**
+     * P2: Cancel goal (employee cancels own goal)
+     */
+    @Override
+    public Goal cancelGoal(Long goalId, String employeeId) {
+        Goal goal = goalRepository.findById(goalId)
+                .orElseThrow(() -> new ResourceNotFoundException("Goal", "goalId", goalId));
+
+        if (!goal.getEmployee().getEmployeeId().equals(employeeId)) {
+            throw new UnauthorizedException("You can only cancel your own goals");
+        }
+
+        if (goal.getStatus() == GoalStatus.COMPLETED) {
+            throw new ValidationException("Cannot cancel a completed goal");
+        }
+
+        goal.setStatus(GoalStatus.CANCELLED);
+        goal.setUpdatedAt(LocalDateTime.now());
+
+        Goal saved = goalRepository.save(goal);
+
+        // Audit Logging
+        auditService.createAuditLog(
+                employeeId,
+                "GOAL_CANCELLED",
+                "GOALS",
+                goalId.toString(),
+                null,
+                "Goal cancelled: " + saved.getGoalTitle(),
+                null,
+                null);
+
+        return saved;
     }
 
     /**
@@ -335,6 +376,18 @@ public class GoalServiceImpl implements GoalService {
     @Transactional(readOnly = true)
     public List<GoalDTO> getTeamGoals(String managerId) {
         return goalRepository.findTeamGoalsByManagerId(managerId).stream()
+                .map(this::convertToDTO)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * Get active team goals
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<GoalDTO> getTeamActiveGoals(String managerId) {
+        return goalRepository.findTeamGoalsByManagerId(managerId).stream()
+                .filter(g -> g.getStatus() == GoalStatus.NOT_STARTED || g.getStatus() == GoalStatus.IN_PROGRESS)
                 .map(this::convertToDTO)
                 .collect(java.util.stream.Collectors.toList());
     }

@@ -29,17 +29,17 @@ class PerformanceReviewDTOTest {
         dto.setDesignationName("Developer");
         dto.setReviewYear(2024);
         dto.setReviewPeriod("Q1");
-        dto.setStatus(ReviewStatus.DRAFT);
-        dto.setKeyDeliverables("Deliverable 1");
-        dto.setMajorAccomplishments("Achievement 1");
-        dto.setAreasOfImprovement("Improve communication");
+        dto.setStatus(ReviewStatus.PENDING_SELF_ASSESSMENT);
+        dto.setSelfAssessmentText("This is long enough self assessment text.");
+        dto.setAchievements("This is long enough achievements text.");
+        dto.setImprovementAreas("This is long enough improvement areas text.");
         dto.setSelfAssessmentRating(BigDecimal.valueOf(4.2));
         dto.setSelfAssessmentComments("Did well");
         dto.setSubmittedDate(today);
-        dto.setManagerFeedback("Good work");
+        dto.setManagerFeedback("Good work and satisfying performance throughout the year.");
         dto.setManagerRating(BigDecimal.valueOf(4.5));
         dto.setManagerComments("Excellent");
-        dto.setFinalRating(BigDecimal.valueOf(4.6));
+        dto.setOverallRating(BigDecimal.valueOf(4.6));
         dto.setReviewedByName("Manager X");
         dto.setReviewedDate(today);
         dto.setManagerId("M100");
@@ -52,17 +52,17 @@ class PerformanceReviewDTOTest {
         assertEquals("Developer", dto.getDesignationName());
         assertEquals(2024, dto.getReviewYear());
         assertEquals("Q1", dto.getReviewPeriod());
-        assertEquals(ReviewStatus.DRAFT, dto.getStatus());
-        assertEquals("Deliverable 1", dto.getKeyDeliverables());
-        assertEquals("Achievement 1", dto.getMajorAccomplishments());
-        assertEquals("Improve communication", dto.getAreasOfImprovement());
+        assertEquals(ReviewStatus.PENDING_SELF_ASSESSMENT, dto.getStatus());
+        assertEquals("This is long enough self assessment text.", dto.getSelfAssessmentText());
+        assertEquals("This is long enough achievements text.", dto.getAchievements());
+        assertEquals("This is long enough improvement areas text.", dto.getImprovementAreas());
         assertEquals(BigDecimal.valueOf(4.2), dto.getSelfAssessmentRating());
         assertEquals("Did well", dto.getSelfAssessmentComments());
         assertEquals(today, dto.getSubmittedDate());
-        assertEquals("Good work", dto.getManagerFeedback());
+        assertEquals("Good work and satisfying performance throughout the year.", dto.getManagerFeedback());
         assertEquals(BigDecimal.valueOf(4.5), dto.getManagerRating());
         assertEquals("Excellent", dto.getManagerComments());
-        assertEquals(BigDecimal.valueOf(4.6), dto.getFinalRating());
+        assertEquals(BigDecimal.valueOf(4.6), dto.getOverallRating());
         assertEquals("Manager X", dto.getReviewedByName());
         assertEquals(today, dto.getReviewedDate());
         assertEquals("M100", dto.getManagerId());
@@ -71,44 +71,38 @@ class PerformanceReviewDTOTest {
 
     @Test
     void testGetRatingLabel() {
-        dto.setFinalRating(BigDecimal.valueOf(4.7));
+        dto.setOverallRating(BigDecimal.valueOf(4.7));
         assertEquals("Exceptional", dto.getRatingLabel());
 
-        dto.setFinalRating(BigDecimal.valueOf(4.0));
+        dto.setOverallRating(BigDecimal.valueOf(4.0));
         assertEquals("Exceeds Expectations", dto.getRatingLabel());
 
-        dto.setFinalRating(BigDecimal.valueOf(3.0));
+        dto.setOverallRating(BigDecimal.valueOf(3.0));
         assertEquals("Meets Expectations", dto.getRatingLabel());
 
-        dto.setFinalRating(BigDecimal.valueOf(2.0));
+        dto.setOverallRating(BigDecimal.valueOf(2.0));
         assertEquals("Needs Improvement", dto.getRatingLabel());
 
-        dto.setFinalRating(BigDecimal.valueOf(1.0));
+        dto.setOverallRating(BigDecimal.valueOf(1.0));
         assertEquals("Unsatisfactory", dto.getRatingLabel());
 
-        dto.setFinalRating(null);
+        dto.setOverallRating(null);
         assertEquals("Not Rated", dto.getRatingLabel());
     }
 
     @Test
     void testStatusMethods() {
-        dto.setStatus(ReviewStatus.DRAFT);
+        dto.setStatus(ReviewStatus.PENDING_SELF_ASSESSMENT);
         assertTrue(dto.isEditable());
         assertTrue(dto.canSubmit());
         assertFalse(dto.canManagerReview());
         assertFalse(dto.canViewManagerFeedback());
 
-        dto.setStatus(ReviewStatus.SUBMITTED);
+        dto.setStatus(ReviewStatus.PENDING_MANAGER_REVIEW);
         assertFalse(dto.isEditable());
         assertFalse(dto.canSubmit());
         assertTrue(dto.canManagerReview());
         assertFalse(dto.canViewManagerFeedback());
-
-        dto.setStatus(ReviewStatus.REVIEWED);
-        assertFalse(dto.isEditable());
-        assertFalse(dto.canSubmit());
-        assertFalse(dto.canManagerReview());
-        assertTrue(dto.canViewManagerFeedback());
 
         dto.setStatus(ReviewStatus.COMPLETED);
         assertFalse(dto.isEditable());

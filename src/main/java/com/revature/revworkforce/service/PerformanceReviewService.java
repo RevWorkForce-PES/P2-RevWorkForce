@@ -9,34 +9,17 @@ import com.revature.revworkforce.model.PerformanceReview;
 
 public interface PerformanceReviewService {
 
-        PerformanceReview createReview(String employeeId, Integer reviewYear, String createdByManagerId);
+        PerformanceReview createReview(PerformanceReviewDTO dto, String managerId);
 
-        PerformanceReview submitSelfAssessment(
-                        Long reviewId,
-                        String employeeId,
-                        String keyDeliverables,
-                        String majorAccomplishments,
-                        String areasOfImprovement,
-                        BigDecimal selfAssessmentRating,
-                        String selfAssessmentComments);
+        PerformanceReview submitSelfAssessment(Long reviewId, PerformanceReviewDTO dto, String employeeId);
 
-        PerformanceReview submitManagerReview(
-                        Long reviewId,
-                        String managerId,
-                        String managerFeedback,
-                        BigDecimal managerRating,
-                        String managerComments);
+        PerformanceReview submitManagerReview(Long reviewId, PerformanceReviewDTO dto, String managerId);
 
         PerformanceReview completeReview(Long reviewId);
 
-        PerformanceReview updateDraft(
-                        Long reviewId,
-                        String employeeId,
-                        String keyDeliverables,
-                        String majorAccomplishments,
-                        String areasOfImprovement,
-                        BigDecimal selfAssessmentRating,
-                        String selfAssessmentComments);
+        PerformanceReview updateDraft(Long reviewId, PerformanceReviewDTO dto, String employeeId);
+
+        void validateRatings(PerformanceReviewDTO dto);
 
         PerformanceReview getReviewById(Long reviewId);
 

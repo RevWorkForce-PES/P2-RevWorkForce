@@ -2,12 +2,12 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="global-user-fullname" th:content="${globalFullName}">
-    <meta name="global-user-role" th:content="${globalUserRole}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="user-fullname" th:content="${fullName}" />
+    <meta name="user-role" th:content="${userRole}" />
     <title>Goal Details - RevWorkForce</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 
 <body>
@@ -59,7 +59,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="text-muted small text-uppercase">Priority</label>
-                                <p th:text="${goal.priority}" style="margin: 0; font-weight: 500;"></p>
+                                <p th:text="${goal.priority.displayName}" style="margin: 0; font-weight: 500;"></p>
                             </div>
                             <div class="mb-3">
                                 <label class="text-muted small text-uppercase">Deadline</label>

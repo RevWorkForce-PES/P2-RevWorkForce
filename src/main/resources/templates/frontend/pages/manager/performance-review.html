@@ -19,6 +19,7 @@
                 <div class="card">
                     <div class="tabs">
                         <button class="tab-btn active" data-target="review-team">Review Team Performance</button>
+                        <button class="tab-btn" data-target="team-goals">Team Goals (OKRs)</button>
                         <button class="tab-btn" data-target="summary-report">Performance Summary Report</button>
                     </div>
 
@@ -28,14 +29,16 @@
 
                     <!-- Review Team Tab -->
                     <div id="review-team" class="tab-content active">
-                        <div class="flex-space-between mb-3 bg-light"
-                            style="background:#f8fafc; padding: 1rem; border-radius:8px; border:1px solid var(--border-color);">
+                        <div class="flex-space-between mb-4 bg-light"
+                            style="background:#f1f5f9; padding: 1.5rem; border-radius:12px; border:1px solid var(--border-color); align-items: center;">
                             <div>
-                                <h4>Q1 2026 Performance Cycle</h4>
-                                <p class="text-muted" style="font-size:0.85rem; margin-bottom: 0;">Status: Manager
-                                    Review Phase (Ends Mar 15)</p>
+                                <h4 style="margin: 0; color: var(--text-dark);">Performance Review Cycle</h4>
+                                <p class="text-muted" style="font-size:0.9rem; margin-top: 0.25rem; margin-bottom: 0;">
+                                    Manage evaluations for your direct reports.</p>
                             </div>
-                            <span class="badge badge-pending">Active Phase</span>
+                            <a th:href="@{/manager/reviews/create}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create New Review
+                            </a>
                         </div>
 
                         <div class="table-responsive">
@@ -43,48 +46,117 @@
                                 <thead>
                                     <tr>
                                         <th>Employee</th>
-                                        <th>Self-Review Status</th>
-                                        <th>Manager Review</th>
-                                        <th>Action</th>
+                                        <th>Year</th>
+                                        <th>Status</th>
+                                        <th>Self-Assessment</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr th:each="review : ${reviews}">
-                                        <td th:text="${review.employeeName != null ? review.employeeName : 'N/A'}">
-                                            Alice Smith</td>
+                                        <td>
+                                            <div style="font-weight: 600;" th:text="${review.employeeName}">Alice Smith
+                                            </div>
+                                            <div style="font-size: 0.8rem; color: var(--text-muted);"
+                                                th:text="'ID: ' + ${review.employeeId}">EMP001</div>
+                                        </td>
+                                        <td th:text="${review.reviewYear}">2024</td>
                                         <td>
                                             <span class="badge"
-                                                th:classappend="${review.status.name() == 'SUBMITTED' ? 'badge-approved' : (review.status.name() == 'COMPLETED' || review.status.name() == 'REVIEWED' ? 'badge-approved' : 'badge-pending')}"
-                                                th:style="${review.status.name() == 'COMPLETED' ? 'background: #10b981;' : ''}"
-                                                th:text="${review.status}">Submitted</span>
+                                                th:classappend="${review.status.name() == 'COMPLETED' ? 'badge-approved' : 
+                                                                 (review.status.name() == 'PENDING_MANAGER_REVIEW' ? 'badge-pending' : 'badge-warning')}"
+                                                th:text="${review.status.name().replace('_', ' ')}">Status</span>
                                         </td>
                                         <td>
-                                            <span th:if="${review.status.name() == 'SUBMITTED'}"
-                                                class="badge badge-pending">Pending Review</span>
-                                            <span
-                                                th:if="${review.status.name() == 'REVIEWED' || review.status.name() == 'COMPLETED'}"
-                                                class="badge badge-approved">Completed</span>
-                                            <span th:if="${review.status.name() == 'DRAFT'}" class="badge"
-                                                style="background:#e2e8f0; color:#64748b;">Not Ready</span>
+                                            <span th:if="${review.status.name() != 'PENDING_SELF_ASSESSMENT'}"
+                                                class="text-success">
+                                                <i class="fas fa-check-circle"></i> Submitted
+                                            </span>
+                                            <span th:if="${review.status.name() == 'PENDING_SELF_ASSESSMENT'}"
+                                                class="text-muted">
+                                                <i class="fas fa-clock"></i> Awaiting
+                                            </span>
                                         </td>
                                         <td>
-                                            <a th:if="${review.status.name() == 'SUBMITTED'}"
-                                                th:href="@{/manager/reviews/review/{id}(id=${review.reviewId})}"
-                                                class="btn btn-primary btn-sm">Complete Review</a>
-                                            <a th:if="${review.status.name() == 'REVIEWED' || review.status.name() == 'COMPLETED'}"
-                                                th:href="@{/manager/reviews/view/{id}(id=${review.reviewId})}"
-                                                class="btn btn-secondary btn-sm">View Feedback</a>
-                                            <button th:if="${review.status.name() == 'DRAFT'}"
-                                                class="btn btn-secondary btn-sm" disabled
-                                                title="Employee has not submitted self-review">Complete Review</button>
+                                            <div style="display: flex; gap: 0.5rem;">
+                                                <a th:if="${review.status.name() == 'PENDING_MANAGER_REVIEW'}"
+                                                    th:href="@{/manager/reviews/review/{id}(id=${review.reviewId})}"
+                                                    class="btn btn-primary btn-sm">Complete Evaluation</a>
+
+                                                <a th:if="${review.status.name() == 'COMPLETED'}"
+                                                    th:href="@{/manager/reviews/view/{id}(id=${review.reviewId})}"
+                                                    class="btn btn-secondary btn-sm">View Report</a>
+
+                                                <button th:if="${review.status.name() == 'PENDING_SELF_ASSESSMENT'}"
+                                                    class="btn btn-secondary btn-sm" disabled
+                                                    title="Awaiting employee self-assessment">Evaluate</button>
+                                            </div>
                                         </td>
                                     </tr>
                                     <tr th:if="${#lists.isEmpty(reviews)}">
-                                        <td colspan="4" class="text-center text-muted" style="padding: 1.5rem;">No
-                                            reviews found for your team.</td>
+                                        <td colspan="5" class="text-center text-muted" style="padding: 2.5rem;">
+                                            <div style="margin-bottom: 1rem; opacity: 0.3;">
+                                                <i class="fas fa-users-slash" style="font-size: 3rem;"></i>
+                                            </div>
+                                            No active performance reviews found for your team.
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+
+                    <!-- Team Goals Tab -->
+                    <div id="team-goals" class="tab-content">
+                        <div class="flex-space-between mb-4 bg-light"
+                            style="background:#f1f5f9; padding: 1.5rem; border-radius:12px; border:1px solid var(--border-color); align-items: center;">
+                            <div>
+                                <h4 style="margin: 0; color: var(--text-dark);">Team Goals (OKRs)</h4>
+                                <p class="text-muted" style="font-size:0.9rem; margin-top: 0.25rem; margin-bottom: 0;">
+                                    Track and view goals for your direct reports.</p>
+                            </div>
+                        </div>
+
+                        <div th:each="goal : ${goals}"
+                            style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                                <div>
+                                    <h4 th:text="${goal.goalTitle}"
+                                        style="margin: 0 0 0.5rem 0; color: var(--text-dark);">Goal Title</h4>
+                                    <p class="text-muted" style="margin: 0; font-size: 0.9rem;">
+                                        <strong>Employee:</strong> <span th:text="${goal.employeeName}">Employee
+                                            Name</span>
+                                        (<span th:text="${goal.employeeId}">EMP</span>)
+                                    </p>
+                                    <p class="text-muted" th:text="${goal.goalDescription}"
+                                        style="margin: 0.5rem 0 0 0; font-size: 0.95rem;">Description</p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span class="badge" style="background: rgba(245, 158, 11, 0.1); color: #d97706;"
+                                        th:text="${goal.progress} + '% Complete'">0% Complete</span>
+                                </div>
+                            </div>
+
+                            <div
+                                style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 1rem;">
+                                <div th:style="'background: #f59e0b; height: 100%; width: ' + ${goal.progress} + '%'">
+                                </div>
+                            </div>
+
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem;">
+                                <div class="text-muted" style="font-size: 0.85rem;">
+                                    <i class="far fa-calendar-alt"></i> Deadline: <span
+                                        th:text="${#temporals.format(goal.deadline, 'MMM dd, yyyy')}">Date</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(goals)}" class="text-center text-muted"
+                            style="padding: 3rem; border: 1px dashed var(--border-color); border-radius: 8px;">
+                            <i class="fas fa-bullseye" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem;"></i>
+                            <p>No active goals found for your team members.</p>
                         </div>
                     </div>
 

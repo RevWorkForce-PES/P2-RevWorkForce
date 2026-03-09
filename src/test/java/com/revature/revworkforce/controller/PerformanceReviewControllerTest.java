@@ -1,7 +1,7 @@
 package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.dto.PerformanceReviewDTO;
-import com.revature.revworkforce.model.PerformanceReview;
+import com.revature.revworkforce.enums.ReviewStatus;
 import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.service.EmployeeService;
 import com.revature.revworkforce.service.PerformanceReviewService;
@@ -52,38 +52,37 @@ class PerformanceReviewControllerTest {
 
         @Test
         @WithMockUser(username = "user", roles = "EMPLOYEE")
-        void createReview_Success() throws Exception {
-                PerformanceReview review = new PerformanceReview();
-                review.setReviewId(1L);
-                when(reviewService.reviewExists("user", 2024)).thenReturn(false);
-                when(reviewService.createReview(eq("user"), eq(2024), eq("user"))).thenReturn(review);
+        void showSelfAssessmentForm_Success() throws Exception {
+                PerformanceReviewDTO dto = new PerformanceReviewDTO();
+                dto.setEmployeeId("user");
+                dto.setStatus(ReviewStatus.PENDING_SELF_ASSESSMENT);
 
-                mockMvc.perform(post("/employee/reviews/create")
-                                .param("reviewYear", "2024")
-                                .with(csrf()))
-                                .andExpect(status().is3xxRedirection())
-                                .andExpect(redirectedUrl("/employee/reviews/edit/1"))
-                                .andExpect(flash().attribute("success",
-                                                "Performance review created successfully! Please fill in the details."));
+                when(reviewService.getReviewDTOById(1L)).thenReturn(dto);
+
+                mockMvc.perform(get("/employee/reviews/self-assessment/1"))
+                                .andExpect(status().isOk())
+                                .andExpect(view().name("pages/employee/self-assessment"))
+                                .andExpect(model().attributeExists("reviewDTO", "pageTitle"));
         }
 
         @Test
         @WithMockUser(username = "user", roles = "EMPLOYEE")
-        void submitReview_Success() throws Exception {
-                mockMvc.perform(post("/employee/reviews/submit/1")
-                                .param("keyDeliverables", "D")
-                                .param("majorAccomplishments", "A")
-                                .param("areasOfImprovement", "I")
-                                .param("selfAssessmentRating", "4.0")
+        void submitSelfAssessment_Success() throws Exception {
+                PerformanceReviewDTO dto = new PerformanceReviewDTO();
+                dto.setSelfAssessmentText(
+                                "This is a very long self assessment text that definitely exceeds the 100 character minimum requirement for submission.");
+                dto.setAchievements("Achievements");
+                dto.setImprovementAreas("ImprovementAreas");
+                dto.setSelfAssessmentRating(BigDecimal.valueOf(4.0));
+
+                mockMvc.perform(post("/employee/reviews/self-assessment/1")
+                                .flashAttr("reviewDTO", dto)
                                 .with(csrf()))
                                 .andExpect(status().is3xxRedirection())
-                                .andExpect(redirectedUrl("/employee/performance"))
-                                .andExpect(flash().attribute("success",
-                                                "Performance review submitted to manager successfully!"));
+                                .andExpect(redirectedUrl("/employee/reviews"))
+                                .andExpect(flash().attribute("success", "Self-assessment submitted successfully!"));
 
-                verify(reviewService).submitSelfAssessment(eq(1L), eq("user"), anyString(), anyString(), anyString(),
-                                any(),
-                                any());
+                verify(reviewService).submitSelfAssessment(eq(1L), any(PerformanceReviewDTO.class), eq("user"));
         }
 
         @Test
@@ -99,31 +98,61 @@ class PerformanceReviewControllerTest {
 
         @Test
         @WithMockUser(username = "manager", roles = "MANAGER")
+        void showCreateReviewForm_Success() throws Exception {
+                mockMvc.perform(get("/manager/reviews/create"))
+                                .andExpect(status().isOk())
+                                .andExpect(view().name("pages/manager/review-create"))
+                                .andExpect(model().attributeExists("reviewDTO", "pageTitle"));
+        }
+
+        @Test
+        @WithMockUser(username = "manager", roles = "MANAGER")
+        void createReview_Success() throws Exception {
+                PerformanceReviewDTO dto = new PerformanceReviewDTO();
+                dto.setEmployeeId("user");
+                dto.setReviewYear(2024);
+
+                mockMvc.perform(post("/manager/reviews/create")
+                                .flashAttr("reviewDTO", dto)
+                                .with(csrf()))
+                                .andExpect(status().is3xxRedirection())
+                                .andExpect(redirectedUrl("/manager/reviews"))
+                                .andExpect(flash().attribute("success", "Performance review created successfully!"));
+
+                verify(reviewService).createReview(any(PerformanceReviewDTO.class), eq("manager"));
+        }
+
+        @Test
+        @WithMockUser(username = "manager", roles = "MANAGER")
         void submitManagerReview_Success() throws Exception {
                 PerformanceReviewDTO dto = new PerformanceReviewDTO();
-                dto.setReviewYear(2024);
+                dto.setManagerFeedback(
+                                "This is a long manager feedback text that meets the 50 character minimum requirement.");
+                dto.setTechnicalSkills(BigDecimal.valueOf(4.0));
+                dto.setCommunication(BigDecimal.valueOf(4.0));
+                dto.setTeamwork(BigDecimal.valueOf(4.0));
+                dto.setLeadership(BigDecimal.valueOf(4.0));
+                dto.setPunctuality(BigDecimal.valueOf(4.0));
                 dto.setManagerRating(BigDecimal.valueOf(4.0));
-                dto.setManagerFeedback("Feedback");
 
                 mockMvc.perform(post("/manager/reviews/review/1")
                                 .flashAttr("reviewDTO", dto)
                                 .with(csrf()))
                                 .andExpect(status().is3xxRedirection())
-                                .andExpect(redirectedUrl("/manager/performance"))
-                                .andExpect(flash().attribute("success", "Review feedback submitted successfully!"));
+                                .andExpect(redirectedUrl("/manager/reviews"))
+                                .andExpect(flash().attribute("success", "Manager evaluation submitted successfully!"));
 
-                verify(reviewService).submitManagerReview(eq(1L), eq("manager"), any(), any(), any());
+                verify(reviewService).submitManagerReview(eq(1L), any(PerformanceReviewDTO.class), eq("manager"));
         }
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        void deleteReview_Success() throws Exception {
-                mockMvc.perform(post("/admin/reviews/delete/1")
-                                .with(csrf()))
-                                .andExpect(status().is3xxRedirection())
-                                .andExpect(redirectedUrl("/admin/reviews"))
-                                .andExpect(flash().attribute("success", "Review deleted successfully!"));
+        void viewDetailedReview_Success() throws Exception {
+                when(reviewService.getReviewDTOById(1L)).thenReturn(new PerformanceReviewDTO());
 
-                verify(reviewService).deleteReview(1L);
+                mockMvc.perform(get("/manager/reviews/view/1"))
+                                .andExpect(status().isOk())
+                                .andExpect(view().name("pages/manager/review-view"))
+                                .andExpect(model().attributeExists("review", "pageTitle"));
         }
 }
