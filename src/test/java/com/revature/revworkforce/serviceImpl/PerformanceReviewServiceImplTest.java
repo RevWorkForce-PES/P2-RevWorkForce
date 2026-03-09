@@ -10,9 +10,11 @@ import com.revature.revworkforce.repository.PerformanceReviewRepository;
 import com.revature.revworkforce.service.AuditService;
 import com.revature.revworkforce.service.NotificationService;
 import com.revature.revworkforce.service.impl.PerformanceReviewServiceImpl;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -30,229 +32,232 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PerformanceReviewServiceImplTest {
 
-    @Mock
-    private PerformanceReviewRepository reviewRepository;
+        @Mock
+        private PerformanceReviewRepository reviewRepository;
 
-    @Mock
-    private EmployeeRepository employeeRepository;
+        @Mock
+        private EmployeeRepository employeeRepository;
 
-    @Mock
-    private NotificationService notificationService;
+        @Mock
+        private NotificationService notificationService;
 
-    @Mock
-    private AuditService auditService;
+        @Mock
+        private AuditService auditService;
 
-    @InjectMocks
-    private PerformanceReviewServiceImpl reviewService;
+        @InjectMocks
+        private PerformanceReviewServiceImpl reviewService;
 
-    private Employee employee;
-    private Employee manager;
-    private PerformanceReview review;
+        private Employee employee;
+        private Employee manager;
+        private PerformanceReview review;
 
-    @BeforeEach
-    void setUp() {
-        manager = new Employee();
-        manager.setEmployeeId("MGR001");
-        manager.setFirstName("Jane");
-        manager.setLastName("Manager");
+        @BeforeEach
+        void setUp() {
 
-        employee = new Employee();
-        employee.setEmployeeId("EMP001");
-        employee.setFirstName("John");
-        employee.setLastName("Doe");
-        employee.setManager(manager);
+                manager = new Employee();
+                manager.setEmployeeId("MGR001");
+                manager.setFirstName("Jane");
 
-        review = new PerformanceReview();
-        review.setReviewId(1L);
-        review.setEmployee(employee);
-        review.setReviewYear(2024);
-        review.setStatus(ReviewStatus.PENDING_SELF_ASSESSMENT);
-    }
+                employee = new Employee();
+                employee.setEmployeeId("EMP001");
+                employee.setFirstName("John");
+                employee.setManager(manager);
 
-    @Test
-    void createReview_Success() {
-        PerformanceReviewDTO dto = new PerformanceReviewDTO();
-        dto.setEmployeeId("EMP001");
-        dto.setReviewYear(2024);
+                review = new PerformanceReview();
+                review.setReviewId(1L);
+                review.setEmployee(employee);
+                review.setReviewYear(2024);
+                review.setStatus(ReviewStatus.PENDING_SELF_ASSESSMENT);
+        }
 
-        when(employeeRepository.findById("EMP001")).thenReturn(Optional.of(employee));
-        when(reviewRepository.existsByEmployeeAndReviewYear(employee, 2024)).thenReturn(false);
-        when(reviewRepository.save(any(PerformanceReview.class))).thenReturn(review);
+        @Test
+        void createReview_Success() {
+                PerformanceReviewDTO dto = new PerformanceReviewDTO();
+                dto.setEmployeeId("EMP001");
+                dto.setReviewYear(2024);
 
-        PerformanceReview result = reviewService.createReview(dto, "MGR001");
+                when(employeeRepository.findById("EMP001")).thenReturn(Optional.of(employee));
+                when(reviewRepository.existsByEmployeeAndReviewYear(employee, 2024)).thenReturn(false);
+                when(reviewRepository.save(any(PerformanceReview.class))).thenReturn(review);
 
-        assertThat(result).isNotNull();
-        verify(reviewRepository).save(any(PerformanceReview.class));
-        verify(auditService).createAuditLog(anyString(), anyString(), anyString(), anyString(), any(), any(), any(),
-                any());
-    }
+                PerformanceReview result = reviewService.createReview(dto, "MGR001");
 
-    @Test
-    void createReview_AlreadyExists() {
-        PerformanceReviewDTO dto = new PerformanceReviewDTO();
-        dto.setEmployeeId("EMP001");
-        dto.setReviewYear(2024);
+                assertThat(result).isNotNull();
+                verify(reviewRepository).save(any());
+        }
 
-        when(employeeRepository.findById("EMP001")).thenReturn(Optional.of(employee));
-        when(reviewRepository.existsByEmployeeAndReviewYear(employee, 2024)).thenReturn(true);
+        @Test
+        void createReview_AlreadyExists() {
+                PerformanceReviewDTO dto = new PerformanceReviewDTO();
+                dto.setEmployeeId("EMP001");
+                dto.setReviewYear(2024);
 
-        assertThrows(ValidationException.class, () -> reviewService.createReview(dto, "MGR001"));
-    }
+                when(employeeRepository.findById("EMP001")).thenReturn(Optional.of(employee));
+                when(reviewRepository.existsByEmployeeAndReviewYear(employee, 2024)).thenReturn(true);
 
-    @Test
-    void submitSelfAssessment_Success() {
-        PerformanceReviewDTO dto = new PerformanceReviewDTO();
-        dto.setAchievements(
-                "This is a long achievement text that meets the minimum length requirement for validation if handled in service.");
-        dto.setImprovementAreas("This is a long improvement area text that meets the minimum length requirement.");
-        dto.setSelfAssessmentText(
-                "This is a very long self assessment text that definitely exceeds the 100 character minimum requirement for submission.");
-        dto.setSelfAssessmentRating(BigDecimal.valueOf(4.0));
+                assertThrows(ValidationException.class, () -> reviewService.createReview(dto, "MGR001"));
+        }
 
-        when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
-        when(reviewRepository.save(any(PerformanceReview.class))).thenReturn(review);
+        @Test
+        void submitSelfAssessment_Success() {
+                PerformanceReviewDTO dto = new PerformanceReviewDTO();
+                dto.setAchievements(
+                                "This is a long achievement text that meets the minimum length requirement for validation if handled in service.");
+                dto.setImprovementAreas(
+                                "This is a long improvement area text that meets the minimum length requirement.");
+                dto.setSelfAssessmentText(
+                                "This is a very long self assessment text that definitely exceeds the 100 character minimum requirement for submission.");
+                dto.setSelfAssessmentRating(BigDecimal.valueOf(4.0));
 
-        PerformanceReview result = reviewService.submitSelfAssessment(1L, dto, "EMP001");
+                when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+                when(reviewRepository.save(any(PerformanceReview.class))).thenReturn(review);
 
-        assertThat(result.getStatus()).isEqualTo(ReviewStatus.PENDING_MANAGER_REVIEW);
-        verify(notificationService).createNotification(any(), any(), any(), any(), any());
-    }
+                PerformanceReview result = reviewService.submitSelfAssessment(1L, dto, "EMP001");
 
-    @Test
-    void submitManagerReview_Success() {
-        review.setStatus(ReviewStatus.PENDING_MANAGER_REVIEW);
+                assertThat(result.getStatus()).isEqualTo(ReviewStatus.PENDING_MANAGER_REVIEW);
+                verify(notificationService).createNotification(any(), any(), any(), any(), any());
+        }
 
-        PerformanceReviewDTO dto = new PerformanceReviewDTO();
-        dto.setManagerFeedback("This is a long manager feedback text that meets the 50 character minimum requirement.");
-        dto.setTechnicalSkills(BigDecimal.valueOf(4.0));
-        dto.setCommunication(BigDecimal.valueOf(4.0));
-        dto.setTeamwork(BigDecimal.valueOf(4.0));
-        dto.setLeadership(BigDecimal.valueOf(4.0));
-        dto.setPunctuality(BigDecimal.valueOf(4.0));
-        dto.setManagerRating(BigDecimal.valueOf(4.0));
+        @Test
+        void submitManagerReview_Success() {
+                review.setStatus(ReviewStatus.PENDING_MANAGER_REVIEW);
 
-        when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
-        when(employeeRepository.findById("MGR001")).thenReturn(Optional.of(manager));
-        when(reviewRepository.save(any(PerformanceReview.class))).thenReturn(review);
+                PerformanceReviewDTO dto = new PerformanceReviewDTO();
+                dto.setManagerFeedback(
+                                "This is a long manager feedback text that meets the 50 character minimum requirement.");
+                dto.setTechnicalSkills(BigDecimal.valueOf(4.0));
+                dto.setCommunication(BigDecimal.valueOf(4.0));
+                dto.setTeamwork(BigDecimal.valueOf(4.0));
+                dto.setLeadership(BigDecimal.valueOf(4.0));
+                dto.setPunctuality(BigDecimal.valueOf(4.0));
+                dto.setManagerRating(BigDecimal.valueOf(4.0));
 
-        PerformanceReview result = reviewService.submitManagerReview(1L, dto, "MGR001");
+                when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+                when(employeeRepository.findById("MGR001")).thenReturn(Optional.of(manager));
+                when(reviewRepository.save(any(PerformanceReview.class))).thenReturn(review);
 
-        assertThat(result.getStatus()).isEqualTo(ReviewStatus.COMPLETED);
-        assertThat(result.getFinalRating()).isEqualTo(new BigDecimal("4.0"));
-        verify(notificationService).createNotification(any(), any(), any(), any(), any());
-    }
+                PerformanceReview result = reviewService.submitManagerReview(1L, dto, "MGR001");
 
-    @Test
-    void getEmployeeReviews_Success() {
-        when(employeeRepository.findById("EMP001")).thenReturn(Optional.of(employee));
-        when(reviewRepository.findByEmployeeOrderByReviewYearDesc(employee)).thenReturn(Arrays.asList(review));
+                assertThat(result.getStatus()).isEqualTo(ReviewStatus.COMPLETED);
+                verify(notificationService)
+                                .createNotification(any(), any(), any(), any(), any());
+        }
 
-        List<PerformanceReviewDTO> result = reviewService.getEmployeeReviews("EMP001");
+        @Test
+        void deleteReview_Success() {
 
-        assertThat(result).hasSize(1);
-    }
+                when(reviewRepository.findById(1L))
+                                .thenReturn(Optional.of(review));
 
-    @Test
-    void deleteReview_Success() {
-        when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+                reviewService.deleteReview(1L);
 
-        reviewService.deleteReview(1L);
+                verify(reviewRepository).delete(review);
+        }
 
-        verify(reviewRepository).delete(review);
-    }
+        @Test
+        void getEmployeeReviews_Success() {
 
-    @Test
-    void deleteReview_Completed_ThrowsException() {
-        review.setStatus(ReviewStatus.COMPLETED);
-        when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+                when(employeeRepository.findById("EMP001"))
+                                .thenReturn(Optional.of(employee));
 
-        assertThrows(ValidationException.class, () -> reviewService.deleteReview(1L));
-    }
+                when(reviewRepository.findByEmployeeOrderByReviewYearDesc(employee))
+                                .thenReturn(Arrays.asList(review));
 
-    @Test
-    void getAverageRating_Success() {
-        review.setFinalRating(BigDecimal.valueOf(4.0));
-        when(employeeRepository.findById("EMP001")).thenReturn(Optional.of(employee));
-        when(reviewRepository.findByEmployeeOrderByReviewYearDesc(employee)).thenReturn(Arrays.asList(review));
+                List<PerformanceReviewDTO> result = reviewService.getEmployeeReviews("EMP001");
 
-        BigDecimal avg = reviewService.getAverageRating("EMP001");
+                assertThat(result).hasSize(1);
+        }
 
-        assertThat(avg).isEqualTo(new BigDecimal("4.0"));
-    }
+        @Test
+        void getAverageRating_Success() {
 
-    @Test
-    void submitSelfAssessment_Unauthorized_ThrowsException() {
-        when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+                review.setFinalRating(BigDecimal.valueOf(4));
 
-        assertThrows(com.revature.revworkforce.exception.UnauthorizedException.class,
-                () -> reviewService.submitSelfAssessment(1L, new PerformanceReviewDTO(), "EMP002"));
-    }
+                when(employeeRepository.findById("EMP001"))
+                                .thenReturn(Optional.of(employee));
 
-    @Test
-    void submitSelfAssessment_InvalidStatus_ThrowsException() {
-        review.setStatus(ReviewStatus.PENDING_MANAGER_REVIEW);
-        when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+                when(reviewRepository.findByEmployeeOrderByReviewYearDesc(employee))
+                                .thenReturn(Arrays.asList(review));
 
-        assertThrows(ValidationException.class,
-                () -> reviewService.submitSelfAssessment(1L, new PerformanceReviewDTO(), "EMP001"));
-    }
+                BigDecimal avg = reviewService.getAverageRating("EMP001");
 
-    @Test
-    void submitManagerReview_Unauthorized_ThrowsException() {
-        review.setStatus(ReviewStatus.PENDING_MANAGER_REVIEW);
-        Employee otherManager = new Employee();
-        otherManager.setEmployeeId("MGR002");
+                assertThat(avg).isEqualTo(new BigDecimal("4.0"));
+        }
 
-        when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
-        when(employeeRepository.findById("MGR002")).thenReturn(Optional.of(otherManager));
+        @Test
+        void submitSelfAssessment_Unauthorized_ThrowsException() {
+                when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
 
-        assertThrows(com.revature.revworkforce.exception.UnauthorizedException.class,
-                () -> reviewService.submitManagerReview(1L, new PerformanceReviewDTO(), "MGR002"));
-    }
+                assertThrows(com.revature.revworkforce.exception.UnauthorizedException.class,
+                                () -> reviewService.submitSelfAssessment(1L, new PerformanceReviewDTO(), "EMP002"));
+        }
 
-    @Test
-    void getReviewDTOById_Success() {
-        when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+        @Test
+        void submitSelfAssessment_InvalidStatus_ThrowsException() {
+                review.setStatus(ReviewStatus.PENDING_MANAGER_REVIEW);
+                when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
 
-        PerformanceReviewDTO result = reviewService.getReviewDTOById(1L);
+                assertThrows(ValidationException.class,
+                                () -> reviewService.submitSelfAssessment(1L, new PerformanceReviewDTO(), "EMP001"));
+        }
 
-        assertThat(result).isNotNull();
-        assertThat(result.getReviewYear()).isEqualTo(2024);
-    }
+        @Test
+        void submitManagerReview_Unauthorized_ThrowsException() {
+                review.setStatus(ReviewStatus.PENDING_MANAGER_REVIEW);
+                Employee otherManager = new Employee();
+                otherManager.setEmployeeId("MGR002");
 
-    @Test
-    void getPendingReviewsForManager_Success() {
-        when(reviewRepository.findPendingReviewsByManagerId("MGR001", ReviewStatus.PENDING_MANAGER_REVIEW))
-                .thenReturn(List.of(review));
+                when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+                when(employeeRepository.findById("MGR002")).thenReturn(Optional.of(otherManager));
 
-        List<PerformanceReviewDTO> result = reviewService.getPendingReviewsForManager("MGR001");
+                assertThrows(com.revature.revworkforce.exception.UnauthorizedException.class,
+                                () -> reviewService.submitManagerReview(1L, new PerformanceReviewDTO(), "MGR002"));
+        }
 
-        assertThat(result).hasSize(1);
-    }
+        @Test
+        void getReviewDTOById_Success() {
+                when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
 
-    @Test
-    void getTeamReviews_Success() {
-        when(reviewRepository.findTeamReviewsByManagerId("MGR001")).thenReturn(List.of(review));
+                PerformanceReviewDTO result = reviewService.getReviewDTOById(1L);
 
-        List<PerformanceReviewDTO> result = reviewService.getTeamReviews("MGR001");
+                assertThat(result).isNotNull();
+                assertThat(result.getReviewYear()).isEqualTo(2024);
+        }
 
-        assertThat(result).hasSize(1);
-    }
+        @Test
+        void getPendingReviewsForManager_Success() {
+                when(reviewRepository.findPendingReviewsByManagerId("MGR001", ReviewStatus.PENDING_MANAGER_REVIEW))
+                                .thenReturn(List.of(review));
 
-    @Test
-    void getReviewsByStatus_Success() {
-        when(reviewRepository.findByStatus(ReviewStatus.PENDING_SELF_ASSESSMENT)).thenReturn(List.of(review));
+                List<PerformanceReviewDTO> result = reviewService.getPendingReviewsForManager("MGR001");
 
-        List<PerformanceReviewDTO> result = reviewService.getReviewsByStatus(ReviewStatus.PENDING_SELF_ASSESSMENT);
+                assertThat(result).hasSize(1);
+        }
 
-        assertThat(result).hasSize(1);
-    }
+        @Test
+        void getTeamReviews_Success() {
+                when(reviewRepository.findTeamReviewsByManagerId("MGR001")).thenReturn(List.of(review));
 
-    @Test
-    void updateDraft_Unauthorized_ThrowsException() {
-        when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+                List<PerformanceReviewDTO> result = reviewService.getTeamReviews("MGR001");
 
-        assertThrows(com.revature.revworkforce.exception.UnauthorizedException.class,
-                () -> reviewService.updateDraft(1L, new PerformanceReviewDTO(), "EMP002"));
-    }
+                assertThat(result).hasSize(1);
+        }
+
+        @Test
+        void getReviewsByStatus_Success() {
+                when(reviewRepository.findByStatus(ReviewStatus.PENDING_SELF_ASSESSMENT)).thenReturn(List.of(review));
+
+                List<PerformanceReviewDTO> result = reviewService
+                                .getReviewsByStatus(ReviewStatus.PENDING_SELF_ASSESSMENT);
+
+                assertThat(result).hasSize(1);
+        }
+
+        @Test
+        void updateDraft_Unauthorized_ThrowsException() {
+                when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+
+                assertThrows(com.revature.revworkforce.exception.UnauthorizedException.class,
+                                () -> reviewService.updateDraft(1L, new PerformanceReviewDTO(), "EMP002"));
+        }
 }
