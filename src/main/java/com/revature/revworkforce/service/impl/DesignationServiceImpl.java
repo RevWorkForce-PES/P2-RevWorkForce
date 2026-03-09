@@ -59,7 +59,7 @@ public class DesignationServiceImpl implements DesignationService {
                 performedBy,
                 Constants.AUDIT_INSERT,
                 "DESIGNATIONS",
-                designation.getDesignationId().toString(),
+                designation.getDesignationId() != null ? designation.getDesignationId().toString() : "NEW",
                 null,
                 "Created designation: " + designation.getDesignationName(),
                 null,

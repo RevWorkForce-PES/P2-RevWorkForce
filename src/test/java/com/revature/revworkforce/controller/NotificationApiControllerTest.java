@@ -1,7 +1,7 @@
 package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.service.NotificationService;
-
+import com.revature.revworkforce.repository.EmployeeRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -9,9 +9,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.Mockito.*;
+import java.util.ArrayList;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(NotificationApiController.class)
@@ -23,58 +28,47 @@ class NotificationApiControllerTest {
     @MockBean
     private NotificationService notificationService;
 
-    // =========================================================
-    // GET UNREAD COUNT
-    // =========================================================
-    @Test
-    @WithMockUser(username = "EMP001", roles = {"EMPLOYEE"})
-    void getUnreadCount_ReturnsCount() throws Exception {
+    @MockBean
+    private EmployeeRepository employeeRepository;
 
-        when(notificationService.getUnreadCount("EMP001")).thenReturn(3L);
+    @Test
+    @WithMockUser(username = "user")
+    void getUnreadCount_Success() throws Exception {
+        when(notificationService.getUnreadCount("user")).thenReturn(5L);
 
         mockMvc.perform(get("/api/notifications/unread-count"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(content().string("5"));
     }
 
-    // =========================================================
-    // GET RECENT NOTIFICATIONS
-    // =========================================================
     @Test
-    @WithMockUser(username = "EMP001", roles = {"EMPLOYEE"})
-    void getRecentNotifications_ReturnsList() throws Exception {
+    @WithMockUser(username = "user")
+    void getRecentNotifications_Success() throws Exception {
+        when(notificationService.getRecentNotifications(eq("user"), anyInt())).thenReturn(new ArrayList<>());
 
-        when(notificationService.getRecentNotifications("EMP001",5))
-                .thenReturn(java.util.List.of());
-
-        mockMvc.perform(get("/api/notifications/recent"))
-                .andExpect(status().isOk());
+        mockMvc.perform(get("/api/notifications/recent")
+                .param("limit", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
     }
 
-    // =========================================================
-    // MARK SINGLE NOTIFICATION READ
-    // =========================================================
     @Test
-    @WithMockUser(username = "EMP001", roles = {"EMPLOYEE"})
-    void markReadApi_ReturnsOk() throws Exception {
-
-        doNothing().when(notificationService).markAsRead(1L,"EMP001");
-
+    @WithMockUser(username = "user")
+    void markReadApi_Success() throws Exception {
         mockMvc.perform(post("/api/notifications/mark-read/1")
-                        .with(csrf()))
+                .with(csrf()))
                 .andExpect(status().isOk());
+
+        verify(notificationService).markAsRead(1L, "user");
     }
 
-    // =========================================================
-    // MARK ALL NOTIFICATIONS READ
-    // =========================================================
     @Test
-    @WithMockUser(username = "EMP001", roles = {"EMPLOYEE"})
-    void markAllReadApi_ReturnsOk() throws Exception {
-
-        doNothing().when(notificationService).markAllAsRead("EMP001");
-
+    @WithMockUser(username = "user")
+    void markAllReadApi_Success() throws Exception {
         mockMvc.perform(post("/api/notifications/mark-all-read")
-                        .with(csrf()))
+                .with(csrf()))
                 .andExpect(status().isOk());
+
+        verify(notificationService).markAllAsRead("user");
     }
 }
