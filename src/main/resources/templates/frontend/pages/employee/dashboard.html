@@ -2,84 +2,99 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-<<<<<<< HEAD
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-=======
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="user-fullname" th:content="${fullName} ?: 'Employee'">
-    <meta name="user-role" content="Employee">
-    <meta name="global-user-fullname" th:content="${globalFullName}">
-    <meta name="global-user-role" th:content="${globalUserRole}">
-    <title>Employee Dashboard - RevWorkForce</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
->>>>>>> UI_templates
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="user-fullname" th:content="${fullName} ?: 'Employee'">
+	<meta name="user-role" content="Employee">
+	<meta name="global-user-fullname" th:content="${globalFullName}">
+	<meta name="global-user-role" th:content="${globalUserRole}">
+	<title>Employee Dashboard - RevWorkForce</title>
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+	<meta name="user-fullname" th:content="${fullName} ?: 'Employee'">
+	<meta name="user-role" content="Employee">
 
-<meta name="user-fullname" th:content="${fullName} ?: 'Employee'">
-<meta name="user-role" content="Employee">
+	<title>Employee Dashboard - RevWorkForce</title>
 
-<title>Employee Dashboard - RevWorkForce</title>
+	<link rel="stylesheet" th:href="@{/css/style.css}">
 
-<link rel="stylesheet" th:href="@{/css/style.css}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<link rel="stylesheet"
-	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+	<style>
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+			gap: 1.5rem;
+			margin-bottom: 2rem;
+		}
 
-<style>
-.stats-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-	gap: 1.5rem;
-	margin-bottom: 2rem;
-}
+		.stat-card {
+			display: flex;
+			align-items: center;
+			gap: 1.5rem;
+		}
 
-.stat-card {
-	display: flex;
-	align-items: center;
-	gap: 1.5rem;
-}
+		.stat-icon {
+			width: 60px;
+			height: 60px;
+			border-radius: 50%;
+			background: rgba(255, 140, 0, 0.1);
+			color: var(--primary);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1.5rem;
+		}
 
-.stat-icon {
-	width: 60px;
-	height: 60px;
-	border-radius: 50%;
-	background: rgba(255, 140, 0, 0.1);
-	color: var(--primary);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 1.5rem;
-}
+		.stat-info h3 {
+			font-size: 1.8rem;
+			margin-bottom: 0.2rem;
+		}
 
-.stat-info h3 {
-	font-size: 1.8rem;
-	margin-bottom: 0.2rem;
-}
+		.stat-info p {
+			color: var(--text-muted);
+			font-size: 0.9rem;
+			margin-bottom: 0;
+		}
 
-.stat-info p {
-	color: var(--text-muted);
-	font-size: 0.9rem;
-	margin-bottom: 0;
-}
+		.dashboard-option {
+			border-left: 3px solid transparent;
+			transition: all .2s;
+		}
 
-.dashboard-option {
-	border-left: 3px solid transparent;
-	transition: all .2s;
-}
+		.dashboard-option:hover {
+			background: var(--bg-main);
+			border-left: 3px solid var(--primary);
+		}
 
-.dashboard-option:hover {
-	background: var(--bg-main);
-	border-left: 3px solid var(--primary);
-}
-</style>
+		@keyframes fadeInScale {
+			from {
+				opacity: 0;
+				transform: scale(0.95);
+			}
+
+			to {
+				opacity: 1;
+				transform: scale(1);
+			}
+		}
+
+		@keyframes textAppear {
+			from {
+				opacity: 0;
+				transform: translateY(10px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.animate-text {
+			animation: textAppear 0.6s ease forwards;
+			opacity: 0;
+		}
+	</style>
 
 </head>
 
@@ -93,68 +108,6 @@
 
 			<app-navbar page-title="My Dashboard"></app-navbar>
 
-			<div class="page-header"
-				style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; background: white; border-bottom: 1px solid var(--border-color);">
-
-				<div>
-					<h1 style="font-size: 1.5rem; margin: 0; color: var(--text-dark);">My
-						Dashboard</h1>
-					<p
-						style="color: var(--text-muted); margin: 0.25rem 0 0 0; font-size: 0.9rem;">
-						Your personal workspace</p>
-				</div>
-
-				<!-- Dashboard Switcher -->
-
-				<div
-					th:if="${#authorization.expression('hasAnyRole(''MANAGER'',''ADMIN'')')}"
-					style="position: relative;">
-
-					<button id="dashboardSwitcher"
-						style="background: var(--bg-glass); border: 1px solid var(--border-color); padding: 0.65rem 1.25rem; border-radius: var(--border-radius-sm); cursor: pointer; display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: var(--text-dark); font-weight: 500;">
-
-						<i class="fas fa-chart-line"></i> <span>Switch Dashboard</span> <i
-							class="fas fa-chevron-down"></i>
-
-					</button>
-
-					<div id="dashboardMenu"
-						style="position: absolute; top: calc(100% + 0.5rem); right: 0; background: white; border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); min-width: 240px; display: none; z-index: 1000;">
-
-						<a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
-							th:href="@{/admin/dashboard}" class="dashboard-option"
-							style="display: flex; align-items: center; gap: 1rem; padding: 1rem; text-decoration: none; color: var(--text-dark);">
-
-							<i class="fas fa-user-shield"
-							style="font-size: 1.3rem; width: 24px;"></i>
-
-							<div>
-								<div style="font-weight: 600; font-size: 0.9rem;">Admin
-									Dashboard</div>
-								<div style="font-size: 0.75rem; color: var(--text-muted);">Full
-									system access</div>
-							</div>
-
-						</a> <a th:href="@{/manager/dashboard}" class="dashboard-option"
-							style="display: flex; align-items: center; gap: 1rem; padding: 1rem; text-decoration: none; color: var(--text-dark);">
-
-							<i class="fas fa-user-tie"
-							style="font-size: 1.3rem; width: 24px;"></i>
-
-							<div>
-								<div style="font-weight: 600; font-size: 0.9rem;">Manager
-									Dashboard</div>
-								<div style="font-size: 0.75rem; color: var(--text-muted);">Team
-									management view</div>
-							</div>
-
-						</a>
-
-					</div>
-
-				</div>
-
-			</div>
 
 			<div class="page-wrapper">
 
@@ -163,22 +116,22 @@
 				<div class="card bg-light mb-4"
 					style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border: none;">
 
-					<div
-						style="display: flex; justify-content: space-between; align-items: center;">
+					<div style="display: flex; justify-content: space-between; align-items: center;">
 
 						<div>
 
-							<h2 style="color: white; margin-bottom: 0.5rem;"
+							<h2 class="animate-text" style="color: white; margin-bottom: 0.5rem;"
 								th:text="'Welcome back, ' + ${fullName} + '!'">Welcome
 								back, John!</h2>
 
-							<p style="opacity: 0.9; margin-bottom: 0;"
-								th:text="${designation} + ' • ' + ${department}">Employee
+							<p class="animate-text" style="opacity: 0.9; margin-bottom: 0; animation-delay: 0.2s;"
+								th:text="${designation} + ' • ' + ${department}">
+								Employee
 								Information</p>
 
 						</div>
 
-						
+
 
 					</div>
 
@@ -216,8 +169,7 @@
 
 					<div class="card stat-card">
 
-						<div class="stat-icon"
-							style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+						<div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
 							<i class="fas fa-exclamation-circle"></i>
 						</div>
 
@@ -229,37 +181,36 @@
 					</div>
 
 				</div>
-<div class="card mb-4">
-    <div class="card-header">
-        <h2 class="card-title">Leave Balance Details</h2>
-    </div>
+				<div class="card mb-4">
+					<div class="card-header">
+						<h2 class="card-title">Leave Balance Details</h2>
+					</div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Leave Type</th>
-                <th>Remaining Balance</th>
-            </tr>
-        </thead>
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Leave Type</th>
+								<th>Remaining Balance</th>
+							</tr>
+						</thead>
 
-        <tbody>
-            <tr th:each="balance : ${leaveBalances}">
-                <td th:text="${balance.leaveTypeName}"></td>
-                <td th:text="${balance.remainingBalance}"></td>
-            </tr>
+						<tbody>
+							<tr th:each="balance : ${leaveBalances}">
+								<td th:text="${balance.leaveTypeName}"></td>
+								<td th:text="${balance.remainingBalance}"></td>
+							</tr>
 
-            <tr th:if="${#lists.isEmpty(leaveBalances)}">
-                <td colspan="2" class="text-center text-muted">
-                    No leave balances found
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+							<tr th:if="${#lists.isEmpty(leaveBalances)}">
+								<td colspan="2" class="text-center text-muted">
+									No leave balances found
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 				<!-- Grid -->
 
-				<div
-					style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+				<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
 
 					<!-- Activity -->
 
@@ -271,8 +222,7 @@
 
 						<ul style="list-style: none; padding: 0;">
 
-							<li th:each="leave,iterStat:${recentLeaves}"
-								th:if="${iterStat.index < 2}"
+							<li th:each="leave,iterStat:${recentLeaves}" th:if="${iterStat.index < 2}"
 								style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; display: flex; gap: 1rem;">
 
 								<div
@@ -282,19 +232,17 @@
 
 								<div>
 
-									<h4 style="margin-bottom: 0.25rem;"
-										th:text="'Leave ' + ${leave.status}">Leave Approved</h4>
+									<h4 style="margin-bottom: 0.25rem;" th:text="'Leave ' + ${leave.status}">Leave
+										Approved</h4>
 
-									<p
-										style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0;">
+									<p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0;">
 										Leave activity</p>
 
 								</div>
 
 							</li>
 
-							<li th:each="goal,iterStat:${recentGoals}"
-								th:if="${iterStat.index < 2}"
+							<li th:each="goal,iterStat:${recentGoals}" th:if="${iterStat.index < 2}"
 								style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; display: flex; gap: 1rem;">
 
 								<div
@@ -306,8 +254,7 @@
 
 									<h4 style="margin-bottom: 0.25rem;">Goal Assigned</h4>
 
-									<p
-										style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0;"
+									<p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0;"
 										th:text="${goal.goalTitle}">Goal Title</p>
 
 								</div>
@@ -330,8 +277,8 @@
 
 							<div style="display: flex; flex-direction: column; gap: 0.75rem;">
 
-								<a th:href="@{/leave/employee/leave-management}"
-									class="btn btn-secondary"> <i class="fas fa-calendar-plus"></i>
+								<a th:href="@{/employee/leave-management}" class="btn btn-secondary"> <i
+										class="fas fa-calendar-plus"></i>
 									Apply Leave
 								</a> <a th:href="@{/employee/performance}" class="btn btn-secondary">
 									<i class="fas fa-bullseye"></i> Update OKRs
@@ -358,38 +305,39 @@
 
 	<script>
 		document
-				.addEventListener(
-						'DOMContentLoaded',
-						function() {
+			.addEventListener(
+				'DOMContentLoaded',
+				function () {
 
-							const btn = document
-									.getElementById('dashboardSwitcher')
-							const menu = document
-									.getElementById('dashboardMenu')
+					const btn = document
+						.getElementById('dashboardSwitcher')
+					const menu = document
+						.getElementById('dashboardMenu')
 
-							if (btn && menu) {
+					if (btn && menu) {
 
-								btn
-										.addEventListener(
-												'click',
-												function(e) {
-													e.stopPropagation()
-													menu.style.display = menu.style.display === 'block' ? 'none'
-															: 'block'
-												})
-
-								document.addEventListener('click', function() {
-									menu.style.display = 'none'
-								})
-
-								menu.addEventListener('click', function(e) {
+						btn
+							.addEventListener(
+								'click',
+								function (e) {
 									e.stopPropagation()
+									menu.style.display = menu.style.display === 'block' ? 'none'
+										: 'block'
 								})
 
-							}
-
+						document.addEventListener('click', function () {
+							menu.style.display = 'none'
 						})
+
+						menu.addEventListener('click', function (e) {
+							e.stopPropagation()
+						})
+
+					}
+
+				})
 	</script>
 
 </body>
+
 </html>
