@@ -161,16 +161,17 @@ public interface LeaveApplicationRepository extends JpaRepository<LeaveApplicati
         */
        @Query("SELECT EXTRACT(MONTH FROM la.startDate), COUNT(la) FROM LeaveApplication la WHERE EXTRACT(YEAR FROM la.startDate) = :year GROUP BY EXTRACT(MONTH FROM la.startDate)")
        List<Object[]> countLeavesByMonth(@Param("year") Integer year);
+
        @Query("""
-    		   SELECT l
-    		   FROM LeaveApplication l
-    		   WHERE l.employee.manager.employeeId = :managerId
-    		   AND l.status = :status
-    		   """)
-    		   List<LeaveApplication> findTeamLeavesByManagerIdAndStatus(
-    		           String managerId,
-    		           LeaveStatus status
-    		   );
+                     SELECT l
+                     FROM LeaveApplication l
+                     WHERE l.employee.manager.employeeId = :managerId
+                     AND l.status = :status
+                     """)
+       List<LeaveApplication> findTeamLeavesByManagerIdAndStatus(
+                     String managerId,
+                     LeaveStatus status);
+
        /**
         * Sum the total leave days taken (approved) for a given year.
         * 
@@ -185,21 +186,28 @@ public interface LeaveApplicationRepository extends JpaRepository<LeaveApplicati
         * Get leaves by department
         */
        @Query("""
-              SELECT la
-              FROM LeaveApplication la
-              WHERE la.employee.department.departmentId = :departmentId
-              ORDER BY la.startDate DESC
-              """)
+                     SELECT la
+                     FROM LeaveApplication la
+                     WHERE la.employee.department.departmentId = :departmentId
+                     ORDER BY la.startDate DESC
+                     """)
        List<LeaveApplication> findLeavesByDepartment(@Param("departmentId") Long departmentId);
-
 
        /**
         * Get leaves by employee
         */
        @Query("""
-              SELECT la
-              FROM LeaveApplication la
-              WHERE la.employee.employeeId = :employeeId
-              ORDER BY la.startDate DESC
-              """)
-       List<LeaveApplication> findLeavesByEmployee(@Param("employeeId") String employeeId);}
+                     SELECT la
+                     FROM LeaveApplication la
+                     WHERE la.employee.employeeId = :employeeId
+                     ORDER BY la.startDate DESC
+                     """)
+       List<LeaveApplication> findLeavesByEmployee(@Param("employeeId") String employeeId);
+
+       @Query("SELECT la FROM LeaveApplication la WHERE " +
+                     "(:employeeId IS NULL OR la.employee.employeeId = :employeeId) AND " +
+                     "(:status IS NULL OR la.status = :status) " +
+                     "ORDER BY la.startDate DESC")
+       List<LeaveApplication> searchLeaves(@Param("employeeId") String employeeId,
+                     @Param("status") com.revature.revworkforce.enums.LeaveStatus status);
+}

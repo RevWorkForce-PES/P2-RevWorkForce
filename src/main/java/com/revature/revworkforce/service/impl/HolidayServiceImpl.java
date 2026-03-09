@@ -17,6 +17,8 @@ import com.revature.revworkforce.exception.DuplicateResourceException;
 import com.revature.revworkforce.model.Holiday;
 import com.revature.revworkforce.repository.HolidayRepository;
 import com.revature.revworkforce.service.HolidayService;
+import com.revature.revworkforce.service.AuditService;
+import com.revature.revworkforce.security.SecurityUtils;
 import com.revature.revworkforce.util.DateUtil;
 
 @Service
@@ -24,9 +26,11 @@ import com.revature.revworkforce.util.DateUtil;
 public class HolidayServiceImpl implements HolidayService {
 
     private final HolidayRepository holidayRepository;
+    private final AuditService auditService;
 
-    public HolidayServiceImpl(HolidayRepository holidayRepository) {
+    public HolidayServiceImpl(HolidayRepository holidayRepository, AuditService auditService) {
         this.holidayRepository = holidayRepository;
+        this.auditService = auditService;
     }
 
     @Override
@@ -37,29 +41,27 @@ public class HolidayServiceImpl implements HolidayService {
 
     @Override
     public Set<LocalDate> getHolidaysInRange(LocalDate startDate,
-                                             LocalDate endDate) {
+            LocalDate endDate) {
 
         return holidayRepository
                 .findByHolidayDateBetweenAndIsActive(
                         startDate,
                         endDate,
-                        'Y'
-                )
+                        'Y')
                 .stream()
                 .map(Holiday::getHolidayDate)
                 .collect(Collectors.toSet());
     }
+
     private void validateDuplicateHoliday(LocalDate holidayDate) {
 
-        boolean exists =
-                holidayRepository.existsByHolidayDateAndIsActive(holidayDate, 'Y');
+        boolean exists = holidayRepository.existsByHolidayDateAndIsActive(holidayDate, 'Y');
 
         if (exists) {
             throw new DuplicateResourceException(
                     "Holiday",
                     "holidayDate",
-                    holidayDate
-            );
+                    holidayDate);
         }
     }
 
@@ -76,6 +78,18 @@ public class HolidayServiceImpl implements HolidayService {
         holiday.setIsActive('Y');
 
         Holiday saved = holidayRepository.save(holiday);
+
+        // Audit Logging
+        auditService.createAuditLog(
+                SecurityUtils.getCurrentUsername(),
+                "HOLIDAY_CREATED",
+                "HOLIDAYS",
+                String.valueOf(saved.getHolidayId()),
+                null,
+                saved.getHolidayName() + " on " + saved.getHolidayDate(),
+                null,
+                null);
+
         return mapToDTO(saved);
     }
 
@@ -97,6 +111,18 @@ public class HolidayServiceImpl implements HolidayService {
         existing.setDescription(dto.getDescription());
 
         Holiday updated = holidayRepository.save(existing);
+
+        // Audit Logging
+        auditService.createAuditLog(
+                SecurityUtils.getCurrentUsername(),
+                "HOLIDAY_UPDATED",
+                "HOLIDAYS",
+                holidayId.toString(),
+                null,
+                updated.getHolidayName() + " on " + updated.getHolidayDate(),
+                null,
+                null);
+
         return mapToDTO(updated);
     }
 
@@ -132,6 +158,17 @@ public class HolidayServiceImpl implements HolidayService {
             throw new IllegalArgumentException("Holiday not found");
         }
         holidayRepository.deleteById(holidayId);
+
+        // Audit Logging
+        auditService.createAuditLog(
+                SecurityUtils.getCurrentUsername(),
+                "HOLIDAY_DELETED",
+                "HOLIDAYS",
+                holidayId.toString(),
+                null,
+                "Hard deleted holiday",
+                null,
+                null);
     }
 
     // ===========================
@@ -145,6 +182,17 @@ public class HolidayServiceImpl implements HolidayService {
 
         holiday.setIsActive('N');
         holidayRepository.save(holiday);
+
+        // Audit Logging
+        auditService.createAuditLog(
+                SecurityUtils.getCurrentUsername(),
+                "HOLIDAY_DEACTIVATED",
+                "HOLIDAYS",
+                holidayId.toString(),
+                "Y",
+                "N",
+                null,
+                null);
     }
 
     // ===========================
@@ -205,6 +253,7 @@ public class HolidayServiceImpl implements HolidayService {
 
         return holiday;
     }
+
     @Override
     public List<HolidayDTO> getHolidaysByYear(int year) {
 
@@ -212,144 +261,169 @@ public class HolidayServiceImpl implements HolidayService {
                 .stream()
                 .filter(h -> h.getIsActive() == 'Y')
                 .filter(h -> h.getHolidayDate().getYear() == year)
-                .sorted((h1, h2) ->
-                        h1.getHolidayDate().compareTo(h2.getHolidayDate()))
+                .sorted((h1, h2) -> h1.getHolidayDate().compareTo(h2.getHolidayDate()))
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
 
-@Override
-public List<HolidayDTO> getUpcomingHolidays() {
+    @Override
+    public List<HolidayDTO> getUpcomingHolidays() {
 
-    return holidayRepository
-            .findByHolidayDateAfterAndIsActiveOrderByHolidayDateAsc(
-                    LocalDate.now(),
-                    'Y'
-            )
-            .stream()
-            .map(this::mapToDTO)
-            .collect(Collectors.toList());
-}
-@Override
-public long countHolidaysInRange(LocalDate startDate,
-                                  LocalDate endDate) {
+        return holidayRepository
+                .findByHolidayDateAfterAndIsActiveOrderByHolidayDateAsc(
+                        LocalDate.now(),
+                        'Y')
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
 
-    return holidayRepository
-            .countByHolidayDateBetweenAndIsActive(
-                    startDate,
-                    endDate,
-                    'Y'
-            );
-}
-@Override
-public int importHolidays(List<HolidayDTO> holidays) {
+    @Override
+    public long countHolidaysInRange(LocalDate startDate,
+            LocalDate endDate) {
 
-    int successCount = 0;
+        return holidayRepository
+                .countByHolidayDateBetweenAndIsActive(
+                        startDate,
+                        endDate,
+                        'Y');
+    }
 
-    for (HolidayDTO dto : holidays) {
-        try {
+    @Override
+    public int importHolidays(List<HolidayDTO> holidays) {
 
-            LocalDate date = dto.getHolidayDate();
+        int successCount = 0;
 
-            // Skip null date
-            if (date == null) continue;
+        for (HolidayDTO dto : holidays) {
+            try {
 
-            // Skip weekend
-            if (DateUtil.isWeekend(date)) continue;
+                LocalDate date = dto.getHolidayDate();
 
-            // Skip duplicate
-            boolean exists =
-                    holidayRepository.existsByHolidayDateAndIsActive(date, 'Y');
+                // Skip null date
+                if (date == null)
+                    continue;
 
-            if (exists) continue;
+                // Skip weekend
+                if (DateUtil.isWeekend(date))
+                    continue;
 
-            Holiday holiday = mapToEntity(dto);
-            holiday.setIsActive('Y');
+                // Skip duplicate
+                boolean exists = holidayRepository.existsByHolidayDateAndIsActive(date, 'Y');
 
-            holidayRepository.save(holiday);
-            successCount++;
+                if (exists)
+                    continue;
 
-        } catch (Exception e) {
-            // Continue on error (do nothing)
+                Holiday holiday = mapToEntity(dto);
+                holiday.setIsActive('Y');
+
+                holidayRepository.save(holiday);
+                successCount++;
+
+            } catch (Exception e) {
+                // Continue on error (do nothing)
+            }
+        }
+
+        if (successCount > 0) {
+            // Audit Logging
+            auditService.createAuditLog(
+                    SecurityUtils.getCurrentUsername(),
+                    "HOLIDAYS_IMPORTED",
+                    "HOLIDAYS",
+                    null,
+                    null,
+                    "Imported " + successCount + " holidays",
+                    null,
+                    null);
+        }
+
+        return successCount;
+    }
+
+    @Override
+    public void deleteHolidaysByYear(int year) {
+
+        LocalDate start = LocalDate.of(year, 1, 1);
+        LocalDate end = LocalDate.of(year, 12, 31);
+
+        List<Holiday> holidays = holidayRepository.findByHolidayDateBetweenAndIsActive(
+                start,
+                end,
+                'Y');
+
+        for (Holiday holiday : holidays) {
+            holiday.setIsActive('N'); // Soft delete
+        }
+
+        holidayRepository.saveAll(holidays);
+
+        if (!holidays.isEmpty()) {
+            // Audit Logging
+            auditService.createAuditLog(
+                    SecurityUtils.getCurrentUsername(),
+                    "HOLIDAYS_BULK_DELETE",
+                    "HOLIDAYS",
+                    null,
+                    null,
+                    "Deactivated " + holidays.size() + " holidays for year " + year,
+                    null,
+                    null);
         }
     }
 
-    return successCount;
-}
-@Override
-public void deleteHolidaysByYear(int year) {
+    @Override
+    public HolidayStatisticsDTO getHolidayStatistics() {
 
-    LocalDate start = LocalDate.of(year, 1, 1);
-    LocalDate end   = LocalDate.of(year, 12, 31);
+        List<Holiday> activeHolidays = holidayRepository.findByIsActiveOrderByHolidayDateAsc('Y');
 
-    List<Holiday> holidays =
-            holidayRepository.findByHolidayDateBetweenAndIsActive(
-                    start,
-                    end,
-                    'Y'
-            );
+        HolidayStatisticsDTO stats = new HolidayStatisticsDTO();
 
-    for (Holiday holiday : holidays) {
-        holiday.setIsActive('N'); // Soft delete
+        stats.setTotal(activeHolidays.size());
+
+        stats.setNationalCount(
+                activeHolidays.stream()
+                        .filter(h -> h.getHolidayType() == HolidayType.NATIONAL)
+                        .count());
+
+        stats.setRegionalCount(
+                activeHolidays.stream()
+                        .filter(h -> h.getHolidayType() == HolidayType.REGIONAL)
+                        .count());
+
+        stats.setOptionalCount(
+                activeHolidays.stream()
+                        .filter(h -> h.getHolidayType() == HolidayType.COMPANY_SPECIFIC)
+                        .count());
+
+        return stats;
     }
 
-    holidayRepository.saveAll(holidays);
+    private HolidayDTO convertToDTO(Holiday holiday) {
+
+        return HolidayDTO.builder()
+                .holidayId(holiday.getHolidayId())
+                .holidayName(holiday.getHolidayName())
+                .holidayDate(holiday.getHolidayDate())
+                .type(holiday.getHolidayType())
+                .description(holiday.getDescription())
+                .isActive(holiday.getIsActive() == 'Y')
+                .build();
+    }
+
+    @Override
+    public List<HolidayDTO> getAllActiveHolidays() {
+
+        return holidayRepository
+                .findByIsActiveOrderByHolidayDateAsc('Y')
+                .stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+    //
+    // @GetMapping("/employee/holidays")
+    // public String viewHolidays(Model model) {
+    // model.addAttribute("holidays",
+    // holidayService.getAllActiveHolidays());
+    // return "employee/holidays/list";
+    // }
 }
-@Override
-public HolidayStatisticsDTO getHolidayStatistics() {
-
-    List<Holiday> activeHolidays =
-            holidayRepository.findByIsActiveOrderByHolidayDateAsc('Y');
-
-    HolidayStatisticsDTO stats = new HolidayStatisticsDTO();
-
-    stats.setTotal(activeHolidays.size());
-
-    stats.setNationalCount(
-            activeHolidays.stream()
-                    .filter(h -> h.getHolidayType() == HolidayType.NATIONAL)
-                    .count()
-    );
-
-    stats.setRegionalCount(
-            activeHolidays.stream()
-                    .filter(h -> h.getHolidayType() == HolidayType.REGIONAL)
-                    .count()
-    );
-
-    stats.setOptionalCount(
-            activeHolidays.stream()
-                    .filter(h -> h.getHolidayType() == HolidayType.COMPANY_SPECIFIC)
-                    .count()
-    );
-
-    return stats;
-}private HolidayDTO convertToDTO(Holiday holiday) {
-
-    return HolidayDTO.builder()
-            .holidayId(holiday.getHolidayId())
-            .holidayName(holiday.getHolidayName())
-            .holidayDate(holiday.getHolidayDate())
-            .type(holiday.getHolidayType())
-            .description(holiday.getDescription())
-            .isActive(holiday.getIsActive() == 'Y')
-            .build();
-}
-@Override
-public List<HolidayDTO> getAllActiveHolidays() {
-
-    return holidayRepository
-            .findByIsActiveOrderByHolidayDateAsc('Y')
-            .stream()
-            .map(this::convertToDTO)
-            .toList();
-}
-//
-//@GetMapping("/employee/holidays")
-//public String viewHolidays(Model model) {
-//    model.addAttribute("holidays",
-//            holidayService.getAllActiveHolidays());
-//    return "employee/holidays/list";
-//}
-}
-

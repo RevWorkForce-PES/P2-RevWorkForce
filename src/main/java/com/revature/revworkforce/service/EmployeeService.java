@@ -37,7 +37,7 @@ public interface EmployeeService {
      * Updates an existing employee.
      *
      * @param employeeId unique employee ID
-     * @param dto updated employee data
+     * @param dto        updated employee data
      * @return updated Employee entity
      */
     Employee updateEmployee(String employeeId, EmployeeDTO dto);
@@ -49,6 +49,8 @@ public interface EmployeeService {
      * @return Employee entity
      */
     Employee getEmployeeById(String employeeId);
+
+    EmployeeDTO getEmployeeDTOById(String employeeId);
 
     /**
      * Retrieves all employees.
@@ -64,6 +66,8 @@ public interface EmployeeService {
      */
     List<Employee> getActiveEmployees();
 
+    List<EmployeeDTO> getActiveEmployeesAsDTO();
+
     /**
      * Searches employees based on criteria.
      *
@@ -71,6 +75,8 @@ public interface EmployeeService {
      * @return list of matching employees
      */
     List<Employee> searchEmployees(EmployeeSearchCriteria criteria);
+
+    List<EmployeeDTO> searchEmployeesAsDTO(EmployeeSearchCriteria criteria);
 
     /**
      * Retrieves employees by department.
@@ -97,11 +103,18 @@ public interface EmployeeService {
     List<Employee> getTeamMembers(String managerId);
 
     /**
-     * Deactivates an employee (sets status to INACTIVE).
-     *
-     * @param employeeId employee ID
+     * Deactivate an employee (soft delete).
+     * 
+     * @param employeeId the ID of the employee
      */
     void deactivateEmployee(String employeeId);
+
+    /**
+     * Reactivate a deactivated employee.
+     * 
+     * @param employeeId the ID of the employee
+     */
+    void reactivateEmployee(String employeeId);
 
     /**
      * Soft deletes an employee (sets status to TERMINATED).
@@ -114,7 +127,7 @@ public interface EmployeeService {
      * Assigns a role to an employee.
      *
      * @param employeeId employee ID
-     * @param roleId role ID
+     * @param roleId     role ID
      */
     void assignRole(String employeeId, Long roleId);
 
@@ -122,7 +135,7 @@ public interface EmployeeService {
      * Removes a role from an employee.
      *
      * @param employeeId employee ID
-     * @param roleId role ID
+     * @param roleId     role ID
      */
     void removeRole(String employeeId, Long roleId);
 

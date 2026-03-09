@@ -22,6 +22,10 @@
                         <button class="tab-btn" data-target="summary-report">Performance Summary Report</button>
                     </div>
 
+                    <!-- Alerts -->
+                    <div th:if="${success}" class="alert alert-success mt-3" th:text="${success}"></div>
+                    <div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
+
                     <!-- Review Team Tab -->
                     <div id="review-team" class="tab-content active">
                         <div class="flex-space-between mb-3 bg-light"
@@ -50,13 +54,15 @@
                                             Alice Smith</td>
                                         <td>
                                             <span class="badge"
-                                                th:classappend="${review.status.name() == 'SUBMITTED' || review.status.name() == 'REVIEWED' ? 'badge-approved' : 'badge-pending'}"
+                                                th:classappend="${review.status.name() == 'SUBMITTED' ? 'badge-approved' : (review.status.name() == 'COMPLETED' || review.status.name() == 'REVIEWED' ? 'badge-approved' : 'badge-pending')}"
+                                                th:style="${review.status.name() == 'COMPLETED' ? 'background: #10b981;' : ''}"
                                                 th:text="${review.status}">Submitted</span>
                                         </td>
                                         <td>
                                             <span th:if="${review.status.name() == 'SUBMITTED'}"
                                                 class="badge badge-pending">Pending Review</span>
-                                            <span th:if="${review.status.name() == 'REVIEWED'}"
+                                            <span
+                                                th:if="${review.status.name() == 'REVIEWED' || review.status.name() == 'COMPLETED'}"
                                                 class="badge badge-approved">Completed</span>
                                             <span th:if="${review.status.name() == 'DRAFT'}" class="badge"
                                                 style="background:#e2e8f0; color:#64748b;">Not Ready</span>
@@ -65,11 +71,12 @@
                                             <a th:if="${review.status.name() == 'SUBMITTED'}"
                                                 th:href="@{/manager/reviews/review/{id}(id=${review.reviewId})}"
                                                 class="btn btn-primary btn-sm">Complete Review</a>
-                                            <a th:if="${review.status.name() == 'REVIEWED'}"
+                                            <a th:if="${review.status.name() == 'REVIEWED' || review.status.name() == 'COMPLETED'}"
                                                 th:href="@{/manager/reviews/view/{id}(id=${review.reviewId})}"
                                                 class="btn btn-secondary btn-sm">View Feedback</a>
                                             <button th:if="${review.status.name() == 'DRAFT'}"
-                                                class="btn btn-secondary btn-sm" disabled>Complete Review</button>
+                                                class="btn btn-secondary btn-sm" disabled
+                                                title="Employee has not submitted self-review">Complete Review</button>
                                         </td>
                                     </tr>
                                     <tr th:if="${#lists.isEmpty(reviews)}">

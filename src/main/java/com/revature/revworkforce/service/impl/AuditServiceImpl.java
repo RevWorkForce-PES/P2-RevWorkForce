@@ -1,8 +1,8 @@
 package com.revature.revworkforce.service.impl;
 
 import com.revature.revworkforce.dto.AuditLogDTO;
+
 import com.revature.revworkforce.enums.AuditAction;
-import com.revature.revworkforce.exception.ResourceNotFoundException;
 import com.revature.revworkforce.model.AuditLog;
 import com.revature.revworkforce.model.Employee;
 import com.revature.revworkforce.repository.AuditLogRepository;
@@ -24,14 +24,13 @@ import java.util.stream.Collectors;
 @Transactional
 public class AuditServiceImpl implements AuditService {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(AuditServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuditServiceImpl.class);
 
     private final AuditLogRepository auditLogRepository;
     private final EmployeeRepository employeeRepository;
 
     public AuditServiceImpl(AuditLogRepository auditLogRepository,
-                            EmployeeRepository employeeRepository) {
+            EmployeeRepository employeeRepository) {
         this.auditLogRepository = auditLogRepository;
         this.employeeRepository = employeeRepository;
     }
@@ -42,17 +41,18 @@ public class AuditServiceImpl implements AuditService {
 
     @Override
     public AuditLog createAuditLog(String performedBy,
-                                   String action,
-                                   String tableName,
-                                   String recordId,
-                                   String oldValue,
-                                   String newValue,
-                                   String ipAddress,
-                                   String userAgent) {
+            String action,
+            String tableName,
+            String recordId,
+            String oldValue,
+            String newValue,
+            String ipAddress,
+            String userAgent) {
 
-        Employee employee = employeeRepository.findById(performedBy)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Employee not found: " + performedBy));
+        Employee employee = null;
+        if (performedBy != null && !performedBy.equals("SYSTEM")) {
+            employee = employeeRepository.findById(performedBy).orElse(null);
+        }
 
         AuditLog auditLog = new AuditLog();
         auditLog.setEmployee(employee);
@@ -81,14 +81,13 @@ public class AuditServiceImpl implements AuditService {
                 null,
                 "Created employee: " + employee.getFullName(),
                 null,
-                null
-        );
+                null);
     }
 
     @Override
     public void logEmployeeUpdate(String performedBy,
-                                  String employeeId,
-                                  String changes) {
+            String employeeId,
+            String changes) {
 
         createAuditLog(
                 performedBy,
@@ -98,8 +97,7 @@ public class AuditServiceImpl implements AuditService {
                 null,
                 changes,
                 null,
-                null
-        );
+                null);
     }
 
     // ============================================================
@@ -108,8 +106,8 @@ public class AuditServiceImpl implements AuditService {
 
     @Override
     public void logLogin(String employeeId,
-                         String ipAddress,
-                         String userAgent) {
+            String ipAddress,
+            String userAgent) {
 
         createAuditLog(
                 employeeId,
@@ -119,13 +117,12 @@ public class AuditServiceImpl implements AuditService {
                 null,
                 "Login successful",
                 ipAddress,
-                userAgent
-        );
+                userAgent);
     }
 
     @Override
     public void logLogout(String employeeId,
-                          String ipAddress) {
+            String ipAddress) {
 
         createAuditLog(
                 employeeId,
@@ -135,8 +132,7 @@ public class AuditServiceImpl implements AuditService {
                 null,
                 "Logout",
                 ipAddress,
-                null
-        );
+                null);
     }
 
     // ============================================================
@@ -145,7 +141,7 @@ public class AuditServiceImpl implements AuditService {
 
     @Override
     public void logLeaveApproval(String performedBy,
-                                 Long applicationId) {
+            Long applicationId) {
 
         createAuditLog(
                 performedBy,
@@ -155,13 +151,12 @@ public class AuditServiceImpl implements AuditService {
                 "PENDING",
                 "APPROVED",
                 null,
-                null
-        );
+                null);
     }
 
     @Override
     public void logLeaveRejection(String performedBy,
-                                  Long applicationId) {
+            Long applicationId) {
 
         createAuditLog(
                 performedBy,
@@ -171,8 +166,7 @@ public class AuditServiceImpl implements AuditService {
                 "PENDING",
                 "REJECTED",
                 null,
-                null
-        );
+                null);
     }
 
     // ============================================================
@@ -194,27 +188,34 @@ public class AuditServiceImpl implements AuditService {
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsByTableAndRecord(String tableName,
-                                                       String recordId) {
+            String recordId) {
 
         return auditLogRepository
                 .findByTableNameAndRecordIdOrderByCreatedAtDesc(
                         tableName,
-                        recordId
-                );
+                        recordId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getAuditLogsByDateRange(LocalDateTime startDate,
-                                                  LocalDateTime endDate) {
+            LocalDateTime endDate) {
 
         return auditLogRepository.findByDateRange(startDate, endDate);
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public List<AuditLog> getLoginActivities() {
         return auditLogRepository.findByAction(Constants.AUDIT_LOGIN);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AuditLogDTO> getLoginActivitiesAsDTO() {
+        return getLoginActivities().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     // ============================================================
@@ -272,14 +273,48 @@ public class AuditServiceImpl implements AuditService {
                 .collect(Collectors.toList());
     }
 
-	@Override
-	public void logAction(String employeeId,
-	                          AuditAction passwordReset,
-	                          String entity,
-	                          String entityId,
-	                          Object details,
-	                          String ipAddress) {
+    @Override
+    public void logAction(String employeeId,
+            AuditAction action,
+            String entity,
+            String entityId,
+            Object details,
+            String ipAddress) {
 
-	        System.out.println("AUDIT ACTION: " + passwordReset + " by " + employeeId);
-	    }
+        // This is a minimal fallback log action if needed, otherwise route to
+        // createAuditLog
+        String detailsStr = details != null ? details.toString() : "";
+        createAuditLog(employeeId, action.name(), entity, entityId, null, detailsStr, ipAddress, null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AuditLogDTO> searchAuditLogs(String module, LocalDateTime startDate, LocalDateTime endDate,
+            String keyword) {
+        String moduleFilter = (module == null || module.equalsIgnoreCase("All Modules")) ? null : module.toUpperCase();
+        String keywordFilter = (keyword == null || keyword.trim().isEmpty()) ? null
+                : "%" + keyword.trim().toLowerCase() + "%";
+
+        return auditLogRepository.searchLogs(moduleFilter, startDate, endDate, keywordFilter)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public byte[] exportAuditLogsToCSV(List<AuditLogDTO> logs) {
+        StringBuilder csv = new StringBuilder();
+        csv.append("Log ID,Timestamp,User,Action,Module,Details\n");
+
+        for (AuditLogDTO log : logs) {
+            csv.append(log.getAuditId()).append(",")
+                    .append(log.getPerformedAt()).append(",")
+                    .append(log.getPerformedBy()).append(",")
+                    .append(log.getAction()).append(",")
+                    .append(log.getTableName()).append(",")
+                    .append("\"").append(log.getNewValue() != null ? log.getNewValue().replace("\"", "\"\"") : "")
+                    .append("\"\n");
+        }
+        return csv.toString().getBytes();
+    }
 }

@@ -25,6 +25,7 @@ import com.revature.revworkforce.exception.AuthenticationException;
 import com.revature.revworkforce.exception.ValidationException;
 import com.revature.revworkforce.model.Employee;
 import com.revature.revworkforce.repository.EmployeeRepository;
+import com.revature.revworkforce.service.AuditService;
 import com.revature.revworkforce.service.impl.AuthServiceImpl;
 
 /**
@@ -33,204 +34,207 @@ import com.revature.revworkforce.service.impl.AuthServiceImpl;
 @ExtendWith(MockitoExtension.class)
 class AuthServiceImplTest {
 
-    @Mock
-    private EmployeeRepository employeeRepository;
+        @Mock
+        private EmployeeRepository employeeRepository;
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
+        @Mock
+        private PasswordEncoder passwordEncoder;
 
-    @InjectMocks
-    private AuthServiceImpl authService;
+        @Mock
+        private AuditService auditService;
 
-    private Employee employee;
+        @InjectMocks
+        private AuthServiceImpl authService;
 
-    @BeforeEach
-    void setup() {
-        employee = new Employee();
-        employee.setEmployeeId("EMP001");
-        employee.setEmail("emp@test.com");
-        employee.setPasswordHash("encodedPassword");
-        employee.setFirstLogin('Y');
-        employee.setAccountLocked('N');
-        employee.setFailedLoginAttempts(0);
-    }
+        private Employee employee;
 
-    /**
-     * Test successful password change.
-     */
-    @Test
-    void testChangePasswordSuccess() {
+        @BeforeEach
+        void setup() {
+                employee = new Employee();
+                employee.setEmployeeId("EMP001");
+                employee.setEmail("emp@test.com");
+                employee.setPasswordHash("encodedPassword");
+                employee.setFirstLogin('Y');
+                employee.setAccountLocked('N');
+                employee.setFailedLoginAttempts(0);
+        }
 
-        ChangePasswordRequest request = new ChangePasswordRequest();
-        request.setCurrentPassword("oldPass");
-        request.setNewPassword("NewPassword1");
-        request.setConfirmPassword("NewPassword1");
+        /**
+         * Test successful password change.
+         */
+        @Test
+        void testChangePasswordSuccess() {
 
-        when(employeeRepository.findById("EMP001"))
-                .thenReturn(Optional.of(employee));
+                ChangePasswordRequest request = new ChangePasswordRequest();
+                request.setCurrentPassword("oldPass");
+                request.setNewPassword("NewPassword1");
+                request.setConfirmPassword("NewPassword1");
 
-        when(passwordEncoder.matches("oldPass", "encodedPassword"))
-                .thenReturn(true);
+                when(employeeRepository.findById("EMP001"))
+                                .thenReturn(Optional.of(employee));
 
-        when(passwordEncoder.encode("NewPassword1"))
-                .thenReturn("newEncodedPassword");
+                when(passwordEncoder.matches("oldPass", "encodedPassword"))
+                                .thenReturn(true);
 
-        authService.changePassword("EMP001", request);
+                when(passwordEncoder.encode("NewPassword1"))
+                                .thenReturn("newEncodedPassword");
 
-        verify(employeeRepository).save(employee);
-        assertEquals("newEncodedPassword", employee.getPasswordHash());
-        assertEquals('N', employee.getFirstLogin());
-    }
+                authService.changePassword("EMP001", request);
 
-    /**
-     * Test password mismatch.
-     */
-    @Test
-    void testChangePasswordMismatch() {
+                verify(employeeRepository).save(employee);
+                assertEquals("newEncodedPassword", employee.getPasswordHash());
+                assertEquals('N', employee.getFirstLogin());
+        }
 
-        ChangePasswordRequest request = new ChangePasswordRequest();
-        request.setCurrentPassword("oldPass");
-        request.setNewPassword("Password1");
-        request.setConfirmPassword("Password2");
+        /**
+         * Test password mismatch.
+         */
+        @Test
+        void testChangePasswordMismatch() {
 
-        assertThrows(ValidationException.class,
-                () -> authService.changePassword("EMP001", request));
-    }
+                ChangePasswordRequest request = new ChangePasswordRequest();
+                request.setCurrentPassword("oldPass");
+                request.setNewPassword("Password1");
+                request.setConfirmPassword("Password2");
 
-    /**
-     * Test incorrect current password.
-     */
-    @Test
-    void testChangePasswordIncorrectCurrentPassword() {
+                assertThrows(ValidationException.class,
+                                () -> authService.changePassword("EMP001", request));
+        }
 
-        ChangePasswordRequest request = new ChangePasswordRequest();
-        request.setCurrentPassword("wrongPass");
-        request.setNewPassword("Password1A");
-        request.setConfirmPassword("Password1A");
+        /**
+         * Test incorrect current password.
+         */
+        @Test
+        void testChangePasswordIncorrectCurrentPassword() {
 
-        when(employeeRepository.findById("EMP001"))
-                .thenReturn(Optional.of(employee));
+                ChangePasswordRequest request = new ChangePasswordRequest();
+                request.setCurrentPassword("wrongPass");
+                request.setNewPassword("Password1A");
+                request.setConfirmPassword("Password1A");
 
-        when(passwordEncoder.matches(any(), any()))
-                .thenReturn(false);
+                when(employeeRepository.findById("EMP001"))
+                                .thenReturn(Optional.of(employee));
 
-        assertThrows(AuthenticationException.class,
-                () -> authService.changePassword("EMP001", request));
-    }
+                when(passwordEncoder.matches(any(), any()))
+                                .thenReturn(false);
 
-    /**
-     * Test successful login reset logic.
-     */
-    @Test
-    void testRecordSuccessfulLogin() {
+                assertThrows(AuthenticationException.class,
+                                () -> authService.changePassword("EMP001", request));
+        }
 
-        when(employeeRepository.findById("EMP001"))
-                .thenReturn(Optional.of(employee));
+        /**
+         * Test successful login reset logic.
+         */
+        @Test
+        void testRecordSuccessfulLogin() {
 
-        authService.recordSuccessfulLogin("EMP001");
+                when(employeeRepository.findById("EMP001"))
+                                .thenReturn(Optional.of(employee));
 
-        verify(employeeRepository).save(employee);
+                authService.recordSuccessfulLogin("EMP001");
 
-        assertEquals(0, employee.getFailedLoginAttempts());
-        assertEquals('N', employee.getAccountLocked());
-        assertNull(employee.getLockedUntil());
-    }
+                verify(employeeRepository).save(employee);
 
-    /**
-     * Test failed login attempt increment.
-     */
-    @Test
-    void testRecordFailedLogin() {
+                assertEquals(0, employee.getFailedLoginAttempts());
+                assertEquals('N', employee.getAccountLocked());
+                assertNull(employee.getLockedUntil());
+        }
 
-        when(employeeRepository.findByEmailOrEmployeeId("EMP001", "EMP001"))
-                .thenReturn(Optional.of(employee));
+        /**
+         * Test failed login attempt increment.
+         */
+        @Test
+        void testRecordFailedLogin() {
 
-        authService.recordFailedLogin("EMP001");
+                when(employeeRepository.findByEmailOrEmployeeId("EMP001", "EMP001"))
+                                .thenReturn(Optional.of(employee));
 
-        verify(employeeRepository).save(employee);
-        assertEquals(1, employee.getFailedLoginAttempts());
-    }
+                authService.recordFailedLogin("EMP001");
 
-    /**
-     * Test account lock after max attempts.
-     */
-    @Test
-    void testAccountLockAfterMaxAttempts() {
+                verify(employeeRepository).save(employee);
+                assertEquals(1, employee.getFailedLoginAttempts());
+        }
 
-        employee.setFailedLoginAttempts(4);
+        /**
+         * Test account lock after max attempts.
+         */
+        @Test
+        void testAccountLockAfterMaxAttempts() {
 
-        when(employeeRepository.findByEmailOrEmployeeId("EMP001", "EMP001"))
-                .thenReturn(Optional.of(employee));
+                employee.setFailedLoginAttempts(4);
 
-        authService.recordFailedLogin("EMP001");
+                when(employeeRepository.findByEmailOrEmployeeId("EMP001", "EMP001"))
+                                .thenReturn(Optional.of(employee));
 
-        assertEquals('Y', employee.getAccountLocked());
-        assertNotNull(employee.getLockedUntil());
-    }
+                authService.recordFailedLogin("EMP001");
 
-    /**
-     * Test unlocking account when lock expired.
-     */
-    @Test
-    void testUnlockIfExpired() {
+                assertEquals('Y', employee.getAccountLocked());
+                assertNotNull(employee.getLockedUntil());
+        }
 
-        employee.setAccountLocked('Y');
-        employee.setLockedUntil(LocalDateTime.now().minusMinutes(5));
+        /**
+         * Test unlocking account when lock expired.
+         */
+        @Test
+        void testUnlockIfExpired() {
 
-        when(employeeRepository.findById("EMP001"))
-                .thenReturn(Optional.of(employee));
+                employee.setAccountLocked('Y');
+                employee.setLockedUntil(LocalDateTime.now().minusMinutes(5));
 
-        boolean result = authService.unlockIfExpired("EMP001");
+                when(employeeRepository.findById("EMP001"))
+                                .thenReturn(Optional.of(employee));
 
-        assertTrue(result);
-        assertEquals('N', employee.getAccountLocked());
+                boolean result = authService.unlockIfExpired("EMP001");
 
-        verify(employeeRepository).save(employee);
-    }
+                assertTrue(result);
+                assertEquals('N', employee.getAccountLocked());
 
-    /**
-     * Test isAccountLocked logic.
-     */
-    @Test
-    void testIsAccountLocked() {
+                verify(employeeRepository).save(employee);
+        }
 
-        employee.setAccountLocked('Y');
-        employee.setLockedUntil(LocalDateTime.now().plusMinutes(10));
+        /**
+         * Test isAccountLocked logic.
+         */
+        @Test
+        void testIsAccountLocked() {
 
-        when(employeeRepository.findById("EMP001"))
-                .thenReturn(Optional.of(employee));
+                employee.setAccountLocked('Y');
+                employee.setLockedUntil(LocalDateTime.now().plusMinutes(10));
 
-        assertTrue(authService.isAccountLocked("EMP001"));
-    }
+                when(employeeRepository.findById("EMP001"))
+                                .thenReturn(Optional.of(employee));
 
-    /**
-     * Test remaining lock time.
-     */
-    @Test
-    void testGetRemainingLockTime() {
+                assertTrue(authService.isAccountLocked("EMP001"));
+        }
 
-        employee.setAccountLocked('Y');
-        employee.setLockedUntil(LocalDateTime.now().plusMinutes(10));
+        /**
+         * Test remaining lock time.
+         */
+        @Test
+        void testGetRemainingLockTime() {
 
-        when(employeeRepository.findById("EMP001"))
-                .thenReturn(Optional.of(employee));
+                employee.setAccountLocked('Y');
+                employee.setLockedUntil(LocalDateTime.now().plusMinutes(10));
 
-        long remaining = authService.getRemainingLockTime("EMP001");
+                when(employeeRepository.findById("EMP001"))
+                                .thenReturn(Optional.of(employee));
 
-        assertTrue(remaining > 0);
-    }
+                long remaining = authService.getRemainingLockTime("EMP001");
 
-    /**
-     * Test first login detection.
-     */
-    @Test
-    void testIsFirstLogin() {
+                assertTrue(remaining > 0);
+        }
 
-        employee.setFirstLogin('Y');
+        /**
+         * Test first login detection.
+         */
+        @Test
+        void testIsFirstLogin() {
 
-        when(employeeRepository.findById("EMP001"))
-                .thenReturn(Optional.of(employee));
+                employee.setFirstLogin('Y');
 
-        assertTrue(authService.isFirstLogin("EMP001"));
-    }
+                when(employeeRepository.findById("EMP001"))
+                                .thenReturn(Optional.of(employee));
+
+                assertTrue(authService.isFirstLogin("EMP001"));
+        }
 }

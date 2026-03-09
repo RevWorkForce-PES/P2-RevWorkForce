@@ -8,6 +8,7 @@ import com.revature.revworkforce.model.Employee;
 import com.revature.revworkforce.model.Role;
 import com.revature.revworkforce.repository.*;
 import com.revature.revworkforce.service.impl.EmployeeServiceImpl;
+import com.revature.revworkforce.service.AuditService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,9 @@ class EmployeeServiceImplTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private AuditService auditService;
+
     @InjectMocks
     private EmployeeServiceImpl employeeService;
 
@@ -58,15 +62,13 @@ class EmployeeServiceImplTest {
         employeeDTO.setFirstName("John");
         employeeDTO.setLastName("Doe");
         employeeDTO.setEmail("john@example.com");
-        employeeDTO.setDateOfBirth(LocalDate.of(1995,1,1));
+        employeeDTO.setDateOfBirth(LocalDate.of(1995, 1, 1));
 
         employee = new Employee();
         employee.setEmployeeId("EMP001");
         employee.setEmail("john@example.com");
         employee.setStatus(EmployeeStatus.ACTIVE);
     }
-
-    
 
     /**
      * Test duplicate email validation.

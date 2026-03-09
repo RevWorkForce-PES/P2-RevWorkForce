@@ -2,7 +2,6 @@ package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.dto.EmployeeDTO;
 import com.revature.revworkforce.dto.EmployeeSearchCriteria;
-import com.revature.revworkforce.enums.AuditAction;
 import com.revature.revworkforce.enums.EmployeeStatus;
 import com.revature.revworkforce.model.Employee;
 import com.revature.revworkforce.repository.DepartmentRepository;
@@ -100,13 +99,8 @@ public class EmployeeController {
         criteria.setDesignationId(designationId);
         criteria.setStatus(status);
 
-        // Search employees
-        List<Employee> employees = employeeService.searchEmployees(criteria);
-
-        // Convert to DTOs
-        List<EmployeeDTO> employeeDTOs = employees.stream()
-                .map(employeeService::convertToDTO)
-                .collect(Collectors.toList());
+        // Search and convert to DTOs in service
+        List<EmployeeDTO> employeeDTOs = employeeService.searchEmployeesAsDTO(criteria);
 
         model.addAttribute("employees", employeeDTOs);
         model.addAttribute("criteria", criteria);
@@ -194,8 +188,7 @@ public class EmployeeController {
     @GetMapping("/admin/employees/edit/{employeeId}")
     @PreAuthorize("hasRole('ADMIN')")
     public String showEditEmployeeForm(@PathVariable String employeeId, Model model) {
-        Employee employee = employeeService.getEmployeeById(employeeId);
-        EmployeeDTO dto = employeeService.convertToDTO(employee);
+        EmployeeDTO dto = employeeService.getEmployeeDTOById(employeeId);
 
         model.addAttribute("employeeDTO", dto);
         model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
@@ -263,8 +256,7 @@ public class EmployeeController {
     @GetMapping("/admin/employees/view/{employeeId}")
     @PreAuthorize("hasRole('ADMIN')")
     public String viewEmployee(@PathVariable String employeeId, Model model) {
-        Employee employee = employeeService.getEmployeeById(employeeId);
-        EmployeeDTO dto = employeeService.convertToDTO(employee);
+        EmployeeDTO dto = employeeService.getEmployeeDTOById(employeeId);
 
         List<Employee> teamMembers = employeeService.getTeamMembers(employeeId);
 
@@ -308,19 +300,8 @@ public class EmployeeController {
         try {
             Employee employee = employeeService.getEmployeeById(employeeId);
 
-            // Set status to ACTIVE
-            employee.setStatus(EmployeeStatus.ACTIVE);
-            employeeRepository.save(employee);
-
-            // // Log the action
-            // auditService.logAction(
-            // SecurityUtils.getCurrentUsername(),
-            // AuditAction.UPDATE,
-            // "EMPLOYEES",
-            // employeeId,
-            // null,
-            // "Employee reactivated"
-            // );
+            // Set status to ACTIVE via service
+            employeeService.reactivateEmployee(employeeId);
 
             redirectAttributes.addFlashAttribute("success",
                     "Employee " + employee.getFullName() + " reactivated successfully!");
@@ -360,14 +341,11 @@ public class EmployeeController {
     @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
     public String viewProfile(Model model) {
         String employeeId = SecurityUtils.getCurrentUsername();
-        Employee employee = employeeService.getEmployeeById(employeeId);
-        EmployeeDTO dto = employeeService.convertToDTO(employee);
+        EmployeeDTO dto = employeeService.getEmployeeDTOById(employeeId);
 
         model.addAttribute("currentUser", dto);
-        model.addAttribute("manager", employee.getManager());
-        model.addAttribute("employees", employeeService.getActiveEmployees().stream()
-                .map(employeeService::convertToDTO)
-                .collect(Collectors.toList()));
+        model.addAttribute("manager", dto.getManagerName()); // DTO has managerName
+        model.addAttribute("employees", employeeService.getActiveEmployeesAsDTO());
         model.addAttribute("departments", departmentRepository.findByIsActive('Y'));
         model.addAttribute("designations", designationRepository.findByIsActive('Y'));
         model.addAttribute("pageTitle", "My Profile");
@@ -477,7 +455,7 @@ public class EmployeeController {
             @RequestParam(required = false) Long designationId,
             Model model) {
 
-        List<Employee> employees;
+        List<EmployeeDTO> employeeDTOs;
 
         if (search != null || departmentId != null || designationId != null) {
             EmployeeSearchCriteria criteria = new EmployeeSearchCriteria();
@@ -486,14 +464,10 @@ public class EmployeeController {
             criteria.setDesignationId(designationId);
             criteria.setStatus(com.revature.revworkforce.enums.EmployeeStatus.ACTIVE);
 
-            employees = employeeService.searchEmployees(criteria);
+            employeeDTOs = employeeService.searchEmployeesAsDTO(criteria);
         } else {
-            employees = employeeService.getActiveEmployees();
+            employeeDTOs = employeeService.getActiveEmployeesAsDTO();
         }
-
-        List<EmployeeDTO> employeeDTOs = employees.stream()
-                .map(employeeService::convertToDTO)
-                .collect(Collectors.toList());
 
         String employeeId = SecurityUtils.getCurrentUsername();
         EmployeeDTO currentUserDTO = null;

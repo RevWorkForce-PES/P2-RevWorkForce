@@ -11,12 +11,13 @@ import com.revature.revworkforce.repository.*;
 import com.revature.revworkforce.service.HolidayService;
 import com.revature.revworkforce.service.LeaveService;
 import com.revature.revworkforce.service.NotificationService;
+import com.revature.revworkforce.service.AuditService;
+import com.revature.revworkforce.util.Constants;
 import com.revature.revworkforce.util.DateUtil;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,423 +30,500 @@ import org.springframework.beans.factory.annotation.Value;
 @Transactional
 public class LeaveServiceImpl implements LeaveService {
 
-    private final LeaveApplicationRepository leaveApplicationRepository;
-    private final LeaveBalanceRepository leaveBalanceRepository;
-    private final LeaveTypeRepository leaveTypeRepository;
-    private final EmployeeRepository employeeRepository;
-    private final HolidayService holidayService;
-    private final NotificationService notificationService;
-    @Value("${app.leave.max-continuous-days}")
-    private int maxContinuousLeaveDays;
-    public LeaveServiceImpl(
-            LeaveApplicationRepository leaveApplicationRepository,
-            LeaveBalanceRepository leaveBalanceRepository,
-            LeaveTypeRepository leaveTypeRepository,
-            EmployeeRepository employeeRepository,
-            HolidayService holidayService,
-            NotificationService notificationService
-    ) {
-        this.leaveApplicationRepository = leaveApplicationRepository;
-        this.leaveBalanceRepository = leaveBalanceRepository;
-        this.leaveTypeRepository = leaveTypeRepository;
-        this.employeeRepository = employeeRepository;
-        this.holidayService = holidayService;
-        this.notificationService = notificationService;
-    }
+        private final LeaveApplicationRepository leaveApplicationRepository;
+        private final LeaveBalanceRepository leaveBalanceRepository;
+        private final LeaveTypeRepository leaveTypeRepository;
+        private final EmployeeRepository employeeRepository;
+        private final HolidayService holidayService;
+        private final NotificationService notificationService;
+        private final AuditService auditService;
 
-    // =========================================================
-    // APPLY LEAVE
-    // =========================================================
+        @Value("${app.leave.max-continuous-days}")
+        private int maxContinuousLeaveDays;
 
-    @Override
-    public LeaveApplication applyLeave(LeaveApplicationDTO dto, String employeeId) {
-
-        Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Employee", "employeeId", employeeId));
-
-        if (dto.getEndDate().isBefore(dto.getStartDate())) {
-            throw new ValidationException("End date cannot be before start date");
+        public LeaveServiceImpl(
+                        LeaveApplicationRepository leaveApplicationRepository,
+                        LeaveBalanceRepository leaveBalanceRepository,
+                        LeaveTypeRepository leaveTypeRepository,
+                        EmployeeRepository employeeRepository,
+                        HolidayService holidayService,
+                        NotificationService notificationService,
+                        AuditService auditService) {
+                this.leaveApplicationRepository = leaveApplicationRepository;
+                this.leaveBalanceRepository = leaveBalanceRepository;
+                this.leaveTypeRepository = leaveTypeRepository;
+                this.employeeRepository = employeeRepository;
+                this.holidayService = holidayService;
+                this.notificationService = notificationService;
+                this.auditService = auditService;
         }
 
-        validateLeaveOverlap(employee, dto.getStartDate(), dto.getEndDate());
+        // =========================================================
+        // APPLY LEAVE
+        // =========================================================
 
-        int workingDays = calculateWorkingDays(dto.getStartDate(), dto.getEndDate());
+        @Override
+        public LeaveApplication applyLeave(LeaveApplicationDTO dto, String employeeId) {
 
-        LeaveType leaveType = leaveTypeRepository.findByLeaveCode(dto.getLeaveType())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("LeaveType", "leaveCode", dto.getLeaveType()));
+                Employee employee = employeeRepository.findById(employeeId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", employeeId));
 
-        LeaveBalance balance =
-                getOrCreateLeaveBalance(employee, leaveType, dto.getStartDate().getYear());
+                if (dto.getEndDate().isBefore(dto.getStartDate())) {
+                        throw new ValidationException("End date cannot be before start date");
+                }
 
-        validateLeaveBalance(balance, workingDays);
+                validateLeaveOverlap(employee, dto.getStartDate(), dto.getEndDate());
 
-        LeaveApplication application = new LeaveApplication(
-                employee,
-                leaveType,
-                dto.getStartDate(),
-                dto.getEndDate(),
-                workingDays,
-                dto.getReason()
-        );
-        application.setStatus(LeaveStatus.PENDING);
-        LeaveApplication saved = leaveApplicationRepository.save(application);
+                int workingDays = calculateWorkingDays(dto.getStartDate(), dto.getEndDate());
 
-        // 🔔 Notify Manager About New Leave Request
-        Employee manager = employee.getManager();
+                LeaveType leaveType = leaveTypeRepository.findByLeaveCode(dto.getLeaveType())
+                                .orElseThrow(() -> new ResourceNotFoundException("LeaveType", "leaveCode",
+                                                dto.getLeaveType()));
 
-        if (manager != null) {
-            notificationService.createNotification(
-                    manager,
-                    NotificationType.LEAVE,
-                    "New Leave Request",
-                    employee.getFullName() + " applied leave from "
-                            + dto.getStartDate() + " to "
-                            + dto.getEndDate(),
-                    NotificationPriority.HIGH
-            );
+                LeaveBalance balance = getOrCreateLeaveBalance(employee, leaveType, dto.getStartDate().getYear());
+
+                validateLeaveBalance(balance, workingDays);
+
+                LeaveApplication application = new LeaveApplication(
+                                employee,
+                                leaveType,
+                                dto.getStartDate(),
+                                dto.getEndDate(),
+                                workingDays,
+                                dto.getReason());
+                application.setStatus(LeaveStatus.PENDING);
+                LeaveApplication saved = leaveApplicationRepository.save(application);
+
+                // Audit Logging
+                auditService.createAuditLog(
+                                employeeId,
+                                "LEAVE_APPLIED",
+                                "LEAVE_APPLICATIONS",
+                                String.valueOf(saved.getApplicationId()),
+                                null,
+                                "Applied for " + saved.getLeaveType().getLeaveName() + " from " + saved.getStartDate()
+                                                + " to "
+                                                + saved.getEndDate(),
+                                null,
+                                null);
+
+                // 🔔 Notify Manager About New Leave Request
+                Employee manager = employee.getManager();
+
+                if (manager != null) {
+                        notificationService.createNotification(
+                                        manager,
+                                        NotificationType.LEAVE,
+                                        "New Leave Request",
+                                        employee.getFullName() + " applied leave from "
+                                                        + dto.getStartDate() + " to "
+                                                        + dto.getEndDate(),
+                                        NotificationPriority.HIGH);
+                }
+
+                return saved;
         }
 
-        return saved;
-    }
+        // =========================================================
+        // CANCEL LEAVE
+        // =========================================================
 
-    // =========================================================
-    // CANCEL LEAVE
-    // =========================================================
+        @Override
+        public void cancelLeave(Long applicationId, String employeeId) {
 
-    @Override
-    public void cancelLeave(Long applicationId, String employeeId) {
+                LeaveApplication application = getLeaveById(applicationId);
 
-        LeaveApplication application = getLeaveById(applicationId);
+                if (!application.getEmployee().getEmployeeId().equals(employeeId)) {
+                        throw new UnauthorizedException("You cannot cancel this leave");
+                }
 
-        if (!application.getEmployee().getEmployeeId().equals(employeeId)) {
-            throw new UnauthorizedException("You cannot cancel this leave");
+                if (application.getStatus() != LeaveStatus.PENDING) {
+                        throw new InvalidStatusTransitionException(
+                                        "Leave",
+                                        application.getStatus().name(),
+                                        "CANCELLED");
+                }
+
+                application.setStatus(LeaveStatus.CANCELLED);
+                leaveApplicationRepository.save(application);
+
+                // Audit Logging
+                auditService.createAuditLog(
+                                employeeId,
+                                "LEAVE_CANCELLED",
+                                "LEAVE_APPLICATIONS",
+                                applicationId.toString(),
+                                "PENDING",
+                                "CANCELLED",
+                                null,
+                                null);
         }
 
-        if (application.getStatus() != LeaveStatus.PENDING) {
-            throw new InvalidStatusTransitionException(
-                    "Leave",
-                    application.getStatus().name(),
-                    "CANCELLED"
-            );
+        // =========================================================
+        // REVOKE LEAVE (ADMIN)
+        // =========================================================
+
+        @Override
+        public void revokeLeave(Long applicationId, String adminId) {
+
+                LeaveApplication application = getLeaveById(applicationId);
+                String oldStatus = application.getStatus().name();
+
+                if (application.getStatus() == LeaveStatus.APPROVED) {
+                        // Restore balance
+                        LeaveBalance balance = getOrCreateLeaveBalance(
+                                        application.getEmployee(),
+                                        application.getLeaveType(),
+                                        application.getStartDate().getYear());
+                        balance.setUsed(balance.getUsed() - application.getTotalDays());
+                        balance.setBalance(balance.getBalance() + application.getTotalDays());
+                        leaveBalanceRepository.save(balance);
+                }
+
+                application.setStatus(LeaveStatus.CANCELLED);
+                leaveApplicationRepository.save(application);
+
+                // Audit Logging
+                auditService.createAuditLog(
+                                adminId,
+                                Constants.AUDIT_UPDATE,
+                                "LEAVE_APPLICATIONS",
+                                applicationId.toString(),
+                                oldStatus,
+                                "REVOKED",
+                                null,
+                                null);
+
+                // Notify Employee
+                notificationService.createNotification(
+                                application.getEmployee(),
+                                NotificationType.LEAVE,
+                                "Leave Revoked",
+                                "Your leave application from " + application.getStartDate() + " to "
+                                                + application.getEndDate()
+                                                + " has been revoked by an Administrator.",
+                                NotificationPriority.HIGH);
         }
 
-        application.setStatus(LeaveStatus.CANCELLED);
-        leaveApplicationRepository.save(application);
-    }
+        // =========================================================
+        // GET LEAVE
+        // =========================================================
 
-    // =========================================================
-    // GET LEAVE
-    // =========================================================
-
-    @Override
-    public LeaveApplication getLeaveById(Long applicationId) {
-        return leaveApplicationRepository.findById(applicationId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("LeaveApplication", "applicationId", applicationId));
-    }
-
-    @Override
-    public List<LeaveApplication> getEmployeeLeaveHistory(String employeeId) {
-        return leaveApplicationRepository
-                .findByEmployee_EmployeeIdOrderByAppliedOnDesc(employeeId);
-    }
-
-    // =========================================================
-    // APPROVE
-    // =========================================================
-    @Override
-    public LeaveApplication approveLeave(Long applicationId,
-                                         String approverId,
-                                         String comments) {
-
-        LeaveApplication application = getLeaveById(applicationId);
-
-        if (application.getStatus() != LeaveStatus.PENDING) {
-            throw new InvalidStatusTransitionException(
-                    "Leave",
-                    application.getStatus().name(),
-                    "APPROVED"
-            );
+        @Override
+        public LeaveApplication getLeaveById(Long applicationId) {
+                return leaveApplicationRepository.findById(applicationId)
+                                .orElseThrow(() -> new ResourceNotFoundException("LeaveApplication", "applicationId",
+                                                applicationId));
         }
 
-        Employee approver = employeeRepository.findById(approverId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Employee", "employeeId", approverId));
-
-        boolean isAdmin = approver.hasRole("ADMIN");
-
-        if (!isAdmin) {
-            if (application.getEmployee().getManager() == null ||
-                !application.getEmployee().getManager().getEmployeeId()
-                        .equals(approver.getEmployeeId())) {
-
-                throw new UnauthorizedException("Not authorized to approve this leave");
-            }
+        @Override
+        public List<LeaveApplication> getEmployeeLeaveHistory(String employeeId) {
+                return leaveApplicationRepository
+                                .findByEmployee_EmployeeIdOrderByAppliedOnDesc(employeeId);
         }
 
-        LeaveBalance balance = getOrCreateLeaveBalance(
-                application.getEmployee(),
-                application.getLeaveType(),
-                application.getStartDate().getYear()
-        );
+        // =========================================================
+        // APPROVE
+        // =========================================================
+        @Override
+        public LeaveApplication approveLeave(Long applicationId,
+                        String approverId,
+                        String comments) {
 
-        validateLeaveBalance(balance, application.getTotalDays());
+                LeaveApplication application = getLeaveById(applicationId);
 
-        balance.setUsed(balance.getUsed() + application.getTotalDays());
-        balance.setBalance(balance.getBalance() - application.getTotalDays());
+                if (application.getStatus() != LeaveStatus.PENDING) {
+                        throw new InvalidStatusTransitionException(
+                                        "Leave",
+                                        application.getStatus().name(),
+                                        "APPROVED");
+                }
 
-        application.setStatus(LeaveStatus.APPROVED);
-        application.setApprovedBy(approver);
-        application.setApprovedOn(LocalDateTime.now());
-        application.setComments(comments);
+                Employee approver = employeeRepository.findById(approverId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", approverId));
 
-        leaveBalanceRepository.save(balance);
-        LeaveApplication saved = leaveApplicationRepository.save(application);
+                boolean isAdmin = approver.hasRole("ADMIN");
 
-        // 🔔 CREATE NOTIFICATION
-        notificationService.createNotification(
-                application.getEmployee(),
-                NotificationType.LEAVE,
-                "Leave Approved",
-                "Your leave from " +
-                        application.getStartDate() +
-                        " to " +
-                        application.getEndDate() +
-                        " has been approved.",
-                NotificationPriority.NORMAL
-        );
+                if (!isAdmin) {
+                        if (application.getEmployee().getManager() == null ||
+                                        !application.getEmployee().getManager().getEmployeeId()
+                                                        .equals(approver.getEmployeeId())) {
 
-        return saved;
-    }
+                                throw new UnauthorizedException("Not authorized to approve this leave");
+                        }
+                }
 
-    // =========================================================
-    // REJECT
-    // =========================================================
+                LeaveBalance balance = getOrCreateLeaveBalance(
+                                application.getEmployee(),
+                                application.getLeaveType(),
+                                application.getStartDate().getYear());
 
-    @Override
-    public LeaveApplication rejectLeave(Long applicationId,
-                                        String approverId,
-                                        String rejectionReason) {
+                validateLeaveBalance(balance, application.getTotalDays());
 
-        LeaveApplication application = getLeaveById(applicationId);
+                balance.setUsed(balance.getUsed() + application.getTotalDays());
+                balance.setBalance(balance.getBalance() - application.getTotalDays());
 
-        if (application.getStatus() != LeaveStatus.PENDING) {
-            throw new InvalidStatusTransitionException(
-                    "Leave",
-                    application.getStatus().name(),
-                    "REJECTED"
-            );
+                application.setStatus(LeaveStatus.APPROVED);
+                application.setApprovedBy(approver);
+                application.setApprovedOn(LocalDateTime.now());
+                application.setComments(comments);
+
+                leaveBalanceRepository.save(balance);
+                LeaveApplication saved = leaveApplicationRepository.save(application);
+
+                // Audit Logging
+                auditService.createAuditLog(
+                                approverId,
+                                "LEAVE_APPROVED",
+                                "LEAVE_APPLICATIONS",
+                                applicationId.toString(),
+                                "PENDING",
+                                "APPROVED",
+                                null,
+                                comments);
+
+                // 🔔 CREATE NOTIFICATION
+                notificationService.createNotification(
+                                application.getEmployee(),
+                                NotificationType.LEAVE,
+                                "Leave Approved",
+                                "Your leave from " +
+                                                application.getStartDate() +
+                                                " to " +
+                                                application.getEndDate() +
+                                                " has been approved.",
+                                NotificationPriority.NORMAL);
+
+                return saved;
         }
 
-        Employee approver = employeeRepository.findById(approverId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Employee", "employeeId", approverId));
+        // =========================================================
+        // REJECT
+        // =========================================================
 
-        boolean isAdmin = approver.hasRole("ADMIN");
+        @Override
+        public LeaveApplication rejectLeave(Long applicationId,
+                        String approverId,
+                        String rejectionReason) {
 
-        if (!isAdmin) {
-            if (application.getEmployee().getManager() == null ||
-                !application.getEmployee().getManager().getEmployeeId()
-                        .equals(approver.getEmployeeId())) {
+                LeaveApplication application = getLeaveById(applicationId);
 
-                throw new UnauthorizedException("Not authorized to reject this leave");
-            }
+                if (application.getStatus() != LeaveStatus.PENDING) {
+                        throw new InvalidStatusTransitionException(
+                                        "Leave",
+                                        application.getStatus().name(),
+                                        "REJECTED");
+                }
+
+                Employee approver = employeeRepository.findById(approverId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", approverId));
+
+                boolean isAdmin = approver.hasRole("ADMIN");
+
+                if (!isAdmin) {
+                        if (application.getEmployee().getManager() == null ||
+                                        !application.getEmployee().getManager().getEmployeeId()
+                                                        .equals(approver.getEmployeeId())) {
+
+                                throw new UnauthorizedException("Not authorized to reject this leave");
+                        }
+                }
+
+                application.setStatus(LeaveStatus.REJECTED);
+                application.setApprovedBy(approver);
+                application.setApprovedOn(LocalDateTime.now());
+                application.setRejectionReason(rejectionReason);
+
+                LeaveApplication saved = leaveApplicationRepository.save(application);
+
+                // Audit Logging
+                auditService.createAuditLog(
+                                approverId,
+                                "LEAVE_REJECTED",
+                                "LEAVE_APPLICATIONS",
+                                applicationId.toString(),
+                                "PENDING",
+                                "REJECTED",
+                                null,
+                                rejectionReason);
+
+                // 🔔 CREATE NOTIFICATION
+                notificationService.createNotification(
+                                application.getEmployee(),
+                                NotificationType.LEAVE,
+                                "Leave Rejected",
+                                "Your leave from " +
+                                                application.getStartDate() +
+                                                " to " +
+                                                application.getEndDate() +
+                                                " has been rejected. Reason: " +
+                                                rejectionReason,
+                                NotificationPriority.NORMAL);
+
+                return saved;
+        }
+        // =========================================================
+        // BALANCES
+        // =========================================================
+
+        @Override
+        public List<LeaveBalanceDTO> getLeaveBalances(String employeeId, Integer year) {
+
+                return leaveBalanceRepository
+                                .findByEmployee_EmployeeIdAndYear(employeeId, year)
+                                .stream()
+                                .map(lb -> {
+                                        LeaveBalanceDTO dto = new LeaveBalanceDTO();
+
+                                        dto.setLeaveType(lb.getLeaveType().getLeaveCode());
+                                        dto.setLeaveTypeName(lb.getLeaveType().getLeaveName()); // ✅ THIS LINE
+
+                                        dto.setTotalAllocated(lb.getTotalAllocated());
+                                        dto.setUsedLeaves(lb.getUsed());
+                                        dto.setRemainingBalance(lb.getBalance());
+                                        dto.setYear(lb.getYear());
+
+                                        return dto;
+                                })
+                                .collect(Collectors.toList());
         }
 
-        application.setStatus(LeaveStatus.REJECTED);
-        application.setApprovedBy(approver);
-        application.setApprovedOn(LocalDateTime.now());
-        application.setRejectionReason(rejectionReason);
+        @Override
+        public void initializeLeaveBalances(Employee employee) {
 
-        LeaveApplication saved = leaveApplicationRepository.save(application);
+                List<LeaveType> types = leaveTypeRepository.findAll();
 
-     // 🔔 CREATE NOTIFICATION
-     notificationService.createNotification(
-             application.getEmployee(),
-             NotificationType.LEAVE,
-             "Leave Rejected",
-             "Your leave from " +
-                     application.getStartDate() +
-                     " to " +
-                     application.getEndDate() +
-                     " has been rejected. Reason: " +
-                     rejectionReason,
-             NotificationPriority.NORMAL
-     );
-
-     return saved;
-    }
-    // =========================================================
-    // BALANCES
-    // =========================================================
-
-    @Override
-    public List<LeaveBalanceDTO> getLeaveBalances(String employeeId, Integer year) {
-
-        return leaveBalanceRepository
-                .findByEmployee_EmployeeIdAndYear(employeeId, year)
-                .stream()
-                .map(lb -> {
-                    LeaveBalanceDTO dto = new LeaveBalanceDTO();
-
-                    dto.setLeaveType(lb.getLeaveType().getLeaveCode());
-                    dto.setLeaveTypeName(lb.getLeaveType().getLeaveName()); // ✅ THIS LINE
-
-                    dto.setTotalAllocated(lb.getTotalAllocated());
-                    dto.setUsedLeaves(lb.getUsed());
-                    dto.setRemainingBalance(lb.getBalance());
-                    dto.setYear(lb.getYear());
-
-                    return dto;
-                })
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public void initializeLeaveBalances(Employee employee) {
-
-        List<LeaveType> types = leaveTypeRepository.findAll();
-
-        for (LeaveType type : types) {
-            getOrCreateLeaveBalance(employee, type, LocalDate.now().getYear());
-        }
-    }
-
-    @Override
-    public LeaveBalance getOrCreateLeaveBalance(Employee employee,
-                                                LeaveType type,
-                                                Integer year) {
-
-        return leaveBalanceRepository
-                .findByEmployeeAndLeaveTypeAndYear(employee, type, year)
-                .orElseGet(() -> {
-
-                    LeaveBalance balance = new LeaveBalance(
-                            employee,
-                            type,
-                            year,
-                            type.getDefaultDays(),
-                            0
-                    );
-
-                    return leaveBalanceRepository.save(balance);
-                });
-    }
-    @Override
-    public List<LeaveBalance> getTeamLeaveBalances(String managerId) {
-
-        List<Employee> teamMembers =
-                employeeRepository.findByManager_EmployeeId(managerId);
-
-        List<LeaveBalance> balances = new ArrayList<>();
-
-        for (Employee emp : teamMembers) {
-
-            List<LeaveBalance> empBalances =
-            		leaveBalanceRepository.findByEmployeeIdWithLeaveType(emp.getEmployeeId());
-
-            balances.addAll(empBalances);
+                for (LeaveType type : types) {
+                        getOrCreateLeaveBalance(employee, type, LocalDate.now().getYear());
+                }
         }
 
-        return balances;
-    }
+        @Override
+        public LeaveBalance getOrCreateLeaveBalance(Employee employee,
+                        LeaveType type,
+                        Integer year) {
 
-    // =========================================================
-    // VALIDATIONS
-    // =========================================================
+                return leaveBalanceRepository
+                                .findByEmployeeAndLeaveTypeAndYear(employee, type, year)
+                                .orElseGet(() -> {
 
-    @Override
-    public void validateLeaveOverlap(Employee employee,
-                                     LocalDate startDate,
-                                     LocalDate endDate) {
+                                        LeaveBalance balance = new LeaveBalance(
+                                                        employee,
+                                                        type,
+                                                        year,
+                                                        type.getDefaultDays(),
+                                                        0);
 
-        List<LeaveApplication> overlaps =
-                leaveApplicationRepository.findOverlappingLeaves(
-                        employee.getEmployeeId(),
-                        startDate,
-                        endDate,
-                        List.of(LeaveStatus.REJECTED, LeaveStatus.CANCELLED)
-                );
-
-        if (!overlaps.isEmpty()) {
-            LeaveApplication existing = overlaps.get(0);
-
-            throw new LeaveOverlapException(
-                    startDate,
-                    endDate,
-                    existing.getStartDate(),
-                    existing.getEndDate()
-            );
+                                        return leaveBalanceRepository.save(balance);
+                                });
         }
-    }
 
-    @Override
-    public int calculateWorkingDays(LocalDate startDate,
-                                    LocalDate endDate) {
+        @Override
+        public List<LeaveBalance> getTeamLeaveBalances(String managerId) {
 
-        Set<LocalDate> holidays =
-        		holidayService.getHolidaysInRange(startDate, endDate);
+                List<Employee> teamMembers = employeeRepository.findByManager_EmployeeId(managerId);
 
-        return DateUtil.calculateWorkingDays(startDate, endDate, holidays);
-    }
+                List<LeaveBalance> balances = new ArrayList<>();
 
-    @Override
-    public void validateContinuousLeaveLimit(Employee employee,
-                                             LocalDate startDate,
-                                             LocalDate endDate) {
+                for (Employee emp : teamMembers) {
 
-        int days = calculateWorkingDays(startDate, endDate);
+                        List<LeaveBalance> empBalances = leaveBalanceRepository
+                                        .findByEmployeeIdWithLeaveType(emp.getEmployeeId());
 
-        if (days > maxContinuousLeaveDays) {
-            throw new ValidationException(
-                "Continuous leave cannot exceed " + maxContinuousLeaveDays + " working days"
-            );
+                        balances.addAll(empBalances);
+                }
+
+                return balances;
         }
-    }
 
-    @Override
-    public void validateLeaveBalance(LeaveBalance leaveBalance,
-                                     int requestedDays) {
+        // =========================================================
+        // VALIDATIONS
+        // =========================================================
 
-        if (leaveBalance.getBalance() < requestedDays) {
-            throw new InsufficientLeaveBalanceException(
-                    leaveBalance.getLeaveType().getLeaveCode(),
-                    requestedDays,
-                    leaveBalance.getBalance()
-            );
+        @Override
+        public void validateLeaveOverlap(Employee employee,
+                        LocalDate startDate,
+                        LocalDate endDate) {
+
+                List<LeaveApplication> overlaps = leaveApplicationRepository.findOverlappingLeaves(
+                                employee.getEmployeeId(),
+                                startDate,
+                                endDate,
+                                List.of(LeaveStatus.REJECTED, LeaveStatus.CANCELLED));
+
+                if (!overlaps.isEmpty()) {
+                        LeaveApplication existing = overlaps.get(0);
+
+                        throw new LeaveOverlapException(
+                                        startDate,
+                                        endDate,
+                                        existing.getStartDate(),
+                                        existing.getEndDate());
+                }
         }
-    }
 
-    @Override
-    public List<LeaveApplication> getPendingLeavesForManager(String managerId) {
-        return leaveApplicationRepository
-                .findPendingLeavesByManagerId(managerId, LeaveStatus.PENDING);
-    }
+        @Override
+        public int calculateWorkingDays(LocalDate startDate,
+                        LocalDate endDate) {
 
-    @Override
-    public List<LeaveApplication> getTeamLeaves(String managerId) {
+                Set<LocalDate> holidays = holidayService.getHolidaysInRange(startDate, endDate);
 
-        return leaveApplicationRepository
-                .findTeamLeavesByManagerIdAndStatus(
-                        managerId,
-                        LeaveStatus.APPROVED
-                );
-    }
+                return DateUtil.calculateWorkingDays(startDate, endDate, holidays);
+        }
 
-    @Override
-    public List<LeaveBalance> findByEmployee_Manager_EmployeeIdAndYear(String managerId, Integer year) {
-        return leaveBalanceRepository.findTeamBalances(managerId, year);
-    }
-    @Override
-    public List<LeaveApplication> getLeavesByDepartment(Long departmentId) {
-        return leaveApplicationRepository.findLeavesByDepartment(departmentId);
-    }
+        @Override
+        public void validateContinuousLeaveLimit(Employee employee,
+                        LocalDate startDate,
+                        LocalDate endDate) {
 
-    @Override
-    public List<LeaveApplication> getLeavesByEmployee(String employeeId) {
-        return leaveApplicationRepository.findLeavesByEmployee(employeeId);
-    }
-    
+                int days = calculateWorkingDays(startDate, endDate);
+
+                if (days > maxContinuousLeaveDays) {
+                        throw new ValidationException(
+                                        "Continuous leave cannot exceed " + maxContinuousLeaveDays + " working days");
+                }
+        }
+
+        @Override
+        public void validateLeaveBalance(LeaveBalance leaveBalance,
+                        int requestedDays) {
+
+                if (leaveBalance.getBalance() < requestedDays) {
+                        throw new InsufficientLeaveBalanceException(
+                                        leaveBalance.getLeaveType().getLeaveCode(),
+                                        requestedDays,
+                                        leaveBalance.getBalance());
+                }
+        }
+
+        @Override
+        public List<LeaveApplication> getPendingLeavesForManager(String managerId) {
+                return leaveApplicationRepository
+                                .findPendingLeavesByManagerId(managerId, LeaveStatus.PENDING);
+        }
+
+        @Override
+        public List<LeaveApplication> getTeamLeaves(String managerId) {
+
+                return leaveApplicationRepository
+                                .findTeamLeavesByManagerIdAndStatus(
+                                                managerId,
+                                                LeaveStatus.APPROVED);
+        }
+
+        @Override
+        public List<LeaveBalance> findByEmployee_Manager_EmployeeIdAndYear(String managerId, Integer year) {
+                return leaveBalanceRepository.findTeamBalances(managerId, year);
+        }
+
+        @Override
+        public List<LeaveApplication> getLeavesByDepartment(Long departmentId) {
+                return leaveApplicationRepository.findLeavesByDepartment(departmentId);
+        }
+
+        @Override
+        public List<LeaveApplication> getLeavesByEmployee(String employeeId) {
+                return leaveApplicationRepository.findLeavesByEmployee(employeeId);
+        }
+
 }

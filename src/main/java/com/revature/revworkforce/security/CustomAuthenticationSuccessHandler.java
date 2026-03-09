@@ -1,8 +1,11 @@
 package com.revature.revworkforce.security;
 
+import com.revature.revworkforce.service.AuthService;
+import com.revature.revworkforce.service.AuditService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -14,7 +17,8 @@ import java.util.Collection;
 /**
  * Custom Authentication Success Handler.
  * 
- * Redirects users to appropriate dashboard based on their role after successful login.
+ * Redirects users to appropriate dashboard based on their role after successful
+ * login.
  * 
  * Redirect Rules:
  * - ADMIN role → /admin/dashboard
@@ -26,35 +30,48 @@ import java.util.Collection;
  */
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-    
+
+    @Autowired
+    private AuthService authService;
+
+    @Autowired
+    private AuditService auditService;
+
     /**
      * Handle successful authentication.
      * 
-     * @param request the HTTP request
-     * @param response the HTTP response
+     * @param request        the HTTP request
+     * @param response       the HTTP response
      * @param authentication the Authentication object
-     * @throws IOException if redirect fails
+     * @throws IOException      if redirect fails
      * @throws ServletException if servlet error occurs
      */
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, 
-                                       HttpServletResponse response,
-                                       Authentication authentication) throws IOException, ServletException {
-        
+    public void onAuthenticationSuccess(HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication authentication) throws IOException, ServletException {
+
         // Get user authorities (roles)
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        
+
         // Determine redirect URL based on role
         String redirectUrl = determineTargetUrl(authorities);
-        
-        // Log successful login
+
+        // Log successful login internally for security tracking
         String username = authentication.getName();
+        authService.recordSuccessfulLogin(username);
+
+        // Audit Logging
+        String ipAddress = request.getRemoteAddr();
+        String userAgent = request.getHeader("User-Agent");
+        auditService.logLogin(username, ipAddress, userAgent);
+
         System.out.println("User '" + username + "' logged in successfully. Redirecting to: " + redirectUrl);
-        
+
         // Redirect to appropriate dashboard
         response.sendRedirect(redirectUrl);
     }
-    
+
     /**
      * Determine target URL based on user roles.
      * 
@@ -68,30 +85,30 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         if (hasRole(authorities, "ROLE_ADMIN")) {
             return "/admin/dashboard";
         }
-        
+
         // Check for MANAGER role
         if (hasRole(authorities, "ROLE_MANAGER")) {
             return "/manager/dashboard";
         }
-        
+
         // Check for EMPLOYEE role
         if (hasRole(authorities, "ROLE_EMPLOYEE")) {
             return "/employee/dashboard";
         }
-        
+
         // Default redirect
         return "/dashboard";
     }
-    
+
     /**
      * Check if user has a specific role.
      * 
      * @param authorities user authorities
-     * @param role the role to check
+     * @param role        the role to check
      * @return true if user has the role
      */
     private boolean hasRole(Collection<? extends GrantedAuthority> authorities, String role) {
         return authorities.stream()
-            .anyMatch(authority -> authority.getAuthority().equals(role));
+                .anyMatch(authority -> authority.getAuthority().equals(role));
     }
 }

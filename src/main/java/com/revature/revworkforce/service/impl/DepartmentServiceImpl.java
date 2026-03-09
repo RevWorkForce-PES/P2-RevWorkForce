@@ -6,7 +6,10 @@ import com.revature.revworkforce.exception.ResourceNotFoundException;
 import com.revature.revworkforce.model.Department;
 import com.revature.revworkforce.repository.DepartmentRepository;
 import com.revature.revworkforce.repository.EmployeeRepository;
+import com.revature.revworkforce.service.AuditService;
 import com.revature.revworkforce.service.DepartmentService;
+import com.revature.revworkforce.util.Constants;
+import com.revature.revworkforce.security.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,11 +30,14 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     private final DepartmentRepository departmentRepository;
     private final EmployeeRepository employeeRepository;
+    private final AuditService auditService;
 
     @Autowired
-    public DepartmentServiceImpl(DepartmentRepository departmentRepository, EmployeeRepository employeeRepository) {
+    public DepartmentServiceImpl(DepartmentRepository departmentRepository, EmployeeRepository employeeRepository,
+            AuditService auditService) {
         this.departmentRepository = departmentRepository;
         this.employeeRepository = employeeRepository;
+        this.auditService = auditService;
     }
 
     @Override
@@ -43,6 +49,17 @@ public class DepartmentServiceImpl implements DepartmentService {
 
         Department department = mapToEntity(departmentDTO);
         department = departmentRepository.save(department);
+
+        String performedBy = SecurityUtils.getCurrentUsername() != null ? SecurityUtils.getCurrentUsername() : "SYSTEM";
+        auditService.createAuditLog(
+                performedBy,
+                Constants.AUDIT_INSERT,
+                "DEPARTMENTS",
+                department.getDepartmentId().toString(),
+                null,
+                "Created department: " + department.getDepartmentName(),
+                null,
+                null);
 
         return mapToDTO(department);
     }
@@ -68,6 +85,17 @@ public class DepartmentServiceImpl implements DepartmentService {
         }
 
         department = departmentRepository.save(department);
+
+        String performedBy = SecurityUtils.getCurrentUsername() != null ? SecurityUtils.getCurrentUsername() : "SYSTEM";
+        auditService.createAuditLog(
+                performedBy,
+                Constants.AUDIT_UPDATE,
+                "DEPARTMENTS",
+                departmentId.toString(),
+                null,
+                "Updated department details",
+                null,
+                null);
 
         return mapToDTO(department);
     }
@@ -114,6 +142,17 @@ public class DepartmentServiceImpl implements DepartmentService {
         // Soft delete
         department.setIsActive('N');
         departmentRepository.save(department);
+
+        String performedBy = SecurityUtils.getCurrentUsername() != null ? SecurityUtils.getCurrentUsername() : "SYSTEM";
+        auditService.createAuditLog(
+                performedBy,
+                Constants.AUDIT_UPDATE,
+                "DEPARTMENTS",
+                departmentId.toString(),
+                "Y",
+                "N",
+                null,
+                null);
     }
 
     @Override

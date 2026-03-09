@@ -8,6 +8,8 @@ import com.revature.revworkforce.repository.AnnouncementRepository;
 import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.service.AnnouncementService;
 import com.revature.revworkforce.service.NotificationService;
+import com.revature.revworkforce.service.AuditService;
+import com.revature.revworkforce.security.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -25,14 +27,17 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     private final AnnouncementRepository announcementRepository;
     private final EmployeeRepository employeeRepository;
     private final NotificationService notificationService;
+    private final AuditService auditService;
 
     @Autowired
     public AnnouncementServiceImpl(AnnouncementRepository announcementRepository,
             EmployeeRepository employeeRepository,
-            NotificationService notificationService) {
+            NotificationService notificationService,
+            AuditService auditService) {
         this.announcementRepository = announcementRepository;
         this.employeeRepository = employeeRepository;
         this.notificationService = notificationService;
+        this.auditService = auditService;
     }
 
     @Override
@@ -54,6 +59,17 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         // Broadcast notification to all employees
         notificationService.createAnnouncementForAll(savedAnnouncement);
 
+        // Audit Logging
+        auditService.createAuditLog(
+                createdBy,
+                "ANNOUNCEMENT_CREATED",
+                "ANNOUNCEMENTS",
+                String.valueOf(savedAnnouncement.getAnnouncementId()),
+                null,
+                savedAnnouncement.getTitle(),
+                null,
+                null);
+
         return convertToDTO(savedAnnouncement);
     }
 
@@ -73,6 +89,18 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         }
 
         Announcement updatedAnnouncement = announcementRepository.save(announcement);
+
+        // Audit Logging
+        auditService.createAuditLog(
+                SecurityUtils.getCurrentUsername(),
+                "ANNOUNCEMENT_UPDATED",
+                "ANNOUNCEMENTS",
+                announcementId.toString(),
+                null,
+                updatedAnnouncement.getTitle(),
+                null,
+                null);
+
         return convertToDTO(updatedAnnouncement);
     }
 
@@ -109,6 +137,17 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                 .orElseThrow(() -> new ResourceNotFoundException("Announcement not found with id: " + announcementId));
         announcement.setIsActive('N');
         announcementRepository.save(announcement);
+
+        // Audit Logging
+        auditService.createAuditLog(
+                SecurityUtils.getCurrentUsername(),
+                "ANNOUNCEMENT_DEACTIVATED",
+                "ANNOUNCEMENTS",
+                announcementId.toString(),
+                "Y",
+                "N",
+                null,
+                null);
     }
 
     @Override
@@ -116,6 +155,17 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new ResourceNotFoundException("Announcement not found with id: " + announcementId));
         announcementRepository.delete(announcement);
+
+        // Audit Logging
+        auditService.createAuditLog(
+                SecurityUtils.getCurrentUsername(),
+                "ANNOUNCEMENT_DELETED",
+                "ANNOUNCEMENTS",
+                announcementId.toString(),
+                null,
+                "Hard deleted announcement: " + announcement.getTitle(),
+                null,
+                null);
     }
 
     @Override

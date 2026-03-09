@@ -12,6 +12,7 @@ import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.repository.GoalRepository;
 import com.revature.revworkforce.service.GoalService;
 import com.revature.revworkforce.service.NotificationService;
+import com.revature.revworkforce.service.AuditService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,34 +24,38 @@ import java.util.List;
 import com.revature.revworkforce.dto.GoalStatistics;
 
 /**
-* Goal Service - P2 VERSION
-* Works with existing Goal entity and repository
-* 
-* @author RevWorkForce Team
-*/
+ * Goal Service - P2 VERSION
+ * Works with existing Goal entity and repository
+ * 
+ * @author RevWorkForce Team
+ */
 @Service
 @Transactional
-public class GoalServiceImpl implements GoalService{
-	@Autowired
-	private GoalRepository goalRepository;
+public class GoalServiceImpl implements GoalService {
+    @Autowired
+    private GoalRepository goalRepository;
 
-	@Autowired
-	private EmployeeRepository employeeRepository;
-	
-	private final NotificationService notificationService;
-	
-	public GoalServiceImpl(GoalRepository goalRepository,
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    private final NotificationService notificationService;
+    private final AuditService auditService;
+
+    public GoalServiceImpl(GoalRepository goalRepository,
             EmployeeRepository employeeRepository,
-            NotificationService notificationService) {
-this.goalRepository = goalRepository;
-this.employeeRepository = employeeRepository;
-this.notificationService = notificationService;
-}
+            NotificationService notificationService,
+            AuditService auditService) {
+        this.goalRepository = goalRepository;
+        this.employeeRepository = employeeRepository;
+        this.notificationService = notificationService;
+        this.auditService = auditService;
+    }
+
     /**
      * P2: Create new goal for employee
      */
     public Goal createGoal(String employeeId, String goalTitle, String goalDescription,
-                          String category, LocalDate deadline, Priority priority) {
+            String category, LocalDate deadline, Priority priority) {
 
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", employeeId));
@@ -72,15 +77,28 @@ this.notificationService = notificationService;
         goal.setCreatedAt(LocalDateTime.now());
         goal.setUpdatedAt(LocalDateTime.now());
 
-        return goalRepository.save(goal);
+        Goal saved = goalRepository.save(goal);
+
+        // Audit Logging
+        auditService.createAuditLog(
+                employeeId,
+                "GOAL_CREATED",
+                "GOALS",
+                String.valueOf(saved.getGoalId()),
+                null,
+                saved.getGoalTitle(),
+                null,
+                null);
+
+        return saved;
     }
 
     /**
      * P2: Update goal (employee edits goal)
      */
-    public Goal updateGoal(Long goalId, String employeeId, String goalTitle, 
-                          String goalDescription, String category, 
-                          LocalDate deadline, Priority priority) {
+    public Goal updateGoal(Long goalId, String employeeId, String goalTitle,
+            String goalDescription, String category,
+            LocalDate deadline, Priority priority) {
 
         Goal goal = goalRepository.findById(goalId)
                 .orElseThrow(() -> new ResourceNotFoundException("Goal", "goalId", goalId));
@@ -107,7 +125,20 @@ this.notificationService = notificationService;
         goal.setPriority(priority);
         goal.setUpdatedAt(LocalDateTime.now());
 
-        return goalRepository.save(goal);
+        Goal updated = goalRepository.save(goal);
+
+        // Audit Logging
+        auditService.createAuditLog(
+                employeeId,
+                "GOAL_UPDATED",
+                "GOALS",
+                goalId.toString(),
+                null,
+                updated.getGoalTitle(),
+                null,
+                null);
+
+        return updated;
     }
 
     /**
@@ -142,14 +173,24 @@ this.notificationService = notificationService;
 
         Goal saved = goalRepository.save(goal);
 
+        // Audit Logging
+        auditService.createAuditLog(
+                employeeId,
+                "GOAL_PROGRESS_UPDATED",
+                "GOALS",
+                goalId.toString(),
+                null,
+                "Progress: " + progress + "%, Status: " + saved.getStatus(),
+                null,
+                null);
+
         if (saved.getStatus() == GoalStatus.COMPLETED) {
             notificationService.createNotification(
                     saved.getEmployee(),
                     com.revature.revworkforce.enums.NotificationType.GOAL,
                     "Goal Completed 🎉",
                     "You have successfully completed: " + saved.getGoalTitle(),
-                    com.revature.revworkforce.enums.NotificationPriority.NORMAL
-            );
+                    com.revature.revworkforce.enums.NotificationPriority.NORMAL);
         }
 
         return saved;
@@ -166,8 +207,8 @@ this.notificationService = notificationService;
                 .orElseThrow(() -> new ResourceNotFoundException("Manager", "employeeId", managerId));
 
         // Verify manager is the employee's manager
-        if (goal.getEmployee().getManager() == null || 
-            !goal.getEmployee().getManager().getEmployeeId().equals(managerId)) {
+        if (goal.getEmployee().getManager() == null ||
+                !goal.getEmployee().getManager().getEmployeeId().equals(managerId)) {
             throw new UnauthorizedException("You can only comment on your direct reports' goals");
         }
 
@@ -176,13 +217,23 @@ this.notificationService = notificationService;
 
         Goal saved = goalRepository.save(goal);
 
+        // Audit Logging
+        auditService.createAuditLog(
+                managerId,
+                "GOAL_COMMENT_ADDED",
+                "GOALS",
+                goalId.toString(),
+                null,
+                "Manager added comments",
+                null,
+                comments);
+
         notificationService.createNotification(
                 saved.getEmployee(),
                 com.revature.revworkforce.enums.NotificationType.GOAL,
                 "Manager Comment on Goal",
                 "Your manager added a comment on goal: " + saved.getGoalTitle(),
-                com.revature.revworkforce.enums.NotificationPriority.NORMAL
-        );
+                com.revature.revworkforce.enums.NotificationPriority.NORMAL);
 
         return saved;
     }
@@ -205,94 +256,132 @@ this.notificationService = notificationService;
         }
 
         goalRepository.delete(goal);
+
+        // Audit Logging
+        auditService.createAuditLog(
+                employeeId,
+                "GOAL_DELETED",
+                "GOALS",
+                goalId.toString(),
+                null,
+                "Goal deleted: " + goal.getGoalTitle(),
+                null,
+                null);
     }
 
     /**
      * Get goal by ID
      */
+    @Override
     @Transactional(readOnly = true)
     public Goal getGoalById(Long goalId) {
         return goalRepository.findById(goalId)
                 .orElseThrow(() -> new ResourceNotFoundException("Goal", "goalId", goalId));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public GoalDTO getGoalDTOById(Long goalId) {
+        Goal goal = getGoalById(goalId);
+        return convertToDTO(goal);
+    }
+
     /**
      * P2: View all my goals with status
      */
+    @Override
     @Transactional(readOnly = true)
-    public List<Goal> getEmployeeGoals(String employeeId) {
+    public List<GoalDTO> getEmployeeGoals(String employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", employeeId));
 
-        return goalRepository.findByEmployeeOrderByCreatedAtDesc(employee);
+        return goalRepository.findByEmployeeOrderByCreatedAtDesc(employee).stream()
+                .map(this::convertToDTO)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     /**
      * Get active goals (NOT_STARTED or IN_PROGRESS)
      */
+    @Override
     @Transactional(readOnly = true)
-    public List<Goal> getActiveGoals(String employeeId) {
+    public List<GoalDTO> getActiveGoals(String employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", employeeId));
 
-        return goalRepository.findActiveGoals(employee);
+        return goalRepository.findActiveGoals(employee).stream()
+                .map(this::convertToDTO)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     /**
      * Get goals by status
      */
+    @Override
     @Transactional(readOnly = true)
-    public List<Goal> getGoalsByStatus(String employeeId, GoalStatus status) {
+    public List<GoalDTO> getGoalsByStatus(String employeeId, GoalStatus status) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", employeeId));
 
-        return goalRepository.findByEmployeeAndStatus(employee, status);
+        return goalRepository.findByEmployeeAndStatus(employee, status).stream()
+                .map(this::convertToDTO)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     /**
      * P2: View team member goal progress (manager view)
      */
+    @Override
     @Transactional(readOnly = true)
-    public List<Goal> getTeamGoals(String managerId) {
-        return goalRepository.findTeamGoalsByManagerId(managerId);
+    public List<GoalDTO> getTeamGoals(String managerId) {
+        return goalRepository.findTeamGoalsByManagerId(managerId).stream()
+                .map(this::convertToDTO)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     /**
      * Get upcoming deadlines (next 30 days)
      */
+    @Override
     @Transactional(readOnly = true)
-    public List<Goal> getUpcomingDeadlines(String employeeId, int days) {
+    public List<GoalDTO> getUpcomingDeadlines(String employeeId, int days) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", employeeId));
 
         LocalDate today = LocalDate.now();
         LocalDate futureDate = today.plusDays(days);
 
-        return goalRepository.findUpcomingDeadlines(employee, today, futureDate);
+        return goalRepository.findUpcomingDeadlines(employee, today, futureDate).stream()
+                .map(this::convertToDTO)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     /**
      * Get overdue goals
      */
     @Transactional(readOnly = true)
-    public List<Goal> getOverdueGoals(String employeeId) {
+    public List<GoalDTO> getOverdueGoals(String employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", employeeId));
 
         LocalDate today = LocalDate.now();
 
-        return goalRepository.findOverdueGoals(employee, today);
+        return goalRepository.findOverdueGoals(employee, today).stream()
+                .map(this::convertToDTO)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     /**
      * Get goals by priority
      */
     @Transactional(readOnly = true)
-    public List<Goal> getGoalsByPriority(String employeeId, Priority priority) {
+    public List<GoalDTO> getGoalsByPriority(String employeeId, Priority priority) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", employeeId));
 
-        return goalRepository.findByEmployeeAndPriority(employee, priority);
+        return goalRepository.findByEmployeeAndPriority(employee, priority).stream()
+                .map(this::convertToDTO)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     /**
@@ -351,5 +440,4 @@ this.notificationService = notificationService;
         return dto;
     }
 
-  
 }

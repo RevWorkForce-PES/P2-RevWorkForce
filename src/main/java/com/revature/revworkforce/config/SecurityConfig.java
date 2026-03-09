@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import com.revature.revworkforce.security.CustomAuthenticationFailureHandler;
+import com.revature.revworkforce.security.AuditLogoutHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
@@ -55,113 +57,124 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+        @Autowired
+        private UserDetailsService userDetailsService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+        @Autowired
+        private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private AuthenticationSuccessHandler authenticationSuccessHandler;
+        @Autowired
+        private AuthenticationSuccessHandler authenticationSuccessHandler;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                // Authorize HTTP requests
-                .authorizeHttpRequests(auth -> auth
+        @Autowired
+        private CustomAuthenticationFailureHandler authenticationFailureHandler;
 
-                        .requestMatchers("/error", "/error/**").permitAll()
+        @Autowired
+        private AuditLogoutHandler auditLogoutHandler;
 
-                        // Public endpoints (no authentication required)
-                        .requestMatchers(
-                                "/",
-                                "/login",
-                                "/forgot-password",
-                                "/forgot-password/**" // <-- allow all forgot password paths
-                        ).permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                // Authorize HTTP requests
+                                .authorizeHttpRequests(auth -> auth
 
-                        // Admin endpoints (ADMIN role required)
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                                                .requestMatchers("/error", "/error/**").permitAll()
 
-                        // Manager endpoints (MANAGER or ADMIN role required)
-                        .requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
+                                                // Public endpoints (no authentication required)
+                                                .requestMatchers(
+                                                                "/",
+                                                                "/login",
+                                                                "/forgot-password",
+                                                                "/forgot-password/**" // <-- allow all forgot password
+                                                                                      // paths
+                                                ).permitAll()
+                                                .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico")
+                                                .permitAll()
 
-                        // Employee endpoints (any authenticated user)
-                        .requestMatchers("/employee/**").hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")
+                                                // Admin endpoints (ADMIN role required)
+                                                .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                        // Dashboard (authenticated users)
-                        .requestMatchers("/dashboard").authenticated()
+                                                // Manager endpoints (MANAGER or ADMIN role required)
+                                                .requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
 
-                        // API endpoints (authenticated users)
-                        .requestMatchers("/api/**").authenticated()
+                                                // Employee endpoints (any authenticated user)
+                                                .requestMatchers("/employee/**")
+                                                .hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")
 
-                        // All other requests require authentication
-                        .anyRequest().authenticated())
+                                                // Dashboard (authenticated users)
+                                                .requestMatchers("/dashboard").authenticated()
 
-                // Form login configuration
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .successHandler(authenticationSuccessHandler)
-                        .failureUrl("/login?error=true")
-                        .usernameParameter("username") // Can be email or employee ID
-                        .passwordParameter("password")
-                        .permitAll())
+                                                // API endpoints (authenticated users)
+                                                .requestMatchers("/api/**").authenticated()
 
-                // Logout configuration
-                .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
-                        .logoutSuccessUrl("/login?logout=true")
-                        .invalidateHttpSession(true)
-                        .clearAuthentication(true)
-                        .deleteCookies("JSESSIONID", "remember-me")
-                        .permitAll())
-                .sessionManagement(session -> session
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false)
-                        .expiredUrl("/login?expired=true"))
+                                                // All other requests require authentication
+                                                .anyRequest().authenticated())
 
-                // Remember me configuration
-                .rememberMe(remember -> remember
-                        .key("revworkforce-remember-me-key")
-                        .tokenValiditySeconds(86400) // 24 hours
-                        .rememberMeParameter("remember-me")
-                        .userDetailsService(userDetailsService))
+                                // Form login configuration
+                                .formLogin(form -> form
+                                                .loginPage("/login")
+                                                .loginProcessingUrl("/login")
+                                                .successHandler(authenticationSuccessHandler)
+                                                .failureHandler(authenticationFailureHandler)
+                                                .usernameParameter("username") // Can be email or employee ID
+                                                .passwordParameter("password")
+                                                .permitAll())
 
-                // Exception handling (removing explicit accessDeniedPage mapping to prevent
-                // Thymeleaf rendering errors)
-                .exceptionHandling(ex -> ex.accessDeniedPage("/error"))
+                                // Logout configuration
+                                .logout(logout -> logout
+                                                .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+                                                .addLogoutHandler(auditLogoutHandler)
+                                                .logoutSuccessUrl("/login?logout=true")
+                                                .invalidateHttpSession(true)
+                                                .clearAuthentication(true)
+                                                .deleteCookies("JSESSIONID", "remember-me")
+                                                .permitAll())
+                                .sessionManagement(session -> session
+                                                .maximumSessions(1)
+                                                .maxSessionsPreventsLogin(false)
+                                                .expiredUrl("/login?expired=true"))
 
-                // CSRF configuration
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/**", "/forgot-password/**") // <-- ignore CSRF for
-                                                                                   // forgot-password
-                );
+                                // Remember me configuration
+                                .rememberMe(remember -> remember
+                                                .key("revworkforce-remember-me-key")
+                                                .tokenValiditySeconds(86400) // 24 hours
+                                                .rememberMeParameter("remember-me")
+                                                .userDetailsService(userDetailsService))
 
-        System.out.println("\n========================================");
-        System.out.println("Spring Security Configuration Loaded");
-        System.out.println("========================================");
-        System.out.println("Authentication: Form-based (BCrypt)");
-        System.out.println("Session Timeout: 30 minutes");
-        System.out.println("Max Sessions: 1 per user");
-        System.out.println("CSRF Protection: Enabled (except /api/** and /forgot-password/**)");
-        System.out.println("Remember Me: 24 hours");
-        System.out.println("========================================\n");
+                                // Exception handling (removing explicit accessDeniedPage mapping to prevent
+                                // Thymeleaf rendering errors)
+                                .exceptionHandling(ex -> ex.accessDeniedPage("/error"))
 
-        return http.build();
-    }
+                                // CSRF configuration
+                                .csrf(csrf -> csrf
+                                                .ignoringRequestMatchers("/api/**", "/forgot-password/**") // <-- ignore
+                                                                                                           // CSRF for
+                                                                                                           // forgot-password
+                                );
 
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder);
-        return authProvider;
-    }
+                System.out.println("\n========================================");
+                System.out.println("Spring Security Configuration Loaded");
+                System.out.println("========================================");
+                System.out.println("Authentication: Form-based (BCrypt)");
+                System.out.println("Session Timeout: 30 minutes");
+                System.out.println("Max Sessions: 1 per user");
+                System.out.println("CSRF Protection: Enabled (except /api/** and /forgot-password/**)");
+                System.out.println("Remember Me: 24 hours");
+                System.out.println("========================================\n");
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
+                return http.build();
+        }
+
+        @Bean
+        public DaoAuthenticationProvider authenticationProvider() {
+                DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+                authProvider.setUserDetailsService(userDetailsService);
+                authProvider.setPasswordEncoder(passwordEncoder);
+                return authProvider;
+        }
+
+        @Bean
+        public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+                return authConfig.getAuthenticationManager();
+        }
 }

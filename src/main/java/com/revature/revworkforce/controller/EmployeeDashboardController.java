@@ -1,5 +1,6 @@
 package com.revature.revworkforce.controller;
 
+import com.revature.revworkforce.dto.EmployeeDTO;
 import com.revature.revworkforce.dto.LeaveBalanceDTO;
 import com.revature.revworkforce.model.Employee;
 import com.revature.revworkforce.repository.EmployeeRepository;
@@ -40,6 +41,7 @@ public class EmployeeDashboardController {
         private final GoalService goalService;
         private final PerformanceReviewService reviewService;
         private final AnnouncementService announcementService;
+        private final com.revature.revworkforce.service.EmployeeService employeeService;
 
         public EmployeeDashboardController(EmployeeRepository employeeRepository,
                         HolidayService holidayService,
@@ -47,7 +49,8 @@ public class EmployeeDashboardController {
                         LeaveService leaveService,
                         GoalService goalService,
                         PerformanceReviewService reviewService,
-                        AnnouncementService announcementService) {
+                        AnnouncementService announcementService,
+                        com.revature.revworkforce.service.EmployeeService employeeService) {
                 this.employeeRepository = employeeRepository;
                 this.holidayService = holidayService;
                 this.notificationService = notificationService;
@@ -55,6 +58,7 @@ public class EmployeeDashboardController {
                 this.goalService = goalService;
                 this.reviewService = reviewService;
                 this.announcementService = announcementService;
+                this.employeeService = employeeService;
         }
 
         @GetMapping("/dashboard")
@@ -62,19 +66,22 @@ public class EmployeeDashboardController {
                 String employeeId = SecurityUtils.getCurrentUsername();
 
                 // Get current user info
-                Employee currentUser = employeeRepository.findById(employeeId).orElse(null);
+                EmployeeDTO currentUser = employeeService.getEmployeeDTOById(employeeId);
                 if (currentUser != null) {
                         model.addAttribute("currentUser", currentUser);
-                        model.addAttribute("fullName", currentUser.getFullName());
+                        model.addAttribute("fullName", currentUser.getFirstName() + " " + currentUser.getLastName());
                         model.addAttribute("designation",
-                                        currentUser.getDesignation() != null
-                                                        ? currentUser.getDesignation().getDesignationName()
+                                        currentUser.getDesignationName() != null
+                                                        ? currentUser.getDesignationName()
                                                         : "N/A");
                         model.addAttribute("department",
-                                        currentUser.getDepartment() != null
-                                                        ? currentUser.getDepartment().getDepartmentName()
+                                        currentUser.getDepartmentName() != null
+                                                        ? currentUser.getDepartmentName()
                                                         : "N/A");
-                        leaveService.initializeLeaveBalances(currentUser);
+                        // We need the entity for initializeLeaveBalances, or we should update that too.
+                        // For now, let's just get the entity specifically for that if needed.
+                        Employee currentUserEntity = employeeRepository.findById(employeeId).orElse(null);
+                        leaveService.initializeLeaveBalances(currentUserEntity);
                 }
 
                 // ===============================

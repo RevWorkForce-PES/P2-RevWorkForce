@@ -7,6 +7,7 @@ import com.revature.revworkforce.model.*;
 import com.revature.revworkforce.repository.*;
 import com.revature.revworkforce.service.HolidayService;
 import com.revature.revworkforce.service.NotificationService;
+import com.revature.revworkforce.service.AuditService;
 import com.revature.revworkforce.service.impl.LeaveServiceImpl;
 
 import org.junit.jupiter.api.Test;
@@ -27,250 +28,249 @@ import static org.assertj.core.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class LeaveServiceImplTest {
 
-    @Mock
-    private LeaveApplicationRepository leaveApplicationRepository;
+        @Mock
+        private LeaveApplicationRepository leaveApplicationRepository;
 
-    @Mock
-    private LeaveBalanceRepository leaveBalanceRepository;
+        @Mock
+        private LeaveBalanceRepository leaveBalanceRepository;
 
-    @Mock
-    private LeaveTypeRepository leaveTypeRepository;
+        @Mock
+        private LeaveTypeRepository leaveTypeRepository;
 
-    @Mock
-    private EmployeeRepository employeeRepository;
+        @Mock
+        private EmployeeRepository employeeRepository;
 
-    @Mock
-    private HolidayService holidayService;
+        @Mock
+        private HolidayService holidayService;
 
-    @Mock
-    private NotificationService notificationService;
+        @Mock
+        private NotificationService notificationService;
 
-    @InjectMocks
-    private LeaveServiceImpl leaveService;
+        @Mock
+        private AuditService auditService;
 
-    // --------------------------------------------------
-    // APPLY LEAVE
-    // --------------------------------------------------
+        @InjectMocks
+        private LeaveServiceImpl leaveService;
 
-    @Test
-    void applyLeave_Success() {
+        // --------------------------------------------------
+        // APPLY LEAVE
+        // --------------------------------------------------
 
-        // Arrange
-        Employee employee = new Employee();
-        employee.setEmployeeId("EMP001");
+        @Test
+        void applyLeave_Success() {
 
-        LeaveType leaveType = new LeaveType();
-        leaveType.setLeaveCode("CL");
+                // Arrange
+                Employee employee = new Employee();
+                employee.setEmployeeId("EMP001");
 
-        LeaveBalance balance = new LeaveBalance();
-        balance.setBalance(10);
+                LeaveType leaveType = new LeaveType();
+                leaveType.setLeaveCode("CL");
 
-        LeaveApplicationDTO dto = new LeaveApplicationDTO();
-        dto.setLeaveType("CL");
-        dto.setStartDate(LocalDate.now());
-        dto.setEndDate(LocalDate.now());
-        dto.setReason("Medical");
+                LeaveBalance balance = new LeaveBalance();
+                balance.setBalance(10);
 
-        when(employeeRepository.findById("EMP001"))
-                .thenReturn(Optional.of(employee));
+                LeaveApplicationDTO dto = new LeaveApplicationDTO();
+                dto.setLeaveType("CL");
+                dto.setStartDate(LocalDate.now());
+                dto.setEndDate(LocalDate.now());
+                dto.setReason("Medical");
 
-        when(leaveTypeRepository.findByLeaveCode("CL"))
-                .thenReturn(Optional.of(leaveType));
+                when(employeeRepository.findById("EMP001"))
+                                .thenReturn(Optional.of(employee));
 
-        when(leaveBalanceRepository.findByEmployeeAndLeaveTypeAndYear(any(), any(), any()))
-                .thenReturn(Optional.of(balance));
+                when(leaveTypeRepository.findByLeaveCode("CL"))
+                                .thenReturn(Optional.of(leaveType));
 
-        when(holidayService.getHolidaysInRange(any(), any()))
-                .thenReturn(Set.of());
+                when(leaveBalanceRepository.findByEmployeeAndLeaveTypeAndYear(any(), any(), any()))
+                                .thenReturn(Optional.of(balance));
 
-        when(leaveApplicationRepository.save(any()))
-                .thenAnswer(i -> i.getArguments()[0]);
+                when(holidayService.getHolidaysInRange(any(), any()))
+                                .thenReturn(Set.of());
 
-        // Act
-        LeaveApplication result = leaveService.applyLeave(dto, "EMP001");
+                when(leaveApplicationRepository.save(any()))
+                                .thenAnswer(i -> i.getArguments()[0]);
 
-        // Assert
-        assertThat(result).isNotNull();
-        verify(leaveApplicationRepository).save(any());
-    }
+                // Act
+                LeaveApplication result = leaveService.applyLeave(dto, "EMP001");
 
-    // --------------------------------------------------
-    // GET LEAVE BY ID
-    // --------------------------------------------------
+                // Assert
+                assertThat(result).isNotNull();
+                verify(leaveApplicationRepository).save(any());
+        }
 
-    @Test
-    void getLeaveById_Success() {
+        // --------------------------------------------------
+        // GET LEAVE BY ID
+        // --------------------------------------------------
 
-        // Arrange
-        LeaveApplication leave = new LeaveApplication();
-        leave.setApplicationId(1L);
+        @Test
+        void getLeaveById_Success() {
 
-        when(leaveApplicationRepository.findById(1L))
-                .thenReturn(Optional.of(leave));
+                // Arrange
+                LeaveApplication leave = new LeaveApplication();
+                leave.setApplicationId(1L);
 
-        // Act
-        LeaveApplication result = leaveService.getLeaveById(1L);
+                when(leaveApplicationRepository.findById(1L))
+                                .thenReturn(Optional.of(leave));
 
-        // Assert
-        assertThat(result).isNotNull();
-    }
+                // Act
+                LeaveApplication result = leaveService.getLeaveById(1L);
 
-    // --------------------------------------------------
-    // CANCEL LEAVE
-    // --------------------------------------------------
+                // Assert
+                assertThat(result).isNotNull();
+        }
 
-    @Test
-    void cancelLeave_Success() {
+        // --------------------------------------------------
+        // CANCEL LEAVE
+        // --------------------------------------------------
 
-        // Arrange
-        Employee employee = new Employee();
-        employee.setEmployeeId("EMP001");
+        @Test
+        void cancelLeave_Success() {
 
-        LeaveApplication leave = new LeaveApplication();
-        leave.setApplicationId(1L);
-        leave.setEmployee(employee);
-        leave.setStatus(LeaveStatus.PENDING);
+                // Arrange
+                Employee employee = new Employee();
+                employee.setEmployeeId("EMP001");
 
-        when(leaveApplicationRepository.findById(1L))
-                .thenReturn(Optional.of(leave));
+                LeaveApplication leave = new LeaveApplication();
+                leave.setApplicationId(1L);
+                leave.setEmployee(employee);
+                leave.setStatus(LeaveStatus.PENDING);
 
-        // Act
-        leaveService.cancelLeave(1L, "EMP001");
+                when(leaveApplicationRepository.findById(1L))
+                                .thenReturn(Optional.of(leave));
 
-        // Assert
-        verify(leaveApplicationRepository).save(any());
-    }
+                // Act
+                leaveService.cancelLeave(1L, "EMP001");
 
-    // --------------------------------------------------
-    // APPROVE LEAVE
-    // --------------------------------------------------
+                // Assert
+                verify(leaveApplicationRepository).save(any());
+        }
 
-    @Test
-    void approveLeave_Success() {
+        // --------------------------------------------------
+        // APPROVE LEAVE
+        // --------------------------------------------------
 
-        // Arrange
-        Employee employee = new Employee();
-        employee.setEmployeeId("EMP001");
+        @Test
+        void approveLeave_Success() {
 
-        Employee manager = new Employee();
-        manager.setEmployeeId("M001");
+                // Arrange
+                Employee employee = new Employee();
+                employee.setEmployeeId("EMP001");
 
-        employee.setManager(manager);
+                Employee manager = new Employee();
+                manager.setEmployeeId("M001");
 
-        LeaveType type = new LeaveType();
-        type.setLeaveCode("CL");
+                employee.setManager(manager);
 
-        LeaveApplication leave = new LeaveApplication();
-        leave.setApplicationId(1L);
-        leave.setEmployee(employee);
-        leave.setLeaveType(type);
-        leave.setTotalDays(2);
-        leave.setStatus(LeaveStatus.PENDING);
-        leave.setStartDate(LocalDate.now());
-        leave.setEndDate(LocalDate.now());
+                LeaveType type = new LeaveType();
+                type.setLeaveCode("CL");
 
-        LeaveBalance balance = new LeaveBalance();
-        balance.setBalance(10);
-        balance.setUsed(0);
+                LeaveApplication leave = new LeaveApplication();
+                leave.setApplicationId(1L);
+                leave.setEmployee(employee);
+                leave.setLeaveType(type);
+                leave.setTotalDays(2);
+                leave.setStatus(LeaveStatus.PENDING);
+                leave.setStartDate(LocalDate.now());
+                leave.setEndDate(LocalDate.now());
 
-        when(leaveApplicationRepository.findById(1L))
-                .thenReturn(Optional.of(leave));
+                LeaveBalance balance = new LeaveBalance();
+                balance.setBalance(10);
+                balance.setUsed(0);
 
-        when(employeeRepository.findById("M001"))
-                .thenReturn(Optional.of(manager));
+                when(leaveApplicationRepository.findById(1L))
+                                .thenReturn(Optional.of(leave));
 
-        when(leaveBalanceRepository.findByEmployeeAndLeaveTypeAndYear(any(), any(), any()))
-                .thenReturn(Optional.of(balance));
+                when(employeeRepository.findById("M001"))
+                                .thenReturn(Optional.of(manager));
 
-        when(leaveApplicationRepository.save(any()))
-                .thenAnswer(i -> i.getArguments()[0]);
+                when(leaveBalanceRepository.findByEmployeeAndLeaveTypeAndYear(any(), any(), any()))
+                                .thenReturn(Optional.of(balance));
 
-        // Act
-        LeaveApplication result =
-                leaveService.approveLeave(1L, "M001", "Approved");
+                when(leaveApplicationRepository.save(any()))
+                                .thenAnswer(i -> i.getArguments()[0]);
 
-        // Assert
-        assertThat(result.getStatus()).isEqualTo(LeaveStatus.APPROVED);
-    }
+                // Act
+                LeaveApplication result = leaveService.approveLeave(1L, "M001", "Approved");
 
-    // --------------------------------------------------
-    // REJECT LEAVE
-    // --------------------------------------------------
+                // Assert
+                assertThat(result.getStatus()).isEqualTo(LeaveStatus.APPROVED);
+        }
 
-    @Test
-    void rejectLeave_Success() {
+        // --------------------------------------------------
+        // REJECT LEAVE
+        // --------------------------------------------------
 
-        // Arrange
-        Employee employee = new Employee();
-        employee.setEmployeeId("EMP001");
+        @Test
+        void rejectLeave_Success() {
 
-        Employee manager = new Employee();
-        manager.setEmployeeId("M001");
+                // Arrange
+                Employee employee = new Employee();
+                employee.setEmployeeId("EMP001");
 
-        employee.setManager(manager);
+                Employee manager = new Employee();
+                manager.setEmployeeId("M001");
 
-        LeaveApplication leave = new LeaveApplication();
-        leave.setApplicationId(1L);
-        leave.setEmployee(employee);
-        leave.setStatus(LeaveStatus.PENDING);
-        leave.setStartDate(LocalDate.now());
-        leave.setEndDate(LocalDate.now());
+                employee.setManager(manager);
 
-        when(leaveApplicationRepository.findById(1L))
-                .thenReturn(Optional.of(leave));
+                LeaveApplication leave = new LeaveApplication();
+                leave.setApplicationId(1L);
+                leave.setEmployee(employee);
+                leave.setStatus(LeaveStatus.PENDING);
+                leave.setStartDate(LocalDate.now());
+                leave.setEndDate(LocalDate.now());
 
-        when(employeeRepository.findById("M001"))
-                .thenReturn(Optional.of(manager));
+                when(leaveApplicationRepository.findById(1L))
+                                .thenReturn(Optional.of(leave));
 
-        when(leaveApplicationRepository.save(any()))
-                .thenAnswer(i -> i.getArguments()[0]);
+                when(employeeRepository.findById("M001"))
+                                .thenReturn(Optional.of(manager));
 
-        // Act
-        LeaveApplication result =
-                leaveService.rejectLeave(1L, "M001", "Invalid request");
+                when(leaveApplicationRepository.save(any()))
+                                .thenAnswer(i -> i.getArguments()[0]);
 
-        // Assert
-        assertThat(result.getStatus()).isEqualTo(LeaveStatus.REJECTED);
-    }
+                // Act
+                LeaveApplication result = leaveService.rejectLeave(1L, "M001", "Invalid request");
 
-    // --------------------------------------------------
-    // VALIDATE LEAVE BALANCE
-    // --------------------------------------------------
+                // Assert
+                assertThat(result.getStatus()).isEqualTo(LeaveStatus.REJECTED);
+        }
 
-    @Test
-    void validateLeaveBalance_ThrowsException() {
+        // --------------------------------------------------
+        // VALIDATE LEAVE BALANCE
+        // --------------------------------------------------
 
-        // Arrange
-        LeaveType type = new LeaveType();
-        type.setLeaveCode("CL");
+        @Test
+        void validateLeaveBalance_ThrowsException() {
 
-        LeaveBalance balance = new LeaveBalance();
-        balance.setLeaveType(type);
-        balance.setBalance(1);
+                // Arrange
+                LeaveType type = new LeaveType();
+                type.setLeaveCode("CL");
 
-        // Act + Assert
-        assertThatThrownBy(() ->
-                leaveService.validateLeaveBalance(balance, 5))
-                .isInstanceOf(InsufficientLeaveBalanceException.class);
-    }
+                LeaveBalance balance = new LeaveBalance();
+                balance.setLeaveType(type);
+                balance.setBalance(1);
 
-    // --------------------------------------------------
-    // GET EMPLOYEE LEAVE HISTORY
-    // --------------------------------------------------
+                // Act + Assert
+                assertThatThrownBy(() -> leaveService.validateLeaveBalance(balance, 5))
+                                .isInstanceOf(InsufficientLeaveBalanceException.class);
+        }
 
-    @Test
-    void getEmployeeLeaveHistory_Success() {
+        // --------------------------------------------------
+        // GET EMPLOYEE LEAVE HISTORY
+        // --------------------------------------------------
 
-        // Arrange
-        when(leaveApplicationRepository
-                .findByEmployee_EmployeeIdOrderByAppliedOnDesc("EMP001"))
-                .thenReturn(List.of(new LeaveApplication()));
+        @Test
+        void getEmployeeLeaveHistory_Success() {
 
-        // Act
-        List<LeaveApplication> leaves =
-                leaveService.getEmployeeLeaveHistory("EMP001");
+                // Arrange
+                when(leaveApplicationRepository
+                                .findByEmployee_EmployeeIdOrderByAppliedOnDesc("EMP001"))
+                                .thenReturn(List.of(new LeaveApplication()));
 
-        // Assert
-        assertThat(leaves).isNotEmpty();
-    }
+                // Act
+                List<LeaveApplication> leaves = leaveService.getEmployeeLeaveHistory("EMP001");
+
+                // Assert
+                assertThat(leaves).isNotEmpty();
+        }
 }

@@ -46,16 +46,13 @@ public class PerformanceReviewController {
     public String viewMyReviews(Model model) {
         String employeeId = SecurityUtils.getCurrentUsername();
 
-        List<PerformanceReview> reviews = reviewService.getEmployeeReviews(employeeId);
-        List<PerformanceReviewDTO> reviewDTOs = reviews.stream()
-                .map(reviewService::convertToDTO)
-                .collect(Collectors.toList());
+        List<PerformanceReviewDTO> reviews = reviewService.getEmployeeReviews(employeeId);
 
-        model.addAttribute("reviews", reviewDTOs);
+        model.addAttribute("reviews", reviews);
         model.addAttribute("averageRating", reviewService.getAverageRating(employeeId));
         model.addAttribute("pageTitle", "My Performance Reviews");
 
-        return "employee/reviews/list";
+        return "pages/employee/performance-goals";
     }
 
     /**
@@ -73,7 +70,7 @@ public class PerformanceReviewController {
         model.addAttribute("reviewDTO", dto);
         model.addAttribute("pageTitle", "Create Performance Review");
 
-        return "employee/reviews/create";
+        return "pages/employee/performance-goals";
     }
 
     /**
@@ -113,8 +110,7 @@ public class PerformanceReviewController {
     public String showEditForm(@PathVariable Long reviewId, Model model,
             RedirectAttributes redirectAttributes) {
         try {
-            PerformanceReview review = reviewService.getReviewById(reviewId);
-            PerformanceReviewDTO dto = reviewService.convertToDTO(review);
+            PerformanceReviewDTO dto = reviewService.getReviewDTOById(reviewId);
 
             // Check if employee owns this review
             String currentUser = SecurityUtils.getCurrentUsername();
@@ -133,7 +129,7 @@ public class PerformanceReviewController {
             model.addAttribute("reviewDTO", dto);
             model.addAttribute("pageTitle", "Edit Performance Review");
 
-            return "employee/reviews/form";
+            return "pages/employee/performance-goals";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/employee/performance";
@@ -155,7 +151,7 @@ public class PerformanceReviewController {
 
         if (result.hasErrors()) {
             model.addAttribute("pageTitle", "Edit Performance Review");
-            return "employee/reviews/form";
+            return "pages/employee/performance-goals";
         }
 
         String employeeId = SecurityUtils.getCurrentUsername();
@@ -176,7 +172,7 @@ public class PerformanceReviewController {
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("pageTitle", "Edit Performance Review");
-            return "employee/reviews/form";
+            return "pages/employee/performance-goals";
         }
     }
 
@@ -223,13 +219,12 @@ public class PerformanceReviewController {
     public String viewReviewDetails(@PathVariable Long reviewId, Model model,
             RedirectAttributes redirectAttributes) {
         try {
-            PerformanceReview review = reviewService.getReviewById(reviewId);
-            PerformanceReviewDTO dto = reviewService.convertToDTO(review);
+            PerformanceReviewDTO dto = reviewService.getReviewDTOById(reviewId);
 
             model.addAttribute("review", dto);
             model.addAttribute("pageTitle", "Review Details");
 
-            return "employee/reviews/view";
+            return "pages/employee/review-view";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/employee/performance";
@@ -248,15 +243,12 @@ public class PerformanceReviewController {
     public String viewPendingReviews(Model model) {
         String managerId = SecurityUtils.getCurrentUsername();
 
-        List<PerformanceReview> pendingReviews = reviewService.getPendingReviewsForManager(managerId);
-        List<PerformanceReviewDTO> reviewDTOs = pendingReviews.stream()
-                .map(reviewService::convertToDTO)
-                .collect(Collectors.toList());
+        List<PerformanceReviewDTO> reviewDTOs = reviewService.getPendingReviewsForManager(managerId);
 
         model.addAttribute("reviews", reviewDTOs);
         model.addAttribute("pageTitle", "Pending Reviews");
 
-        return "manager/reviews/pending";
+        return "pages/manager/performance-review";
     }
 
     /**
@@ -267,15 +259,12 @@ public class PerformanceReviewController {
     public String viewTeamReviews(Model model) {
         String managerId = SecurityUtils.getCurrentUsername();
 
-        List<PerformanceReview> teamReviews = reviewService.getTeamReviews(managerId);
-        List<PerformanceReviewDTO> reviewDTOs = teamReviews.stream()
-                .map(reviewService::convertToDTO)
-                .collect(Collectors.toList());
+        List<PerformanceReviewDTO> reviewDTOs = reviewService.getTeamReviews(managerId);
 
         model.addAttribute("reviews", reviewDTOs);
         model.addAttribute("pageTitle", "Team Performance Reviews");
 
-        return "manager/reviews/team";
+        return "pages/manager/performance-review";
     }
 
     /**
@@ -286,8 +275,7 @@ public class PerformanceReviewController {
     public String showManagerReviewForm(@PathVariable Long reviewId, Model model,
             RedirectAttributes redirectAttributes) {
         try {
-            PerformanceReview review = reviewService.getReviewById(reviewId);
-            PerformanceReviewDTO dto = reviewService.convertToDTO(review);
+            PerformanceReviewDTO dto = reviewService.getReviewDTOById(reviewId);
 
             // Check if can review
             if (!dto.canManagerReview()) {
@@ -299,7 +287,7 @@ public class PerformanceReviewController {
             model.addAttribute("reviewDTO", dto);
             model.addAttribute("pageTitle", "Manager Review");
 
-            return "manager/reviews/review-form";
+            return "pages/manager/review-form";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/manager/performance";
@@ -320,7 +308,7 @@ public class PerformanceReviewController {
 
         if (result.hasErrors()) {
             model.addAttribute("pageTitle", "Manager Review");
-            return "manager/reviews/review-form";
+            return "pages/manager/review-form";
         }
 
         String managerId = SecurityUtils.getCurrentUsername();
@@ -339,7 +327,7 @@ public class PerformanceReviewController {
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("pageTitle", "Manager Review");
-            return "manager/reviews/review-form";
+            return "pages/manager/review-form";
         }
     }
 
@@ -351,13 +339,12 @@ public class PerformanceReviewController {
     public String viewTeamMemberReview(@PathVariable Long reviewId, Model model,
             RedirectAttributes redirectAttributes) {
         try {
-            PerformanceReview review = reviewService.getReviewById(reviewId);
-            PerformanceReviewDTO dto = reviewService.convertToDTO(review);
+            PerformanceReviewDTO dto = reviewService.getReviewDTOById(reviewId);
 
             model.addAttribute("review", dto);
             model.addAttribute("pageTitle", "Review Details");
 
-            return "manager/reviews/view";
+            return "pages/manager/review-view";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/manager/performance";
