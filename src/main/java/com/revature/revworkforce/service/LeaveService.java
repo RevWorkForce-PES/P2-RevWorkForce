@@ -37,6 +37,7 @@ public interface LeaveService {
      * - Leave balance sufficiency
      */
     LeaveApplication applyLeave(LeaveApplicationDTO dto, String employeeId);
+
     /**
      * Cancel a leave application.
      *
@@ -48,6 +49,11 @@ public interface LeaveService {
     void cancelLeave(Long applicationId, String employeeId);
 
     /**
+     * Revoke a leave application by Admin.
+     */
+    void revokeLeave(Long applicationId, String adminId);
+
+    /**
      * Fetch leave application by ID.
      */
     LeaveApplication getLeaveById(Long applicationId);
@@ -56,7 +62,6 @@ public interface LeaveService {
      * Get leave history for employee.
      */
     List<LeaveApplication> getEmployeeLeaveHistory(String employeeId);
-
 
     // =========================================================
     // MANAGER OPERATIONS
@@ -94,8 +99,8 @@ public interface LeaveService {
      * Get leave balances for all team members.
      */
     List<LeaveBalance> getTeamLeaveBalances(String managerId);
-    List<LeaveApplication> getTeamLeaves(String managerId);
 
+    List<LeaveApplication> getTeamLeaves(String managerId);
 
     // =========================================================
     // LEAVE BALANCE OPERATIONS
@@ -105,7 +110,9 @@ public interface LeaveService {
      * Get leave balances for employee for a specific year.
      */
     List<LeaveBalanceDTO> getLeaveBalances(String employeeId, Integer year);
+
     List<LeaveBalance> findByEmployee_Manager_EmployeeIdAndYear(String managerId, Integer year);
+
     /**
      * Initialize leave balances for new employee.
      */
@@ -116,7 +123,6 @@ public interface LeaveService {
      */
     LeaveBalance getOrCreateLeaveBalance(Employee employee, LeaveType type, Integer year);
 
-
     // =========================================================
     // VALIDATION UTILITIES (Business Rules)
     // =========================================================
@@ -125,28 +131,28 @@ public interface LeaveService {
      * Validate overlapping leaves.
      */
     void validateLeaveOverlap(Employee employee,
-                              java.time.LocalDate startDate,
-                              java.time.LocalDate endDate);
+            java.time.LocalDate startDate,
+            java.time.LocalDate endDate);
 
     /**
      * Validate working days calculation (exclude weekends & holidays).
      */
     int calculateWorkingDays(java.time.LocalDate startDate,
-                             java.time.LocalDate endDate);
+            java.time.LocalDate endDate);
 
     /**
      * Validate continuous leave limit.
      */
     void validateContinuousLeaveLimit(Employee employee,
-                                      java.time.LocalDate startDate,
-                                      java.time.LocalDate endDate);
+            java.time.LocalDate startDate,
+            java.time.LocalDate endDate);
 
     /**
      * Validate leave balance sufficiency.
      */
     void validateLeaveBalance(LeaveBalance leaveBalance,
-                              int requestedDays);
-    
+            int requestedDays);
+
     List<LeaveApplication> getLeavesByDepartment(Long departmentId);
 
     List<LeaveApplication> getLeavesByEmployee(String employeeId);

@@ -21,7 +21,7 @@
                         <h2 style="margin: 0;" th:text="${reviewDTO.reviewYear} + ' Performance Review'">2026
                             Performance Review</h2>
                         <a th:href="@{/manager/performance}" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            <i class="fas fa-arrow-left"></i> Back to Team
                         </a>
                     </div>
 
@@ -69,6 +69,16 @@
                     <form th:action="@{/manager/reviews/review/{id}(id=${reviewDTO.reviewId})}" th:object="${reviewDTO}"
                         method="POST">
                         <input type="hidden" th:field="*{reviewId}">
+                        <input type="hidden" th:field="*{reviewYear}">
+                        <input type="hidden" th:field="*{reviewPeriod}">
+                        <input type="hidden" th:field="*{employeeId}">
+                        <input type="hidden" th:field="*{employeeName}">
+                        <input type="hidden" th:field="*{keyDeliverables}">
+                        <input type="hidden" th:field="*{majorAccomplishments}">
+                        <input type="hidden" th:field="*{areasOfImprovement}">
+                        <input type="hidden" th:field="*{selfAssessmentRating}">
+                        <input type="hidden" th:field="*{selfAssessmentComments}">
+
                         <h4 class="mb-3"><i class="fas fa-clipboard-check"></i> Manager Feedback & Rating</h4>
 
                         <div class="form-group mb-4">

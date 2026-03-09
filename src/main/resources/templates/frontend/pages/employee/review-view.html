@@ -18,9 +18,10 @@
             <div class="page-wrapper">
                 <div class="card" style="max-width: 900px; margin: 0 auto;">
                     <div class="flex-space-between mb-4">
-                        <h2 style="margin: 0;"><i class="fas fa-file-alt"></i> Detailed Assessment</h2>
+                        <h2 style="margin: 0;"><i class="fas fa-file-alt"></i> <span
+                                th:text="${review.reviewPeriod}">Annual Assessment</span></h2>
                         <a th:href="@{/employee/performance}" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            <i class="fas fa-arrow-left"></i> Back to Performance
                         </a>
                     </div>
 
@@ -29,7 +30,7 @@
                         <div>
                             <p class="text-muted small text-uppercase mb-1">Status</p>
                             <span class="badge"
-                                th:classappend="${review.status.name() == 'REVIEWED' ? 'badge-approved' : 'badge-pending'}"
+                                th:classappend="${review.status.name() == 'REVIEWED' || review.status.name() == 'COMPLETED' ? 'badge-approved' : 'badge-pending'}"
                                 th:text="${review.status}">Status</span>
                         </div>
                         <div>

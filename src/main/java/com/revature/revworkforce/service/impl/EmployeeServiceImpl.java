@@ -8,8 +8,11 @@ import com.revature.revworkforce.exception.ResourceNotFoundException;
 import com.revature.revworkforce.exception.ValidationException;
 import com.revature.revworkforce.model.*;
 import com.revature.revworkforce.repository.*;
+import com.revature.revworkforce.service.AuditService;
 import com.revature.revworkforce.service.EmployeeService;
+import com.revature.revworkforce.util.Constants;
 import com.revature.revworkforce.util.ValidationUtil;
+import com.revature.revworkforce.security.SecurityUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,19 +40,21 @@ public class EmployeeServiceImpl implements EmployeeService {
 	private final RoleRepository roleRepository;
 	private final EmployeeRoleRepository employeeRoleRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final AuditService auditService;
 
 	/**
 	 * Constructor-based dependency injection.
 	 */
 	public EmployeeServiceImpl(EmployeeRepository employeeRepository, DepartmentRepository departmentRepository,
 			DesignationRepository designationRepository, RoleRepository roleRepository,
-			EmployeeRoleRepository employeeRoleRepository, PasswordEncoder passwordEncoder) {
+			EmployeeRoleRepository employeeRoleRepository, PasswordEncoder passwordEncoder, AuditService auditService) {
 		this.employeeRepository = employeeRepository;
 		this.departmentRepository = departmentRepository;
 		this.designationRepository = designationRepository;
 		this.roleRepository = roleRepository;
 		this.employeeRoleRepository = employeeRoleRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.auditService = auditService;
 	}
 
 	/**
@@ -107,6 +112,17 @@ public class EmployeeServiceImpl implements EmployeeService {
 					.orElseThrow(() -> new ResourceNotFoundException("Role", "name", "EMPLOYEE"));
 			assignRole(savedEmployee.getEmployeeId(), defaultRole.getRoleId());
 		}
+
+		String performedBy = SecurityUtils.getCurrentUsername() != null ? SecurityUtils.getCurrentUsername() : "SYSTEM";
+		auditService.createAuditLog(
+				performedBy,
+				Constants.AUDIT_INSERT,
+				"EMPLOYEES",
+				savedEmployee.getEmployeeId(),
+				null,
+				"Created employee: " + savedEmployee.getFullName(),
+				null,
+				null);
 
 		return savedEmployee;
 	}
@@ -208,7 +224,20 @@ public class EmployeeServiceImpl implements EmployeeService {
 			}
 		}
 
-		return employeeRepository.save(employee);
+		Employee savedEmployee = employeeRepository.save(employee);
+
+		String performedBy = SecurityUtils.getCurrentUsername() != null ? SecurityUtils.getCurrentUsername() : "SYSTEM";
+		auditService.createAuditLog(
+				performedBy,
+				Constants.AUDIT_UPDATE,
+				"EMPLOYEES",
+				employeeId,
+				null,
+				"Updated employee profile details",
+				null,
+				null);
+
+		return savedEmployee;
 	}
 
 	/**
@@ -219,6 +248,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public Employee getEmployeeById(String employeeId) {
 		return employeeRepository.findById(employeeId)
 				.orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", employeeId));
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public EmployeeDTO getEmployeeDTOById(String employeeId) {
+		Employee employee = getEmployeeById(employeeId);
+		return convertToDTO(employee);
 	}
 
 	/**
@@ -237,6 +273,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Transactional(readOnly = true)
 	public List<Employee> getActiveEmployees() {
 		return employeeRepository.findByStatus(EmployeeStatus.ACTIVE);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<EmployeeDTO> getActiveEmployeesAsDTO() {
+		return getActiveEmployees().stream()
+				.map(this::convertToDTO)
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -280,6 +324,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 		return results;
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public List<EmployeeDTO> searchEmployeesAsDTO(EmployeeSearchCriteria criteria) {
+		return searchEmployees(criteria).stream()
+				.map(this::convertToDTO)
+				.collect(Collectors.toList());
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -321,6 +373,39 @@ public class EmployeeServiceImpl implements EmployeeService {
 		employee.setLeavingDate(LocalDate.now());
 		employee.setUpdatedAt(LocalDateTime.now());
 		employeeRepository.save(employee);
+
+		String performedBy = SecurityUtils.getCurrentUsername() != null ? SecurityUtils.getCurrentUsername() : "SYSTEM";
+		auditService.createAuditLog(
+				performedBy,
+				Constants.AUDIT_UPDATE,
+				"EMPLOYEES",
+				employeeId,
+				"ACTIVE",
+				"INACTIVE",
+				null,
+				null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void reactivateEmployee(String employeeId) {
+		Employee employee = getEmployeeById(employeeId);
+		employee.setStatus(EmployeeStatus.ACTIVE);
+		employee.setUpdatedAt(LocalDateTime.now());
+		employeeRepository.save(employee);
+
+		String performedBy = SecurityUtils.getCurrentUsername() != null ? SecurityUtils.getCurrentUsername() : "SYSTEM";
+		auditService.createAuditLog(
+				performedBy,
+				Constants.AUDIT_UPDATE,
+				"EMPLOYEES",
+				employeeId,
+				"INACTIVE",
+				"ACTIVE",
+				null,
+				null);
 	}
 
 	/**
@@ -333,6 +418,17 @@ public class EmployeeServiceImpl implements EmployeeService {
 		employee.setLeavingDate(LocalDate.now());
 		employee.setUpdatedAt(LocalDateTime.now());
 		employeeRepository.save(employee);
+
+		String performedBy = SecurityUtils.getCurrentUsername() != null ? SecurityUtils.getCurrentUsername() : "SYSTEM";
+		auditService.createAuditLog(
+				performedBy,
+				Constants.AUDIT_DELETE, // Logical delete
+				"EMPLOYEES",
+				employeeId,
+				employee.getStatus().name(),
+				"TERMINATED",
+				null,
+				null);
 	}
 
 	/**
@@ -352,6 +448,18 @@ public class EmployeeServiceImpl implements EmployeeService {
 			employeeRole.setRole(role);
 			employeeRole.setAssignedAt(LocalDateTime.now());
 			employeeRoleRepository.save(employeeRole);
+
+			String performedBy = SecurityUtils.getCurrentUsername() != null ? SecurityUtils.getCurrentUsername()
+					: "SYSTEM";
+			auditService.createAuditLog(
+					performedBy,
+					Constants.AUDIT_INSERT,
+					"EMPLOYEE_ROLES",
+					employeeId,
+					null,
+					"Assigned role: " + role.getRoleName(),
+					null,
+					null);
 		}
 	}
 
@@ -361,6 +469,17 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public void removeRole(String employeeId, Long roleId) {
 		employeeRoleRepository.deleteByEmployeeIdAndRoleId(employeeId, roleId);
+
+		String performedBy = SecurityUtils.getCurrentUsername() != null ? SecurityUtils.getCurrentUsername() : "SYSTEM";
+		auditService.createAuditLog(
+				performedBy,
+				Constants.AUDIT_DELETE,
+				"EMPLOYEE_ROLES",
+				employeeId,
+				"Role ID: " + roleId,
+				"Removed role",
+				null,
+				null);
 	}
 
 	/**

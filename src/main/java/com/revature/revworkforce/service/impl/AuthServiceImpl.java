@@ -6,6 +6,7 @@ import com.revature.revworkforce.exception.ValidationException;
 import com.revature.revworkforce.model.Employee;
 import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.service.AuthService;
+import com.revature.revworkforce.service.AuditService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,7 +24,8 @@ import java.time.LocalDateTime;
  * - Tracking failed login attempts
  * - First login checks
  * 
- * This class is transactional and uses Spring Data JPA repository for persistence.
+ * This class is transactional and uses Spring Data JPA repository for
+ * persistence.
  */
 @Service
 @Transactional
@@ -34,6 +36,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuditService auditService;
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
     private static final int LOCK_DURATION_MINUTES = 15;
@@ -62,6 +67,17 @@ public class AuthServiceImpl implements AuthService {
         employee.setUpdatedAt(LocalDateTime.now());
 
         employeeRepository.save(employee);
+
+        // Audit Logging
+        auditService.createAuditLog(
+                employeeId,
+                "PASSWORD_CHANGE",
+                "EMPLOYEES",
+                employeeId,
+                null,
+                "User changed their password",
+                null,
+                null);
     }
 
     /**
@@ -94,6 +110,17 @@ public class AuthServiceImpl implements AuthService {
             if (attempts >= MAX_FAILED_ATTEMPTS) {
                 employee.setAccountLocked('Y');
                 employee.setLockedUntil(LocalDateTime.now().plusMinutes(LOCK_DURATION_MINUTES));
+
+                // Audit account lock
+                auditService.createAuditLog(
+                        "SYSTEM",
+                        "ACCOUNT_LOCKED",
+                        "EMPLOYEES",
+                        employee.getEmployeeId(),
+                        "ACTIVE",
+                        "LOCKED",
+                        null,
+                        "Too many failed login attempts");
             }
 
             employeeRepository.save(employee);
@@ -108,14 +135,25 @@ public class AuthServiceImpl implements AuthService {
         Employee employee = employeeRepository.findById(employeeId).orElse(null);
 
         if (employee != null &&
-            employee.getAccountLocked() == 'Y' &&
-            employee.getLockedUntil() != null &&
-            LocalDateTime.now().isAfter(employee.getLockedUntil())) {
+                employee.getAccountLocked() == 'Y' &&
+                employee.getLockedUntil() != null &&
+                LocalDateTime.now().isAfter(employee.getLockedUntil())) {
 
             employee.setAccountLocked('N');
             employee.setLockedUntil(null);
             employee.setFailedLoginAttempts(0);
             employeeRepository.save(employee);
+
+            // Audit account unlock
+            auditService.createAuditLog(
+                    "SYSTEM",
+                    "ACCOUNT_UNLOCKED",
+                    "EMPLOYEES",
+                    employee.getEmployeeId(),
+                    "LOCKED",
+                    "ACTIVE",
+                    null,
+                    "Account lock expired");
             return true;
         }
 
@@ -129,11 +167,12 @@ public class AuthServiceImpl implements AuthService {
     public boolean isAccountLocked(String employeeId) {
         Employee employee = employeeRepository.findById(employeeId).orElse(null);
 
-        if (employee == null) return false;
+        if (employee == null)
+            return false;
 
         if (employee.getAccountLocked() == 'Y' &&
-            employee.getLockedUntil() != null &&
-            LocalDateTime.now().isAfter(employee.getLockedUntil())) {
+                employee.getLockedUntil() != null &&
+                LocalDateTime.now().isAfter(employee.getLockedUntil())) {
             unlockIfExpired(employeeId);
             return false;
         }
@@ -153,7 +192,8 @@ public class AuthServiceImpl implements AuthService {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        if (now.isAfter(employee.getLockedUntil())) return 0;
+        if (now.isAfter(employee.getLockedUntil()))
+            return 0;
 
         return java.time.Duration.between(now, employee.getLockedUntil()).toMinutes();
     }
@@ -184,8 +224,7 @@ public class AuthServiceImpl implements AuthService {
 
         if (!hasUpperCase || !hasLowerCase || !hasDigit) {
             throw new ValidationException(
-                    "Password must contain at least one uppercase letter, one lowercase letter, and one digit"
-            );
+                    "Password must contain at least one uppercase letter, one lowercase letter, and one digit");
         }
     }
 }

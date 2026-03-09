@@ -11,36 +11,38 @@ import java.util.List;
 
 public interface GoalService {
 
-    Goal createGoal(String employeeId, String goalTitle, String goalDescription,
-                    String category, LocalDate deadline, Priority priority);
+        Goal createGoal(String employeeId, String goalTitle, String goalDescription,
+                        String category, LocalDate deadline, Priority priority);
 
-    Goal updateGoal(Long goalId, String employeeId, String goalTitle,
-                    String goalDescription, String category,
-                    LocalDate deadline, Priority priority);
+        Goal updateGoal(Long goalId, String employeeId, String goalTitle,
+                        String goalDescription, String category,
+                        LocalDate deadline, Priority priority);
 
-    Goal updateProgress(Long goalId, String employeeId, Integer progress);
+        Goal updateProgress(Long goalId, String employeeId, Integer progress);
 
-    Goal addManagerComments(Long goalId, String managerId, String comments);
+        Goal addManagerComments(Long goalId, String managerId, String comments);
 
-    void deleteGoal(Long goalId, String employeeId);
+        void deleteGoal(Long goalId, String employeeId);
 
-    Goal getGoalById(Long goalId);
+        Goal getGoalById(Long goalId);
 
-    List<Goal> getEmployeeGoals(String employeeId);
+        GoalDTO getGoalDTOById(Long goalId);
 
-    List<Goal> getActiveGoals(String employeeId);
+        List<GoalDTO> getEmployeeGoals(String employeeId);
 
-    List<Goal> getGoalsByStatus(String employeeId, GoalStatus status);
+        List<GoalDTO> getActiveGoals(String employeeId);
 
-    List<Goal> getTeamGoals(String managerId);
+        List<GoalDTO> getGoalsByStatus(String employeeId, GoalStatus status);
 
-    List<Goal> getUpcomingDeadlines(String employeeId, int days);
+        List<GoalDTO> getTeamGoals(String managerId);
 
-    List<Goal> getOverdueGoals(String employeeId);
+        List<GoalDTO> getUpcomingDeadlines(String employeeId, int days);
 
-    List<Goal> getGoalsByPriority(String employeeId, Priority priority);
+        List<GoalDTO> getOverdueGoals(String employeeId);
 
-    GoalStatistics getEmployeeStatistics(String employeeId);
+        List<GoalDTO> getGoalsByPriority(String employeeId, Priority priority);
 
-    GoalDTO convertToDTO(Goal goal);
+        GoalStatistics getEmployeeStatistics(String employeeId);
+
+        GoalDTO convertToDTO(Goal goal);
 }

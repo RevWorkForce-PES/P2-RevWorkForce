@@ -9,52 +9,54 @@ import com.revature.revworkforce.model.PerformanceReview;
 
 public interface PerformanceReviewService {
 
-    PerformanceReview createReview(String employeeId, Integer reviewYear, String createdByManagerId);
+        PerformanceReview createReview(String employeeId, Integer reviewYear, String createdByManagerId);
 
-    PerformanceReview submitSelfAssessment(
-            Long reviewId,
-            String employeeId,
-            String keyDeliverables,
-            String majorAccomplishments,
-            String areasOfImprovement,
-            BigDecimal selfAssessmentRating,
-            String selfAssessmentComments);
+        PerformanceReview submitSelfAssessment(
+                        Long reviewId,
+                        String employeeId,
+                        String keyDeliverables,
+                        String majorAccomplishments,
+                        String areasOfImprovement,
+                        BigDecimal selfAssessmentRating,
+                        String selfAssessmentComments);
 
-    PerformanceReview submitManagerReview(
-            Long reviewId,
-            String managerId,
-            String managerFeedback,
-            BigDecimal managerRating,
-            String managerComments);
+        PerformanceReview submitManagerReview(
+                        Long reviewId,
+                        String managerId,
+                        String managerFeedback,
+                        BigDecimal managerRating,
+                        String managerComments);
 
-    PerformanceReview completeReview(Long reviewId);
+        PerformanceReview completeReview(Long reviewId);
 
-    PerformanceReview updateDraft(
-            Long reviewId,
-            String employeeId,
-            String keyDeliverables,
-            String majorAccomplishments,
-            String areasOfImprovement,
-            BigDecimal selfAssessmentRating,
-            String selfAssessmentComments);
+        PerformanceReview updateDraft(
+                        Long reviewId,
+                        String employeeId,
+                        String keyDeliverables,
+                        String majorAccomplishments,
+                        String areasOfImprovement,
+                        BigDecimal selfAssessmentRating,
+                        String selfAssessmentComments);
 
-    PerformanceReview getReviewById(Long reviewId);
+        PerformanceReview getReviewById(Long reviewId);
 
-    List<PerformanceReview> getEmployeeReviews(String employeeId);
+        PerformanceReviewDTO getReviewDTOById(Long reviewId);
 
-    List<PerformanceReview> getPendingReviewsForManager(String managerId);
+        List<PerformanceReviewDTO> getEmployeeReviews(String employeeId);
 
-    List<PerformanceReview> getTeamReviews(String managerId);
+        List<PerformanceReviewDTO> getPendingReviewsForManager(String managerId);
 
-    List<PerformanceReview> getReviewsByStatus(ReviewStatus status);
+        List<PerformanceReviewDTO> getTeamReviews(String managerId);
 
-    PerformanceReview getEmployeeReviewByYear(String employeeId, Integer year);
+        List<PerformanceReviewDTO> getReviewsByStatus(ReviewStatus status);
 
-    void deleteReview(Long reviewId);
+        PerformanceReview getEmployeeReviewByYear(String employeeId, Integer year);
 
-    boolean reviewExists(String employeeId, Integer year);
+        void deleteReview(Long reviewId);
 
-    BigDecimal getAverageRating(String employeeId);
+        boolean reviewExists(String employeeId, Integer year);
 
-    PerformanceReviewDTO convertToDTO(PerformanceReview review);
+        BigDecimal getAverageRating(String employeeId);
+
+        PerformanceReviewDTO convertToDTO(PerformanceReview review);
 }

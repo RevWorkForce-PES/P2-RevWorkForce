@@ -5,6 +5,7 @@ import com.revature.revworkforce.enums.HolidayType;
 import com.revature.revworkforce.model.Holiday;
 import com.revature.revworkforce.repository.HolidayRepository;
 import com.revature.revworkforce.service.impl.HolidayServiceImpl;
+import com.revature.revworkforce.service.AuditService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,221 +26,225 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class HolidayServiceImplTest {
 
-    @Mock
-    private HolidayRepository holidayRepository;
+        @Mock
+        private HolidayRepository holidayRepository;
 
-    @InjectMocks
-    private HolidayServiceImpl holidayService;
+        @Mock
+        private AuditService auditService;
 
-    private Holiday holiday;
+        @InjectMocks
+        private HolidayServiceImpl holidayService;
 
-    @BeforeEach
-    void setUp() {
+        private Holiday holiday;
 
-        holiday = new Holiday();
-        holiday.setHolidayId(1L);
-        holiday.setHolidayName("New Year");
-        holiday.setHolidayDate(LocalDate.of(2030,1,1));
-        holiday.setHolidayType(HolidayType.NATIONAL);
-        holiday.setDescription("New year holiday");
-        holiday.setIsActive('Y');
-    }
+        @BeforeEach
+        void setUp() {
 
-    @Test
-    void isHoliday_ReturnsTrue() {
+                holiday = new Holiday();
+                holiday.setHolidayId(1L);
+                holiday.setHolidayName("New Year");
+                holiday.setHolidayDate(LocalDate.of(2030, 1, 1));
+                holiday.setHolidayType(HolidayType.NATIONAL);
+                holiday.setDescription("New year holiday");
+                holiday.setIsActive('Y');
+        }
 
-        // Arrange
-        LocalDate date = LocalDate.of(2030,1,1);
+        @Test
+        void isHoliday_ReturnsTrue() {
 
-        when(holidayRepository.existsByHolidayDateAndIsActive(date,'Y'))
-                .thenReturn(true);
+                // Arrange
+                LocalDate date = LocalDate.of(2030, 1, 1);
 
-        // Act
-        boolean result = holidayService.isHoliday(date);
+                when(holidayRepository.existsByHolidayDateAndIsActive(date, 'Y'))
+                                .thenReturn(true);
 
-        // Assert
-        assertTrue(result);
-        verify(holidayRepository).existsByHolidayDateAndIsActive(date,'Y');
-    }
+                // Act
+                boolean result = holidayService.isHoliday(date);
 
-    @Test
-    void getHolidaysInRange_ReturnsHolidayDates() {
+                // Assert
+                assertTrue(result);
+                verify(holidayRepository).existsByHolidayDateAndIsActive(date, 'Y');
+        }
 
-        // Arrange
-        when(holidayRepository.findByHolidayDateBetweenAndIsActive(
-                any(), any(), eq('Y')))
-                .thenReturn(List.of(holiday));
+        @Test
+        void getHolidaysInRange_ReturnsHolidayDates() {
 
-        // Act
-        Set<LocalDate> result = holidayService.getHolidaysInRange(
-                LocalDate.of(2030,1,1),
-                LocalDate.of(2030,12,31));
+                // Arrange
+                when(holidayRepository.findByHolidayDateBetweenAndIsActive(
+                                any(), any(), eq('Y')))
+                                .thenReturn(List.of(holiday));
 
-        // Assert
-        assertEquals(1,result.size());
-        assertTrue(result.contains(LocalDate.of(2030,1,1)));
-    }
+                // Act
+                Set<LocalDate> result = holidayService.getHolidaysInRange(
+                                LocalDate.of(2030, 1, 1),
+                                LocalDate.of(2030, 12, 31));
 
-    @Test
-    void createHoliday_Success() {
+                // Assert
+                assertEquals(1, result.size());
+                assertTrue(result.contains(LocalDate.of(2030, 1, 1)));
+        }
 
-        // Arrange
-        HolidayDTO dto = new HolidayDTO();
-        dto.setHolidayName("Republic Day");
-        dto.setHolidayDate(LocalDate.of(2030,1,23)); // weekday
-        dto.setType(HolidayType.NATIONAL);
-        dto.setDescription("Holiday");
+        @Test
+        void createHoliday_Success() {
 
-        when(holidayRepository.findByHolidayDate(any()))
-                .thenReturn(Optional.empty());
+                // Arrange
+                HolidayDTO dto = new HolidayDTO();
+                dto.setHolidayName("Republic Day");
+                dto.setHolidayDate(LocalDate.of(2030, 1, 23)); // weekday
+                dto.setType(HolidayType.NATIONAL);
+                dto.setDescription("Holiday");
 
-        when(holidayRepository.save(any(Holiday.class)))
-                .thenReturn(holiday);
+                when(holidayRepository.findByHolidayDate(any()))
+                                .thenReturn(Optional.empty());
 
-        // Act
-        HolidayDTO result = holidayService.createHoliday(dto);
+                when(holidayRepository.save(any(Holiday.class)))
+                                .thenReturn(holiday);
 
-        // Assert
-        assertNotNull(result);
-        verify(holidayRepository).save(any(Holiday.class));
-    }
-    @Test
-    void updateHoliday_Success() {
+                // Act
+                HolidayDTO result = holidayService.createHoliday(dto);
 
-        // Arrange
-        HolidayDTO dto = new HolidayDTO();
-        dto.setHolidayName("Updated Holiday");
-        dto.setHolidayDate(LocalDate.of(2030,1,23)); // weekday
-        dto.setType(HolidayType.NATIONAL);
-        dto.setDescription("Updated");
+                // Assert
+                assertNotNull(result);
+                verify(holidayRepository).save(any(Holiday.class));
+        }
 
-        when(holidayRepository.findById(1L))
-                .thenReturn(Optional.of(holiday));
+        @Test
+        void updateHoliday_Success() {
 
-        when(holidayRepository.findByHolidayDate(any()))
-                .thenReturn(Optional.empty());
+                // Arrange
+                HolidayDTO dto = new HolidayDTO();
+                dto.setHolidayName("Updated Holiday");
+                dto.setHolidayDate(LocalDate.of(2030, 1, 23)); // weekday
+                dto.setType(HolidayType.NATIONAL);
+                dto.setDescription("Updated");
 
-        when(holidayRepository.save(any()))
-                .thenReturn(holiday);
+                when(holidayRepository.findById(1L))
+                                .thenReturn(Optional.of(holiday));
 
-        // Act
-        HolidayDTO result = holidayService.updateHoliday(1L,dto);
+                when(holidayRepository.findByHolidayDate(any()))
+                                .thenReturn(Optional.empty());
 
-        // Assert
-        assertNotNull(result);
-        verify(holidayRepository).save(any(Holiday.class));
-    }
+                when(holidayRepository.save(any()))
+                                .thenReturn(holiday);
 
-    @Test
-    void getHolidayById_ReturnsHoliday() {
+                // Act
+                HolidayDTO result = holidayService.updateHoliday(1L, dto);
 
-        // Arrange
-        when(holidayRepository.findById(1L))
-                .thenReturn(Optional.of(holiday));
+                // Assert
+                assertNotNull(result);
+                verify(holidayRepository).save(any(Holiday.class));
+        }
 
-        // Act
-        HolidayDTO dto = holidayService.getHolidayById(1L);
+        @Test
+        void getHolidayById_ReturnsHoliday() {
 
-        // Assert
-        assertEquals("New Year", dto.getHolidayName());
-    }
+                // Arrange
+                when(holidayRepository.findById(1L))
+                                .thenReturn(Optional.of(holiday));
 
-    @Test
-    void getAllHolidays_ReturnsList() {
+                // Act
+                HolidayDTO dto = holidayService.getHolidayById(1L);
 
-        // Arrange
-        when(holidayRepository.findByIsActiveOrderByHolidayDateAsc('Y'))
-                .thenReturn(List.of(holiday));
+                // Assert
+                assertEquals("New Year", dto.getHolidayName());
+        }
 
-        // Act
-        List<HolidayDTO> result = holidayService.getAllHolidays();
+        @Test
+        void getAllHolidays_ReturnsList() {
 
-        // Assert
-        assertEquals(1,result.size());
-    }
+                // Arrange
+                when(holidayRepository.findByIsActiveOrderByHolidayDateAsc('Y'))
+                                .thenReturn(List.of(holiday));
 
-    @Test
-    void deleteHoliday_Success() {
+                // Act
+                List<HolidayDTO> result = holidayService.getAllHolidays();
 
-        // Arrange
-        when(holidayRepository.existsById(1L)).thenReturn(true);
+                // Assert
+                assertEquals(1, result.size());
+        }
 
-        // Act
-        holidayService.deleteHoliday(1L);
+        @Test
+        void deleteHoliday_Success() {
 
-        // Assert
-        verify(holidayRepository).deleteById(1L);
-    }
+                // Arrange
+                when(holidayRepository.existsById(1L)).thenReturn(true);
 
-    @Test
-    void deleteHoliday_NotFound_ThrowsException() {
+                // Act
+                holidayService.deleteHoliday(1L);
 
-        // Arrange
-        when(holidayRepository.existsById(1L)).thenReturn(false);
+                // Assert
+                verify(holidayRepository).deleteById(1L);
+        }
 
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class,
-                () -> holidayService.deleteHoliday(1L));
-    }
+        @Test
+        void deleteHoliday_NotFound_ThrowsException() {
 
-    @Test
-    void deactivateHoliday_Success() {
+                // Arrange
+                when(holidayRepository.existsById(1L)).thenReturn(false);
 
-        // Arrange
-        when(holidayRepository.findById(1L))
-                .thenReturn(Optional.of(holiday));
+                // Act & Assert
+                assertThrows(IllegalArgumentException.class,
+                                () -> holidayService.deleteHoliday(1L));
+        }
 
-        // Act
-        holidayService.deactivateHoliday(1L);
+        @Test
+        void deactivateHoliday_Success() {
 
-        // Assert
-        verify(holidayRepository).save(holiday);
-    }
+                // Arrange
+                when(holidayRepository.findById(1L))
+                                .thenReturn(Optional.of(holiday));
 
-    @Test
-    void getUpcomingHolidays_ReturnsList() {
+                // Act
+                holidayService.deactivateHoliday(1L);
 
-        // Arrange
-        when(holidayRepository
-                .findByHolidayDateAfterAndIsActiveOrderByHolidayDateAsc(
-                        any(), eq('Y')))
-                .thenReturn(List.of(holiday));
+                // Assert
+                verify(holidayRepository).save(holiday);
+        }
 
-        // Act
-        List<HolidayDTO> result = holidayService.getUpcomingHolidays();
+        @Test
+        void getUpcomingHolidays_ReturnsList() {
 
-        // Assert
-        assertEquals(1,result.size());
-    }
+                // Arrange
+                when(holidayRepository
+                                .findByHolidayDateAfterAndIsActiveOrderByHolidayDateAsc(
+                                                any(), eq('Y')))
+                                .thenReturn(List.of(holiday));
 
-    @Test
-    void countHolidaysInRange_ReturnsCount() {
+                // Act
+                List<HolidayDTO> result = holidayService.getUpcomingHolidays();
 
-        // Arrange
-        when(holidayRepository.countByHolidayDateBetweenAndIsActive(
-                any(), any(), eq('Y')))
-                .thenReturn(2L);
+                // Assert
+                assertEquals(1, result.size());
+        }
 
-        // Act
-        long count = holidayService.countHolidaysInRange(
-                LocalDate.of(2030,1,1),
-                LocalDate.of(2030,12,31));
+        @Test
+        void countHolidaysInRange_ReturnsCount() {
 
-        // Assert
-        assertEquals(2,count);
-    }
+                // Arrange
+                when(holidayRepository.countByHolidayDateBetweenAndIsActive(
+                                any(), any(), eq('Y')))
+                                .thenReturn(2L);
 
-    @Test
-    void getAllActiveHolidays_ReturnsList() {
+                // Act
+                long count = holidayService.countHolidaysInRange(
+                                LocalDate.of(2030, 1, 1),
+                                LocalDate.of(2030, 12, 31));
 
-        // Arrange
-        when(holidayRepository.findByIsActiveOrderByHolidayDateAsc('Y'))
-                .thenReturn(List.of(holiday));
+                // Assert
+                assertEquals(2, count);
+        }
 
-        // Act
-        List<HolidayDTO> result = holidayService.getAllActiveHolidays();
+        @Test
+        void getAllActiveHolidays_ReturnsList() {
 
-        // Assert
-        assertEquals(1,result.size());
-    }
+                // Arrange
+                when(holidayRepository.findByIsActiveOrderByHolidayDateAsc('Y'))
+                                .thenReturn(List.of(holiday));
+
+                // Act
+                List<HolidayDTO> result = holidayService.getAllActiveHolidays();
+
+                // Assert
+                assertEquals(1, result.size());
+        }
 }

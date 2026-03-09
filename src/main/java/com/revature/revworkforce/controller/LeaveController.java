@@ -18,10 +18,11 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class LeaveController {
-	private final HolidayService holidayService;
+    private final HolidayService holidayService;
     private final LeaveService leaveService;
     private final LeaveTypeRepository leaveTypeRepository;
     private final EmployeeRepository employeeRepository;
+
     public LeaveController(
             LeaveService leaveService,
             LeaveTypeRepository leaveTypeRepository,
@@ -36,11 +37,11 @@ public class LeaveController {
 
     // ================= EMPLOYEE =================
 
- // ================= EMPLOYEE =================
+    // ================= EMPLOYEE =================
 
     @GetMapping({ "/employee/apply", "/employee/history", "/employee/balance", "/employee/leave-management" })
     public String showApplyPage(Model model, Authentication auth,
-                                @RequestParam(required = false) Integer year) {
+            @RequestParam(required = false) Integer year) {
 
         String employeeId = auth.getName();
 
@@ -85,6 +86,7 @@ public class LeaveController {
 
         return "pages/employee/leave-management";
     }
+
     @PostMapping("/employee/apply")
     @PreAuthorize("hasAnyRole('EMPLOYEE','MANAGER','ADMIN')")
     public String applyLeave(@ModelAttribute LeaveApplicationDTO dto,
@@ -122,11 +124,9 @@ public class LeaveController {
         model.addAttribute("holidays",
                 holidayService.getAllActiveHolidays());
 
-        List<LeaveBalance> balances =
-                leaveService.findByEmployee_Manager_EmployeeIdAndYear(
-                        managerId,
-                        LocalDate.now().getYear()
-                );
+        List<LeaveBalance> balances = leaveService.findByEmployee_Manager_EmployeeIdAndYear(
+                managerId,
+                LocalDate.now().getYear());
 
         model.addAttribute("teamBalances", balances);
 
@@ -135,7 +135,7 @@ public class LeaveController {
 
         return "pages/manager/leave-approvals";
     }
-    
+
     // Team endpoint merged into leave-approvals
 
     @GetMapping("/manager/review/{id}")
@@ -177,18 +177,5 @@ public class LeaveController {
     }
 
     // ================= ADMIN =================
-
-    @PostMapping("/admin/leave/revoke/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String revokeLeave(@PathVariable Long id,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        try {
-            leaveService.cancelLeave(id, "ADMIN");
-            redirectAttributes.addFlashAttribute("success", "Leave application #" + id + " has been revoked.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Could not revoke leave: " + e.getMessage());
-        }
-        return "redirect:/admin/audit-reports";
-    }
 
 }

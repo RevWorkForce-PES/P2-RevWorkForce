@@ -18,51 +18,66 @@ import java.util.List;
 @Repository
 public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
 
-    // -------------------------
-    // Standard Queries
-    // -------------------------
+        // -------------------------
+        // Standard Queries
+        // -------------------------
 
-    List<AuditLog> findByEmployeeOrderByCreatedAtDesc(Employee employee);
+        List<AuditLog> findByEmployeeOrderByCreatedAtDesc(Employee employee);
 
-    List<AuditLog> findByAction(String action);
+        List<AuditLog> findByAction(String action);
 
-    List<AuditLog> findByTableNameOrderByCreatedAtDesc(String tableName);
+        List<AuditLog> findByTableNameOrderByCreatedAtDesc(String tableName);
 
-    List<AuditLog> findByTableNameAndRecordIdOrderByCreatedAtDesc(String tableName, String recordId);
+        List<AuditLog> findByTableNameAndRecordIdOrderByCreatedAtDesc(String tableName, String recordId);
 
-    @Query("SELECT al FROM AuditLog al WHERE al.createdAt BETWEEN :startDate AND :endDate ORDER BY al.createdAt DESC")
-    List<AuditLog> findByDateRange(@Param("startDate") LocalDateTime startDate,
-                                   @Param("endDate") LocalDateTime endDate);
+        @Query("SELECT al FROM AuditLog al WHERE al.createdAt BETWEEN :startDate AND :endDate ORDER BY al.createdAt DESC")
+        List<AuditLog> findByDateRange(@Param("startDate") LocalDateTime startDate,
+                        @Param("endDate") LocalDateTime endDate);
 
-    @Query("SELECT al FROM AuditLog al WHERE al.employee = :employee " +
-           "AND al.createdAt BETWEEN :startDate AND :endDate ORDER BY al.createdAt DESC")
-    List<AuditLog> findByEmployeeAndDateRange(@Param("employee") Employee employee,
-                                              @Param("startDate") LocalDateTime startDate,
-                                              @Param("endDate") LocalDateTime endDate);
+        @Query("SELECT al FROM AuditLog al WHERE al.employee = :employee " +
+                        "AND al.createdAt BETWEEN :startDate AND :endDate ORDER BY al.createdAt DESC")
+        List<AuditLog> findByEmployeeAndDateRange(@Param("employee") Employee employee,
+                        @Param("startDate") LocalDateTime startDate,
+                        @Param("endDate") LocalDateTime endDate);
 
-    List<AuditLog> findByEmployeeAndAction(Employee employee, String action);
+        List<AuditLog> findByEmployeeAndAction(Employee employee, String action);
 
-    @Query("SELECT al FROM AuditLog al WHERE al.employee = :employee AND al.action = 'LOGIN' ORDER BY al.createdAt DESC")
-    List<AuditLog> findLoginActivities(@Param("employee") Employee employee);
+        @Query("SELECT al FROM AuditLog al WHERE al.employee = :employee AND al.action = 'LOGIN' ORDER BY al.createdAt DESC")
+        List<AuditLog> findLoginActivities(@Param("employee") Employee employee);
 
-    @Query(value = "SELECT * FROM AUDIT_LOGS ORDER BY created_at DESC FETCH FIRST :limit ROWS ONLY", nativeQuery = true)
-    List<AuditLog> findRecentLogs(@Param("limit") int limit);
+        @Query(value = "SELECT * FROM AUDIT_LOGS ORDER BY created_at DESC FETCH FIRST :limit ROWS ONLY", nativeQuery = true)
+        List<AuditLog> findRecentLogs(@Param("limit") int limit);
 
-    long countByAction(String action);
+        long countByAction(String action);
 
-    long countByEmployee(Employee employee);
+        long countByEmployee(Employee employee);
 
-    // -------------------------
-    // Custom Deletion
-    // -------------------------
+        @Query("SELECT al FROM AuditLog al LEFT JOIN al.employee e WHERE " +
+                        "(:module IS NULL OR al.tableName = :module) AND " +
+                        "(:startDate IS NULL OR al.createdAt >= :startDate) AND " +
+                        "(:endDate IS NULL OR al.createdAt <= :endDate) AND " +
+                        "(:keyword IS NULL OR LOWER(al.action) LIKE :keyword " +
+                        "OR LOWER(e.employeeId) LIKE :keyword " +
+                        "OR LOWER(e.firstName) LIKE :keyword " +
+                        "OR LOWER(e.lastName) LIKE :keyword " +
+                        "OR al.newValue LIKE :keyword) " +
+                        "ORDER BY al.createdAt DESC")
+        List<AuditLog> searchLogs(@Param("module") String module,
+                        @Param("startDate") LocalDateTime startDate,
+                        @Param("endDate") LocalDateTime endDate,
+                        @Param("keyword") String keyword);
 
-    /**
-     * Delete audit logs older than a given date.
-     *
-     * @param retentionDate cutoff date
-     * @return number of rows deleted
-     */
-    @Modifying
-    @Query("DELETE FROM AuditLog al WHERE al.createdAt < :retentionDate")
-    int deleteOldLogs(@Param("retentionDate") LocalDateTime retentionDate);
+        // -------------------------
+        // Custom Deletion
+        // -------------------------
+
+        /**
+         * Delete audit logs older than a given date.
+         *
+         * @param retentionDate cutoff date
+         * @return number of rows deleted
+         */
+        @Modifying
+        @Query("DELETE FROM AuditLog al WHERE al.createdAt < :retentionDate")
+        int deleteOldLogs(@Param("retentionDate") LocalDateTime retentionDate);
 }

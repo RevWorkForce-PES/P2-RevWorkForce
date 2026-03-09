@@ -14,6 +14,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import com.revature.revworkforce.service.AuthService;
+import com.revature.revworkforce.service.AuditService;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,10 +27,10 @@ import static org.mockito.Mockito.*;
  * Verifies correct dashboard redirection after successful login
  * based on user roles.
  *
- * ADMIN    -> /admin/dashboard
- * MANAGER  -> /manager/dashboard
+ * ADMIN -> /admin/dashboard
+ * MANAGER -> /manager/dashboard
  * EMPLOYEE -> /employee/dashboard
- * DEFAULT  -> /dashboard
+ * DEFAULT -> /dashboard
  */
 @ExtendWith(MockitoExtension.class)
 class CustomAuthenticationSuccessHandlerTest {
@@ -45,14 +47,19 @@ class CustomAuthenticationSuccessHandlerTest {
     @Mock
     private Authentication authentication;
 
+    @Mock
+    private AuthService authService;
+
+    @Mock
+    private AuditService auditService;
+
     /**
      * Test ADMIN redirect.
      */
     @Test
     void testAdminRedirect() throws Exception {
 
-        Collection<GrantedAuthority> authorities =
-                List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        Collection<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
         doReturn(authorities).when(authentication).getAuthorities();
         when(authentication.getName()).thenReturn("adminUser");
@@ -68,8 +75,7 @@ class CustomAuthenticationSuccessHandlerTest {
     @Test
     void testManagerRedirect() throws Exception {
 
-        Collection<GrantedAuthority> authorities =
-                List.of(new SimpleGrantedAuthority("ROLE_MANAGER"));
+        Collection<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_MANAGER"));
 
         doReturn(authorities).when(authentication).getAuthorities();
         when(authentication.getName()).thenReturn("managerUser");
@@ -85,8 +91,7 @@ class CustomAuthenticationSuccessHandlerTest {
     @Test
     void testEmployeeRedirect() throws Exception {
 
-        Collection<GrantedAuthority> authorities =
-                List.of(new SimpleGrantedAuthority("ROLE_EMPLOYEE"));
+        Collection<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_EMPLOYEE"));
 
         doReturn(authorities).when(authentication).getAuthorities();
         when(authentication.getName()).thenReturn("employeeUser");
@@ -102,8 +107,7 @@ class CustomAuthenticationSuccessHandlerTest {
     @Test
     void testDefaultRedirect() throws Exception {
 
-        Collection<GrantedAuthority> authorities =
-                List.of(new SimpleGrantedAuthority("ROLE_UNKNOWN"));
+        Collection<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_UNKNOWN"));
 
         doReturn(authorities).when(authentication).getAuthorities();
         when(authentication.getName()).thenReturn("unknownUser");

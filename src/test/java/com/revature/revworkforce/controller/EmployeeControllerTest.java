@@ -88,11 +88,11 @@ class EmployeeControllerTest {
     void addEmployee_Success() throws Exception {
 
         mockMvc.perform(post("/admin/employees/add")
-                        .with(csrf())
-                        .param("firstName", "John")
-                        .param("lastName", "Doe")
-                        .param("email", "john@example.com")
-                        .param("dateOfBirth", "1990-01-01"))
+                .with(csrf())
+                .param("firstName", "John")
+                .param("lastName", "Doe")
+                .param("email", "john@example.com")
+                .param("dateOfBirth", "1990-01-01"))
                 .andExpect(status().isOk());
     }
 
@@ -108,7 +108,7 @@ class EmployeeControllerTest {
         doNothing().when(employeeService).deleteEmployee("EMP001");
 
         mockMvc.perform(post("/admin/employees/delete/EMP001")
-                        .with(csrf()))
+                .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin/employees"));
 
@@ -123,8 +123,7 @@ class EmployeeControllerTest {
     @WithMockUser(roles = "ADMIN")
     void viewEmployee_Success() throws Exception {
 
-        when(employeeService.getEmployeeById("EMP001")).thenReturn(employee);
-        when(employeeService.convertToDTO(employee)).thenReturn(employeeDTO);
+        when(employeeService.getEmployeeDTOById("EMP001")).thenReturn(employeeDTO);
         when(employeeService.getTeamMembers("EMP001")).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/admin/employees/view/EMP001"))
@@ -141,8 +140,7 @@ class EmployeeControllerTest {
     @WithMockUser(roles = "ADMIN")
     void showEditEmployeeForm_Success() throws Exception {
 
-        when(employeeService.getEmployeeById("EMP001")).thenReturn(employee);
-        when(employeeService.convertToDTO(employee)).thenReturn(employeeDTO);
+        when(employeeService.getEmployeeDTOById("EMP001")).thenReturn(employeeDTO);
 
         mockMvc.perform(get("/admin/employees/edit/EMP001"))
                 .andExpect(status().isOk())
@@ -178,9 +176,8 @@ class EmployeeControllerTest {
     @WithMockUser(username = "EMP001", roles = "EMPLOYEE")
     void viewProfile_Success() throws Exception {
 
-        when(employeeService.getEmployeeById("EMP001")).thenReturn(employee);
-        when(employeeService.convertToDTO(employee)).thenReturn(employeeDTO);
-        when(employeeService.getActiveEmployees()).thenReturn(List.of(employee));
+        when(employeeService.getEmployeeDTOById("EMP001")).thenReturn(employeeDTO);
+        when(employeeService.getActiveEmployeesAsDTO()).thenReturn(List.of(employeeDTO));
 
         mockMvc.perform(get("/employee/profile"))
                 .andExpect(status().isOk())
@@ -218,9 +215,9 @@ class EmployeeControllerTest {
         when(employeeService.updateEmployee(eq("EMP001"), any(EmployeeDTO.class))).thenReturn(employee);
 
         mockMvc.perform(post("/employee/profile/update")
-                        .with(csrf())
-                        .param("phone", "9876543210")
-                        .param("address", "123 Street"))
+                .with(csrf())
+                .param("phone", "9876543210")
+                .param("address", "123 Street"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/employee/profile"));
     }
@@ -233,8 +230,7 @@ class EmployeeControllerTest {
     @WithMockUser(username = "EMP001", roles = "EMPLOYEE")
     void viewDirectory_Success() throws Exception {
 
-        when(employeeService.getActiveEmployees()).thenReturn(List.of(employee));
-        when(employeeService.convertToDTO(any(Employee.class))).thenReturn(employeeDTO);
+        when(employeeService.getActiveEmployeesAsDTO()).thenReturn(List.of(employeeDTO));
         when(employeeService.getEmployeeById("EMP001")).thenReturn(employee);
 
         mockMvc.perform(get("/employee/directory"))

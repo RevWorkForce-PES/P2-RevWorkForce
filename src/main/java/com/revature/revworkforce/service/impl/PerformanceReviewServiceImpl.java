@@ -18,9 +18,13 @@ import com.revature.revworkforce.model.PerformanceReview;
 import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.repository.PerformanceReviewRepository;
 import com.revature.revworkforce.service.PerformanceReviewService;
+import com.revature.revworkforce.service.AuditService;
 import com.revature.revworkforce.service.NotificationService;
 import com.revature.revworkforce.enums.NotificationType;
 import com.revature.revworkforce.enums.NotificationPriority;
+import com.revature.revworkforce.util.Constants;
+import com.revature.revworkforce.security.SecurityUtils;
+
 @Service
 @Transactional
 public class PerformanceReviewServiceImpl implements PerformanceReviewService {
@@ -28,14 +32,18 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
     private final PerformanceReviewRepository reviewRepository;
     private final EmployeeRepository employeeRepository;
     private final NotificationService notificationService;
+    private final AuditService auditService;
+
     public PerformanceReviewServiceImpl(
             PerformanceReviewRepository reviewRepository,
             EmployeeRepository employeeRepository,
-            NotificationService notificationService) {
+            NotificationService notificationService,
+            AuditService auditService) {
 
         this.reviewRepository = reviewRepository;
         this.employeeRepository = employeeRepository;
         this.notificationService = notificationService;
+        this.auditService = auditService;
     }
 
     // =========================================================
@@ -46,8 +54,7 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
     public PerformanceReview createReview(String employeeId, Integer reviewYear, String createdByManagerId) {
 
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Employee", "employeeId", employeeId));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", employeeId));
 
         if (reviewRepository.existsByEmployeeAndReviewYear(employee, reviewYear)) {
             throw new ValidationException("Review already exists for this employee and year");
@@ -61,7 +68,20 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
         review.setCreatedAt(LocalDateTime.now());
         review.setUpdatedAt(LocalDateTime.now());
 
-        return reviewRepository.save(review);
+        PerformanceReview savedReview = reviewRepository.save(review);
+
+        String performedBy = SecurityUtils.getCurrentUsername() != null ? SecurityUtils.getCurrentUsername() : "SYSTEM";
+        auditService.createAuditLog(
+                performedBy,
+                Constants.AUDIT_INSERT,
+                "PERFORMANCE_REVIEWS",
+                savedReview.getReviewId().toString(),
+                null,
+                "Created performance review for employee " + employeeId + " for year " + reviewYear,
+                null,
+                null);
+
+        return savedReview;
     }
 
     // =========================================================
@@ -90,7 +110,7 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
 
         if (selfAssessmentRating != null &&
                 (selfAssessmentRating.compareTo(BigDecimal.ONE) < 0 ||
-                 selfAssessmentRating.compareTo(BigDecimal.valueOf(5)) > 0)) {
+                        selfAssessmentRating.compareTo(BigDecimal.valueOf(5)) > 0)) {
             throw new ValidationException("Self-assessment rating must be between 1 and 5");
         }
 
@@ -100,7 +120,9 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
         review.setSelfAssessmentRating(selfAssessmentRating);
         review.setSelfAssessmentComments(selfAssessmentComments);
         review.setSubmittedDate(LocalDate.now());
-     // 🔔 Notify Manager
+        review.setStatus(ReviewStatus.SUBMITTED);
+        review.setUpdatedAt(LocalDateTime.now());
+        // 🔔 Notify Manager
         Employee manager = review.getEmployee().getManager();
 
         if (manager != null) {
@@ -108,13 +130,25 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
                     manager,
                     NotificationType.PERFORMANCE,
                     "Performance Review Submitted",
-                    review.getEmployee().getFullName() + 
-                    " has submitted performance review for year " + review.getReviewYear(),
-                    NotificationPriority.HIGH
-            );
+                    review.getEmployee().getFullName() +
+                            " has submitted performance review for year " + review.getReviewYear(),
+                    NotificationPriority.HIGH);
         }
 
-        return reviewRepository.save(review);
+        PerformanceReview savedReview = reviewRepository.save(review);
+
+        String performedBy = SecurityUtils.getCurrentUsername() != null ? SecurityUtils.getCurrentUsername() : "SYSTEM";
+        auditService.createAuditLog(
+                performedBy,
+                Constants.AUDIT_UPDATE,
+                "PERFORMANCE_REVIEWS",
+                reviewId.toString(),
+                ReviewStatus.DRAFT.name(),
+                ReviewStatus.SUBMITTED.name(),
+                null,
+                null);
+
+        return savedReview;
     }
 
     // =========================================================
@@ -122,6 +156,7 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
     // =========================================================
 
     @Override
+    @Transactional
     public PerformanceReview submitManagerReview(
             Long reviewId,
             String managerId,
@@ -132,11 +167,10 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
         PerformanceReview review = getReviewById(reviewId);
 
         Employee manager = employeeRepository.findById(managerId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Manager", "employeeId", managerId));
+                .orElseThrow(() -> new ResourceNotFoundException("Manager", "employeeId", managerId));
 
         if (review.getEmployee().getManager() == null ||
-            !review.getEmployee().getManager().getEmployeeId().equals(managerId)) {
+                !review.getEmployee().getManager().getEmployeeId().equals(managerId)) {
             throw new UnauthorizedException("You can only review your direct reports");
         }
 
@@ -145,8 +179,8 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
         }
 
         if (managerRating == null ||
-            managerRating.compareTo(BigDecimal.ONE) < 0 ||
-            managerRating.compareTo(BigDecimal.valueOf(5)) > 0) {
+                managerRating.compareTo(BigDecimal.ONE) < 0 ||
+                managerRating.compareTo(BigDecimal.valueOf(5)) > 0) {
             throw new ValidationException("Manager rating must be between 1 and 5");
         }
 
@@ -165,17 +199,32 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
             review.setFinalRating(managerRating);
         }
 
-     // 🔔 Notify Employee
+        review.setStatus(ReviewStatus.COMPLETED);
+        review.setUpdatedAt(LocalDateTime.now());
+
+        // 🔔 Notify Employee
         notificationService.createNotification(
                 review.getEmployee(),
                 NotificationType.PERFORMANCE,
                 "Performance Review Reviewed",
                 "Your performance review for year " + review.getReviewYear() +
-                " has been reviewed by your manager.",
-                NotificationPriority.HIGH
-        );
+                        " has been reviewed by your manager.",
+                NotificationPriority.HIGH);
 
-        return reviewRepository.save(review);
+        PerformanceReview savedReview = reviewRepository.save(review);
+
+        String performedBy = SecurityUtils.getCurrentUsername() != null ? SecurityUtils.getCurrentUsername() : "SYSTEM";
+        auditService.createAuditLog(
+                performedBy,
+                Constants.AUDIT_UPDATE,
+                "PERFORMANCE_REVIEWS",
+                reviewId.toString(),
+                ReviewStatus.SUBMITTED.name(),
+                ReviewStatus.COMPLETED.name(),
+                null,
+                null);
+
+        return savedReview;
     }
 
     // =========================================================
@@ -191,17 +240,32 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
             throw new ValidationException("Can only complete a REVIEWED review");
         }
 
-     // 🔔 Notify Employee
+        // 🔔 Notify Employee
         notificationService.createNotification(
                 review.getEmployee(),
                 NotificationType.PERFORMANCE,
                 "Performance Review Completed",
                 "Your performance review for year " + review.getReviewYear() +
-                " has been marked as completed.",
-                NotificationPriority.NORMAL
-        );
+                        " has been marked as completed.",
+                NotificationPriority.NORMAL);
 
-        return reviewRepository.save(review);
+        review.setStatus(ReviewStatus.COMPLETED);
+        review.setUpdatedAt(LocalDateTime.now());
+
+        PerformanceReview savedReview = reviewRepository.save(review);
+
+        String performedBy = SecurityUtils.getCurrentUsername() != null ? SecurityUtils.getCurrentUsername() : "SYSTEM";
+        auditService.createAuditLog(
+                performedBy,
+                Constants.AUDIT_UPDATE,
+                "PERFORMANCE_REVIEWS",
+                reviewId.toString(),
+                ReviewStatus.REVIEWED.name(),
+                ReviewStatus.COMPLETED.name(),
+                null,
+                null);
+
+        return savedReview;
     }
 
     // =========================================================
@@ -209,40 +273,53 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
     // =========================================================
 
     @Override
-    @Transactional(readOnly = true)
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public PerformanceReview getReviewById(Long reviewId) {
         return reviewRepository.findById(reviewId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("PerformanceReview", "id", reviewId));
+                .orElseThrow(() -> new ResourceNotFoundException("PerformanceReview", "id", reviewId));
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<PerformanceReview> getEmployeeReviews(String employeeId) {
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public PerformanceReviewDTO getReviewDTOById(Long reviewId) {
+        PerformanceReview review = getReviewById(reviewId);
+        return convertToDTO(review);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<PerformanceReviewDTO> getEmployeeReviews(String employeeId) {
 
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Employee", "employeeId", employeeId));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", employeeId));
 
-        return reviewRepository.findByEmployeeOrderByReviewYearDesc(employee);
+        return reviewRepository.findByEmployeeOrderByReviewYearDesc(employee).stream()
+                .map(this::convertToDTO)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<PerformanceReviewDTO> getPendingReviewsForManager(String managerId) {
+        return reviewRepository.findPendingReviewsByManagerId(managerId, ReviewStatus.SUBMITTED).stream()
+                .map(this::convertToDTO)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<PerformanceReview> getPendingReviewsForManager(String managerId) {
-        return reviewRepository.findPendingReviewsByManagerId(managerId, ReviewStatus.SUBMITTED);
+    public List<PerformanceReviewDTO> getTeamReviews(String managerId) {
+        return reviewRepository.findTeamReviewsByManagerId(managerId).stream()
+                .map(this::convertToDTO)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<PerformanceReview> getTeamReviews(String managerId) {
-        return reviewRepository.findTeamReviewsByManagerId(managerId);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<PerformanceReview> getReviewsByStatus(ReviewStatus status) {
-        return reviewRepository.findByStatus(status);
+    public List<PerformanceReviewDTO> getReviewsByStatus(ReviewStatus status) {
+        return reviewRepository.findByStatus(status).stream()
+                .map(this::convertToDTO)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     @Override
@@ -250,13 +327,11 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
     public PerformanceReview getEmployeeReviewByYear(String employeeId, Integer year) {
 
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Employee", "employeeId", employeeId));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee", "employeeId", employeeId));
 
         return reviewRepository.findByEmployeeAndReviewYear(employee, year)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("PerformanceReview",
-                                "employeeId and year", employeeId + " - " + year));
+                .orElseThrow(() -> new ResourceNotFoundException("PerformanceReview",
+                        "employeeId and year", employeeId + " - " + year));
     }
 
     // =========================================================
@@ -273,6 +348,17 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
         }
 
         reviewRepository.delete(review);
+
+        String performedBy = SecurityUtils.getCurrentUsername() != null ? SecurityUtils.getCurrentUsername() : "SYSTEM";
+        auditService.createAuditLog(
+                performedBy,
+                Constants.AUDIT_DELETE,
+                "PERFORMANCE_REVIEWS",
+                reviewId.toString(),
+                null,
+                "Deleted performance review for " + review.getEmployee().getEmployeeId(),
+                null,
+                null);
     }
 
     // =========================================================
@@ -291,21 +377,22 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
     @Transactional(readOnly = true)
     public BigDecimal getAverageRating(String employeeId) {
 
-        List<PerformanceReview> reviews = getEmployeeReviews(employeeId);
+        List<PerformanceReviewDTO> reviews = getEmployeeReviews(employeeId);
 
         BigDecimal sum = BigDecimal.ZERO;
         int count = 0;
 
-        for (PerformanceReview review : reviews) {
+        for (PerformanceReviewDTO review : reviews) {
             if (review.getFinalRating() != null) {
                 sum = sum.add(review.getFinalRating());
                 count++;
             }
         }
 
-        if (count == 0) return null;
+        if (count == 0)
+            return null;
 
-        return sum.divide(BigDecimal.valueOf(count), 1, BigDecimal.ROUND_HALF_UP);
+        return sum.divide(BigDecimal.valueOf(count), 1, java.math.RoundingMode.HALF_UP);
     }
 
     @Override
@@ -334,6 +421,7 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
 
         return dto;
     }
+
     @Override
     public PerformanceReview updateDraft(
             Long reviewId,
@@ -345,8 +433,7 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
             String selfAssessmentComments) {
 
         PerformanceReview review = reviewRepository.findById(reviewId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("PerformanceReview", "id", reviewId));
+                .orElseThrow(() -> new ResourceNotFoundException("PerformanceReview", "id", reviewId));
 
         if (!review.getEmployee().getEmployeeId().equals(employeeId)) {
             throw new UnauthorizedException("You can only edit your own review");

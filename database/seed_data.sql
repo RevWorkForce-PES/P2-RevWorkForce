@@ -612,10 +612,46 @@ INSERT INTO PERFORMANCE_REVIEWS (
     3.5, 'DRAFT'
 );
 
+-- Completed review for EMP001 (backend engineer)
+INSERT INTO PERFORMANCE_REVIEWS (
+    review_id, employee_id, review_year, review_period,
+    key_deliverables, major_accomplishments, areas_of_improvement,
+    self_assessment_rating, self_assessment_comments,
+    manager_feedback, manager_rating, manager_comments,
+    final_rating, status, submitted_date, reviewed_by, reviewed_date
+) VALUES (
+    review_seq.NEXTVAL, 'EMP001', 2022, 'Annual-2022',
+    'Developed REST APIs, Integrated CI/CD pipeline, Database schema optimization',
+    'Delivered backend APIs 2 weeks early, Reduced DB query time by 35%, Mentored 1 junior dev',
+    'Improve public speaking skills, Learn containerization (Docker/Kubernetes)',
+    4.0, 'Solid year with impactful backend contributions',
+    'Great work on backend infrastructure! The CI/CD improvements have significantly boosted team productivity.',
+    4.2, 'Good candidate for a tech lead role in future cycles',
+    4.1, 'COMPLETED', DATE '2023-01-15', 'MGR001', DATE '2023-01-25'
+);
+
+-- Completed review for EMP003
+INSERT INTO PERFORMANCE_REVIEWS (
+    review_id, employee_id, review_year, review_period,
+    key_deliverables, major_accomplishments, areas_of_improvement,
+    self_assessment_rating, self_assessment_comments,
+    manager_feedback, manager_rating, manager_comments,
+    final_rating, status, submitted_date, reviewed_by, reviewed_date
+) VALUES (
+    review_seq.NEXTVAL, 'EMP003', 2022, 'Annual-2022',
+    'Leave management module, Database optimization, API integration',
+    'Successfully delivered leave management UI, Improved DB query performance, Coordinated with 2 cross-functional teams',
+    'Need to improve code documentation, Explore unit testing best practices',
+    3.5, 'Decent progress with room for improvement',
+    'Steady contributor. The leave management module was well-received. Focus on code quality going forward.',
+    3.8, 'Continue improving code coverage and documentation standards',
+    3.65, 'COMPLETED', DATE '2023-01-18', 'MGR001', DATE '2023-01-28'
+);
+
 COMMIT;
 
 BEGIN
-    DBMS_OUTPUT.PUT_LINE('✓ Performance Reviews inserted: 3');
+    DBMS_OUTPUT.PUT_LINE('✓ Performance Reviews inserted: 5');
 END;
 /
 
