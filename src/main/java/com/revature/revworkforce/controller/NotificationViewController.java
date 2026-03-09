@@ -38,6 +38,7 @@ public class NotificationViewController {
 
         return "pages/notifications/list";
     }
+    
 
     // ================================
     // View Unread Notifications

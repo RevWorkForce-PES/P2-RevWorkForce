@@ -2,338 +2,335 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="global-user-fullname" th:content="${globalFullName}">
-    <meta name="global-user-role" th:content="${globalUserRole}">
-    <title>Leave Approvals - RevWorkForce Manager</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 1.5rem;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="global-user-fullname" th:content="${globalFullName}">
+<meta name="global-user-role" th:content="${globalUserRole}">
+<title>Leave Approvals - RevWorkForce Manager</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<style>
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: stretch;
+}
 
-        @media (max-width: 992px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+.grid-2 > div {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
 
-    <!-- FullCalendar CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
+.table {
+    width: 100%;
+}
 
-    <!-- FullCalendar JS -->
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+.table-responsive {
+    overflow-x: auto;
+}
+
+@media (max-width: 992px) {
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
 
 </head>
 
 <body>
-    <div class="app-container">
-        <app-sidebar></app-sidebar>
-        <main class="main-content">
-            <app-navbar page-title="Leave Approvals"></app-navbar>
-            <div class="page-wrapper">
-                <div class="card">
-                    <div class="tabs">
-                        <button class="tab-btn active" data-target="pending-requests">Pending Requests</button>
-                        <button class="tab-btn" data-target="approved-revokes">Approved/Revoke</button>
-                        <button class="tab-btn" data-target="team-calendar">Team Calendar</button>
-                    </div>
+	<div class="app-container">
+		<app-sidebar></app-sidebar>
+		<main class="main-content">
+			<app-navbar page-title="Leave Approvals"></app-navbar>
+			<div class="page-wrapper">
+				<div class="card">
+					<div class="tabs">
+						<button class="tab-btn" data-target="pending-requests">Pending
+							Requests</button>
+						<button class="tab-btn" data-target="approved-revokes">Approved/Revoke</button>
+						<button class="tab-btn" data-target="team-calendar">Team
+							Calendar</button>
+					</div>
 
-                    <!-- Pending Requests Tab -->
-                    <div id="pending-requests" class="tab-content active">
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Employee</th>
-                                        <th>Leave Type</th>
-                                        <th>Dates</th>
-                                        <th>Duration</th>
-                                        <th>Reason</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="leave : ${pending}">
-                                        <td th:text="${leave.employee.fullName}">Charlie Brown</td>
-                                        <td th:text="${leave.leaveType.leaveName}">Sick Leave</td>
-                                        <td
-                                            th:text="${#temporals.format(leave.startDate, 'MMM d, yyyy')} + ' - ' + ${#temporals.format(leave.endDate, 'MMM d, yyyy')}">
-                                            Mar 2 - Mar 3</td>
-                                        <td
-                                            th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(leave.startDate, leave.endDate) + 1} + ' Days'">
-                                            2 Days</td>
-                                        <td th:text="${leave.reason}">Flu symptoms</td>
-                                        <td style="display: flex; gap: 0.5rem;">
-                                            <form th:action="@{/manager/approve/{id}(id=${leave.applicationId})}"
-                                                method="POST" style="margin: 0;">
-                                                <button type="submit" class="btn btn-success btn-sm"><i
-                                                        class="fas fa-check"></i> Approve</button>
-                                            </form>
-                                            <form th:action="@{/manager/reject/{id}(id=${leave.applicationId})}"
-                                                method="POST" style="margin: 0;"
-                                                onsubmit="let reason = prompt('Please enter a rejection reason:'); if(reason){this.rejectionReason.value = reason; return true;} else return false;">
-                                                <input type="hidden" name="rejectionReason" value="">
-                                                <button type="submit" class="btn btn-danger btn-sm"><i
-                                                        class="fas fa-times"></i> Reject</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    <tr th:if="${#lists.isEmpty(pending)}">
-                                        <td colspan="6" class="text-center text-muted" style="padding: 1.5rem;">No
-                                            pending requests found.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+					<!-- Pending Requests Tab -->
+					<div id="pending-requests" class="tab-content">
+						<div class="table-responsive">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Employee</th>
+										<th>Leave Type</th>
+										<th>Dates</th>
+										<th>Duration</th>
+										<th>Reason</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="leave : ${pending}">
+										<td th:text="${leave.employee.fullName}">Charlie Brown</td>
+										<td th:text="${leave.leaveType.leaveName}">Sick Leave</td>
+										<td
+											th:text="${#temporals.format(leave.startDate, 'MMM d, yyyy')} + ' - ' + ${#temporals.format(leave.endDate, 'MMM d, yyyy')}">
+											Mar 2 - Mar 3</td>
+										<td
+											th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(leave.startDate, leave.endDate) + 1} + ' Days'">
+											2 Days</td>
+										<td th:text="${leave.reason}">Flu symptoms</td>
+										<td style="display: flex; gap: 0.5rem;">
+											<form
+												th:action="@{/leave/manager/approve/{id}(id=${leave.applicationId})}"
+												method="POST" style="margin: 0;">
+												<button type="submit" class="btn btn-success btn-sm">
+													<i class="fas fa-check"></i> Approve
+												</button>
+											</form>
+											<form
+												th:action="@{/manager/reject/{id}(id=${leave.applicationId})}"
+												method="POST" style="margin: 0;"
+												onsubmit="let reason = prompt('Please enter a rejection reason:'); if(reason){this.rejectionReason.value = reason; return true;} else return false;">
+												<input type="hidden" name="rejectionReason" value="">
+												<button type="submit" class="btn btn-danger btn-sm">
+													<i class="fas fa-times"></i> Reject
+												</button>
+											</form>
+										</td>
+									</tr>
+									<tr th:if="${#lists.isEmpty(pending)}">
+										<td colspan="6" class="text-center text-muted"
+											style="padding: 1.5rem;">No pending requests found.</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
 
-                    <!-- Approved/Revokes Tab -->
-                    <div id="approved-revokes" class="tab-content">
-                        <p class="mb-3 text-muted">View past approvals and revoke if necessary.</p>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Employee</th>
-                                        <th>Leave Type</th>
-                                        <th>Dates</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="leave : ${team}" th:if="${leave.status.name() != 'PENDING'}">
-                                        <td th:text="${leave.employee.fullName}">Alice Smith</td>
-                                        <td th:text="${leave.leaveType.leaveName}">Casual Leave</td>
-                                        <td
-                                            th:text="${#temporals.format(leave.startDate, 'MMM d, yyyy')} + ' - ' + ${#temporals.format(leave.endDate, 'MMM d, yyyy')}">
-                                            Feb 20 - Feb 22</td>
-                                        <td><span class="badge"
-                                                th:classappend="${leave.status.name() == 'APPROVED' ? 'badge-approved' : 'badge-rejected'}"
-                                                th:text="${leave.status}">Approved</span></td>
-                                        <td>
-                                            <span th:if="${leave.status.name() == 'REJECTED'}" class="text-muted"
-                                                th:text="${leave.rejectionReason}"></span>
-                                            <span th:if="${leave.status.name() == 'APPROVED'}"
-                                                class="text-muted">Approved via Manager</span>
-                                        </td>
-                                    </tr>
-                                    <tr th:if="${#lists.isEmpty(team)}">
-                                        <td colspan="5" class="text-center text-muted" style="padding: 1.5rem;">No past
-                                            requests found for your team.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+					<!-- Approved/Revokes Tab -->
+					<div id="approved-revokes" class="tab-content">
+						<p class="mb-3 text-muted">View past approvals and revoke if
+							necessary.</p>
+						<div class="table-responsive">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Employee</th>
+										<th>Leave Type</th>
+										<th>Dates</th>
+										<th>Status</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="leave : ${team}"
+										th:if="${leave.status.name() != 'PENDING'}">
+										<td th:text="${leave.employee.fullName}">Alice Smith</td>
+										<td th:text="${leave.leaveType.leaveName}">Casual Leave</td>
+										<td
+											th:text="${#temporals.format(leave.startDate, 'MMM d, yyyy')} + ' - ' + ${#temporals.format(leave.endDate, 'MMM d, yyyy')}">
+											Feb 20 - Feb 22</td>
+										<td><span class="badge"
+											th:classappend="${leave.status.name() == 'APPROVED' ? 'badge-approved' : 'badge-rejected'}"
+											th:text="${leave.status}">Approved</span></td>
+										<td><span th:if="${leave.status.name() == 'REJECTED'}"
+											class="text-muted" th:text="${leave.rejectionReason}"></span>
+											<span th:if="${leave.status.name() == 'APPROVED'}"
+											class="text-muted">Approved via Manager</span></td>
+									</tr>
+									<tr th:if="${#lists.isEmpty(team)}">
+										<td colspan="5" class="text-center text-muted"
+											style="padding: 1.5rem;">No past requests found for your
+											team.</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
 
-                    <!-- Team Calendar Tab -->
+					<!-- Team Calendar Tab -->
 
-                    <!-- Team Calendar Tab -->
-                    <div id="team-calendar" class="tab-content">
+					<!-- Team Calendar Tab -->
+					<div id="team-calendar" class="tab-content">
 
-                        <div class="grid-2">
+						<div class="grid-2">
 
-                            <!-- LEFT SIDE -->
-                            <div>
+							<!-- LEFT SIDE -->
+							<div>
 
-                                <h3 class="mb-3">Team Leave Calendar</h3>
+								<h3 class="mb-3">Team Members on Leave</h3>
 
-                                <div id="leaveCalendar"
-                                    style="background:white;padding:10px;border-radius:8px;min-height:500px;"></div>
-                                <h4 class="mt-4">Upcoming Holidays</h4>
+								<div class="table-responsive">
+									<table class="table">
 
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Holiday</th>
-                                            <th>Type</th>
-                                        </tr>
-                                    </thead>
+										<thead>
+											<tr>
+												<th>Employee</th>
+												<th>Leave Type</th>
+												<th>Start Date</th>
+												<th>End Date</th>
+												<th>Duration</th>
+											</tr>
+										</thead>
 
-                                    <tbody>
-                                        <tr th:each="holiday : ${holidays}">
-                                            <td th:text="${#temporals.format(holiday.holidayDate,'dd MMM yyyy')}"></td>
-                                            <td th:text="${holiday.holidayName}"></td>
-                                            <td th:text="${holiday.type}"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+										<tbody>
 
-                            </div>
+											<tr th:each="leave : ${team}"
+												th:if="${leave.status.name() == 'APPROVED'}">
+
+												<td th:text="${leave.employee.fullName}"></td>
+
+												<td th:text="${leave.leaveType.leaveName}"></td>
+
+												<td
+													th:text="${#temporals.format(leave.startDate,'dd MMM yyyy')}"></td>
+
+												<td
+													th:text="${#temporals.format(leave.endDate,'dd MMM yyyy')}"></td>
+
+												<td
+													th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(leave.startDate, leave.endDate) + 1} + ' days'"></td>
+
+											</tr>
+
+											<tr th:if="${#lists.isEmpty(team)}">
+												<td colspan="5" class="text-center text-muted">No team
+													members currently on leave</td>
+											</tr>
+
+										</tbody>
+
+									</table>
+								</div>
+								<h4 class="mt-4">Upcoming Holidays</h4>
+
+								<table class="table">
+									<thead>
+										<tr>
+											<th>Date</th>
+											<th>Holiday</th>
+											<th>Type</th>
+										</tr>
+									</thead>
+
+									<tbody>
+										<tr th:each="holiday : ${holidays}">
+											<td
+												th:text="${#temporals.format(holiday.holidayDate,'dd MMM yyyy')}"></td>
+											<td th:text="${holiday.holidayName}"></td>
+											<td th:text="${holiday.type}"></td>
+										</tr>
+									</tbody>
+								</table>
+
+							</div>
 
 
-                            <!-- RIGHT SIDE -->
-                            <div>
+							<!-- RIGHT SIDE -->
+							<div>
 
-                                <h4 class="mb-2">Team Leave Balances</h4>
+								<h3 class="mb-3">Team Leave Balances</h3>
+								<div class="table-responsive">
+									<table class="table">
 
-                                <div class="table-responsive">
-                                    <table class="table" style="font-size:0.85rem;">
+										<thead>
+											<tr>
+												<th>Employee</th>
+												<th>Sick</th>
+												<th>Casual</th>
+												<th>Privilege</th>
+												<th>Paid</th>
+											</tr>
+										</thead>
+										<tbody>
 
-                                        <thead>
-                                            <tr>
-                                                <th>Employee</th>
-                                                <th>Sick</th>
-                                                <th>Casual</th>
-                                                <th>Privilege</th>
-                                                <th>Paid</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+											<tr th:each="member : ${teamMembers}">
 
-                                            <tr th:each="member : ${teamMembers}">
+												<td th:text="${member.fullName}"></td>
 
-                                                <td th:text="${member.fullName}"></td>
+												<td><th:block th:each="b : ${teamBalances}">
+														<span
+															th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'SL'}"
+															th:text="${b.balance}" th:remove="tag"> </span>
+													</th:block></td>
 
-                                                <td>
-                                                    <th:block th:each="b : ${teamBalances}">
-                                                        <span
-                                                            th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'SL'}"
-                                                            th:text="${b.balance}" th:remove="tag">
-                                                        </span>
-                                                    </th:block>
-                                                </td>
+												<td><th:block th:each="b : ${teamBalances}">
+														<span
+															th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'CL'}"
+															th:text="${b.balance}" th:remove="tag"> </span>
+													</th:block></td>
 
-                                                <td>
-                                                    <th:block th:each="b : ${teamBalances}">
-                                                        <span
-                                                            th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'CL'}"
-                                                            th:text="${b.balance}" th:remove="tag">
-                                                        </span>
-                                                    </th:block>
-                                                </td>
+												<td><th:block th:each="b : ${teamBalances}">
+														<span
+															th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'PreL'}"
+															th:text="${b.balance}" th:remove="tag"> </span>
+													</th:block></td>
 
-                                                <td>
-                                                    <th:block th:each="b : ${teamBalances}">
-                                                        <span
-                                                            th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'PreL'}"
-                                                            th:text="${b.balance}" th:remove="tag">
-                                                        </span>
-                                                    </th:block>
-                                                </td>
+												<td><th:block th:each="b : ${teamBalances}">
+														<span
+															th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'PL'}"
+															th:text="${b.balance}" th:remove="tag"> </span>
+													</th:block></td>
 
-                                                <td>
-                                                    <th:block th:each="b : ${teamBalances}">
-                                                        <span
-                                                            th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'PL'}"
-                                                            th:text="${b.balance}" th:remove="tag">
-                                                        </span>
-                                                    </th:block>
-                                                </td>
+											</tr>
 
-                                            </tr>
+										</tbody>
 
-                                        </tbody>
+									</table>
+								</div>
 
-                                    </table>
-                                </div>
+							</div>
 
-                            </div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+	<!-- Load Scripts -->
+	<script th:src="@{/js/components.js}"></script>
+	<script th:src="@{/js/app.js}"></script>
+<script>	document.addEventListener("DOMContentLoaded", function () {
 
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-    <!-- Load Scripts -->
-    <script th:src="@{/js/components.js}"></script>
-    <script th:src="@{/js/app.js}"></script>
-    <script th:inline="javascript">
-        document.addEventListener("DOMContentLoaded", function () {
+    const tabs = document.querySelectorAll(".tab-btn");
+    const contents = document.querySelectorAll(".tab-content");
 
-            var calendarEl = document.getElementById("leaveCalendar");
+    let savedTab = localStorage.getItem("activeManagerTab");
 
-            var events = [];
+    if (!savedTab) {
+        savedTab = "pending-requests"; // default first load
+    }
 
-            /*[# th:each="leave : ${team}"]*/
-            events.push({
-                title: '[[${leave.employee.fullName}]] ([[${leave.leaveType.leaveCode}]])',
-                start: '[[${leave.startDate}]]T00:00:00',
-                end: '[[${leave.endDate.plusDays(1)}]]T00:00:00',
-                allDay: true,
-                color: '#3498db'
-            });
-            /*[/]*/
-            /*[# th:each="holiday : ${holidays}"]*/
-            events.push({
-                title: 'Holiday - [[${holiday.holidayName}]]',
-                start: '[[${holiday.holidayDate}]]T00:00:00',
-                allDay: true,
-                color: '#2ecc71'
-            });
-            /*[/]*/
+    tabs.forEach(btn => btn.classList.remove("active"));
+    contents.forEach(c => c.classList.remove("active"));
 
-            console.log("Calendar Events:", events);
+    const activeBtn = document.querySelector(`[data-target="${savedTab}"]`);
+    const activeContent = document.getElementById(savedTab);
 
-            window.calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                height: 500,
-                events: events,
-                eventDisplay: 'block'
-            });
+    if (activeBtn && activeContent) {
+        activeBtn.classList.add("active");
+        activeContent.classList.add("active");
+    }
 
-            window.calendar.render();
+    tabs.forEach(btn => {
+        btn.addEventListener("click", function () {
+
+            const target = this.dataset.target;
+
+            localStorage.setItem("activeManagerTab", target);
+
+            tabs.forEach(b => b.classList.remove("active"));
+            contents.forEach(c => c.classList.remove("active"));
+
+            this.classList.add("active");
+            document.getElementById(target).classList.add("active");
+
         });
+    });
 
-    </script>
-    <script>
-
-        document.addEventListener("DOMContentLoaded", function () {
-
-            const tabs = document.querySelectorAll(".tab-btn");
-            const contents = document.querySelectorAll(".tab-content");
-
-            // Restore saved tab
-            const savedTab = localStorage.getItem("activeManagerTab");
-
-            if (savedTab) {
-                tabs.forEach(btn => btn.classList.remove("active"));
-                contents.forEach(c => c.classList.remove("active"));
-
-                const activeBtn = document.querySelector(`[data-target="${savedTab}"]`);
-                const activeContent = document.getElementById(savedTab);
-
-                if (activeBtn && activeContent) {
-                    activeBtn.classList.add("active");
-                    activeContent.classList.add("active");
-                }
-            }
-
-            // Tab click handler
-            tabs.forEach(btn => {
-                btn.addEventListener("click", function () {
-
-                    const target = this.dataset.target;
-
-                    localStorage.setItem("activeManagerTab", target);
-
-                    tabs.forEach(b => b.classList.remove("active"));
-                    contents.forEach(c => c.classList.remove("active"));
-
-                    this.classList.add("active");
-                    document.getElementById(target).classList.add("active");
-
-                    if (target === "team-calendar") {
-                        setTimeout(function () {
-                            if (window.calendar) {
-                                window.calendar.updateSize();
-                            }
-                        }, 300);
-                    }
-
-                });
-            });
-        });
-
-    </script>
+});</script>
+	
 </body>
 
 </html>
