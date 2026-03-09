@@ -23,77 +23,97 @@ class AppSidebar extends HTMLElement {
 
         const basePath = window.location.pathname.startsWith('/RevWorkForce') ? '/RevWorkForce' : '';
 
-        if (this.role === 'admin') {
-            linksHtml = `
-                <li class="nav-item">
-                    <a href="${basePath}/admin/dashboard" class="nav-link">
-                        <i class="fas fa-home"></i> <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/admin/employees" class="nav-link">
-                        <i class="fas fa-users"></i> <span>Employee Mgt</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/admin/system-config" class="nav-link">
-                        <i class="fas fa-cogs"></i> <span>System Config</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/admin/audit-reports" class="nav-link">
-                        <i class="fas fa-file-alt"></i> <span>Audit & Reports</span>
-                    </a>
-                </li>
-            `;
-        } else if (this.role === 'manager') {
-            linksHtml = `
-                <li class="nav-item">
-                    <a href="${basePath}/manager/dashboard" class="nav-link">
-                        <i class="fas fa-home"></i> <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/manager/team-management" class="nav-link">
-                        <i class="fas fa-users-cog"></i> <span>Team Directory</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/manager/leave-approvals" class="nav-link">
-                        <i class="fas fa-calendar-check"></i> <span>Leave Approvals</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/manager/performance" class="nav-link">
-                        <i class="fas fa-chart-line"></i> <span>Performance</span>
-                    </a>
-                </li>
-            `;
-        } else {
-            // Employee
-            linksHtml = `
-                <li class="nav-item">
-                    <a href="${basePath}/employee/dashboard" class="nav-link">
-                        <i class="fas fa-home"></i> <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/employee/directory" class="nav-link">
-                        <i class="fas fa-id-card"></i> <span>Profile & Directory</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/employee/leave-management" class="nav-link">
-                        <i class="fas fa-calendar-alt"></i> <span>Leave Management</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/employee/performance" class="nav-link">
-                        <i class="fas fa-bullseye"></i> <span>Performance Goals</span>
-                    </a>
-                </li>
-            `;
-        }
+		if (this.role === 'admin') {
+		    linksHtml = `
+		        <li class="nav-item">
+		            <a href="${basePath}/admin/dashboard" class="nav-link">
+		                <i class="fas fa-home"></i> <span>Dashboard</span>
+		            </a>
+		        </li>
+		        <li class="nav-item">
+		            <a href="${basePath}/admin/employees" class="nav-link">
+		                <i class="fas fa-users"></i> <span>Employee Mgt</span>
+		            </a>
+		        </li>
+
+		        <li class="nav-item">
+		            <a href="${basePath}/admin/announcements" class="nav-link">
+		                <i class="fas fa-bullhorn"></i> <span>Announcements</span>
+		            </a>
+		        </li>
+
+		        <li class="nav-item">
+		            <a href="${basePath}/admin/system-config" class="nav-link">
+		                <i class="fas fa-cogs"></i> <span>System Config</span>
+		            </a>
+		        </li>
+		        <li class="nav-item">
+		            <a href="${basePath}/admin/audit-reports" class="nav-link">
+		                <i class="fas fa-file-alt"></i> <span>Audit & Reports</span>
+		            </a>
+		        </li>
+		    `;
+		} 		else if (this.role === 'manager') {
+		    linksHtml = `
+		        <li class="nav-item">
+		            <a href="${basePath}/manager/dashboard" class="nav-link">
+		                <i class="fas fa-home"></i> <span>Dashboard</span>
+		            </a>
+		        </li>
+
+		        <li class="nav-item">
+		            <a href="${basePath}/manager/announcements" class="nav-link">
+		                <i class="fas fa-bullhorn"></i> <span>Announcements</span>
+		            </a>
+		        </li>
+
+		        <li class="nav-item">
+		            <a href="${basePath}/manager/team-management" class="nav-link">
+		                <i class="fas fa-users-cog"></i> <span>Team Directory</span>
+		            </a>
+		        </li>
+		        <li class="nav-item">
+		            <a href="${basePath}/manager/leave-approvals" class="nav-link">
+		                <i class="fas fa-calendar-check"></i> <span>Leave Approvals</span>
+		            </a>
+		        </li>
+		        <li class="nav-item">
+		            <a href="${basePath}/manager/performance" class="nav-link">
+		                <i class="fas fa-chart-line"></i> <span>Performance</span>
+		            </a>
+		        </li>
+		    `;
+		} 		else {
+		    linksHtml = `
+		        <li class="nav-item">
+		            <a href="${basePath}/employee/dashboard" class="nav-link">
+		                <i class="fas fa-home"></i> <span>Dashboard</span>
+		            </a>
+		        </li>
+
+		        <li class="nav-item">
+		            <a href="${basePath}/employee/announcements" class="nav-link">
+		                <i class="fas fa-bullhorn"></i> <span>Announcements</span>
+		            </a>
+		        </li>
+
+		        <li class="nav-item">
+		            <a href="${basePath}/employee/directory" class="nav-link">
+		                <i class="fas fa-id-card"></i> <span>Profile & Directory</span>
+		            </a>
+		        </li>
+		        <li class="nav-item">
+		            <a href="${basePath}/employee/leave-management" class="nav-link">
+		                <i class="fas fa-calendar-alt"></i> <span>Leave Management</span>
+		            </a>
+		        </li>
+		        <li class="nav-item">
+		            <a href="${basePath}/employee/performance" class="nav-link">
+		                <i class="fas fa-bullseye"></i> <span>Performance Goals</span>
+		            </a>
+		        </li>
+		    `;
+		}
 
         this.innerHTML = `
             <style>
