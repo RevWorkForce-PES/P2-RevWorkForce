@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title th:text="${pageTitle}">Announcement Form</title>
+</head>
+
+<body>
+    <h1 th:text="${pageTitle}">Announcement Form</h1>
+    <form th:action="${isEdit ? '/admin/announcements/edit/' + announcementDTO.id : '/admin/announcements/create'}"
+        th:object="${announcementDTO}" method="post">
+        <input type="text" th:field="*{title}" />
+        <textarea th:field="*{message}"></textarea>
+        <button type="submit">Save</button>
+    </form>
+</body>
+
+</html>

@@ -1,6 +1,7 @@
 package com.revature.revworkforce.service.impl;
 
 import com.revature.revworkforce.dto.AnnouncementDTO;
+import com.revature.revworkforce.enums.Priority;
 import com.revature.revworkforce.exception.ResourceNotFoundException;
 import com.revature.revworkforce.model.Announcement;
 import com.revature.revworkforce.model.Employee;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,8 +47,10 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
         Announcement announcement = new Announcement();
         announcement.setTitle(dto.getTitle());
-        announcement.setMessage(dto.getContent());
+        announcement.setMessage(dto.getMessage());
         announcement.setAnnouncementType(dto.getType() != null ? dto.getType() : "INFO");
+        announcement.setPriority(dto.getPriority() != null ? dto.getPriority() : Priority.MEDIUM);
+        announcement.setPublishDate(dto.getPublishDate() != null ? dto.getPublishDate() : LocalDate.now());
         announcement.setExpiryDate(dto.getExpiryDate());
         announcement.setIsActive('Y');
         // createdAt and updatedAt are set by JPA @PrePersist
@@ -79,9 +81,15 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                 .orElseThrow(() -> new ResourceNotFoundException("Announcement not found with id: " + announcementId));
 
         announcement.setTitle(dto.getTitle());
-        announcement.setMessage(dto.getContent());
+        announcement.setMessage(dto.getMessage());
         if (dto.getType() != null) {
             announcement.setAnnouncementType(dto.getType());
+        }
+        if (dto.getPriority() != null) {
+            announcement.setPriority(dto.getPriority());
+        }
+        if (dto.getPublishDate() != null) {
+            announcement.setPublishDate(dto.getPublishDate());
         }
         announcement.setExpiryDate(dto.getExpiryDate());
         if (dto.getIsActive() != null) {
@@ -179,8 +187,10 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         AnnouncementDTO dto = new AnnouncementDTO();
         dto.setId(announcement.getAnnouncementId());
         dto.setTitle(announcement.getTitle());
-        dto.setContent(announcement.getMessage());
+        dto.setMessage(announcement.getMessage());
         dto.setType(announcement.getAnnouncementType());
+        dto.setPriority(announcement.getPriority());
+        dto.setPublishDate(announcement.getPublishDate());
         dto.setExpiryDate(announcement.getExpiryDate());
         dto.setIsActive(announcement.getIsActive());
         dto.setCreatedAt(announcement.getCreatedAt());
