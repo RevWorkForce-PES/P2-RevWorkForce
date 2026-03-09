@@ -7,6 +7,7 @@ import com.revature.revworkforce.exception.ValidationException;
 import com.revature.revworkforce.model.Designation;
 import com.revature.revworkforce.repository.DesignationRepository;
 import com.revature.revworkforce.repository.EmployeeRepository;
+import com.revature.revworkforce.service.AuditService;
 import com.revature.revworkforce.service.impl.DesignationServiceImpl;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +32,9 @@ public class DesignationServiceImplTest {
 
     @Mock
     private EmployeeRepository employeeRepository;
+
+    @Mock
+    private AuditService auditService;  // Mock AuditService
 
     @InjectMocks
     private DesignationServiceImpl designationService;
@@ -59,13 +63,14 @@ public class DesignationServiceImplTest {
 
     @Test
     void createDesignation_ShouldCreateDesignation() {
-        // Arrange
+        // Arrange: Create a mock designation
         Designation newDesignation = new Designation(validDesignationDTO.getDesignationName());
         newDesignation.setDesignationLevel(validDesignationDTO.getDesignationLevel());
         newDesignation.setMinSalary(validDesignationDTO.getMinSalary());
         newDesignation.setMaxSalary(validDesignationDTO.getMaxSalary());
         newDesignation.setDescription(validDesignationDTO.getDescription());
         newDesignation.setIsActive(validDesignationDTO.getIsActive());
+        newDesignation.setDesignationId(1L);  // Explicitly set the ID to avoid NullPointerException
 
         when(designationRepository.existsByDesignationName(validDesignationDTO.getDesignationName())).thenReturn(false);
         when(designationRepository.save(any(Designation.class))).thenReturn(newDesignation);
@@ -89,8 +94,10 @@ public class DesignationServiceImplTest {
 
     @Test
     void updateDesignation_ShouldUpdateDesignation() {
-        // Arrange
+       
+        // Arrange: Create an existing designation
         Designation existingDesignation = new Designation(validDesignationDTO.getDesignationName());
+        existingDesignation.setDesignationId(1L);  // Ensure designationId is set
         existingDesignation.setDesignationLevel(validDesignationDTO.getDesignationLevel());
         existingDesignation.setMinSalary(validDesignationDTO.getMinSalary());
         existingDesignation.setMaxSalary(validDesignationDTO.getMaxSalary());
@@ -120,7 +127,8 @@ public class DesignationServiceImplTest {
     @Test
     void updateDesignation_ShouldThrowValidationException_WhenMinSalaryGreaterThanMaxSalary() {
         // Arrange: Create an existing Designation entity with valid data
-        Designation existingDesignation = new Designation("Software Engineer");  // Make sure to set designationName
+        Designation existingDesignation = new Designation("Software Engineer");
+        existingDesignation.setDesignationId(1L);  // Ensure designationId is set
         existingDesignation.setMinSalary(new BigDecimal("100000"));
         existingDesignation.setMaxSalary(new BigDecimal("50000"));  // Min > Max salary to trigger validation
         when(designationRepository.findById(1L)).thenReturn(Optional.of(existingDesignation));
@@ -153,8 +161,12 @@ public class DesignationServiceImplTest {
 
     @Test
     void deleteDesignation_ShouldSoftDeleteDesignation() {
-        // Arrange
+        // Arrange: Mock the AuditService to avoid NullPointerException
+       
+
+        // Arrange: Create an existing designation
         Designation existingDesignation = new Designation(validDesignationDTO.getDesignationName());
+        existingDesignation.setDesignationId(1L);  // Ensure designationId is set
         when(designationRepository.findById(1L)).thenReturn(Optional.of(existingDesignation));
         when(designationRepository.save(any(Designation.class))).thenReturn(existingDesignation);
 
