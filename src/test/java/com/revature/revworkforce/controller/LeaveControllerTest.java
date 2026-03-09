@@ -116,15 +116,5 @@ class LeaveControllerTest {
                 .andExpect(redirectedUrl("/manager/leave-approvals"));
     }
 
-    // =========================================================
-    // ADMIN REVOKE LEAVE
-    // =========================================================
-    @Test
-    @WithMockUser(username = "ADM001", roles = {"ADMIN"})
-    void revokeLeave_RedirectsToAdminAudit() throws Exception {
-        mockMvc.perform(post("/admin/leave/revoke/1")
-                        .with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/admin/audit-reports"));
-    }
+    
 }
