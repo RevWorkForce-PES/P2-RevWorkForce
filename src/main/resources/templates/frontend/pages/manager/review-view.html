@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="user-fullname" th:content="${fullName ?: 'Manager'}" />
+    <meta name="user-role" th:content="${userRole ?: 'MANAGER'}" />
     <title>View team member review - RevWorkForce Admin</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -24,92 +26,192 @@
                     </div>
 
                     <!-- Header Summary -->
-                    <div class="mb-4 p-3"
-                        style="background:#f8fafc; border-radius:8px; border:1px solid var(--border-color); display:flex; justify-content:space-around; text-align:center;">
+                    <div class="mb-5 p-4"
+                        style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius:16px; border:1px solid var(--border-color); display:flex; justify-content:space-around; align-items: center; text-align:center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                         <div>
-                            <p class="text-muted small text-uppercase mb-1">Employee</p>
-                            <h4 th:text="${review.employeeName}" style="margin:0;">John Doe</h4>
-                        </div>
-                        <div>
-                            <p class="text-muted small text-uppercase mb-1">Status</p>
-                            <span class="badge"
-                                th:classappend="${review.status.name() == 'REVIEWED' ? 'badge-approved' : 'badge-pending'}"
-                                th:text="${review.status}">Status</span>
-                        </div>
-                        <div>
-                            <p class="text-muted small text-uppercase mb-1">Self Rating</p>
-                            <h3 th:text="${review.selfAssessmentRating} + ' / 5.0'" style="margin:0;">4.0</h3>
-                        </div>
-                        <div th:if="${review.managerRating != null}">
-                            <p class="text-muted small text-uppercase mb-1">Manager Rating</p>
-                            <h3 th:text="${review.managerRating} + ' / 5.0'" style="margin:0; color:var(--primary);">4.5
+                            <p class="text-muted small text-uppercase mb-2" style="letter-spacing: 0.05em;">Employee</p>
+                            <h3 th:text="${review.employeeName}" style="margin:0; color: var(--text-dark);">John Doe
                             </h3>
+                            <p class="text-muted small" th:text="${review.designationName}">Senior Developer</p>
                         </div>
+                        <div style="height: 40px; width: 1px; background: var(--border-color);"></div>
                         <div>
-                            <p class="text-muted small text-uppercase mb-1">Submitted</p>
-                            <p th:text="${review.submittedDate != null ? #temporals.format(review.submittedDate, 'MMM dd, yyyy') : 'N/A'}"
-                                style="margin:0; font-weight:bold;"></p>
+                            <p class="text-muted small text-uppercase mb-2" style="letter-spacing: 0.05em;">Cycle Status
+                            </p>
+                            <span class="badge"
+                                th:classappend="${review.status.name() == 'COMPLETED' ? 'badge-approved' : 'badge-pending'}"
+                                th:text="${review.status.name().replace('_', ' ')}"
+                                style="font-size: 0.9rem; padding: 0.5rem 1rem;">Status</span>
+                        </div>
+                        <div th:if="${review.overallRating != null}"
+                            style="height: 40px; width: 1px; background: var(--border-color);"></div>
+                        <div th:if="${review.overallRating != null}">
+                            <p class="text-muted small text-uppercase mb-2" style="letter-spacing: 0.05em;">Performance
+                                Score</p>
+                            <div style="display: flex; align-items: baseline; justify-content: center; gap: 0.25rem;">
+                                <h2 th:text="${review.overallRating}"
+                                    style="margin:0; font-weight: 800; color: var(--primary); font-size: 2.5rem;">4.5
+                                </h2>
+                                <span class="text-muted">/ 5.0</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 3rem;">
                         <!-- Self Assessment View -->
                         <div>
-                            <h4 class="mb-3 text-muted"><i class="fas fa-user"></i> Employee Assessment</h4>
+                            <h4 class="mb-4"
+                                style="color: var(--text-dark); border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">
+                                <i class="fas fa-user-circle" style="margin-right: 0.5rem; color: #64748b;"></i>
+                                Employee Input
+                            </h4>
                             <div class="mb-4">
-                                <label class="font-weight-bold small text-muted text-uppercase">Key Deliverables</label>
-                                <p th:text="${review.keyDeliverables}"
-                                    style="white-space: pre-wrap; font-size: 0.95rem;"></p>
+                                <label class="font-weight-bold small text-muted text-uppercase"
+                                    style="display: block; margin-bottom: 0.5rem;">Achievements</label>
+                                <p th:text="${review.achievements}"
+                                    style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6; color: #334155;">
+                                </p>
                             </div>
                             <div class="mb-4">
-                                <label class="font-weight-bold small text-muted text-uppercase">Major
-                                    Accomplishments</label>
-                                <p th:text="${review.majorAccomplishments}"
-                                    style="white-space: pre-wrap; font-size: 0.95rem;"></p>
+                                <label class="font-weight-bold small text-muted text-uppercase"
+                                    style="display: block; margin-bottom: 0.5rem;">Areas of Improvement</label>
+                                <p th:text="${review.improvementAreas}"
+                                    style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6; color: #334155;">
+                                </p>
                             </div>
                             <div class="mb-4">
-                                <label class="font-weight-bold small text-muted text-uppercase">Areas of
-                                    Improvement</label>
-                                <p th:text="${review.areasOfImprovement}"
-                                    style="white-space: pre-wrap; font-size: 0.95rem;"></p>
+                                <label class="font-weight-bold small text-muted text-uppercase"
+                                    style="display: block; margin-bottom: 0.5rem;">Self Reflection</label>
+                                <p th:text="${review.selfAssessmentComments}"
+                                    style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6; color: #334155; font-style: italic;">
+                                </p>
                             </div>
-                            <div class="mb-4" th:if="${review.selfAssessmentComments != null}">
-                                <label class="font-weight-bold small text-muted text-uppercase">Self Comments</label>
-                                <p th:text="${review.selfAssessmentComments}" style="font-style: italic;"></p>
+                            <div class="p-3" style="background: #f8fafc; border-radius: 8px;">
+                                <span class="font-weight-bold small text-muted text-uppercase">Self Rating:</span>
+                                <span class="badge badge-secondary" th:text="${review.selfAssessmentRating} + ' / 5.0'"
+                                    style="margin-left: 0.5rem;">4.0</span>
                             </div>
                         </div>
 
                         <!-- Manager Feedback View -->
-                        <div style="border-left: 1px solid var(--border-color); padding-left: 2rem;">
-                            <h4 class="mb-3 text-primary"><i class="fas fa-clipboard-check"></i> Manager Feedback</h4>
-                            <div class="mb-4">
-                                <label class="font-weight-bold small text-muted text-uppercase">Feedback</label>
-                                <p th:text="${review.managerFeedback}" style="white-space: pre-wrap; line-height:1.6;">
-                                </p>
-                            </div>
-                            <div class="mb-4"
-                                th:if="${review.managerComments != null and !review.managerComments.isEmpty()}">
-                                <label class="font-weight-bold small text-muted text-uppercase">Internal Notes
-                                    (Privileged)</label>
-                                <p th:text="${review.managerComments}" class="text-muted" style="font-size: 0.9rem;">
-                                </p>
+                        <div>
+                            <h4 class="mb-4"
+                                style="color: var(--primary); border-bottom: 2px solid var(--primary-light); padding-bottom: 0.5rem;">
+                                <i class="fas fa-certificate" style="margin-right: 0.5rem;"></i> Manager Evaluation
+                            </h4>
+
+                            <!-- Competency breakdown -->
+                            <div class="mb-5" th:if="${review.status.name() == 'COMPLETED'}">
+                                <label class="font-weight-bold small text-muted text-uppercase"
+                                    style="display: block; margin-bottom: 1rem;">Competency Breakdown</label>
+                                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                    <!-- Technical Skills -->
+                                    <div>
+                                        <div class="flex-space-between mb-1">
+                                            <span class="small">Technical Skills</span>
+                                            <span class="small font-weight-bold"
+                                                th:text="${review.technicalSkills}">4.5</span>
+                                        </div>
+                                        <div
+                                            style="background: #e2e8f0; height: 6px; border-radius: 3px; overflow: hidden;">
+                                            <div
+                                                th:style="'background: var(--primary); height: 100%; width: ' + ${review.technicalSkillsPercent} + '%'">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Communication -->
+                                    <div>
+                                        <div class="flex-space-between mb-1">
+                                            <span class="small">Communication</span>
+                                            <span class="small font-weight-bold"
+                                                th:text="${review.communication}">4.5</span>
+                                        </div>
+                                        <div
+                                            style="background: #e2e8f0; height: 6px; border-radius: 3px; overflow: hidden;">
+                                            <div
+                                                th:style="'background: var(--primary); height: 100%; width: ' + ${review.communicationPercent} + '%'">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Teamwork -->
+                                    <div>
+                                        <div class="flex-space-between mb-1">
+                                            <span class="small">Teamwork</span>
+                                            <span class="small font-weight-bold" th:text="${review.teamwork}">4.5</span>
+                                        </div>
+                                        <div
+                                            style="background: #e2e8f0; height: 6px; border-radius: 3px; overflow: hidden;">
+                                            <div
+                                                th:style="'background: var(--primary); height: 100%; width: ' + ${review.teamworkPercent} + '%'">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Leadership -->
+                                    <div>
+                                        <div class="flex-space-between mb-1">
+                                            <span class="small">Leadership</span>
+                                            <span class="small font-weight-bold"
+                                                th:text="${review.leadership}">4.5</span>
+                                        </div>
+                                        <div
+                                            style="background: #e2e8f0; height: 6px; border-radius: 3px; overflow: hidden;">
+                                            <div
+                                                th:style="'background: var(--primary); height: 100%; width: ' + ${review.leadershipPercent} + '%'">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Punctuality -->
+                                    <div>
+                                        <div class="flex-space-between mb-1">
+                                            <span class="small">Punctuality</span>
+                                            <span class="small font-weight-bold"
+                                                th:text="${review.punctuality}">4.5</span>
+                                        </div>
+                                        <div
+                                            style="background: #e2e8f0; height: 6px; border-radius: 3px; overflow: hidden;">
+                                            <div
+                                                th:style="'background: var(--primary); height: 100%; width: ' + ${review.punctualityPercent} + '%'">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="mt-5 p-3"
-                                style="background:var(--primary-light); border-radius:8px; border-left:4px solid var(--primary);">
-                                <label class="font-weight-bold small text-uppercase">Final Outcome</label>
-                                <h3 th:text="${review.finalRating != null ? review.finalRating + ' / 5.0' : 'Pending'}"
-                                    style="margin:0; font-weight:bold;">4.25</h3>
-                                <p class="text-muted small mt-1" th:if="${review.reviewedDate != null}">Finalized on:
-                                    <span th:text="${#temporals.format(review.reviewedDate, 'MMM dd, yyyy')}"></span>
+                            <div class="mb-4">
+                                <label class="font-weight-bold small text-muted text-uppercase"
+                                    style="display: block; margin-bottom: 0.5rem;">Performance Feedback</label>
+                                <div
+                                    style="background: #f0f9ff; border-left: 4px solid var(--primary); padding: 1.5rem; border-radius: 0 8px 8px 0;">
+                                    <p th:text="${review.managerFeedback}"
+                                        style="white-space: pre-wrap; line-height:1.7; margin: 0; color: #0c4a6e; font-size: 0.95rem;">
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 p-4" th:if="${review.status.name() == 'COMPLETED'}"
+                                style="background: linear-gradient(to right, #e0f2fe, #f0f9ff); border-radius:12px; border: 1px solid #bae6fd;">
+                                <label class="font-weight-bold small text-uppercase"
+                                    style="color: #0369a1; display: block; margin-bottom: 0.5rem;">Final Performance
+                                    Rating</label>
+                                <div style="display: flex; align-items: baseline; gap: 0.5rem;">
+                                    <h3 th:text="${review.overallRating}"
+                                        style="margin:0; font-weight: 800; color: #0284c7; font-size: 2rem;">4.25</h3>
+                                    <span style="color: #0369a1; font-weight: 600;">/ 5.0</span>
+                                </div>
+                                <p class="text-muted small mt-2" style="margin-bottom: 0;">
+                                    Finalized by <span class="font-weight-bold"
+                                        th:text="${review.reviewedByName}">Manager</span>
+                                    on <span
+                                        th:text="${#temporals.format(review.reviewedDate, 'MMM dd, yyyy')}"></span>.
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-5 text-center">
-                        <button class="btn btn-secondary" onclick="window.print()"><i class="fas fa-file-export"></i>
-                            Export Report</button>
+                    <div class="mt-4 text-center" style="border-top: 1px solid var(--border-color); padding-top: 2rem;">
+                        <button class="btn btn-secondary btn-lg" onclick="window.print()" style="min-width: 250px;">
+                            <i class="fas fa-file-pdf" style="margin-right: 0.5rem;"></i> Download Evaluation PDF
+                        </button>
                     </div>
                 </div>
             </div>

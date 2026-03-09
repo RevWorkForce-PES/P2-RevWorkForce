@@ -18,14 +18,13 @@
             <div class="page-wrapper">
                 <div class="card">
                     <div class="tabs">
-                        <button class="tab-btn" th:classappend="${search == null ? 'active' : ''}"
-                            data-target="team-profiles">My Team / Profiles</button>
+                        <button class="tab-btn active" data-target="team-profiles">My Team / Profiles</button>
                         <button class="tab-btn" data-target="team-attendance">Team Attendance</button>
                         <button class="tab-btn" data-target="team-goals">Goals / Progress</button>
                     </div>
 
                     <!-- Profiles Tab -->
-                    <div id="team-profiles" class="tab-content" th:classappend="${search != null ? 'active' : ''}">
+                    <div id="team-profiles" class="tab-content active">
                         <form th:action="@{/manager/team-management}" method="get" class="flex-space-between mb-3">
                             <div class="form-group" style="margin-bottom: 0; width: 400px; display: flex; gap: 0.5rem;">
                                 <input type="text" name="search" th:value="${search}" class="form-control"

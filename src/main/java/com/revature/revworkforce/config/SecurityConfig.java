@@ -88,13 +88,16 @@ public class SecurityConfig {
                                                                 "/forgot-password/**" // <-- allow all forgot password
                                                                                       // paths
                                                 ).permitAll()
-                                                .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico")
+                                                .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**",
+                                                                "/favicon.ico")
                                                 .permitAll()
 
                                                 // Admin endpoints (ADMIN role required)
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
                                                 // Manager endpoints (MANAGER or ADMIN role required)
+                                                .requestMatchers("/manager/reviews/view/**")
+                                                .hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")
                                                 .requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
 
                                                 // Employee endpoints (any authenticated user)

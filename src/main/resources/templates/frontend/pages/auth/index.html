@@ -7,8 +7,9 @@
     <title>Login - RevWorkForce</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <!-- Font Awesome CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <!-- Google Font: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -177,7 +178,8 @@
             text-align: left;
             cursor: pointer;
             transition: all var(--transition-speed);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* added shadow */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            /* added shadow */
         }
 
         .credential-box:hover {
@@ -200,7 +202,8 @@
             font-size: 0.8rem;
             color: var(--text-dark);
             font-family: 'Inter', sans-serif;
-            display: flex; /* inline for ID and Password */
+            display: flex;
+            /* inline for ID and Password */
             gap: 2.5rem;
         }
 
@@ -213,96 +216,124 @@
             font-size: 0.75rem;
         }
 
+        #gifContainer {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        #gifContainer img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--border-radius-sm);
+        }
+
+        .login-card.gif-active {
+            padding: 0;
+            box-shadow: none;
+            background: #fff;
+            border: none;
+        }
     </style>
 </head>
 
 <body>
     <div class="login-page">
-        <div class="login-card">
-            <div class="login-logo">R</div>
-            <h1 class="login-title">Welcome Back</h1>
-            <p class="login-subtitle">Sign in to RevWorkForce</p>
+        <div class="login-card" id="loginCard"
+            th:classappend="${error == null and message == null and success == null} ? 'gif-active' : ''">
+            <div id="gifContainer"
+                th:style="${error == null and message == null and success == null} ? 'display: flex;' : 'display: none;'">
+                <img th:src="@{/assets/logo.gif}" alt="Loading..." class="img-fluid">
+            </div>
 
-            <div th:if="${error}" class="alert alert-danger"
-                style="color: #dc3545; background-color: #f8d7da; border-color: #f5c6cb; padding: .75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: .25rem; text-align: left;"
-                th:text="${error}"></div>
-            <div th:if="${message}" class="alert alert-success"
-                style="color: #155724; background-color: #d4edda; border-color: #c3e6cb; padding: .75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: .25rem; text-align: left;"
-                th:text="${message}"></div>
-            <div th:if="${success}" class="alert alert-success"
-                style="color: #155724; background-color: #d4edda; border-color: #c3e6cb; padding: .75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: .25rem; text-align: left;"
-                th:text="${success}"></div>
+            <div id="formContent"
+                th:style="${error == null and message == null and success == null} ? 'display: none;' : ''">
+                <div class="login-logo">R</div>
+                <h1 class="login-title">Welcome Back</h1>
+                <p class="login-subtitle">Sign in to RevWorkForce</p>
 
-            <form id="loginForm" th:action="@{/login}" method="post">
-                <div class="form-group">
-                    <label class="form-label" for="username">Employee ID / Email</label>
-                    <input type="text" id="username" name="username" class="form-control" placeholder="e.g. EMP001"
-                        required>
-                </div>
+                <div th:if="${error}" class="alert alert-danger"
+                    style="color: #dc3545; background-color: #f8d7da; border-color: #f5c6cb; padding: .75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: .25rem; text-align: left;"
+                    th:text="${error}"></div>
+                <div th:if="${message}" class="alert alert-success"
+                    style="color: #155724; background-color: #d4edda; border-color: #c3e6cb; padding: .75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: .25rem; text-align: left;"
+                    th:text="${message}"></div>
+                <div th:if="${success}" class="alert alert-success"
+                    style="color: #155724; background-color: #d4edda; border-color: #c3e6cb; padding: .75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: .25rem; text-align: left;"
+                    th:text="${success}"></div>
 
-                <div class="form-group">
-                    <label class="form-label" for="password">Password</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="password" name="password" class="form-control"
-                            placeholder="Enter your password" required style="padding-right: 40px;">
-                        <button type="button" class="password-toggle" id="togglePassword">
-                            <i class="fa-solid fa-eye"></i>
-                        </button>
+                <form id="loginForm" th:action="@{/login}" method="post">
+                    <div class="form-group">
+                        <label class="form-label" for="username">Employee ID / Email</label>
+                        <input type="text" id="username" name="username" class="form-control" placeholder="e.g. EMP001"
+                            required>
                     </div>
-                    <a th:href="@{/forgot-password}" class="forgot-password">Forgot password?</a>
-                </div>
 
-                <button type="submit" class="btn btn-primary btn-login">Sign In</button>
-            </form>
-
-            <!-- Demo Credentials Section -->
-            <div class="demo-section">
-                <p class="demo-title">Demo Credentials</p>
-                <p class="demo-instruction">Click to auto-fill Credentials</p>
-
-                <div class="credentials-grid">
-                    <!-- Admin -->
-                    <div class="credential-box" onclick="fillCredentials('ADM001', 'password123')">
-                        <div class="credential-role"><i class="fa-solid fa-user-shield"></i> Admin</div>
-                        <div class="credential-info">
-                            <div><span>ID:</span> ADM001</div>
-                            <div><span>Password:</span> password123</div>
+                    <div class="form-group">
+                        <label class="form-label" for="password">Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" name="password" class="form-control"
+                                placeholder="Enter your password" required style="padding-right: 40px;">
+                            <button type="button" class="password-toggle" id="togglePassword">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
                         </div>
+                        <a th:href="@{/forgot-password}" class="forgot-password">Forgot password?</a>
                     </div>
 
-                    <!-- Manager -->
-                    <div class="credential-box" onclick="fillCredentials('MGR001', 'password123')">
-                        <div class="credential-role"><i class="fa-solid fa-user-tie"></i> Manager</div>
-                        <div class="credential-info">
-                            <div><span>ID:</span> MGR001</div>
-                            <div><span>Password:</span> password123</div>
+                    <button type="submit" class="btn btn-primary btn-login">Sign In</button>
+                </form>
+
+                <!-- Demo Credentials Section -->
+                <div class="demo-section">
+                    <p class="demo-title">Demo Credentials</p>
+                    <p class="demo-instruction">Click to auto-fill Credentials</p>
+
+                    <div class="credentials-grid">
+                        <!-- Admin -->
+                        <div class="credential-box" onclick="fillCredentials('ADM001', 'password123')">
+                            <div class="credential-role"><i class="fa-solid fa-user-shield"></i> Admin</div>
+                            <div class="credential-info">
+                                <div><span>ID:</span> ADM001</div>
+                                <div><span>Password:</span> password123</div>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Employee -->
-                    <div class="credential-box" onclick="fillCredentials('EMP001', 'password123')">
-                        <div class="credential-role"><i class="fa-solid fa-briefcase"></i> Employee</div>
-                        <div class="credential-info">
-                            <div><span>ID:</span> EMP001</div>
-                            <div><span>Password:</span> password123</div>
+                        <!-- Manager -->
+                        <div class="credential-box" onclick="fillCredentials('MGR001', 'password123')">
+                            <div class="credential-role"><i class="fa-solid fa-user-tie"></i> Manager</div>
+                            <div class="credential-info">
+                                <div><span>ID:</span> MGR001</div>
+                                <div><span>Password:</span> password123</div>
+                            </div>
+                        </div>
+
+                        <!-- Employee -->
+                        <div class="credential-box" onclick="fillCredentials('EMP001', 'password123')">
+                            <div class="credential-role"><i class="fa-solid fa-briefcase"></i> Employee</div>
+                            <div class="credential-info">
+                                <div><span>ID:</span> EMP001</div>
+                                <div><span>Password:</span> password123</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <!-- Dynamic Footer -->
-<footer style="
+    <footer style="
     text-align: center; 
     padding: 1.5rem 0; 
     color: var(--text-muted); 
     font-size: 0.8rem; 
     margin-top: 2rem;
 ">
-    &copy; <span id="currentYear"></span> RevWorkForce. All rights reserved.
-</footer>
-    
+        &copy; <span id="currentYear"></span> RevWorkForce. All rights reserved.
+    </footer>
+
 
     <!-- Load App JS -->
     <script th:src="@{/js/app.js}"></script>
@@ -310,25 +341,41 @@
         // Password toggle functionality
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
-        
-        togglePassword.addEventListener('click', function() {
+
+        togglePassword.addEventListener('click', function () {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            
+
             // Change icon
-            this.innerHTML = type === 'password' 
-                ? '<i class="fa-solid fa-eye"></i>' 
+            this.innerHTML = type === 'password'
+                ? '<i class="fa-solid fa-eye"></i>'
                 : '<i class="fa-solid fa-eye-slash"></i>';
         });
-        
+
         // Fill credentials function
         function fillCredentials(username, password) {
             document.getElementById('username').value = username;
             document.getElementById('password').value = password;
         }
-        
-     // Dynamically set current year in footer
+
+        // Dynamically set current year in footer
         document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Handle Startup GIF Transition
+        document.addEventListener("DOMContentLoaded", function () {
+            const formContent = document.getElementById('formContent');
+            const gifContainer = document.getElementById('gifContainer');
+            const loginCard = document.getElementById('loginCard');
+
+            // If the GIF is initially shown (no errors), hide it after 4.4 seconds
+            if (gifContainer.style.display === 'flex') {
+                setTimeout(() => {
+                    gifContainer.style.display = 'none';
+                    formContent.style.display = 'block';
+                    loginCard.classList.remove('gif-active');
+                }, 4400);
+            }
+        });
 
     </script>
 </body>

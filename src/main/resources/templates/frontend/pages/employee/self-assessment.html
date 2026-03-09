@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="global-user-fullname" th:content="${globalFullName}">
+    <meta name="global-user-role" th:content="${globalUserRole}">
+    <title>Employee Self-Assessment - RevWorkForce</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .rating-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .rating-option {
+            flex: 1;
+            text-align: center;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .rating-option:hover {
+            background: #f1f5f9;
+        }
+
+        .rating-option input {
+            display: none;
+        }
+
+        .rating-option.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .section-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <app-sidebar></app-sidebar>
+        <main class="main-content">
+            <app-navbar th:attribute="page-title=${pageTitle}"></app-navbar>
+            <div class="page-wrapper">
+                <div class="flex-space-between mb-4">
+                    <a th:href="@{/employee/reviews}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <div class="text-muted">
+                        Review Cycle: <span th:text="${reviewDTO.reviewYear}">2024</span>
+                    </div>
+                </div>
+
+                <form th:action="@{/employee/reviews/self-assessment/{id}(id=${reviewDTO.reviewId})}"
+                    th:object="${reviewDTO}" method="POST">
+                    <!-- Achievements Section -->
+                    <div class="section-card">
+                        <div class="section-title">
+                            <i class="fas fa-trophy"></i>
+                            Key Achievements & Contributions
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">What were your major accomplishments during this review period?
+                                (Min. 50 characters)</label>
+                            <textarea class="form-control" th:field="*{achievements}" rows="5"
+                                placeholder="Describe your wins, projects completed, and value added..."
+                                required></textarea>
+                            <div class="text-danger" th:if="${#fields.hasErrors('achievements')}"
+                                th:errors="*{achievements}"></div>
+                        </div>
+                    </div>
+
+                    <!-- Improvement Section -->
+                    <div class="section-card">
+                        <div class="section-title">
+                            <i class="fas fa-chart-line"></i>
+                            Areas for Growth & Improvement
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Identify areas where you'd like to improve or skills you want to
+                                develop. (Min. 50 characters)</label>
+                            <textarea class="form-control" th:field="*{improvementAreas}" rows="5"
+                                placeholder="Be honest about challenges and where you need support..."
+                                required></textarea>
+                            <div class="text-danger" th:if="${#fields.hasErrors('improvementAreas')}"
+                                th:errors="*{improvementAreas}"></div>
+                        </div>
+                    </div>
+
+                    <!-- Self Assessment Section -->
+                    <div class="section-card">
+                        <div class="section-title">
+                            <i class="fas fa-bullseye"></i>
+                            Overall Self-Reflection
+                        </div>
+                        <div class="form-group mb-4">
+                            <label class="form-label">Detailed self-reflection on your overall performance and alignment
+                                with company goals. (Min. 100 characters)</label>
+                            <textarea class="form-control" th:field="*{selfAssessmentText}" rows="6"
+                                placeholder="Summarize your performance, alignment with core values, and future aspirations..."
+                                required></textarea>
+                            <div class="text-danger" th:if="${#fields.hasErrors('selfAssessmentText')}"
+                                th:errors="*{selfAssessmentText}"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Overall Self Rating (1.0 - 5.0)</label>
+                            <p class="text-muted small mb-3">1.0 = Needs Improvement, 3.0 = Meets Expectations, 5.0 =
+                                Exceptional</p>
+                            <div class="rating-group">
+                                <label class="rating-option" th:each="r : ${#numbers.sequence(1, 5)}">
+                                    <input type="radio" th:field="*{selfAssessmentRating}" th:value="${r}.0">
+                                    <span th:text="${r}.0">1.0</span>
+                                </label>
+                            </div>
+                            <div class="text-danger" th:if="${#fields.hasErrors('selfAssessmentRating')}"
+                                th:errors="*{selfAssessmentRating}"></div>
+                        </div>
+                    </div>
+
+                    <div class="section-card" style="background: #f8fafc;">
+                        <div class="form-group">
+                            <label class="form-label">Additional Comments (Optional)</label>
+                            <textarea class="form-control" th:field="*{selfAssessmentComments}" rows="3"
+                                placeholder="Any other details you'd like to share with your manager..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex-end gap-3 mb-5">
+                        <button type="submit" class="btn btn-primary btn-lg" style="min-width: 200px;">
+                            Submit Assessment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/app.js}"></script>
+    <script>
+        document.querySelectorAll('.rating-option input').forEach(input => {
+            input.addEventListener('change', function () {
+                document.querySelectorAll('.rating-option').forEach(opt => opt.classList.remove('selected'));
+                if (this.checked) {
+                    this.parentElement.classList.add('selected');
+                }
+            });
+            // Initial state
+            if (input.checked) {
+                input.parentElement.classList.add('selected');
+            }
+        });
+    </script>
+</body>
+
+</html>

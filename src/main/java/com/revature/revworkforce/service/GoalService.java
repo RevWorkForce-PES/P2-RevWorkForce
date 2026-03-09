@@ -22,6 +22,8 @@ public interface GoalService {
 
         Goal addManagerComments(Long goalId, String managerId, String comments);
 
+        Goal cancelGoal(Long goalId, String employeeId);
+
         void deleteGoal(Long goalId, String employeeId);
 
         Goal getGoalById(Long goalId);
@@ -35,6 +37,8 @@ public interface GoalService {
         List<GoalDTO> getGoalsByStatus(String employeeId, GoalStatus status);
 
         List<GoalDTO> getTeamGoals(String managerId);
+
+        List<GoalDTO> getTeamActiveGoals(String managerId);
 
         List<GoalDTO> getUpcomingDeadlines(String employeeId, int days);
 

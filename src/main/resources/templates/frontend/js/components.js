@@ -608,33 +608,6 @@ class AppNavbar extends HTMLElement {
             }
         });
 
-        // Mark all as read
-        if (headerBtn) {
-            headerBtn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                try {
-                    const res = await fetch(`${basePath}/notifications/mark-all-read`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-                    if (res.ok) {
-                        badge.innerText = '0';
-                        list.innerHTML = '<li class="notification-item" style="justify-content:center; color:var(--text-muted);">No new notifications</li>';
-                    }
-                } catch (err) {
-                    console.error('Error marking notifications as read', err);
-                }
-            });
-        }
-
-        // View All Activity
-        if (footerLink) {
-            footerLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                alert('All activity is summarized on your dashboard pages.');
-                dropdown.classList.remove('show');
-            });
-        }
     }
 }
 

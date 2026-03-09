@@ -1,6 +1,8 @@
 package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.dto.PerformanceReviewDTO;
+import com.revature.revworkforce.enums.ReviewStatus;
+import com.revature.revworkforce.model.Employee;
 import com.revature.revworkforce.model.PerformanceReview;
 import com.revature.revworkforce.security.SecurityUtils;
 import com.revature.revworkforce.service.PerformanceReviewService;
@@ -39,10 +41,10 @@ public class PerformanceReviewController {
     // ============================================
 
     /**
-     * P2: View submitted performance reviews with status
+     * View submitted performance reviews and average rating
      */
     @GetMapping("/employee/reviews")
-    @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
+    @PreAuthorize("hasRole('EMPLOYEE')")
     public String viewMyReviews(Model model) {
         String employeeId = SecurityUtils.getCurrentUsername();
 
@@ -52,62 +54,24 @@ public class PerformanceReviewController {
         model.addAttribute("averageRating", reviewService.getAverageRating(employeeId));
         model.addAttribute("pageTitle", "My Performance Reviews");
 
-        return "pages/employee/performance-goals";
-    }
-
-    /**
-     * P2: Create performance review document
-     */
-    @GetMapping("/employee/reviews/create")
-    @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
-    public String showCreateForm(Model model) {
-        String employeeId = SecurityUtils.getCurrentUsername();
-
-        PerformanceReviewDTO dto = new PerformanceReviewDTO();
-        dto.setReviewYear(LocalDate.now().getYear());
-        dto.setEmployeeId(employeeId);
-
-        model.addAttribute("reviewDTO", dto);
-        model.addAttribute("pageTitle", "Create Performance Review");
-
-        return "pages/employee/performance-goals";
-    }
-
-    /**
-     * P2: Process create review
-     */
-    @PostMapping("/employee/reviews/create")
-    @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
-    public String createReview(
-            @RequestParam Integer reviewYear,
-            RedirectAttributes redirectAttributes) {
-
-        String employeeId = SecurityUtils.getCurrentUsername();
-
+        // Sidebar/Navbar details
         try {
-            // Check if already exists
-            if (reviewService.reviewExists(employeeId, reviewYear)) {
-                redirectAttributes.addFlashAttribute("error",
-                        "Review already exists for year " + reviewYear);
-                return "redirect:/employee/performance";
-            }
-
-            PerformanceReview review = reviewService.createReview(employeeId, reviewYear, employeeId);
-            redirectAttributes.addFlashAttribute("success",
-                    "Performance review created successfully! Please fill in the details.");
-            return "redirect:/employee/reviews/edit/" + review.getReviewId();
+            Employee employee = employeeService.getEmployeeById(employeeId);
+            model.addAttribute("fullName", employee.getFullName());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/employee/reviews/create";
+            model.addAttribute("fullName", "User");
         }
+        model.addAttribute("userRole", "EMPLOYEE");
+
+        return "pages/employee/performance-goals";
     }
 
     /**
-     * P2: Edit review (fill in key deliverables, accomplishments, etc.)
+     * Self-assessment form
      */
-    @GetMapping("/employee/reviews/edit/{reviewId}")
-    @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
-    public String showEditForm(@PathVariable Long reviewId, Model model,
+    @GetMapping("/employee/reviews/self-assessment/{reviewId}")
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public String showSelfAssessmentForm(@PathVariable Long reviewId, Model model,
             RedirectAttributes redirectAttributes) {
         try {
             PerformanceReviewDTO dto = reviewService.getReviewDTOById(reviewId);
@@ -115,34 +79,42 @@ public class PerformanceReviewController {
             // Check if employee owns this review
             String currentUser = SecurityUtils.getCurrentUsername();
             if (!dto.getEmployeeId().equals(currentUser)) {
-                redirectAttributes.addFlashAttribute("error", "You can only edit your own reviews");
-                return "redirect:/employee/performance";
+                redirectAttributes.addFlashAttribute("error", "You can only assess your own reviews");
+                return "redirect:/employee/reviews";
             }
 
-            // Check if editable
-            if (!dto.isEditable()) {
+            // Check status
+            if (dto.getStatus() != ReviewStatus.PENDING_SELF_ASSESSMENT) {
                 redirectAttributes.addFlashAttribute("error",
-                        "Can only edit reviews in DRAFT status");
-                return "redirect:/employee/performance";
+                        "Self-assessment can only be submitted for reviews in PENDING_SELF_ASSESSMENT status");
+                return "redirect:/employee/reviews";
             }
 
             model.addAttribute("reviewDTO", dto);
-            model.addAttribute("pageTitle", "Edit Performance Review");
+            model.addAttribute("pageTitle", "Employee Self-Assessment");
 
-            return "pages/employee/performance-goals";
+            // Sidebar/Navbar details
+            try {
+                Employee employee = employeeService.getEmployeeById(currentUser);
+                model.addAttribute("fullName", employee.getFullName());
+            } catch (Exception e) {
+                model.addAttribute("fullName", "User");
+            }
+            model.addAttribute("userRole", "EMPLOYEE");
+
+            return "pages/employee/self-assessment";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/employee/performance";
+            return "redirect:/employee/reviews";
         }
     }
 
     /**
-     * P2: Update review with key deliverables, accomplishments, areas of
-     * improvement, rating
+     * Submit self-assessment
      */
-    @PostMapping("/employee/reviews/edit/{reviewId}")
-    @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
-    public String updateReview(
+    @PostMapping("/employee/reviews/self-assessment/{reviewId}")
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public String submitSelfAssessment(
             @PathVariable Long reviewId,
             @Valid @ModelAttribute("reviewDTO") PerformanceReviewDTO dto,
             BindingResult result,
@@ -150,84 +122,35 @@ public class PerformanceReviewController {
             RedirectAttributes redirectAttributes) {
 
         if (result.hasErrors()) {
-            model.addAttribute("pageTitle", "Edit Performance Review");
-            return "pages/employee/performance-goals";
+            model.addAttribute("pageTitle", "Employee Self-Assessment");
+            String employeeId = SecurityUtils.getCurrentUsername();
+            try {
+                Employee employee = employeeService.getEmployeeById(employeeId);
+                model.addAttribute("fullName", employee.getFullName());
+            } catch (Exception e) {
+                model.addAttribute("fullName", "User");
+            }
+            model.addAttribute("userRole", "EMPLOYEE");
+            return "pages/employee/self-assessment";
         }
 
         String employeeId = SecurityUtils.getCurrentUsername();
 
         try {
-            reviewService.updateDraft(
-                    reviewId,
-                    employeeId,
-                    dto.getKeyDeliverables(),
-                    dto.getMajorAccomplishments(),
-                    dto.getAreasOfImprovement(),
-                    dto.getSelfAssessmentRating(),
-                    dto.getSelfAssessmentComments());
-
-            redirectAttributes.addFlashAttribute("success",
-                    "Performance review updated successfully!");
-            return "redirect:/employee/performance";
+            reviewService.submitSelfAssessment(reviewId, dto, employeeId);
+            redirectAttributes.addFlashAttribute("success", "Self-assessment submitted successfully!");
+            return "redirect:/employee/reviews";
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("pageTitle", "Edit Performance Review");
-            return "pages/employee/performance-goals";
-        }
-    }
-
-    /**
-     * P2: Submit review to manager
-     */
-    @PostMapping("/employee/reviews/submit/{reviewId}")
-    @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
-    public String submitReview(
-            @PathVariable Long reviewId,
-            @RequestParam String keyDeliverables,
-            @RequestParam String majorAccomplishments,
-            @RequestParam String areasOfImprovement,
-            @RequestParam BigDecimal selfAssessmentRating,
-            @RequestParam(required = false) String selfAssessmentComments,
-            RedirectAttributes redirectAttributes) {
-
-        String employeeId = SecurityUtils.getCurrentUsername();
-
-        try {
-            reviewService.submitSelfAssessment(
-                    reviewId,
-                    employeeId,
-                    keyDeliverables,
-                    majorAccomplishments,
-                    areasOfImprovement,
-                    selfAssessmentRating,
-                    selfAssessmentComments);
-
-            redirectAttributes.addFlashAttribute("success",
-                    "Performance review submitted to manager successfully!");
-            return "redirect:/employee/performance";
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/employee/reviews/edit/" + reviewId;
-        }
-    }
-
-    /**
-     * P2: View review details (including manager feedback if reviewed)
-     */
-    @GetMapping("/employee/reviews/view/{reviewId}")
-    @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN')")
-    public String viewReviewDetails(@PathVariable Long reviewId, Model model,
-            RedirectAttributes redirectAttributes) {
-        try {
-            PerformanceReviewDTO dto = reviewService.getReviewDTOById(reviewId);
-
-            model.addAttribute("review", dto);
-            model.addAttribute("pageTitle", "Review Details");
-
-            return "pages/employee/review-view";
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/employee/performance";
+            model.addAttribute("pageTitle", "Employee Self-Assessment");
+            try {
+                Employee employee = employeeService.getEmployeeById(employeeId);
+                model.addAttribute("fullName", employee.getFullName());
+            } catch (Exception ex) {
+                model.addAttribute("fullName", "User");
+            }
+            model.addAttribute("userRole", "EMPLOYEE");
+            return "pages/employee/self-assessment";
         }
     }
 
@@ -236,69 +159,167 @@ public class PerformanceReviewController {
     // ============================================
 
     /**
-     * P2: View performance reviews submitted by direct reportees
+     * View team reviews
      */
-    @GetMapping("/manager/reviews/pending")
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    public String viewPendingReviews(Model model) {
-        String managerId = SecurityUtils.getCurrentUsername();
-
-        List<PerformanceReviewDTO> reviewDTOs = reviewService.getPendingReviewsForManager(managerId);
-
-        model.addAttribute("reviews", reviewDTOs);
-        model.addAttribute("pageTitle", "Pending Reviews");
-
-        return "pages/manager/performance-review";
-    }
-
-    /**
-     * P2: View all team reviews
-     */
-    @GetMapping("/manager/reviews/team")
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @GetMapping("/manager/reviews")
+    @PreAuthorize("hasRole('MANAGER')")
     public String viewTeamReviews(Model model) {
         String managerId = SecurityUtils.getCurrentUsername();
+        List<PerformanceReviewDTO> reviews = reviewService.getTeamReviews(managerId);
 
-        List<PerformanceReviewDTO> reviewDTOs = reviewService.getTeamReviews(managerId);
-
-        model.addAttribute("reviews", reviewDTOs);
+        model.addAttribute("reviews", reviews);
         model.addAttribute("pageTitle", "Team Performance Reviews");
+
+        // Sidebar/Navbar details
+        try {
+            Employee manager = employeeService.getEmployeeById(managerId);
+            model.addAttribute("fullName", manager.getFullName());
+        } catch (Exception e) {
+            model.addAttribute("fullName", "Manager");
+        }
+        model.addAttribute("userRole", "MANAGER");
 
         return "pages/manager/performance-review";
     }
 
     /**
-     * P2: Provide detailed feedback and rate employee performance (1-5)
+     * View pending reviews
+     */
+    @GetMapping("/manager/reviews/pending")
+    @PreAuthorize("hasRole('MANAGER')")
+    public String viewPendingReviews(Model model) {
+        String managerId = SecurityUtils.getCurrentUsername();
+        List<PerformanceReviewDTO> reviews = reviewService.getPendingReviewsForManager(managerId);
+
+        model.addAttribute("reviews", reviews);
+        model.addAttribute("pageTitle", "Pending Team Reviews");
+
+        // Sidebar/Navbar details
+        try {
+            Employee manager = employeeService.getEmployeeById(managerId);
+            model.addAttribute("fullName", manager.getFullName());
+        } catch (Exception e) {
+            model.addAttribute("fullName", "Manager");
+        }
+        model.addAttribute("userRole", "MANAGER");
+
+        return "pages/manager/pending-reviews";
+    }
+
+    /**
+     * Create review form
+     */
+    @GetMapping("/manager/reviews/create")
+    @PreAuthorize("hasRole('MANAGER')")
+    public String showCreateReviewForm(Model model) {
+        String managerId = SecurityUtils.getCurrentUsername();
+        PerformanceReviewDTO dto = new PerformanceReviewDTO();
+        dto.setReviewYear(LocalDate.now().getYear());
+
+        model.addAttribute("teamMembers", employeeService.getTeamMembers(managerId));
+        model.addAttribute("reviewDTO", dto);
+        model.addAttribute("pageTitle", "Create Performance Review");
+
+        // Sidebar/Navbar details
+        try {
+            Employee manager = employeeService.getEmployeeById(managerId);
+            model.addAttribute("fullName", manager.getFullName());
+        } catch (Exception e) {
+            model.addAttribute("fullName", "Manager");
+        }
+        model.addAttribute("userRole", "MANAGER");
+
+        return "pages/manager/review-create";
+    }
+
+    /**
+     * Create review
+     */
+    @PostMapping("/manager/reviews/create")
+    @PreAuthorize("hasRole('MANAGER')")
+    public String createReview(
+            @Valid @ModelAttribute("reviewDTO") PerformanceReviewDTO dto,
+            BindingResult result,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        String managerId = SecurityUtils.getCurrentUsername();
+
+        if (result.hasFieldErrors("employeeId") || result.hasFieldErrors("reviewYear")) {
+            model.addAttribute("pageTitle", "Create Performance Review");
+            model.addAttribute("teamMembers", employeeService.getTeamMembers(managerId)); // Re-add team members on
+                                                                                          // error
+            try {
+                Employee manager = employeeService.getEmployeeById(managerId);
+                model.addAttribute("fullName", manager.getFullName());
+            } catch (Exception e) {
+                model.addAttribute("fullName", "Manager");
+            }
+            model.addAttribute("userRole", "MANAGER");
+            return "pages/manager/review-create";
+        }
+
+        try {
+            reviewService.createReview(dto, managerId);
+            redirectAttributes.addFlashAttribute("success", "Performance review created successfully!");
+            return "redirect:/manager/reviews";
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("pageTitle", "Create Performance Review");
+            model.addAttribute("teamMembers", employeeService.getTeamMembers(managerId)); // Re-add team members on
+                                                                                          // error
+            try {
+                Employee manager = employeeService.getEmployeeById(managerId);
+                model.addAttribute("fullName", manager.getFullName());
+            } catch (Exception ex) {
+                model.addAttribute("fullName", "Manager");
+            }
+            model.addAttribute("userRole", "MANAGER");
+            return "pages/manager/review-create";
+        }
+    }
+
+    /**
+     * Manager review form
      */
     @GetMapping("/manager/reviews/review/{reviewId}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @PreAuthorize("hasRole('MANAGER')")
     public String showManagerReviewForm(@PathVariable Long reviewId, Model model,
             RedirectAttributes redirectAttributes) {
         try {
             PerformanceReviewDTO dto = reviewService.getReviewDTOById(reviewId);
 
-            // Check if can review
-            if (!dto.canManagerReview()) {
+            if (dto.getStatus() != ReviewStatus.PENDING_MANAGER_REVIEW) {
                 redirectAttributes.addFlashAttribute("error",
-                        "Can only review SUBMITTED reviews");
-                return "redirect:/manager/performance";
+                        "Review can only be completed in PENDING_MANAGER_REVIEW status");
+                return "redirect:/manager/reviews";
             }
 
             model.addAttribute("reviewDTO", dto);
-            model.addAttribute("pageTitle", "Manager Review");
+            model.addAttribute("pageTitle", "Manager Evaluation");
+
+            // Sidebar/Navbar details
+            String managerId = SecurityUtils.getCurrentUsername();
+            try {
+                Employee manager = employeeService.getEmployeeById(managerId);
+                model.addAttribute("fullName", manager.getFullName());
+            } catch (Exception e) {
+                model.addAttribute("fullName", "Manager");
+            }
+            model.addAttribute("userRole", "MANAGER");
 
             return "pages/manager/review-form";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/manager/performance";
+            return "redirect:/manager/reviews";
         }
     }
 
     /**
-     * P2: Submit performance review feedback
+     * Submit manager review
      */
     @PostMapping("/manager/reviews/review/{reviewId}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @PreAuthorize("hasRole('MANAGER')")
     public String submitManagerReview(
             @PathVariable Long reviewId,
             @Valid @ModelAttribute("reviewDTO") PerformanceReviewDTO dto,
@@ -306,48 +327,83 @@ public class PerformanceReviewController {
             Model model,
             RedirectAttributes redirectAttributes) {
 
+        String managerId = SecurityUtils.getCurrentUsername();
+
         if (result.hasErrors()) {
-            model.addAttribute("pageTitle", "Manager Review");
+            model.addAttribute("pageTitle", "Manager Evaluation");
+            try {
+                Employee manager = employeeService.getEmployeeById(managerId);
+                model.addAttribute("fullName", manager.getFullName());
+            } catch (Exception e) {
+                model.addAttribute("fullName", "Manager");
+            }
+            model.addAttribute("userRole", "MANAGER");
             return "pages/manager/review-form";
         }
 
-        String managerId = SecurityUtils.getCurrentUsername();
-
         try {
-            reviewService.submitManagerReview(
-                    reviewId,
-                    managerId,
-                    dto.getManagerFeedback(),
-                    dto.getManagerRating(),
-                    dto.getManagerComments());
-
-            redirectAttributes.addFlashAttribute("success",
-                    "Review feedback submitted successfully!");
-            return "redirect:/manager/performance";
+            reviewService.submitManagerReview(reviewId, dto, managerId);
+            redirectAttributes.addFlashAttribute("success", "Manager evaluation submitted successfully!");
+            return "redirect:/manager/reviews";
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("pageTitle", "Manager Review");
+            model.addAttribute("pageTitle", "Manager Evaluation");
+            try {
+                Employee manager = employeeService.getEmployeeById(managerId);
+                model.addAttribute("fullName", manager.getFullName());
+            } catch (Exception ex) {
+                model.addAttribute("fullName", "Manager");
+            }
+            model.addAttribute("userRole", "MANAGER");
             return "pages/manager/review-form";
         }
     }
 
     /**
-     * View team member review details
+     * View detailed review
      */
     @GetMapping("/manager/reviews/view/{reviewId}")
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    public String viewTeamMemberReview(@PathVariable Long reviewId, Model model,
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'EMPLOYEE')")
+    public String viewDetailedReview(@PathVariable Long reviewId, Model model,
             RedirectAttributes redirectAttributes) {
         try {
             PerformanceReviewDTO dto = reviewService.getReviewDTOById(reviewId);
+            String currentUser = SecurityUtils.getCurrentUsername();
+
+            // Allow access if user is the employee OR a manager/admin
+            boolean isOwner = dto.getEmployeeId().equals(currentUser);
+            boolean isManagerOrAdmin = SecurityUtils.hasRole("MANAGER") || SecurityUtils.hasRole("ADMIN");
+
+            if (!isOwner && !isManagerOrAdmin) {
+                redirectAttributes.addFlashAttribute("error", "You can only view your own performance records");
+                return "redirect:/employee/performance";
+            }
 
             model.addAttribute("review", dto);
             model.addAttribute("pageTitle", "Review Details");
 
+            // Sidebar/Navbar details
+            String userId = SecurityUtils.getCurrentUsername();
+            String userRole = "USER"; // Default role
+            try {
+                Employee user = employeeService.getEmployeeById(userId);
+                model.addAttribute("fullName", user.getFullName());
+                if (SecurityUtils.hasRole("MANAGER")) {
+                    userRole = "MANAGER";
+                } else if (SecurityUtils.hasRole("ADMIN")) {
+                    userRole = "ADMIN";
+                } else if (SecurityUtils.hasRole("EMPLOYEE")) {
+                    userRole = "EMPLOYEE";
+                }
+            } catch (Exception e) {
+                model.addAttribute("fullName", "User");
+            }
+            model.addAttribute("userRole", userRole);
+
             return "pages/manager/review-view";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/manager/performance";
+            return "redirect:/manager/reviews";
         }
     }
 

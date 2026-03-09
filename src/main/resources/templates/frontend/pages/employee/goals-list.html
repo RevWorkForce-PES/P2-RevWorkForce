@@ -46,7 +46,7 @@
                                     <td>
                                         <span class="badge"
                                             th:classappend="${goal.priority.name() == 'HIGH' ? 'badge-rejected' : 'badge-pending'}"
-                                            th:text="${goal.priority}">MEDIUM</span>
+                                            th:text="${goal.priority.displayName}">MEDIUM</span>
                                     </td>
                                     <td th:text="${#temporals.format(goal.deadline, 'MMM dd, yyyy')}"
                                         th:classappend="${goal.deadline != null and goal.deadline.isBefore(#temporals.createNow().toLocalDate()) ? 'text-danger' : ''}">

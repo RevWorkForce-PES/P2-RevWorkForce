@@ -456,15 +456,20 @@ COMMENT ON COLUMN HOLIDAYS.updated_by IS 'User who last updated record';
         review_year NUMBER(4) NOT NULL,
         review_period VARCHAR2(50),
         key_deliverables CLOB,
-        major_accomplishments CLOB,
-        areas_of_improvement CLOB,
+        achievements CLOB,
+        improvement_areas CLOB,
         self_assessment_rating NUMBER(2,1),
         self_assessment_comments VARCHAR2(1000),
         manager_feedback CLOB,
+        technical_skills NUMBER(2,1),
+        communication NUMBER(2,1),
+        teamwork NUMBER(2,1),
+        leadership NUMBER(2,1),
+        punctuality NUMBER(2,1),
         manager_rating NUMBER(2,1),
         manager_comments VARCHAR2(1000),
         final_rating NUMBER(2,1),
-        status VARCHAR2(20) DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'SUBMITTED', 'REVIEWED', 'COMPLETED')),
+        status VARCHAR2(30) DEFAULT 'PENDING_SELF_ASSESSMENT' CHECK (status IN ('PENDING_SELF_ASSESSMENT', 'PENDING_MANAGER_REVIEW', 'COMPLETED')),
         submitted_date DATE,
         reviewed_by VARCHAR2(20),
         reviewed_date DATE,
@@ -663,7 +668,12 @@ END;
     BEFORE UPDATE ON PERFORMANCE_REVIEWS
     FOR EACH ROW
     BEGIN
-        IF :NEW.self_assessment_rating IS NOT NULL AND :NEW.manager_rating IS NOT NULL THEN
+        -- For the new version, the overall rating is often set by the service, 
+        -- but this trigger provides a fallback based on the 5 competencies if provided.
+        IF :NEW.technical_skills IS NOT NULL AND :NEW.communication IS NOT NULL AND 
+           :NEW.teamwork IS NOT NULL AND :NEW.leadership IS NOT NULL AND :NEW.punctuality IS NOT NULL THEN
+            :NEW.final_rating := ROUND((:NEW.technical_skills + :NEW.communication + :NEW.teamwork + :NEW.leadership + :NEW.punctuality) / 5, 1);
+        ELSIF :NEW.self_assessment_rating IS NOT NULL AND :NEW.manager_rating IS NOT NULL THEN
             :NEW.final_rating := ROUND((:NEW.self_assessment_rating + :NEW.manager_rating) / 2, 1);
         END IF;
         :NEW.updated_at := CURRENT_TIMESTAMP;
