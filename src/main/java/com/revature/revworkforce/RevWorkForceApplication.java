@@ -63,10 +63,10 @@ public class RevWorkForceApplication implements CommandLineRunner {
             "========================================\n" +
             "  RevWorkForce Application Started!     \n" +
             "========================================\n" +
-            "  Application: RevWorkForce HRM        \n" +
-            "  Port: " + port + "                      \n" +
-            "  URL: http://localhost:" + port + "     \n" +
-            "  Database: Oracle 19c                 \n" +
+            "  Application: RevWorkForce HRM         \n" +
+            "  Port: " + port + "                    \n" +
+            "  URL: http://localhost:" + port + "    \n" +
+            "  Database: Oracle 19c                  \n" +
             "========================================\n"
         );
     }

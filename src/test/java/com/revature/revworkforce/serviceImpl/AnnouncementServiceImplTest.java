@@ -9,9 +9,11 @@ import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.service.AuditService;
 import com.revature.revworkforce.service.NotificationService;
 import com.revature.revworkforce.service.impl.AnnouncementServiceImpl;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -23,8 +25,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,6 +52,7 @@ class AnnouncementServiceImplTest {
 
     @BeforeEach
     void setUp() {
+
         employee = new Employee();
         employee.setEmployeeId("EMP001");
         employee.setFirstName("John");
@@ -72,22 +74,36 @@ class AnnouncementServiceImplTest {
 
     @Test
     void createAnnouncement_Success() {
-        when(employeeRepository.findById("EMP001")).thenReturn(Optional.of(employee));
-        when(announcementRepository.save(any(Announcement.class))).thenReturn(announcement);
 
-        AnnouncementDTO result = announcementService.createAnnouncement(announcementDTO, "EMP001");
+        when(employeeRepository.findById("EMP001"))
+                .thenReturn(Optional.of(employee));
+
+        when(announcementRepository.save(any(Announcement.class)))
+                .thenReturn(announcement);
+
+        AnnouncementDTO result =
+                announcementService.createAnnouncement(announcementDTO, "EMP001");
 
         assertThat(result).isNotNull();
         assertThat(result.getTitle()).isEqualTo("Test Title");
+
         verify(announcementRepository).save(any(Announcement.class));
         verify(notificationService).createAnnouncementForAll(any(Announcement.class));
-        verify(auditService).createAuditLog(eq("EMP001"), eq("ANNOUNCEMENT_CREATED"), anyString(), anyString(), any(),
-                any(), any(), any());
+        verify(auditService).createAuditLog(eq("EMP001"),
+                eq("ANNOUNCEMENT_CREATED"),
+                anyString(),
+                anyString(),
+                any(),
+                any(),
+                any(),
+                any());
     }
 
     @Test
     void createAnnouncement_EmployeeNotFound() {
-        when(employeeRepository.findById("EMP001")).thenReturn(Optional.empty());
+
+        when(employeeRepository.findById("EMP001"))
+                .thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
                 () -> announcementService.createAnnouncement(announcementDTO, "EMP001"));
@@ -95,20 +111,34 @@ class AnnouncementServiceImplTest {
 
     @Test
     void updateAnnouncement_Success() {
-        when(announcementRepository.findById(1L)).thenReturn(Optional.of(announcement));
-        when(announcementRepository.save(any(Announcement.class))).thenReturn(announcement);
 
-        AnnouncementDTO result = announcementService.updateAnnouncement(1L, announcementDTO);
+        when(announcementRepository.findById(1L))
+                .thenReturn(Optional.of(announcement));
+
+        when(announcementRepository.save(any(Announcement.class)))
+                .thenReturn(announcement);
+
+        AnnouncementDTO result =
+                announcementService.updateAnnouncement(1L, announcementDTO);
 
         assertThat(result).isNotNull();
+
         verify(announcementRepository).save(any(Announcement.class));
-        verify(auditService).createAuditLog(any(), eq("ANNOUNCEMENT_UPDATED"), anyString(), anyString(), any(), any(),
-                any(), any());
+        verify(auditService).createAuditLog(any(),
+                eq("ANNOUNCEMENT_UPDATED"),
+                anyString(),
+                anyString(),
+                any(),
+                any(),
+                any(),
+                any());
     }
 
     @Test
     void updateAnnouncement_NotFound() {
-        when(announcementRepository.findById(1L)).thenReturn(Optional.empty());
+
+        when(announcementRepository.findById(1L))
+                .thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
                 () -> announcementService.updateAnnouncement(1L, announcementDTO));
@@ -116,9 +146,12 @@ class AnnouncementServiceImplTest {
 
     @Test
     void getAnnouncementById_Success() {
-        when(announcementRepository.findById(1L)).thenReturn(Optional.of(announcement));
 
-        AnnouncementDTO result = announcementService.getAnnouncementById(1L);
+        when(announcementRepository.findById(1L))
+                .thenReturn(Optional.of(announcement));
+
+        AnnouncementDTO result =
+                announcementService.getAnnouncementById(1L);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
@@ -126,26 +159,33 @@ class AnnouncementServiceImplTest {
 
     @Test
     void getAllAnnouncements_Success() {
-        when(announcementRepository.findAllByOrderByCreatedAtDesc()).thenReturn(Arrays.asList(announcement));
 
-        List<Announcement> result = announcementService.getAllAnnouncements();
+        when(announcementRepository.findAllByOrderByCreatedAtDesc())
+                .thenReturn(Arrays.asList(announcement));
+
+        List<Announcement> result =
+                announcementService.getAllAnnouncements();
 
         assertThat(result).hasSize(1);
     }
 
     @Test
     void getActiveAnnouncements_Success() {
+
         when(announcementRepository.findActiveAnnouncements(eq('Y'), any(LocalDate.class)))
                 .thenReturn(Arrays.asList(announcement));
 
-        List<AnnouncementDTO> result = announcementService.getActiveAnnouncements();
+        List<AnnouncementDTO> result =
+                announcementService.getActiveAnnouncements();
 
         assertThat(result).hasSize(1);
     }
 
     @Test
     void deactivateAnnouncement_Success() {
-        when(announcementRepository.findById(1L)).thenReturn(Optional.of(announcement));
+
+        when(announcementRepository.findById(1L))
+                .thenReturn(Optional.of(announcement));
 
         announcementService.deactivateAnnouncement(1L);
 
@@ -155,7 +195,9 @@ class AnnouncementServiceImplTest {
 
     @Test
     void deleteAnnouncement_Success() {
-        when(announcementRepository.findById(1L)).thenReturn(Optional.of(announcement));
+
+        when(announcementRepository.findById(1L))
+                .thenReturn(Optional.of(announcement));
 
         announcementService.deleteAnnouncement(1L);
 
@@ -164,7 +206,9 @@ class AnnouncementServiceImplTest {
 
     @Test
     void deactivateExpiredAnnouncements_Success() {
+
         announcementService.deactivateExpiredAnnouncements();
+
         verify(announcementRepository).deactivateExpired(any(LocalDate.class));
     }
 }

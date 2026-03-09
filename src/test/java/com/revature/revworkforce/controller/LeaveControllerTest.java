@@ -14,8 +14,11 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
+
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(LeaveController.class)
@@ -51,6 +54,8 @@ class LeaveControllerTest {
         mockMvc.perform(get("/employee/apply"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("pages/employee/leave-management"));
+
+        verify(leaveTypeRepository, times(1)).findAll();
     }
 
     // =========================================================
@@ -65,7 +70,8 @@ class LeaveControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/employee/leave-management"));
 
-        verify(leaveService, times(1)).applyLeave(any(), anyString());
+        verify(leaveService, times(1))
+                .applyLeave(any(), eq("EMP001"));
     }
 
     // =========================================================
@@ -80,7 +86,8 @@ class LeaveControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/employee/leave-management"));
 
-        verify(leaveService, times(1)).cancelLeave(1L, anyString());
+        verify(leaveService, times(1))
+                .cancelLeave(eq(1L), eq("EMP001"));
     }
 
     // =========================================================
@@ -90,13 +97,21 @@ class LeaveControllerTest {
     @WithMockUser(username = "MGR001", roles = { "MANAGER" })
     void showPendingLeaves_ReturnsManagerPage() throws Exception {
 
-        when(leaveService.getPendingLeavesForManager("MGR001")).thenReturn(java.util.List.of());
-        when(leaveService.getTeamLeaves("MGR001")).thenReturn(java.util.List.of());
-        when(holidayService.getAllActiveHolidays()).thenReturn(java.util.List.of());
+        when(leaveService.getPendingLeavesForManager("MGR001"))
+                .thenReturn(java.util.List.of());
+
+        when(leaveService.getTeamLeaves("MGR001"))
+                .thenReturn(java.util.List.of());
+
+        when(holidayService.getAllActiveHolidays())
+                .thenReturn(java.util.List.of());
 
         mockMvc.perform(get("/manager/pending"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("pages/manager/leave-approvals"));
+
+        verify(leaveService).getPendingLeavesForManager("MGR001");
+        verify(leaveService).getTeamLeaves("MGR001");
     }
 
     // =========================================================
@@ -111,7 +126,8 @@ class LeaveControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/manager/leave-approvals"));
 
-        verify(leaveService, times(1)).approveLeave(1L, "MGR001", null);
+        verify(leaveService, times(1))
+                .approveLeave(eq(1L), eq("MGR001"), isNull());
     }
 
     // =========================================================
@@ -127,10 +143,7 @@ class LeaveControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/manager/leave-approvals"));
 
-        verify(leaveService, times(1)).rejectLeave(1L, "MGR001", "Invalid");
+        verify(leaveService, times(1))
+                .rejectLeave(eq(1L), eq("MGR001"), eq("Invalid"));
     }
-
-    // =========================================================
-    // ADMIN REVOKE LEAVE - MOVED TO AdminActionController
-    // =========================================================
 }

@@ -5,6 +5,7 @@ import com.revature.revworkforce.service.NotificationService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -42,7 +43,6 @@ class NotificationViewControllerTest {
     // =============================
     // View All Notifications
     // =============================
-
     @Test
     void viewAllNotifications_ShouldReturnListPage() throws Exception {
 
@@ -61,7 +61,6 @@ class NotificationViewControllerTest {
     // =============================
     // View Unread Notifications
     // =============================
-
     @Test
     void viewUnread_ShouldReturnUnreadPage() throws Exception {
 
@@ -80,7 +79,6 @@ class NotificationViewControllerTest {
     // =============================
     // Mark Read
     // =============================
-
     @Test
     void markAsRead_ShouldRedirect() throws Exception {
 
@@ -97,7 +95,6 @@ class NotificationViewControllerTest {
     // =============================
     // Mark All Read
     // =============================
-
     @Test
     void markAll_ShouldRedirect() throws Exception {
 
@@ -110,11 +107,9 @@ class NotificationViewControllerTest {
 
         verify(notificationService).markAllAsRead(EMPLOYEE_ID);
     }
-
     // =============================
     // Delete Notification
     // =============================
-
     @Test
     void deleteNotification_ShouldRedirect() throws Exception {
 
