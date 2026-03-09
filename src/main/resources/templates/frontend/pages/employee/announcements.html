@@ -2,59 +2,396 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="global-user-fullname" th:content="${globalFullName}">
-    <meta name="global-user-role" th:content="${globalUserRole}">
-    <title>Company Announcements - RevWorkForce</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="user-fullname" th:content="${fullName} ?: 'User'">
+<meta name="user-role" th:content="${userRole} ?: 'Employee'">
+<title>Company Announcements - RevWorkForce</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<style>
+/* HERO */
+.announcement-hero {
+	background: linear-gradient(135deg, var(--primary), var(--primary-light));
+	color: white;
+	padding: 2rem;
+	border-radius: 10px;
+	margin-bottom: 2rem;
+}
+
+.announcement-hero h1 {
+	margin-bottom: 0.5rem;
+}
+
+.announcement-hero p {
+	opacity: 0.9;
+	margin: 0;
+}
+
+/* STATS */
+.stats-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 1.5rem;
+}
+
+.stat-card {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	background: white;
+	padding: 1.25rem;
+	border-radius: 8px;
+	border: 1px solid var(--border-color);
+}
+
+.stat-icon {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.2rem;
+}
+
+.stat-details {
+	display: flex;
+	flex-direction: column;
+}
+
+.stat-label {
+	font-size: 0.85rem;
+	color: var(--text-muted);
+	margin: 0;
+}
+
+.stat-value {
+	margin: 0;
+	font-size: 1.5rem;
+}
+
+/* FILTER BAR */
+.filter-bar {
+	display: flex;
+	gap: 1rem;
+	flex-wrap: wrap;
+	margin-bottom: 1.5rem;
+}
+
+.filter-bar select {
+	padding: 8px 10px;
+	border-radius: 6px;
+	border: 1px solid var(--border-color);
+	background: white;
+}
+
+.search-box {
+	position: relative;
+}
+
+.search-box i {
+	position: absolute;
+	left: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: var(--text-muted);
+}
+
+.search-box input {
+	width: 100%;
+	padding: 8px 10px 8px 32px;
+	border-radius: 6px;
+	border: 1px solid var(--border-color);
+}
+
+/* ANNOUNCEMENT CARD */
+.announcement-card {
+	background: white;
+	border: 1px solid var(--border-color);
+	border-radius: 10px;
+	padding: 1.5rem;
+	margin-bottom: 1.5rem;
+	position: relative;
+	transition: all 0.2s;
+}
+
+.announcement-card:hover {
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+	transform: translateY(-2px);
+}
+
+/* PRIORITY BADGES */
+.priority-badge {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	font-size: 0.7rem;
+	padding: 4px 8px;
+	border-radius: 20px;
+	font-weight: 600;
+}
+
+.priority-URGENT {
+	background: #fee2e2;
+	color: #dc2626;
+}
+
+.priority-HIGH {
+	background: #fff7ed;
+	color: #ea580c;
+}
+
+.priority-MEDIUM {
+	background: #dbeafe;
+	color: #1e40af;
+}
+
+.priority-LOW {
+	background: #d1fae5;
+	color: #065f46;
+}
+
+/* HEADER */
+.announcement-header {
+	margin-bottom: 1rem;
+}
+
+.announcement-header h2 {
+	margin: 0 0 6px 0;
+	font-size: 1.3rem;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+/* NEW BADGE */
+.new-badge {
+	background: #10b981;
+	color: white;
+	font-size: 0.65rem;
+	padding: 2px 6px;
+	border-radius: 6px;
+}
+
+/* META */
+.announcement-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	font-size: 0.8rem;
+	color: var(--text-muted);
+}
+
+.announcement-meta i {
+	margin-right: 4px;
+}
+
+/* TYPE BADGE */
+.type-badge {
+	background: #f3f4f6;
+	padding: 3px 8px;
+	border-radius: 6px;
+	font-size: 0.7rem;
+}
+
+/* MESSAGE */
+.announcement-message {
+	margin-top: 0.75rem;
+	line-height: 1.6;
+}
+
+/* EMPTY STATE */
+.empty-state {
+	text-align: center;
+	padding: 3rem 1rem;
+	color: var(--text-muted);
+}
+
+.empty-state i {
+	font-size: 2rem;
+	margin-bottom: 0.5rem;
+}
+</style>
 </head>
 
 <body>
-    <div class="app-container">
-        <app-sidebar></app-sidebar>
-        <main class="main-content">
-            <app-navbar page-title="Company Announcements"></app-navbar>
-            <div class="page-wrapper">
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Company Announcements</h2>
-                    </div>
+	<div class="app-container">
+		<!-- Sidebar Component -->
+		<app-sidebar></app-sidebar>
 
-                    <!-- Empty state -->
-                    <div th:if="${#lists.isEmpty(announcements)}"
-                        style="padding: 2rem; text-align: center; color: var(--text-muted);">
-                        <i class="fas fa-bullhorn" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
-                        No active announcements at this time.
-                    </div>
+		<main class="main-content">
+			<!-- Navbar Component -->
+			<app-navbar page-title="Company Announcements"></app-navbar>
 
-                    <!-- Announcement cards -->
-                    <div th:each="ann : ${announcements}"
-                        style="border-bottom: 1px solid var(--border-color); padding: 1.25rem 0;">
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                            <h3 style="margin: 0; font-size: 1rem;" th:text="${ann.title}">Announcement Title</h3>
-                            <span class="badge"
-                                th:classappend="${ann.priority != null && ann.priority.name() == 'HIGH' ? 'badge-rejected' : (ann.priority != null && ann.priority.name() == 'MEDIUM' ? 'badge-pending' : 'badge-approved')}"
-                                th:text="${ann.priority != null ? ann.priority : 'NORMAL'}">NORMAL</span>
-                        </div>
-                        <p style="color: var(--text-muted); margin-bottom: 0.5rem; line-height: 1.6;"
-                            th:text="${ann.message}">Announcement message details go here.</p>
-                        <small class="text-muted">
-                            <i class="fas fa-calendar-alt"></i>
-                            Published:
-                            <span
-                                th:text="${ann.publishDate != null ? #temporals.format(ann.publishDate, 'MMM d, yyyy') : 'N/A'}">Mar
-                                1, 2026</span>
-                        </small>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-    <!-- Load Scripts -->
-    <script th:src="@{/js/components.js}"></script>
-    <script th:src="@{/js/app.js}"></script>
+			<div class="page-wrapper">
+				<!-- Hero Section -->
+				<div class="announcement-hero">
+					<h1 style="color: white">Company Announcements</h1>
+					<p>Stay updated with the latest news and important information</p>
+				</div>
+
+				<!-- Statistics -->
+				<div class="stats-grid" style="margin-bottom: 2rem;">
+					<div class="stat-card">
+						<div class="stat-icon" style="background: #dbeafe;">
+							<i class="fas fa-bullhorn" style="color: #1e40af;"></i>
+						</div>
+						<div class="stat-details">
+							<p class="stat-label">Total Active</p>
+							<h3 class="stat-value" th:text="${#lists.size(announcements)}">0</h3>
+						</div>
+					</div>
+
+					<div class="stat-card">
+						<div class="stat-icon" style="background: #fee2e2;">
+							<i class="fas fa-exclamation-circle" style="color: #dc2626;"></i>
+						</div>
+						<div class="stat-details">
+							<p class="stat-label">Urgent</p>
+							<h3 class="stat-value"
+								th:text="${#lists.size(announcements.?[priority.name() == 'URGENT'])}">0</h3>
+						</div>
+					</div>
+
+					<div class="stat-card">
+						<div class="stat-icon" style="background: #d1fae5;">
+							<i class="fas fa-clock" style="color: #065f46;"></i>
+						</div>
+						<div class="stat-details">
+							<p class="stat-label">This Week</p>
+							<h3 class="stat-value">
+								<span
+									th:text="${#lists.size(announcements.?[publishDate != null && publishDate.isAfter(#temporals.createNow().toLocalDate().minusDays(7))])}">0</span>
+							</h3>
+						</div>
+					</div>
+				</div>
+
+				<!-- Filter Bar -->
+				<div class="filter-bar">
+					<div class="search-box" style="flex: 1;">
+						<i class="fas fa-search"></i> <input type="text" id="searchInput"
+							placeholder="Search announcements..."
+							onkeyup="searchAnnouncements()">
+					</div>
+
+					<select id="priorityFilter" onchange="filterByPriority()">
+						<option value="ALL">All Priorities</option>
+						<option value="URGENT">Urgent Only</option>
+						<option value="HIGH">High Priority</option>
+						<option value="MEDIUM">Medium Priority</option>
+						<option value="LOW">Low Priority</option>
+					</select> <select id="typeFilter" onchange="filterByType()">
+						<option value="ALL">All Types</option>
+						<option value="INFO">Information</option>
+						<option value="WARNING">Warning</option>
+						<option value="POLICY">Policy Update</option>
+						<option value="EVENT">Event</option>
+						<option value="URGENT">Urgent Notice</option>
+					</select>
+				</div>
+
+				<!-- Announcements List -->
+				<div id="announcementsList">
+					<div class="announcement-card" th:each="ann : ${announcements}"
+						th:classappend="' priority-' + ${ann.priority}"
+						th:data-priority="${ann.priority}" th:data-type="${ann.type}">
+
+						<span class="priority-badge"
+							th:classappend="' priority-' + ${ann.priority}"
+							th:text="${ann.priority}">MEDIUM</span>
+
+						<div class="announcement-header">
+							<h2>
+								<span th:text="${ann.title}">Announcement Title</span> <span
+									class="new-badge"
+									th:if="${ann.createdAt != null && ann.createdAt.toLocalDate().isAfter(#temporals.createNow().toLocalDate().minusDays(3))}">NEW</span>
+							</h2>
+
+							<div class="announcement-meta">
+								<span> <i class="fas fa-user"></i> <span
+									th:text="${ann.creatorName}">Posted by Admin</span>
+								</span> <span> <i class="fas fa-calendar"></i> <span
+									th:text="${#temporals.format(ann.publishDate, 'MMMM dd, yyyy')}">March
+										09, 2026</span>
+								</span> <span th:if="${ann.expiryDate != null}"> <i
+									class="fas fa-clock"></i> Expires: <span
+									th:text="${#temporals.format(ann.expiryDate, 'MMM dd')}">Mar
+										20</span>
+								</span> <span class="type-badge" th:text="${ann.type}">INFO</span>
+							</div>
+						</div>
+
+						<div class="announcement-message">
+							<p th:utext="${#strings.replace(ann.message, '\n', '<br>')}">
+								Announcement message goes here...</p>
+						</div>
+
+						<div
+							th:if="${ann.message != null && #strings.length(ann.message) > 300}">
+							<a th:href="@{/employee/announcements/{id}(id=${ann.id})}"
+								class="btn btn-link" style="padding-left: 0;"> <i
+								class="fas fa-arrow-right"></i> Read More
+							</a>
+						</div>
+					</div>
+
+					<!-- Empty State -->
+					<div th:if="${#lists.isEmpty(announcements)}" class="empty-state">
+						<i class="fas fa-bullhorn"></i>
+						<h3>No Announcements</h3>
+						<p>There are no active announcements at the moment.</p>
+						<p style="color: #9ca3af;">Check back later for updates!</p>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+
+	<!-- Scripts -->
+	<script th:src="@{/js/components.js}"></script>
+	<script th:src="@{/js/app.js}"></script>
+
+	<script>
+        function searchAnnouncements() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const cards = document.querySelectorAll('.announcement-card');
+
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(filter) ? '' : 'none';
+            });
+        }
+
+        function filterByPriority() {
+            const select = document.getElementById('priorityFilter');
+            const priority = select.value;
+            const cards = document.querySelectorAll('.announcement-card');
+
+            cards.forEach(card => {
+                if (priority === 'ALL' || card.dataset.priority === priority) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function filterByType() {
+            const select = document.getElementById('typeFilter');
+            const type = select.value;
+            const cards = document.querySelectorAll('.announcement-card');
+
+            cards.forEach(card => {
+                if (type === 'ALL' || card.dataset.type === type) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>
