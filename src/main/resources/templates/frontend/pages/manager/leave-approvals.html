@@ -2,10 +2,6 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-<<<<<<< HEAD
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-=======
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="global-user-fullname" th:content="${globalFullName}">
@@ -18,33 +14,23 @@
             grid-template-columns: 2fr 1fr;
             gap: 1.5rem;
         }
->>>>>>> UI_templates
 
-<title>Leave Approvals - RevWorkForce Manager</title>
+        @media (max-width: 992px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 
-<link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
 
-<style>
-.grid-2 {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 1.5rem;
-}
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
-@media (max-width: 992px) {
-    .grid-2 {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
+</head>
 
-<!-- FullCalendar CSS -->
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
-
-<!-- FullCalendar JS -->
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-
-</head><body>
+<body>
     <div class="app-container">
         <app-sidebar></app-sidebar>
         <main class="main-content">
@@ -148,110 +134,111 @@
 
                     <!-- Team Calendar Tab -->
 
-<!-- Team Calendar Tab -->
-<div id="team-calendar" class="tab-content">
+                    <!-- Team Calendar Tab -->
+                    <div id="team-calendar" class="tab-content">
 
-<div class="grid-2">
+                        <div class="grid-2">
 
-<!-- LEFT SIDE -->
-<div>
+                            <!-- LEFT SIDE -->
+                            <div>
 
-<h3 class="mb-3">Team Leave Calendar</h3>
+                                <h3 class="mb-3">Team Leave Calendar</h3>
 
-<div id="leaveCalendar" style="background:white;padding:10px;border-radius:8px;min-height:500px;"></div>
-<h4 class="mt-4">Upcoming Holidays</h4>
+                                <div id="leaveCalendar"
+                                    style="background:white;padding:10px;border-radius:8px;min-height:500px;"></div>
+                                <h4 class="mt-4">Upcoming Holidays</h4>
 
-<table class="table">
-<thead>
-<tr>
-<th>Date</th>
-<th>Holiday</th>
-<th>Type</th>
-</tr>
-</thead>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Holiday</th>
+                                            <th>Type</th>
+                                        </tr>
+                                    </thead>
 
-<tbody>
-<tr th:each="holiday : ${holidays}">
-<td th:text="${#temporals.format(holiday.holidayDate,'dd MMM yyyy')}"></td>
-<td th:text="${holiday.holidayName}"></td>
-<td th:text="${holiday.type}"></td>
-</tr>
-</tbody>
-</table>
+                                    <tbody>
+                                        <tr th:each="holiday : ${holidays}">
+                                            <td th:text="${#temporals.format(holiday.holidayDate,'dd MMM yyyy')}"></td>
+                                            <td th:text="${holiday.holidayName}"></td>
+                                            <td th:text="${holiday.type}"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
 
-</div>
+                            </div>
 
 
-<!-- RIGHT SIDE -->
-<div>
+                            <!-- RIGHT SIDE -->
+                            <div>
 
-<h4 class="mb-2">Team Leave Balances</h4>
+                                <h4 class="mb-2">Team Leave Balances</h4>
 
-<div class="table-responsive">
-<table class="table" style="font-size:0.85rem;">
+                                <div class="table-responsive">
+                                    <table class="table" style="font-size:0.85rem;">
 
-<thead>
-<tr>
-<th>Employee</th>
-<th>Sick</th>
-<th>Casual</th>
-<th>Privilege</th>
-<th>Paid</th>
-</tr>
-</thead>
-<tbody>
+                                        <thead>
+                                            <tr>
+                                                <th>Employee</th>
+                                                <th>Sick</th>
+                                                <th>Casual</th>
+                                                <th>Privilege</th>
+                                                <th>Paid</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
 
-<tr th:each="member : ${teamMembers}">
+                                            <tr th:each="member : ${teamMembers}">
 
-<td th:text="${member.fullName}"></td>
+                                                <td th:text="${member.fullName}"></td>
 
-<td>
-<th:block th:each="b : ${teamBalances}">
-<span th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'SL'}"
-      th:text="${b.balance}"
-      th:remove="tag">
-</span>
-</th:block>
-</td>
+                                                <td>
+                                                    <th:block th:each="b : ${teamBalances}">
+                                                        <span
+                                                            th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'SL'}"
+                                                            th:text="${b.balance}" th:remove="tag">
+                                                        </span>
+                                                    </th:block>
+                                                </td>
 
-<td>
-<th:block th:each="b : ${teamBalances}">
-<span th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'CL'}"
-      th:text="${b.balance}"
-      th:remove="tag">
-</span>
-</th:block>
-</td>
+                                                <td>
+                                                    <th:block th:each="b : ${teamBalances}">
+                                                        <span
+                                                            th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'CL'}"
+                                                            th:text="${b.balance}" th:remove="tag">
+                                                        </span>
+                                                    </th:block>
+                                                </td>
 
-<td>
-<th:block th:each="b : ${teamBalances}">
-<span th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'PreL'}"
-      th:text="${b.balance}"
-      th:remove="tag">
-</span>
-</th:block>
-</td>
+                                                <td>
+                                                    <th:block th:each="b : ${teamBalances}">
+                                                        <span
+                                                            th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'PreL'}"
+                                                            th:text="${b.balance}" th:remove="tag">
+                                                        </span>
+                                                    </th:block>
+                                                </td>
 
-<td>
-<th:block th:each="b : ${teamBalances}">
-<span th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'PL'}"
-      th:text="${b.balance}"
-      th:remove="tag">
-</span>
-</th:block>
-</td>
+                                                <td>
+                                                    <th:block th:each="b : ${teamBalances}">
+                                                        <span
+                                                            th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'PL'}"
+                                                            th:text="${b.balance}" th:remove="tag">
+                                                        </span>
+                                                    </th:block>
+                                                </td>
 
-</tr>
+                                            </tr>
 
-</tbody>
+                                        </tbody>
 
-</table>
-</div>
+                                    </table>
+                                </div>
 
-</div>
+                            </div>
 
-</div>
-</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -259,94 +246,94 @@
     <!-- Load Scripts -->
     <script th:src="@{/js/components.js}"></script>
     <script th:src="@{/js/app.js}"></script>
-<script th:inline="javascript">
-document.addEventListener("DOMContentLoaded", function () {
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function () {
 
-    var calendarEl = document.getElementById("leaveCalendar");
+            var calendarEl = document.getElementById("leaveCalendar");
 
-    var events = [];
+            var events = [];
 
-    /*[# th:each="leave : ${team}"]*/
-    events.push({
-        title: '[[${leave.employee.fullName}]] ([[${leave.leaveType.leaveCode}]])',
-        start: '[[${leave.startDate}]]T00:00:00',
-        end: '[[${leave.endDate.plusDays(1)}]]T00:00:00',
-        allDay: true,
-        color: '#3498db'
-    });
-    /*[/]*/
-/*[# th:each="holiday : ${holidays}"]*/
-events.push({
-    title: 'Holiday - [[${holiday.holidayName}]]',
-    start: '[[${holiday.holidayDate}]]T00:00:00',
-    allDay: true,
-    color: '#2ecc71'
-});
-/*[/]*/
+            /*[# th:each="leave : ${team}"]*/
+            events.push({
+                title: '[[${leave.employee.fullName}]] ([[${leave.leaveType.leaveCode}]])',
+                start: '[[${leave.startDate}]]T00:00:00',
+                end: '[[${leave.endDate.plusDays(1)}]]T00:00:00',
+                allDay: true,
+                color: '#3498db'
+            });
+            /*[/]*/
+            /*[# th:each="holiday : ${holidays}"]*/
+            events.push({
+                title: 'Holiday - [[${holiday.holidayName}]]',
+                start: '[[${holiday.holidayDate}]]T00:00:00',
+                allDay: true,
+                color: '#2ecc71'
+            });
+            /*[/]*/
 
-    console.log("Calendar Events:", events);
+            console.log("Calendar Events:", events);
 
-    window.calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        height: 500,
-        events: events,
-        eventDisplay: 'block'
-    });
+            window.calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                height: 500,
+                events: events,
+                eventDisplay: 'block'
+            });
 
-    window.calendar.render();
-});
+            window.calendar.render();
+        });
 
-</script>
-<script>
+    </script>
+    <script>
 
-document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () {
 
-    const tabs = document.querySelectorAll(".tab-btn");
-    const contents = document.querySelectorAll(".tab-content");
+            const tabs = document.querySelectorAll(".tab-btn");
+            const contents = document.querySelectorAll(".tab-content");
 
-    // Restore saved tab
-    const savedTab = localStorage.getItem("activeManagerTab");
+            // Restore saved tab
+            const savedTab = localStorage.getItem("activeManagerTab");
 
-    if (savedTab) {
-        tabs.forEach(btn => btn.classList.remove("active"));
-        contents.forEach(c => c.classList.remove("active"));
+            if (savedTab) {
+                tabs.forEach(btn => btn.classList.remove("active"));
+                contents.forEach(c => c.classList.remove("active"));
 
-        const activeBtn = document.querySelector(`[data-target="${savedTab}"]`);
-        const activeContent = document.getElementById(savedTab);
+                const activeBtn = document.querySelector(`[data-target="${savedTab}"]`);
+                const activeContent = document.getElementById(savedTab);
 
-        if (activeBtn && activeContent) {
-            activeBtn.classList.add("active");
-            activeContent.classList.add("active");
-        }
-    }
-
- // Tab click handler
-    tabs.forEach(btn => {
-    btn.addEventListener("click", function () {
-
-        const target = this.dataset.target;
-
-        localStorage.setItem("activeManagerTab", target);
-
-        tabs.forEach(b => b.classList.remove("active"));
-        contents.forEach(c => c.classList.remove("active"));
-
-        this.classList.add("active");
-        document.getElementById(target).classList.add("active");
-
-        if (target === "team-calendar") {
-            setTimeout(function () {
-                if (window.calendar) {
-                    window.calendar.updateSize();
+                if (activeBtn && activeContent) {
+                    activeBtn.classList.add("active");
+                    activeContent.classList.add("active");
                 }
-            }, 300);
-        }
+            }
 
-    });
-});
-});
+            // Tab click handler
+            tabs.forEach(btn => {
+                btn.addEventListener("click", function () {
 
-</script>
+                    const target = this.dataset.target;
+
+                    localStorage.setItem("activeManagerTab", target);
+
+                    tabs.forEach(b => b.classList.remove("active"));
+                    contents.forEach(c => c.classList.remove("active"));
+
+                    this.classList.add("active");
+                    document.getElementById(target).classList.add("active");
+
+                    if (target === "team-calendar") {
+                        setTimeout(function () {
+                            if (window.calendar) {
+                                window.calendar.updateSize();
+                            }
+                        }, 300);
+                    }
+
+                });
+            });
+        });
+
+    </script>
 </body>
 
 </html>

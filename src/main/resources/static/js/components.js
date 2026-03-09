@@ -116,29 +116,21 @@ class AppSidebar extends HTMLElement {
                     box-shadow: var(--shadow-sm);
                 }
                 .logo-container {
-                    padding: 1.5rem;
+                    padding: 1.2rem 1.5rem;
                     display: flex;
                     align-items: center;
-                    gap: 10px;
+                    gap: 12px;
                     border-bottom: 1px solid var(--border-color);
                 }
-                .logo-icon {
-                    width: 32px;
-                    height: 32px;
-                    background: linear-gradient(135deg, var(--primary), var(--primary-light));
-                    border-radius: 8px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: white;
-                    font-weight: bold;
-                    font-size: 1.2rem;
+                .logo-img {
+                    height: 38px;
+                    width: auto;
+                    object-fit: contain;
                 }
-                .logo-text {
-                    font-size: 1.25rem;
-                    font-weight: 700;
-                    color: var(--primary-dark);
-                    letter-spacing: -0.5px;
+                .title-img {
+                    height: 24px;
+                    width: auto;
+                    object-fit: contain;
                 }
                 .nav-menu {
                     list-style: none;
@@ -223,8 +215,8 @@ class AppSidebar extends HTMLElement {
             </style>
             <aside>
                 <div class="logo-container">
-                    <div class="logo-icon">R</div>
-                    <div class="logo-text">RevWorkForce</div>
+                    <img src="${basePath}/assets/logo.PNG" alt="Logo" class="logo-img">
+                    <img src="${basePath}/assets/title.PNG" alt="RevWorkForce" class="title-img">
                 </div>
                 <ul class="nav-menu">
                     ${linksHtml}
