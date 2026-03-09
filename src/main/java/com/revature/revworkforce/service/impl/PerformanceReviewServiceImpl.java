@@ -400,6 +400,7 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
         dto.setImprovementAreas(review.getImprovementAreas());
         dto.setSelfAssessmentRating(review.getSelfAssessmentRating());
         dto.setSelfAssessmentComments(review.getSelfAssessmentComments());
+        dto.setSelfAssessmentText(review.getSelfAssessmentComments()); // Required for validation
         dto.setManagerFeedback(review.getManagerFeedback());
         dto.setTechnicalSkills(review.getTechnicalSkills());
         dto.setCommunication(review.getCommunication());

@@ -77,9 +77,28 @@
                     <!-- Manager Review Form -->
                     <form th:action="@{/manager/reviews/review/{id}(id=${reviewDTO.reviewId})}" th:object="${reviewDTO}"
                         method="POST">
-                        <input type="hidden" th:field="*{reviewId}">
-                        <input type="hidden" th:field="*{reviewYear}">
-                        <input type="hidden" th:field="*{employeeId}">
+                        <!-- Hidden Data Pass-through for Spring Validation -->
+                        <div style="display: none;">
+                            <input type="text" th:field="*{reviewId}">
+                            <input type="number" th:field="*{reviewYear}">
+                            <input type="text" th:field="*{employeeId}">
+                            <input type="text" th:field="*{reviewPeriod}">
+                            <input type="text" th:field="*{status}">
+                            <textarea th:field="*{selfAssessmentText}"></textarea>
+                            <textarea th:field="*{achievements}"></textarea>
+                            <textarea th:field="*{improvementAreas}"></textarea>
+                            <input type="number" step="0.1" th:field="*{selfAssessmentRating}">
+                            <textarea th:field="*{selfAssessmentComments}"></textarea>
+                            <input type="number" step="0.1" th:field="*{managerRating}">
+                        </div>
+
+
+                        <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger mb-4">
+                            <h5>Form Errors Detected:</h5>
+                            <ul style="margin: 0;">
+                                <li th:each="err : ${#fields.allErrors()}" th:text="${err}">Error</li>
+                            </ul>
+                        </div>
 
                         <h4 class="mb-4" style="display: flex; align-items: center; gap: 0.5rem;">
                             <i class="fas fa-clipboard-check"></i> Manager Evaluation
@@ -157,7 +176,8 @@
                                     scores.
                                 </p>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-lg" style="min-width: 200px;">Submit
+                            <button type="submit" class="btn btn-primary btn-lg" style="min-width: 200px;"
+                                formnovalidate>Submit
                                 Evaluation</button>
                         </div>
                     </form>

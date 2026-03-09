@@ -32,6 +32,8 @@
                         th:action="@{'/employee/goals/edit/' + ${goalDTO.goalId}}" th:object="${goalDTO}" method="POST">
 
                         <input type="hidden" th:field="*{goalId}" />
+                        <input type="hidden" th:field="*{progress}" />
+                        <input type="hidden" th:field="*{status}" />
 
                         <div class="form-group mb-3">
                             <label class="form-label" for="goalTitle">Goal Title</label>

@@ -34,15 +34,15 @@ public class PerformanceReviewDTO {
     private ReviewStatus status;
 
     @NotBlank(message = "Self-assessment is required")
-    @Size(min = 100, max = 2000, message = "Self-assessment must be at least 100 characters")
+    @Size(min = 10, max = 2000, message = "Self-assessment must be at least 10 characters")
     private String selfAssessmentText;
 
     @NotBlank(message = "Achievements are required")
-    @Size(min = 50, max = 2000, message = "Achievements must be at least 50 characters")
+    @Size(min = 10, max = 2000, message = "Achievements must be at least 10 characters")
     private String achievements;
 
     @NotBlank(message = "Improvement areas are required")
-    @Size(min = 50, max = 2000, message = "Improvement areas must be at least 50 characters")
+    @Size(min = 10, max = 2000, message = "Improvement areas must be at least 10 characters")
     private String improvementAreas;
 
     @DecimalMin(value = "1.0", message = "Rating must be at least 1.0")
