@@ -88,7 +88,8 @@ public class SecurityConfig {
                                                                 "/forgot-password/**" // <-- allow all forgot password
                                                                                       // paths
                                                 ).permitAll()
-                                                .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico")
+                                                .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**",
+                                                                "/favicon.ico")
                                                 .permitAll()
 
                                                 // Admin endpoints (ADMIN role required)
