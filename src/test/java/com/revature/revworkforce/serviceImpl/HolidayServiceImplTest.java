@@ -247,4 +247,67 @@ class HolidayServiceImplTest {
                 // Assert
                 assertEquals(1, result.size());
         }
+
+        @Test
+        void createHoliday_PastDate_ThrowsException() {
+                HolidayDTO dto = new HolidayDTO();
+                dto.setHolidayDate(LocalDate.now().minusDays(1));
+
+                assertThrows(IllegalArgumentException.class, () -> holidayService.createHoliday(dto));
+        }
+
+        @Test
+        void createHoliday_Weekend_ThrowsException() {
+                HolidayDTO dto = new HolidayDTO();
+                // Find a weekend
+                LocalDate weekend = LocalDate.now();
+                while (weekend.getDayOfWeek().getValue() < 6) {
+                        weekend = weekend.plusDays(1);
+                }
+                dto.setHolidayDate(weekend);
+
+                assertThrows(IllegalArgumentException.class, () -> holidayService.createHoliday(dto));
+        }
+
+        @Test
+        void getHolidaysByYear_ReturnsFilteredList() {
+                Holiday h2 = new Holiday();
+                h2.setHolidayDate(LocalDate.of(2024, 1, 1));
+                h2.setIsActive('Y');
+
+                Holiday h3 = new Holiday();
+                h3.setHolidayDate(LocalDate.of(2025, 1, 1));
+                h3.setIsActive('Y');
+
+                when(holidayRepository.findAll()).thenReturn(List.of(h2, h3));
+
+                List<HolidayDTO> result = holidayService.getHolidaysByYear(2024);
+
+                assertEquals(1, result.size());
+                assertEquals(2024, result.get(0).getHolidayDate().getYear());
+        }
+
+        @Test
+        void importHolidays_Success() {
+                HolidayDTO d1 = new HolidayDTO();
+                d1.setHolidayDate(LocalDate.of(2030, 1, 1)); // Tuesday
+
+                when(holidayRepository.existsByHolidayDateAndIsActive(any(), eq('Y'))).thenReturn(false);
+
+                int count = holidayService.importHolidays(List.of(d1));
+
+                assertEquals(1, count);
+                verify(holidayRepository).save(any());
+        }
+
+        @Test
+        void deleteHolidaysByYear_Success() {
+                when(holidayRepository.findByHolidayDateBetweenAndIsActive(any(), any(), eq('Y')))
+                                .thenReturn(List.of(holiday));
+
+                holidayService.deleteHolidaysByYear(2030);
+
+                assertEquals('N', holiday.getIsActive());
+                verify(holidayRepository).saveAll(any());
+        }
 }

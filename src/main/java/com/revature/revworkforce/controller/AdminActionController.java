@@ -53,7 +53,7 @@ public class AdminActionController {
 
         AnnouncementDTO dto = new AnnouncementDTO();
         dto.setTitle(subject);
-        dto.setContent(message);
+        dto.setMessage(message);
         dto.setType("INFO"); // Defaulting to INFO for broadcast
         dto.setExpiryDate(LocalDate.now().plusDays(7)); // Default 1 week expiry
         dto.setIsActive('Y');

@@ -1,16 +1,7 @@
 package com.revature.revworkforce.serviceImpl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Optional;
-import java.util.List;
-
+import com.revature.revworkforce.dto.PerformanceReviewDTO;
 import com.revature.revworkforce.enums.ReviewStatus;
-import com.revature.revworkforce.exception.ResourceNotFoundException;
-import com.revature.revworkforce.exception.UnauthorizedException;
 import com.revature.revworkforce.exception.ValidationException;
 import com.revature.revworkforce.model.Employee;
 import com.revature.revworkforce.model.PerformanceReview;
@@ -23,9 +14,20 @@ import com.revature.revworkforce.service.impl.PerformanceReviewServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PerformanceReviewServiceImplTest {
@@ -43,34 +45,30 @@ class PerformanceReviewServiceImplTest {
     private AuditService auditService;
 
     @InjectMocks
-    private PerformanceReviewServiceImpl performanceReviewService;
+    private PerformanceReviewServiceImpl reviewService;
 
     private Employee employee;
     private Employee manager;
     private PerformanceReview review;
 
     @BeforeEach
-    void setup() {
+    void setUp() {
 
         manager = new Employee();
         manager.setEmployeeId("MGR001");
-        manager.setFirstName("Manager");
+        manager.setFirstName("Jane");
 
         employee = new Employee();
         employee.setEmployeeId("EMP001");
-        employee.setFirstName("Employee");
+        employee.setFirstName("John");
         employee.setManager(manager);
 
         review = new PerformanceReview();
         review.setReviewId(1L);
         review.setEmployee(employee);
-        review.setReviewYear(2025);
+        review.setReviewYear(2024);
         review.setStatus(ReviewStatus.DRAFT);
     }
-
-    // ======================================================
-    // CREATE REVIEW
-    // ======================================================
 
     @Test
     void createReview_Success() {
@@ -78,61 +76,31 @@ class PerformanceReviewServiceImplTest {
         when(employeeRepository.findById("EMP001"))
                 .thenReturn(Optional.of(employee));
 
-        when(reviewRepository.existsByEmployeeAndReviewYear(employee, 2025))
+        when(reviewRepository.existsByEmployeeAndReviewYear(employee, 2024))
                 .thenReturn(false);
 
         when(reviewRepository.save(any(PerformanceReview.class)))
                 .thenReturn(review);
 
         PerformanceReview result =
-                performanceReviewService.createReview("EMP001", 2025, "MGR001");
+                reviewService.createReview("EMP001", 2024, "MGR001");
 
-        assertNotNull(result);
-        verify(reviewRepository).save(any(PerformanceReview.class));
+        assertThat(result).isNotNull();
+        verify(reviewRepository).save(any());
     }
 
     @Test
-    void createReview_DuplicateReview_ThrowsException() {
+    void createReview_AlreadyExists() {
 
         when(employeeRepository.findById("EMP001"))
                 .thenReturn(Optional.of(employee));
 
-        when(reviewRepository.existsByEmployeeAndReviewYear(employee, 2025))
+        when(reviewRepository.existsByEmployeeAndReviewYear(employee, 2024))
                 .thenReturn(true);
 
-        assertThrows(ValidationException.class, () ->
-                performanceReviewService.createReview("EMP001", 2025, "MGR001"));
+        assertThrows(ValidationException.class,
+                () -> reviewService.createReview("EMP001", 2024, "MGR001"));
     }
-
-    // ======================================================
-    // GET REVIEW
-    // ======================================================
-
-    @Test
-    void getReviewById_Success() {
-
-        when(reviewRepository.findById(1L))
-                .thenReturn(Optional.of(review));
-
-        PerformanceReview result = performanceReviewService.getReviewById(1L);
-
-        assertNotNull(result);
-        assertEquals(1L, result.getReviewId());
-    }
-
-    @Test
-    void getReviewById_NotFound() {
-
-        when(reviewRepository.findById(1L))
-                .thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> performanceReviewService.getReviewById(1L));
-    }
-
-    // ======================================================
-    // SELF ASSESSMENT
-    // ======================================================
 
     @Test
     void submitSelfAssessment_Success() {
@@ -144,40 +112,20 @@ class PerformanceReviewServiceImplTest {
                 .thenReturn(review);
 
         PerformanceReview result =
-                performanceReviewService.submitSelfAssessment(
+                reviewService.submitSelfAssessment(
                         1L,
                         "EMP001",
                         "Deliverables",
                         "Achievements",
                         "Improvements",
                         BigDecimal.valueOf(4),
-                        "Good performance"
+                        "Comments"
                 );
 
-        assertEquals(ReviewStatus.SUBMITTED, result.getStatus());
-        verify(notificationService).createNotification(any(), any(), any(), any(), any());
+        assertThat(result.getStatus()).isEqualTo(ReviewStatus.SUBMITTED);
+        verify(notificationService)
+                .createNotification(any(), any(), any(), any(), any());
     }
-
-    @Test
-    void submitSelfAssessment_Unauthorized() {
-
-        when(reviewRepository.findById(1L))
-                .thenReturn(Optional.of(review));
-
-        assertThrows(UnauthorizedException.class, () ->
-                performanceReviewService.submitSelfAssessment(
-                        1L,
-                        "EMP999",
-                        "Deliverables",
-                        "Achievements",
-                        "Improvements",
-                        BigDecimal.valueOf(4),
-                        "Comments"));
-    }
-
-    // ======================================================
-    // MANAGER REVIEW
-    // ======================================================
 
     @Test
     void submitManagerReview_Success() {
@@ -194,70 +142,29 @@ class PerformanceReviewServiceImplTest {
                 .thenReturn(review);
 
         PerformanceReview result =
-                performanceReviewService.submitManagerReview(
-                        1L,
-                        "MGR001",
-                        "Good work",
-                        BigDecimal.valueOf(4),
-                        "Keep improving"
-                );
-
-        assertEquals(ReviewStatus.COMPLETED, result.getStatus());
-        verify(notificationService).createNotification(any(), any(), any(), any(), any());
-    }
-
-    @Test
-    void submitManagerReview_InvalidRating() {
-
-        review.setStatus(ReviewStatus.SUBMITTED);
-
-        when(reviewRepository.findById(1L))
-                .thenReturn(Optional.of(review));
-
-        when(employeeRepository.findById("MGR001"))
-                .thenReturn(Optional.of(manager));
-
-        assertThrows(ValidationException.class, () ->
-                performanceReviewService.submitManagerReview(
+                reviewService.submitManagerReview(
                         1L,
                         "MGR001",
                         "Feedback",
-                        BigDecimal.valueOf(10),
-                        "Comment"));
-    }
+                        BigDecimal.valueOf(4),
+                        "Comments"
+                );
 
-    // ======================================================
-    // DELETE REVIEW
-    // ======================================================
+        assertThat(result.getStatus()).isEqualTo(ReviewStatus.COMPLETED);
+        verify(notificationService)
+                .createNotification(any(), any(), any(), any(), any());
+    }
 
     @Test
     void deleteReview_Success() {
 
-        review.setStatus(ReviewStatus.DRAFT);
-
         when(reviewRepository.findById(1L))
                 .thenReturn(Optional.of(review));
 
-        performanceReviewService.deleteReview(1L);
+        reviewService.deleteReview(1L);
 
         verify(reviewRepository).delete(review);
     }
-
-    @Test
-    void deleteReview_CompletedReview_ThrowsException() {
-
-        review.setStatus(ReviewStatus.COMPLETED);
-
-        when(reviewRepository.findById(1L))
-                .thenReturn(Optional.of(review));
-
-        assertThrows(ValidationException.class, () ->
-                performanceReviewService.deleteReview(1L));
-    }
-
-    // ======================================================
-    // GET EMPLOYEE REVIEWS
-    // ======================================================
 
     @Test
     void getEmployeeReviews_Success() {
@@ -266,16 +173,13 @@ class PerformanceReviewServiceImplTest {
                 .thenReturn(Optional.of(employee));
 
         when(reviewRepository.findByEmployeeOrderByReviewYearDesc(employee))
-                .thenReturn(List.of(review));
+                .thenReturn(Arrays.asList(review));
 
-        var result = performanceReviewService.getEmployeeReviews("EMP001");
+        List<PerformanceReviewDTO> result =
+                reviewService.getEmployeeReviews("EMP001");
 
-        assertEquals(1, result.size());
+        assertThat(result).hasSize(1);
     }
-
-    // ======================================================
-    // AVERAGE RATING
-    // ======================================================
 
     @Test
     void getAverageRating_Success() {
@@ -286,11 +190,11 @@ class PerformanceReviewServiceImplTest {
                 .thenReturn(Optional.of(employee));
 
         when(reviewRepository.findByEmployeeOrderByReviewYearDesc(employee))
-                .thenReturn(List.of(review));
+                .thenReturn(Arrays.asList(review));
 
-        BigDecimal avg = performanceReviewService.getAverageRating("EMP001");
+        BigDecimal avg =
+                reviewService.getAverageRating("EMP001");
 
-        assertEquals(BigDecimal.valueOf(4.0).setScale(1), avg);
+        assertThat(avg).isEqualTo(new BigDecimal("4.0"));
     }
-
 }

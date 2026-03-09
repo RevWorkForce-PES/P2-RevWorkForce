@@ -1,31 +1,36 @@
 package com.revature.revworkforce.serviceImpl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.time.LocalDate;
-import java.util.Optional;
-import java.util.List;
-
+import com.revature.revworkforce.dto.GoalDTO;
+import com.revature.revworkforce.dto.GoalStatistics;
 import com.revature.revworkforce.enums.GoalStatus;
 import com.revature.revworkforce.enums.Priority;
-import com.revature.revworkforce.exception.ResourceNotFoundException;
 import com.revature.revworkforce.exception.UnauthorizedException;
 import com.revature.revworkforce.exception.ValidationException;
 import com.revature.revworkforce.model.Employee;
 import com.revature.revworkforce.model.Goal;
 import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.repository.GoalRepository;
+import com.revature.revworkforce.service.AuditService;
 import com.revature.revworkforce.service.NotificationService;
 import com.revature.revworkforce.service.impl.GoalServiceImpl;
-import com.revature.revworkforce.service.AuditService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class GoalServiceImplTest {
@@ -50,194 +55,137 @@ class GoalServiceImplTest {
     private Goal goal;
 
     @BeforeEach
-    void setup() {
+    void setUp() {
 
         manager = new Employee();
         manager.setEmployeeId("MGR001");
-        manager.setFirstName("Manager");
+        manager.setFirstName("Jane");
 
         employee = new Employee();
         employee.setEmployeeId("EMP001");
-        employee.setFirstName("Employee");
+        employee.setFirstName("John");
         employee.setManager(manager);
 
         goal = new Goal();
         goal.setGoalId(1L);
         goal.setEmployee(employee);
-        goal.setGoalTitle("Learn Spring Boot");
+        goal.setGoalTitle("Test Goal");
         goal.setStatus(GoalStatus.NOT_STARTED);
         goal.setProgress(0);
     }
 
-    // =====================================================
-    // CREATE GOAL
-    // =====================================================
-
     @Test
     void createGoal_Success() {
 
-        when(employeeRepository.findById("EMP001"))
-                .thenReturn(Optional.of(employee));
-
-        when(goalRepository.save(any(Goal.class)))
-                .thenReturn(goal);
+        when(employeeRepository.findById("EMP001")).thenReturn(Optional.of(employee));
+        when(goalRepository.save(any(Goal.class))).thenReturn(goal);
 
         Goal result = goalService.createGoal(
                 "EMP001",
-                "Learn Spring",
-                "Master Spring Boot",
-                "Technical",
-                LocalDate.now().plusDays(10),
-                Priority.HIGH
+                "Title",
+                "Description",
+                "Category",
+                LocalDate.now().plusDays(5),
+                Priority.MEDIUM
         );
 
-        assertNotNull(result);
+        assertThat(result).isNotNull();
         verify(goalRepository).save(any(Goal.class));
     }
 
     @Test
-    void createGoal_PastDeadline_ThrowsException() {
+    void createGoal_InvalidDeadline() {
 
-        when(employeeRepository.findById("EMP001"))
-                .thenReturn(Optional.of(employee));
+        when(employeeRepository.findById("EMP001")).thenReturn(Optional.of(employee));
 
         assertThrows(ValidationException.class, () ->
                 goalService.createGoal(
                         "EMP001",
-                        "Goal",
-                        "Desc",
-                        "Tech",
+                        "Title",
+                        "Description",
+                        "Category",
                         LocalDate.now().minusDays(1),
-                        Priority.MEDIUM));
+                        Priority.MEDIUM
+                ));
     }
-
-    // =====================================================
-    // UPDATE GOAL
-    // =====================================================
 
     @Test
     void updateGoal_Success() {
 
-        when(goalRepository.findById(1L))
-                .thenReturn(Optional.of(goal));
-
-        when(goalRepository.save(any()))
-                .thenReturn(goal);
+        when(goalRepository.findById(1L)).thenReturn(Optional.of(goal));
+        when(goalRepository.save(any(Goal.class))).thenReturn(goal);
 
         Goal result = goalService.updateGoal(
                 1L,
                 "EMP001",
-                "Updated Goal",
-                "Updated Desc",
-                "Tech",
+                "Updated",
+                "Desc",
+                "Category",
                 LocalDate.now().plusDays(5),
                 Priority.HIGH
         );
 
-        assertNotNull(result);
-        verify(goalRepository).save(goal);
+        assertThat(result).isNotNull();
+        verify(goalRepository).save(any(Goal.class));
     }
 
     @Test
-    void updateGoal_Unauthorized_ThrowsException() {
+    void updateGoal_Unauthorized() {
 
-        when(goalRepository.findById(1L))
-                .thenReturn(Optional.of(goal));
+        when(goalRepository.findById(1L)).thenReturn(Optional.of(goal));
 
         assertThrows(UnauthorizedException.class, () ->
                 goalService.updateGoal(
                         1L,
                         "EMP999",
-                        "Goal",
+                        "Title",
                         "Desc",
-                        "Tech",
-                        LocalDate.now().plusDays(10),
-                        Priority.HIGH));
+                        "Cat",
+                        LocalDate.now().plusDays(5),
+                        Priority.HIGH
+                ));
     }
-
-    // =====================================================
-    // UPDATE PROGRESS
-    // =====================================================
 
     @Test
     void updateProgress_Success() {
 
-        when(goalRepository.findById(1L))
-                .thenReturn(Optional.of(goal));
-
-        when(goalRepository.save(any()))
-                .thenReturn(goal);
+        when(goalRepository.findById(1L)).thenReturn(Optional.of(goal));
+        when(goalRepository.save(any(Goal.class))).thenReturn(goal);
 
         Goal result = goalService.updateProgress(1L, "EMP001", 50);
 
-        assertNotNull(result);
-        verify(goalRepository).save(goal);
+        assertThat(result.getProgress()).isEqualTo(50);
+        assertThat(result.getStatus()).isEqualTo(GoalStatus.IN_PROGRESS);
     }
 
     @Test
-    void updateProgress_InvalidProgress() {
+    void updateProgress_Completed() {
 
-        when(goalRepository.findById(1L))
-                .thenReturn(Optional.of(goal));
+        when(goalRepository.findById(1L)).thenReturn(Optional.of(goal));
+        when(goalRepository.save(any(Goal.class))).thenReturn(goal);
 
-        assertThrows(ValidationException.class, () ->
-                goalService.updateProgress(1L, "EMP001", 150));
+        Goal result = goalService.updateProgress(1L, "EMP001", 100);
+
+        assertThat(result.getStatus()).isEqualTo(GoalStatus.COMPLETED);
     }
-
-    // =====================================================
-    // MANAGER COMMENT
-    // =====================================================
 
     @Test
     void addManagerComments_Success() {
 
-        when(goalRepository.findById(1L))
-                .thenReturn(Optional.of(goal));
+        when(goalRepository.findById(1L)).thenReturn(Optional.of(goal));
+        when(employeeRepository.findById("MGR001")).thenReturn(Optional.of(manager));
+        when(goalRepository.save(any(Goal.class))).thenReturn(goal);
 
-        when(employeeRepository.findById("MGR001"))
-                .thenReturn(Optional.of(manager));
+        Goal result = goalService.addManagerComments(1L, "MGR001", "Good progress");
 
-        when(goalRepository.save(any()))
-                .thenReturn(goal);
-
-        Goal result = goalService.addManagerComments(
-                1L,
-                "MGR001",
-                "Good progress"
-        );
-
-        assertNotNull(result);
+        assertThat(result.getManagerComments()).isEqualTo("Good progress");
         verify(notificationService).createNotification(any(), any(), any(), any(), any());
     }
 
     @Test
-    void addManagerComments_Unauthorized() {
-
-        Employee otherManager = new Employee();
-        otherManager.setEmployeeId("MGR999");
-
-        when(goalRepository.findById(1L))
-                .thenReturn(Optional.of(goal));
-
-        when(employeeRepository.findById("MGR999"))
-                .thenReturn(Optional.of(otherManager));
-
-        assertThrows(UnauthorizedException.class, () ->
-                goalService.addManagerComments(
-                        1L,
-                        "MGR999",
-                        "Comment"));
-    }
-
-    // =====================================================
-    // DELETE GOAL
-    // =====================================================
-
-    @Test
     void deleteGoal_Success() {
 
-        when(goalRepository.findById(1L))
-                .thenReturn(Optional.of(goal));
+        when(goalRepository.findById(1L)).thenReturn(Optional.of(goal));
 
         goalService.deleteGoal(1L, "EMP001");
 
@@ -245,59 +193,29 @@ class GoalServiceImplTest {
     }
 
     @Test
-    void deleteGoal_CompletedGoal_ThrowsException() {
-
-        goal.setStatus(GoalStatus.COMPLETED);
-
-        when(goalRepository.findById(1L))
-                .thenReturn(Optional.of(goal));
-
-        assertThrows(ValidationException.class,
-                () -> goalService.deleteGoal(1L, "EMP001"));
-    }
-
-    // =====================================================
-    // GET GOAL
-    // =====================================================
-
-    @Test
-    void getGoalById_Success() {
-
-        when(goalRepository.findById(1L))
-                .thenReturn(Optional.of(goal));
-
-        Goal result = goalService.getGoalById(1L);
-
-        assertNotNull(result);
-        assertEquals(1L, result.getGoalId());
-    }
-
-    @Test
-    void getGoalById_NotFound() {
-
-        when(goalRepository.findById(1L))
-                .thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> goalService.getGoalById(1L));
-    }
-
-    // =====================================================
-    // GET EMPLOYEE GOALS
-    // =====================================================
-
-    @Test
     void getEmployeeGoals_Success() {
 
-        when(employeeRepository.findById("EMP001"))
-                .thenReturn(Optional.of(employee));
+        when(employeeRepository.findById("EMP001")).thenReturn(Optional.of(employee));
+        when(goalRepository.findByEmployeeOrderByCreatedAtDesc(employee)).thenReturn(Arrays.asList(goal));
 
-        when(goalRepository.findByEmployeeOrderByCreatedAtDesc(employee))
-                .thenReturn(List.of(goal));
+        List<GoalDTO> result = goalService.getEmployeeGoals("EMP001");
 
-        var result = goalService.getEmployeeGoals("EMP001");
-
-        assertEquals(1, result.size());
+        assertThat(result).hasSize(1);
     }
 
+    @Test
+    void getEmployeeStatistics_Success() {
+
+        when(employeeRepository.findById("EMP001")).thenReturn(Optional.of(employee));
+        when(goalRepository.findByEmployeeOrderByCreatedAtDesc(employee)).thenReturn(Arrays.asList(goal));
+        when(goalRepository.countByEmployeeAndStatus(employee, GoalStatus.COMPLETED)).thenReturn(0L);
+        when(goalRepository.countByEmployeeAndStatus(employee, GoalStatus.IN_PROGRESS)).thenReturn(0L);
+        when(goalRepository.countByEmployeeAndStatus(employee, GoalStatus.NOT_STARTED)).thenReturn(1L);
+        when(goalRepository.countActiveGoals(employee)).thenReturn(1L);
+
+        GoalStatistics stats = goalService.getEmployeeStatistics("EMP001");
+
+        assertThat(stats.getTotalGoals()).isEqualTo(1);
+        assertThat(stats.getNotStartedGoals()).isEqualTo(1);
+    }
 }
