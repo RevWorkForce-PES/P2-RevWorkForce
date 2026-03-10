@@ -66,7 +66,7 @@ The system supports **three user roles**:
 <img src="https://github.com/MastanSayyad.png" width="50" height="50" style="border-radius:50%;">
 </td>
 <td align="center"><strong>Mastan Sayyad</strong></td>
-<td align="center">Team Lead</td>
+<td align="center"> Team Lead, Backend, System Design, Authentication, UI/UX, Documentation, CI/CD and Testing</td>
 <td align="center">
 <a href="https://github.com/MastanSayyad">
 <img src="https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white">
@@ -78,7 +78,7 @@ The system supports **three user roles**:
 </a>
 </td>
 <td align="center">
-<a href="https://github.com/RevWorkForce-PES/P2-RevWorkForce/commits?author=MastanSayyad">View</a>
+<a href="https://github.com/RevWorkForce-PES/P2-RevWorkForce/issues/271#issuecomment-4034593241">View</a>
 </td>
 </tr>
 
@@ -87,7 +87,7 @@ The system supports **three user roles**:
 <img src="https://github.com/SHETYGURU.png" width="50" height="50" style="border-radius:50%;">
 </td>
 <td align="center"><strong>Gururaj Shetty</strong></td>
-<td align="center">UI Lead</td>
+<td align="center">UI Lead, Backend Ops, Admin Operations, System Config, Documentation & Testing</td>
 <td align="center">
 <a href="https://github.com/SHETYGURU">
 <img src="https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white">
@@ -99,7 +99,7 @@ The system supports **three user roles**:
 </a>
 </td>
 <td align="center">
-<a href="https://github.com/RevWorkForce-PES/P2-RevWorkForce/commits?author=SHETYGURU">View</a>
+<a href="https://github.com/RevWorkForce-PES/P2-RevWorkForce/issues/271#issuecomment-4034599657">View</a>
 </td>
 </tr>
 
@@ -108,7 +108,7 @@ The system supports **three user roles**:
 <img src="https://github.com/Aishwarya6362.png" width="50" height="50" style="border-radius:50%;">
 </td>
 <td align="center"><strong>Aishwarya MS</strong></td>
-<td align="center">Leave Module & Backend</td>
+<td align="center">Backend Lead Leave Module, Notification Module, Holiday Module, Testing</td>
 <td align="center">
 <a href="https://github.com/Aishwarya6362">
 <img src="https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white">
@@ -120,7 +120,7 @@ The system supports **three user roles**:
 </a>
 </td>
 <td align="center">
-<a href="https://github.com/RevWorkForce-PES/P2-RevWorkForce/commits?author=Aishwarya6362">View</a>
+<a href="https://github.com/RevWorkForce-PES/P2-RevWorkForce/issues/271#issuecomment-4034594963">View</a>
 </td>
 </tr>
 
@@ -129,7 +129,7 @@ The system supports **three user roles**:
 <img src="https://github.com/Shahla750.png" width="50" height="50" style="border-radius:50%;">
 </td>
 <td align="center"><strong>Shahla Nigar</strong></td>
-<td align="center">Performance Module & Backend</td>
+<td align="center">Backend Lead Performance Module, Performance Reviews, goal, Testing & QA</td>
 <td align="center">
 <a href="https://github.com/Shahla750">
 <img src="https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white">
@@ -141,7 +141,7 @@ The system supports **three user roles**:
 </a>
 </td>
 <td align="center">
-<a href="https://github.com/RevWorkForce-PES/P2-RevWorkForce/commits?author=Shahla750">View</a>
+<a href="https://github.com/RevWorkForce-PES/P2-RevWorkForce/issues/271#issuecomment-4034598540">View</a>
 </td>
 </tr>
 
