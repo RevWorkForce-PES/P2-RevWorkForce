@@ -23,6 +23,12 @@
 		<java.version>17</java.version>
 		<lombok.version>1.18.30</lombok.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		
+		<sonar.organization>revworkforce</sonar.organization>
+        <sonar.host.url>http://localhost:9000</sonar.host.url>
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ${project.build.directory}/site/jacoco/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
 	</properties>
 
 	<dependencies>
@@ -193,7 +199,6 @@
 					<configuration>
 						<!-- Exclude packages that are boilerplate (DTOs, models, enums, interfaces) -->
 						<excludes>
-							<exclude>com/revature/revworkforce/dto/**</exclude>
 							<exclude>com/revature/revworkforce/model/**</exclude>
 							<exclude>com/revature/revworkforce/enums/**</exclude>
 							<exclude>com/revature/revworkforce/exception/**</exclude>
@@ -229,6 +234,13 @@
 				</execution>
 				</executions>
 			</plugin>
+			
+			  <!-- SonarQube Scanner Plugin -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.10.0.2594</version>
+            </plugin>
 
 			<!-- PMD -->
 			<plugin>
