@@ -2,216 +2,216 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="user-fullname" th:content="${fullName} ?: 'User'">
-<meta name="user-role" th:content="${userRole} ?: 'Employee'">
-<title>Company Announcements - RevWorkForce</title>
-<link rel="stylesheet" th:href="@{/css/style.css}">
-<style>
-/* HERO */
-.announcement-hero {
-	background: linear-gradient(135deg, var(--primary), var(--primary-light));
-	color: white;
-	padding: 2rem;
-	border-radius: 10px;
-	margin-bottom: 2rem;
-}
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="user-fullname" th:content="${fullName} ?: 'User'">
+	<meta name="user-role" th:content="${userRole} ?: 'Employee'">
+	<title>Company Announcements - RevWorkForce</title>
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+	<style>
+		/* HERO */
+		.announcement-hero {
+			background: linear-gradient(135deg, var(--primary), var(--primary-light));
+			color: white;
+			padding: 2rem;
+			border-radius: 10px;
+			margin-bottom: 2rem;
+		}
 
-.announcement-hero h1 {
-	margin-bottom: 0.5rem;
-}
+		.announcement-hero h1 {
+			margin-bottom: 0.5rem;
+		}
 
-.announcement-hero p {
-	opacity: 0.9;
-	margin: 0;
-}
+		.announcement-hero p {
+			opacity: 0.9;
+			margin: 0;
+		}
 
-/* STATS */
-.stats-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	gap: 1.5rem;
-}
+		/* STATS */
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+			gap: 1.5rem;
+		}
 
-.stat-card {
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-	background: white;
-	padding: 1.25rem;
-	border-radius: 8px;
-	border: 1px solid var(--border-color);
-}
+		.stat-card {
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+			background: white;
+			padding: 1.25rem;
+			border-radius: 8px;
+			border: 1px solid var(--border-color);
+		}
 
-.stat-icon {
-	width: 50px;
-	height: 50px;
-	border-radius: 50%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 1.2rem;
-}
+		.stat-icon {
+			width: 50px;
+			height: 50px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1.2rem;
+		}
 
-.stat-details {
-	display: flex;
-	flex-direction: column;
-}
+		.stat-details {
+			display: flex;
+			flex-direction: column;
+		}
 
-.stat-label {
-	font-size: 0.85rem;
-	color: var(--text-muted);
-	margin: 0;
-}
+		.stat-label {
+			font-size: 0.85rem;
+			color: var(--text-muted);
+			margin: 0;
+		}
 
-.stat-value {
-	margin: 0;
-	font-size: 1.5rem;
-}
+		.stat-value {
+			margin: 0;
+			font-size: 1.5rem;
+		}
 
-/* FILTER BAR */
-.filter-bar {
-	display: flex;
-	gap: 1rem;
-	flex-wrap: wrap;
-	margin-bottom: 1.5rem;
-}
+		/* FILTER BAR */
+		.filter-bar {
+			display: flex;
+			gap: 1rem;
+			flex-wrap: wrap;
+			margin-bottom: 1.5rem;
+		}
 
-.filter-bar select {
-	padding: 8px 10px;
-	border-radius: 6px;
-	border: 1px solid var(--border-color);
-	background: white;
-}
+		.filter-bar select {
+			padding: 8px 10px;
+			border-radius: 6px;
+			border: 1px solid var(--border-color);
+			background: white;
+		}
 
-.search-box {
-	position: relative;
-}
+		.search-box {
+			position: relative;
+		}
 
-.search-box i {
-	position: absolute;
-	left: 10px;
-	top: 50%;
-	transform: translateY(-50%);
-	color: var(--text-muted);
-}
+		.search-box i {
+			position: absolute;
+			left: 10px;
+			top: 50%;
+			transform: translateY(-50%);
+			color: var(--text-muted);
+		}
 
-.search-box input {
-	width: 100%;
-	padding: 8px 10px 8px 32px;
-	border-radius: 6px;
-	border: 1px solid var(--border-color);
-}
+		.search-box input {
+			width: 100%;
+			padding: 8px 10px 8px 32px;
+			border-radius: 6px;
+			border: 1px solid var(--border-color);
+		}
 
-/* ANNOUNCEMENT CARD */
-.announcement-card {
-	background: white;
-	border: 1px solid var(--border-color);
-	border-radius: 10px;
-	padding: 1.5rem;
-	margin-bottom: 1.5rem;
-	position: relative;
-	transition: all 0.2s;
-}
+		/* ANNOUNCEMENT CARD */
+		.announcement-card {
+			background: white;
+			border: 1px solid var(--border-color);
+			border-radius: 10px;
+			padding: 1.5rem;
+			margin-bottom: 1.5rem;
+			position: relative;
+			transition: all 0.2s;
+		}
 
-.announcement-card:hover {
-	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-	transform: translateY(-2px);
-}
+		.announcement-card:hover {
+			box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+			transform: translateY(-2px);
+		}
 
-/* PRIORITY BADGES */
-.priority-badge {
-	position: absolute;
-	top: 15px;
-	right: 15px;
-	font-size: 0.7rem;
-	padding: 4px 8px;
-	border-radius: 20px;
-	font-weight: 600;
-}
+		/* PRIORITY BADGES */
+		.priority-badge {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			font-size: 0.7rem;
+			padding: 4px 8px;
+			border-radius: 20px;
+			font-weight: 600;
+		}
 
-.priority-URGENT {
-	background: #fee2e2;
-	color: #dc2626;
-}
+		.priority-URGENT {
+			background: #fee2e2;
+			color: #dc2626;
+		}
 
-.priority-HIGH {
-	background: #fff7ed;
-	color: #ea580c;
-}
+		.priority-HIGH {
+			background: #fff7ed;
+			color: #ea580c;
+		}
 
-.priority-MEDIUM {
-	background: #dbeafe;
-	color: #1e40af;
-}
+		.priority-MEDIUM {
+			background: #dbeafe;
+			color: #1e40af;
+		}
 
-.priority-LOW {
-	background: #d1fae5;
-	color: #065f46;
-}
+		.priority-LOW {
+			background: #d1fae5;
+			color: #065f46;
+		}
 
-/* HEADER */
-.announcement-header {
-	margin-bottom: 1rem;
-}
+		/* HEADER */
+		.announcement-header {
+			margin-bottom: 1rem;
+		}
 
-.announcement-header h2 {
-	margin: 0 0 6px 0;
-	font-size: 1.3rem;
-	display: flex;
-	align-items: center;
-	gap: 10px;
-}
+		.announcement-header h2 {
+			margin: 0 0 6px 0;
+			font-size: 1.3rem;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
 
-/* NEW BADGE */
-.new-badge {
-	background: #10b981;
-	color: white;
-	font-size: 0.65rem;
-	padding: 2px 6px;
-	border-radius: 6px;
-}
+		/* NEW BADGE */
+		.new-badge {
+			background: #10b981;
+			color: white;
+			font-size: 0.65rem;
+			padding: 2px 6px;
+			border-radius: 6px;
+		}
 
-/* META */
-.announcement-meta {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 1rem;
-	font-size: 0.8rem;
-	color: var(--text-muted);
-}
+		/* META */
+		.announcement-meta {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 1rem;
+			font-size: 0.8rem;
+			color: var(--text-muted);
+		}
 
-.announcement-meta i {
-	margin-right: 4px;
-}
+		.announcement-meta i {
+			margin-right: 4px;
+		}
 
-/* TYPE BADGE */
-.type-badge {
-	background: #f3f4f6;
-	padding: 3px 8px;
-	border-radius: 6px;
-	font-size: 0.7rem;
-}
+		/* TYPE BADGE */
+		.type-badge {
+			background: #f3f4f6;
+			padding: 3px 8px;
+			border-radius: 6px;
+			font-size: 0.7rem;
+		}
 
-/* MESSAGE */
-.announcement-message {
-	margin-top: 0.75rem;
-	line-height: 1.6;
-}
+		/* MESSAGE */
+		.announcement-message {
+			margin-top: 0.75rem;
+			line-height: 1.6;
+		}
 
-/* EMPTY STATE */
-.empty-state {
-	text-align: center;
-	padding: 3rem 1rem;
-	color: var(--text-muted);
-}
+		/* EMPTY STATE */
+		.empty-state {
+			text-align: center;
+			padding: 3rem 1rem;
+			color: var(--text-muted);
+		}
 
-.empty-state i {
-	font-size: 2rem;
-	margin-bottom: 0.5rem;
-}
-</style>
+		.empty-state i {
+			font-size: 2rem;
+			margin-bottom: 0.5rem;
+		}
+	</style>
 </head>
 
 <body>
@@ -269,10 +269,25 @@
 
 				<!-- Filter Bar -->
 				<div class="filter-bar">
-					<div class="search-box" style="flex: 1;">
-						<i class="fas fa-search"></i> <input type="text" id="searchInput"
-							placeholder="Search announcements..."
+					<div class="animated-search-form" style="flex: 1; --width-of-input: 100%;">
+						<button type="button">
+							<svg width="17" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img"
+								aria-labelledby="search">
+								<path
+									d="M7.667 12.667A5.333 5.333 0 107.667 2a5.333 5.333 0 000 10.667zM14.334 14l-2.9-2.9"
+									stroke="currentColor" stroke-width="1.333" stroke-linecap="round"
+									stroke-linejoin="round"></path>
+							</svg>
+						</button>
+						<input class="input" id="searchInput" type="text" placeholder="Search announcements..."
 							onkeyup="searchAnnouncements()">
+						<button class="reset" type="button"
+							onclick="document.getElementById('searchInput').value=''; searchAnnouncements();">
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+								stroke="currentColor" stroke-width="2">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+							</svg>
+						</button>
 					</div>
 
 					<select id="priorityFilter" onchange="filterByPriority()">
@@ -294,29 +309,26 @@
 				<!-- Announcements List -->
 				<div id="announcementsList">
 					<div class="announcement-card" th:each="ann : ${announcements}"
-						th:classappend="' priority-' + ${ann.priority}"
-						th:data-priority="${ann.priority}" th:data-type="${ann.type}">
+						th:classappend="' priority-' + ${ann.priority}" th:data-priority="${ann.priority}"
+						th:data-type="${ann.type}">
 
-						<span class="priority-badge"
-							th:classappend="' priority-' + ${ann.priority}"
+						<span class="priority-badge" th:classappend="' priority-' + ${ann.priority}"
 							th:text="${ann.priority}">MEDIUM</span>
 
 						<div class="announcement-header">
 							<h2>
-								<span th:text="${ann.title}">Announcement Title</span> <span
-									class="new-badge"
+								<span th:text="${ann.title}">Announcement Title</span> <span class="new-badge"
 									th:if="${ann.createdAt != null && ann.createdAt.toLocalDate().isAfter(#temporals.createNow().toLocalDate().minusDays(3))}">NEW</span>
 							</h2>
 
 							<div class="announcement-meta">
-								<span> <i class="fas fa-user"></i> <span
-									th:text="${ann.creatorName}">Posted by Admin</span>
+								<span> <i class="fas fa-user"></i> <span th:text="${ann.creatorName}">Posted by
+										Admin</span>
 								</span> <span> <i class="fas fa-calendar"></i> <span
-									th:text="${#temporals.format(ann.publishDate, 'MMMM dd, yyyy')}">March
+										th:text="${#temporals.format(ann.publishDate, 'MMMM dd, yyyy')}">March
 										09, 2026</span>
-								</span> <span th:if="${ann.expiryDate != null}"> <i
-									class="fas fa-clock"></i> Expires: <span
-									th:text="${#temporals.format(ann.expiryDate, 'MMM dd')}">Mar
+								</span> <span th:if="${ann.expiryDate != null}"> <i class="fas fa-clock"></i> Expires:
+									<span th:text="${#temporals.format(ann.expiryDate, 'MMM dd')}">Mar
 										20</span>
 								</span> <span class="type-badge" th:text="${ann.type}">INFO</span>
 							</div>
@@ -327,11 +339,9 @@
 								Announcement message goes here...</p>
 						</div>
 
-						<div
-							th:if="${ann.message != null && #strings.length(ann.message) > 300}">
-							<a th:href="@{/employee/announcements/{id}(id=${ann.id})}"
-								class="btn btn-link" style="padding-left: 0;"> <i
-								class="fas fa-arrow-right"></i> Read More
+						<div th:if="${ann.message != null && #strings.length(ann.message) > 300}">
+							<a th:href="@{/employee/announcements/{id}(id=${ann.id})}" class="btn btn-link"
+								style="padding-left: 0;"> <i class="fas fa-arrow-right"></i> Read More
 							</a>
 						</div>
 					</div>
@@ -353,45 +363,45 @@
 	<script th:src="@{/js/app.js}"></script>
 
 	<script>
-        function searchAnnouncements() {
-            const input = document.getElementById('searchInput');
-            const filter = input.value.toLowerCase();
-            const cards = document.querySelectorAll('.announcement-card');
+		function searchAnnouncements() {
+			const input = document.getElementById('searchInput');
+			const filter = input.value.toLowerCase();
+			const cards = document.querySelectorAll('.announcement-card');
 
-            cards.forEach(card => {
-                const text = card.textContent.toLowerCase();
-                card.style.display = text.includes(filter) ? '' : 'none';
-            });
-        }
+			cards.forEach(card => {
+				const text = card.textContent.toLowerCase();
+				card.style.display = text.includes(filter) ? '' : 'none';
+			});
+		}
 
-        function filterByPriority() {
-            const select = document.getElementById('priorityFilter');
-            const priority = select.value;
-            const cards = document.querySelectorAll('.announcement-card');
+		function filterByPriority() {
+			const select = document.getElementById('priorityFilter');
+			const priority = select.value;
+			const cards = document.querySelectorAll('.announcement-card');
 
-            cards.forEach(card => {
-                if (priority === 'ALL' || card.dataset.priority === priority) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
+			cards.forEach(card => {
+				if (priority === 'ALL' || card.dataset.priority === priority) {
+					card.style.display = '';
+				} else {
+					card.style.display = 'none';
+				}
+			});
+		}
 
-        function filterByType() {
-            const select = document.getElementById('typeFilter');
-            const type = select.value;
-            const cards = document.querySelectorAll('.announcement-card');
+		function filterByType() {
+			const select = document.getElementById('typeFilter');
+			const type = select.value;
+			const cards = document.querySelectorAll('.announcement-card');
 
-            cards.forEach(card => {
-                if (type === 'ALL' || card.dataset.type === type) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-    </script>
+			cards.forEach(card => {
+				if (type === 'ALL' || card.dataset.type === type) {
+					card.style.display = '';
+				} else {
+					card.style.display = 'none';
+				}
+			});
+		}
+	</script>
 </body>
 
 </html>

@@ -21,65 +21,86 @@
         .login-page {
             min-height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--bg-main) 0%, #fff 100%);
+            background: #fff;
             position: relative;
             overflow: hidden;
         }
 
-        .login-page::before,
-        .login-page::after {
-            content: '';
-            position: absolute;
-            border-radius: 50%;
-            z-index: 0;
-        }
-
-        .login-page::before {
-            top: -20%;
-            right: -10%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(255, 140, 0, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
-        }
-
-        .login-page::after {
-            bottom: -20%;
-            left: -10%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(255, 160, 122, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
-        }
-
-        .login-card {
-            background: var(--bg-glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: var(--border-radius-lg);
-            padding: 3rem;
-            width: 100%;
-            max-width: 450px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        .video-sidebar {
+            width: 35%;
+            height: 100vh;
             position: relative;
-            z-index: 1;
-            text-align: center;
-        }
-
-        .login-logo {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            border-radius: 16px;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 2rem;
-            font-weight: bold;
-            margin: 0 auto 1.5rem auto;
-            box-shadow: 0 10px 20px rgba(255, 140, 0, 0.3);
+            background: #000;
+        }
+
+        .video-sidebar video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .login-content {
+            width: 65%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            /* Align card to the right */
+            justify-content: center;
+            padding-right: 10%;
+            /* Margin on the right side */
+            position: relative;
+            background: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .video-sidebar {
+                display: none;
+            }
+
+            .login-content {
+                width: 100%;
+                align-items: center;
+                padding-right: 2rem;
+                padding-left: 2rem;
+            }
+        }
+
+        .login-card {
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border: none;
+            border-radius: 0;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 380px;
+            /* Smaller form */
+            box-shadow: none;
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .login-logo {
+            width: auto;
+            max-width: 120px;
+            height: clamp(80px, 12vh, 120px);
+            margin: 0 auto 1rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-logo img {
+            width: auto;
+            height: 100%;
+            object-fit: contain;
         }
 
         .login-title {
@@ -216,167 +237,274 @@
             font-size: 0.75rem;
         }
 
-        #gifContainer {
+        /* Enhanced Quick Login Modal */
+        .quick-login-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             display: none;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            z-index: 2001;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .quick-login-modal {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius-lg);
+            padding: 2.5rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .quick-login-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .quick-login-overlay.active .quick-login-modal {
+            transform: scale(1);
+        }
+
+        .role-btn {
             width: 100%;
+            padding: 1rem;
+            border-radius: var(--border-radius-md);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s ease;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
-        #gifContainer img {
-            max-width: 100%;
-            height: auto;
-            border-radius: var(--border-radius-sm);
+        .role-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            filter: brightness(1.1);
         }
 
-        .login-card.gif-active {
-            padding: 0;
-            box-shadow: none;
-            background: #fff;
+        .role-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .role-btn i {
+            font-size: 1.25rem;
+        }
+
+        .role-btn.admin {
+            background: linear-gradient(135deg, #1e293b, #334155);
+        }
+
+        .role-btn.manager {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .role-btn.employee {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .close-modal-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
             border: none;
+            color: var(--text-muted);
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .close-modal-btn:hover {
+            color: var(--text-dark);
         }
     </style>
 </head>
 
 <body>
     <div class="login-page">
-        <div class="login-card" id="loginCard"
-            th:classappend="${error == null and message == null and success == null} ? 'gif-active' : ''">
-            <div id="gifContainer"
-                th:style="${error == null and message == null and success == null} ? 'display: flex;' : 'display: none;'">
-                <img th:src="@{/assets/logo.gif}" alt="Loading..." class="img-fluid">
-            </div>
-
-            <div id="formContent"
-                th:style="${error == null and message == null and success == null} ? 'display: none;' : ''">
-                <div class="login-logo">R</div>
-                <h1 class="login-title">Welcome Back</h1>
-                <p class="login-subtitle">Sign in to RevWorkForce</p>
-
-                <div th:if="${error}" class="alert alert-danger"
-                    style="color: #dc3545; background-color: #f8d7da; border-color: #f5c6cb; padding: .75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: .25rem; text-align: left;"
-                    th:text="${error}"></div>
-                <div th:if="${message}" class="alert alert-success"
-                    style="color: #155724; background-color: #d4edda; border-color: #c3e6cb; padding: .75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: .25rem; text-align: left;"
-                    th:text="${message}"></div>
-                <div th:if="${success}" class="alert alert-success"
-                    style="color: #155724; background-color: #d4edda; border-color: #c3e6cb; padding: .75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: .25rem; text-align: left;"
-                    th:text="${success}"></div>
-
-                <form id="loginForm" th:action="@{/login}" method="post">
-                    <div class="form-group">
-                        <label class="form-label" for="username">Employee ID / Email</label>
-                        <input type="text" id="username" name="username" class="form-control" placeholder="e.g. EMP001"
-                            required>
+        <div class="video-sidebar">
+            <video autoplay muted loop playsinline>
+                <source th:src="@{/assets/login.mp4}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+        <div class="login-content">
+            <div class="login-card" id="loginCard">
+                <div id="formContent">
+                    <div class="login-logo">
+                        <img th:src="@{/assets/logo.PNG}" alt="RevWorkForce Logo">
                     </div>
+                    <h1 class="login-title">Welcome Back</h1>
+                    <p class="login-subtitle">Sign in to RevWorkForce</p>
 
-                    <div class="form-group">
-                        <label class="form-label" for="password">Password</label>
-                        <div class="password-wrapper">
-                            <input type="password" id="password" name="password" class="form-control"
-                                placeholder="Enter your password" required style="padding-right: 40px;">
-                            <button type="button" class="password-toggle" id="togglePassword">
+                    <div th:if="${error}" class="alert alert-danger"
+                        style="color: #dc3545; background-color: #f8d7da; border-color: #f5c6cb; padding: .75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: .25rem; text-align: left;"
+                        th:text="${error}"></div>
+                    <div th:if="${message}" class="alert alert-success"
+                        style="color: #155724; background-color: #d4edda; border-color: #c3e6cb; padding: .75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: .25rem; text-align: left;"
+                        th:text="${message}"></div>
+                    <div th:if="${success}" class="alert alert-success"
+                        style="color: #155724; background-color: #d4edda; border-color: #c3e6cb; padding: .75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: .25rem; text-align: left;"
+                        th:text="${success}"></div>
+
+                    <form id="loginForm" th:action="@{/login}" method="post">
+                        <div class="form-group">
+                            <label class="form-label" for="username">Employee ID / Email</label>
+                            <input type="text" id="username" name="username" class="form-control"
+                                placeholder="e.g. EMP001" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="password">Password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="password" name="password" class="form-control"
+                                    placeholder="Enter your password" required style="padding-right: 40px;">
+                                <button type="button" class="password-toggle" id="togglePassword">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            <a th:href="@{/forgot-password}" class="forgot-password">Forgot password?</a>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-login">Sign In</button>
+
+                        <!-- Quick Login Icon -->
+                        <div style="text-align: center; margin-top: 1rem;">
+                            <button type="button" id="quickLoginBtn" class="btn btn-secondary"
+                                style="border: none; background: transparent; color: var(--text-muted); font-size: 1.25rem;">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                         </div>
-                        <a th:href="@{/forgot-password}" class="forgot-password">Forgot password?</a>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-login">Sign In</button>
-                </form>
-
-                <!-- Demo Credentials Section -->
-                <div class="demo-section">
-                    <p class="demo-title">Demo Credentials</p>
-                    <p class="demo-instruction">Click to auto-fill Credentials</p>
-
-                    <div class="credentials-grid">
-                        <!-- Admin -->
-                        <div class="credential-box" onclick="fillCredentials('ADM001', 'password123')">
-                            <div class="credential-role"><i class="fa-solid fa-user-shield"></i> Admin</div>
-                            <div class="credential-info">
-                                <div><span>ID:</span> ADM001</div>
-                                <div><span>Password:</span> password123</div>
-                            </div>
-                        </div>
-
-                        <!-- Manager -->
-                        <div class="credential-box" onclick="fillCredentials('MGR001', 'password123')">
-                            <div class="credential-role"><i class="fa-solid fa-user-tie"></i> Manager</div>
-                            <div class="credential-info">
-                                <div><span>ID:</span> MGR001</div>
-                                <div><span>Password:</span> password123</div>
-                            </div>
-                        </div>
-
-                        <!-- Employee -->
-                        <div class="credential-box" onclick="fillCredentials('EMP001', 'password123')">
-                            <div class="credential-role"><i class="fa-solid fa-briefcase"></i> Employee</div>
-                            <div class="credential-info">
-                                <div><span>ID:</span> EMP001</div>
-                                <div><span>Password:</span> password123</div>
-                            </div>
-                        </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+    </div>
 
-    <!-- Dynamic Footer -->
-    <footer style="
-    text-align: center; 
-    padding: 1.5rem 0; 
-    color: var(--text-muted); 
-    font-size: 0.8rem; 
-    margin-top: 2rem;
-">
-        &copy; <span id="currentYear"></span> RevWorkForce. All rights reserved.
-    </footer>
+    <!-- Quick Login Modal -->
+    <div id="quickLoginModal" class="quick-login-overlay">
+        <div class="quick-login-modal">
+            <button id="closeQuickLoginBtn" class="close-modal-btn">
+                <i class="fa-solid fa-times"></i>
+            </button>
+            <h3 class="mb-2">Quick Access</h3>
+            <p class="text-muted mb-4" style="font-size: 0.9rem;">Choose a role to auto-fill and login instantly.</p>
+
+            <div class="role-buttons">
+                <button type="button" class="role-btn admin" onclick="autoFillLogin('ADM001', 'password123')">
+                    <i class="fa-solid fa-shield-halved"></i> Admin
+                </button>
+                <button type="button" class="role-btn manager" onclick="autoFillLogin('MGR001', 'password123')">
+                    <i class="fa-solid fa-user-tie"></i> Manager
+                </button>
+                <button type="button" class="role-btn employee" onclick="autoFillLogin('EMP001', 'password123')">
+                    <i class="fa-solid fa-user"></i> Employee
+                </button>
+            </div>
+        </div>
+    </div>
 
 
     <!-- Load App JS -->
     <script th:src="@{/js/app.js}"></script>
-    <script>
+    <script th:inline="javascript">
         // Password toggle functionality
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
 
-        togglePassword.addEventListener('click', function () {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', function () {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
 
-            // Change icon
-            this.innerHTML = type === 'password'
-                ? '<i class="fa-solid fa-eye"></i>'
-                : '<i class="fa-solid fa-eye-slash"></i>';
-        });
-
-        // Fill credentials function
-        function fillCredentials(username, password) {
-            document.getElementById('username').value = username;
-            document.getElementById('password').value = password;
+                // Change icon
+                this.innerHTML = type === 'password'
+                    ? '<i class="fa-solid fa-eye"></i>'
+                    : '<i class="fa-solid fa-eye-slash"></i>';
+            });
         }
 
-        // Dynamically set current year in footer
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        // Dynamically set current year in footer (if exists)
+        const yearElement = document.getElementById('currentYear');
+        if (yearElement) {
+            yearElement.textContent = new Date().getFullYear();
+        }
 
-        // Handle Startup GIF Transition
         document.addEventListener("DOMContentLoaded", function () {
-            const formContent = document.getElementById('formContent');
-            const gifContainer = document.getElementById('gifContainer');
-            const loginCard = document.getElementById('loginCard');
+            // Quick Login Modal Logic
+            const quickLoginBtn = document.getElementById('quickLoginBtn');
+            const quickLoginModal = document.getElementById('quickLoginModal');
+            const closeQuickLoginBtn = document.getElementById('closeQuickLoginBtn');
 
-            // If the GIF is initially shown (no errors), hide it after 4.4 seconds
-            if (gifContainer.style.display === 'flex') {
-                setTimeout(() => {
-                    gifContainer.style.display = 'none';
-                    formContent.style.display = 'block';
-                    loginCard.classList.remove('gif-active');
-                }, 4400);
+            if (quickLoginBtn && quickLoginModal) {
+                quickLoginBtn.addEventListener('click', () => {
+                    quickLoginModal.style.display = 'flex';
+                    // Trigger reflow for transition
+                    quickLoginModal.offsetHeight;
+                    quickLoginModal.classList.add('active');
+                });
+
+                const closeModal = () => {
+                    quickLoginModal.classList.remove('active');
+                    setTimeout(() => {
+                        quickLoginModal.style.display = 'none';
+                    }, 300);
+                };
+
+                closeQuickLoginBtn.addEventListener('click', closeModal);
+
+                // Close when clicking outside the modal content
+                quickLoginModal.addEventListener('click', (e) => {
+                    if (e.target === quickLoginModal) {
+                        closeModal();
+                    }
+                });
             }
-        });
 
+            // Global function for the buttons to call
+            window.autoFillLogin = function (username, password) {
+                const usernameField = document.getElementById('username');
+                const passwordField = document.getElementById('password');
+                const loginForm = document.getElementById('loginForm');
+
+                // Fill fields with a typing effect feel (fast but visible)
+                usernameField.value = username;
+                passwordField.value = password;
+
+                // Close the modal
+                if (quickLoginModal) {
+                    quickLoginModal.classList.remove('active');
+                    setTimeout(() => {
+                        quickLoginModal.style.display = 'none';
+                    }, 300);
+                }
+
+                // Small delay before submission for visual confirmation
+                setTimeout(() => {
+                    // Provide a visual indication that submission is happening
+                    const submitBtn = loginForm.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+                        submitBtn.disabled = true;
+                    }
+                    loginForm.submit();
+                }, 600);
+            };
+        });
     </script>
 </body>
 

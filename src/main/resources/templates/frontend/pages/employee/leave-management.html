@@ -112,14 +112,16 @@
                                                 th:classappend="${#strings.toLowerCase(leave.status) == 'approved' ? 'badge-approved' : (#strings.toLowerCase(leave.status) == 'rejected' ? 'badge-rejected' : 'badge-pending')}"
                                                 th:text="${leave.status}">Pending</span>
                                         </div>
-                                        <div class="flex-space-between mt-2">
-                                            <p class="text-muted mb-0" style="font-size: 0.85rem;"
+                                        <div
+                                            style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                                            <p class="text-muted mb-0" style="font-size: 0.85rem; text-align: center;"
                                                 th:text="${#temporals.format(leave.startDate, 'MMM d, yyyy')} + ' - ' + ${#temporals.format(leave.endDate, 'MMM d, yyyy')}">
                                                 Mar 2, 2026 - Mar 3, 2026</p>
                                             <form th:if="${leave.status.name() == 'PENDING'}"
                                                 th:action="@{/employee/cancel/{id}(id=${leave.applicationId})}"
                                                 method="POST" style="margin: 0;">
-                                                <button type="submit" class="btn btn-danger btn-sm"><i
+                                                <button type="submit" class="btn btn-danger btn-sm"
+                                                    style="padding: 0.4rem 1rem !important; border-radius: 6px; white-space: nowrap;"><i
                                                         class="fas fa-times"></i> Cancel Request</button>
                                             </form>
                                         </div>
@@ -181,11 +183,11 @@
                                     </select>
                                 </form>
                             </div>
-                           
+
                         </div>
 
                         <!-- Visual Calendar Integration -->
-                    
+
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
@@ -217,7 +219,7 @@
     <!-- Load Scripts -->
     <script th:src="@{/js/components.js}"></script>
     <script th:src="@{/js/app.js}"></script>
-    
+
 </body>
 
 </html>

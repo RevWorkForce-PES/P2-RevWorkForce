@@ -49,43 +49,57 @@
 
                         <!-- UPDATED FILTERS: Department & Designation instead of Status -->
                         <form th:action="@{/admin/employees}" method="get" class="flex-space-between mb-3">
-                            <div class="form-group" style="margin-bottom: 0; width: 350px;">
-                                <input type="text" name="keyword" class="form-control"
-                                    placeholder="Search by ID, Name or Email..."
-                                    th:value="${criteria != null ? criteria.keyword : ''}">
+                            <div class="animated-search-form" style="width: 350px; --width-of-input: 100%;">
+                                <button type="submit">
+                                    <svg width="17" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"
+                                        role="img" aria-labelledby="search">
+                                        <path
+                                            d="M7.667 12.667A5.333 5.333 0 107.667 2a5.333 5.333 0 000 10.667zM14.334 14l-2.9-2.9"
+                                            stroke="currentColor" stroke-width="1.333" stroke-linecap="round"
+                                            stroke-linejoin="round"></path>
+                                    </svg>
+                                </button>
+                                <input class="input" type="text" name="keyword"
+                                    th:value="${criteria != null ? criteria.keyword : ''}"
+                                    placeholder="Search by ID, Name or Email...">
+                                <button class="reset" type="button" onclick="window.location.href='/admin/employees'">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12">
+                                        </path>
+                                    </svg>
+                                </button>
                             </div>
                             <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
                                 <!-- Department Filter -->
                                 <select name="departmentId" class="form-control" style="width:160px;">
                                     <option value="">All Departments</option>
-                                    <option th:each="dept : ${departments}" 
-                                            th:value="${dept.departmentId}" 
-                                            th:text="${dept.departmentName}"
-                                            th:selected="${criteria != null && criteria.departmentId == dept.departmentId}">
+                                    <option th:each="dept : ${departments}" th:value="${dept.departmentId}"
+                                        th:text="${dept.departmentName}"
+                                        th:selected="${criteria != null && criteria.departmentId == dept.departmentId}">
                                     </option>
                                 </select>
-                                
+
                                 <!-- Designation Filter -->
                                 <select name="designationId" class="form-control" style="width:160px;">
                                     <option value="">All Designations</option>
-                                    <option th:each="desig : ${designations}" 
-                                            th:value="${desig.designationId}" 
-                                            th:text="${desig.designationName}"
-                                            th:selected="${criteria != null && criteria.designationId == desig.designationId}">
+                                    <option th:each="desig : ${designations}" th:value="${desig.designationId}"
+                                        th:text="${desig.designationName}"
+                                        th:selected="${criteria != null && criteria.designationId == desig.designationId}">
                                     </option>
                                 </select>
-                                
+
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-search"></i> Search
                                 </button>
-                                
+
                                 <!-- Clear Filters Button -->
                                 <a th:href="@{/admin/employees}" class="btn btn-secondary">
                                     <i class="fas fa-times"></i> Clear
                                 </a>
                             </div>
                         </form>
-                        
+
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
@@ -95,7 +109,7 @@
                                         <th>Department</th>
                                         <th>Designation</th>
                                         <th>Status</th>
-                                        <th style="width: 280px;">Actions</th>
+                                        <th style="width: 320px; white-space: nowrap;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -111,35 +125,37 @@
                                                 th:classappend="${emp.status != null && emp.status.name() == 'ACTIVE' ? 'badge-approved' : 'badge-rejected'}"
                                                 th:text="${emp.status}">Active</span>
                                         </td>
-                                        <td style="display:flex; gap:0.3rem; flex-wrap:wrap;">
+                                        <td style="display:flex; gap:0.3rem; flex-wrap:nowrap; align-items:center;">
                                             <!-- Edit Button -->
                                             <a th:href="@{/admin/employees/edit/{id}(id=${emp.employeeId})}"
-                                                class="btn btn-secondary btn-sm">
+                                                class="btn btn-secondary btn-sm" style="white-space: nowrap;">
                                                 <i class="fas fa-edit"></i> Edit
                                             </a>
-                                            
+
                                             <!-- View Button -->
                                             <a th:href="@{/admin/employees/view/{id}(id=${emp.employeeId})}"
-                                                class="btn btn-secondary btn-sm">
+                                                class="btn btn-secondary btn-sm" style="white-space: nowrap;">
                                                 <i class="fas fa-eye"></i> View
                                             </a>
-                                            
+
                                             <!-- DEACTIVATE BUTTON (only for ACTIVE employees) -->
                                             <form th:if="${emp.status != null && emp.status.name() == 'ACTIVE'}"
-                                                  th:action="@{/admin/employees/deactivate/{id}(id=${emp.employeeId})}"
-                                                  method="POST" style="display:inline;">
+                                                th:action="@{/admin/employees/deactivate/{id}(id=${emp.employeeId})}"
+                                                method="POST" style="margin: 0;">
                                                 <button type="submit" class="btn btn-danger btn-sm"
-                                                    onclick="return confirm('Deactivate this employee?')">
+                                                    onclick="return confirm('Deactivate this employee?')"
+                                                    style="white-space: nowrap;">
                                                     <i class="fas fa-user-slash"></i> Deactivate
                                                 </button>
                                             </form>
-                                            
+
                                             <!-- REACTIVATE BUTTON (only for INACTIVE employees) -->
                                             <form th:if="${emp.status != null && emp.status.name() != 'ACTIVE'}"
-                                                  th:action="@{/admin/employees/reactivate/{id}(id=${emp.employeeId})}"
-                                                  method="POST" style="display:inline;">
+                                                th:action="@{/admin/employees/reactivate/{id}(id=${emp.employeeId})}"
+                                                method="POST" style="margin: 0;">
                                                 <button type="submit" class="btn btn-success btn-sm"
-                                                    onclick="return confirm('Reactivate this employee?')">
+                                                    onclick="return confirm('Reactivate this employee?')"
+                                                    style="white-space: nowrap;">
                                                     <i class="fas fa-user-check"></i> Reactivate
                                                 </button>
                                             </form>

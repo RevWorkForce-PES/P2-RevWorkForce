@@ -125,11 +125,13 @@
                                             member(s)</span>
                                     </td>
                                     <td>
-                                        <span th:if="${desig.isActive == 'Y'}" class="badge-active">
+                                        <span th:if="${desig.isActive != null and desig.isActive.toString() == 'Y'}"
+                                            class="badge-active">
                                             <i class="fas fa-circle"
                                                 style="font-size:0.5rem; margin-right:3px;"></i>Active
                                         </span>
-                                        <span th:unless="${desig.isActive == 'Y'}" class="badge-inactive">
+                                        <span th:unless="${desig.isActive != null and desig.isActive.toString() == 'Y'}"
+                                            class="badge-inactive">
                                             <i class="fas fa-circle"
                                                 style="font-size:0.5rem; margin-right:3px;"></i>Inactive
                                         </span>

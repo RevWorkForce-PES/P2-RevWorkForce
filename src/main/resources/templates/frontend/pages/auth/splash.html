@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading - RevWorkForce</title>
+
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            /* Explicitly solid white */
+            overflow: hidden;
+        }
+
+        .splash-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .splash-container img {
+            max-width: 300px;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="splash-container">
+        <img th:src="@{/assets/logo.gif}" alt="Loading...">
+    </div>
+
+    <script>
+        // Redirect to login form exactly 4.4 seconds after the page loads
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(() => {
+                window.location.replace("/login?nosplash=true");
+            }, 4400); // 4.4s wait
+        });
+    </script>
+</body>
+
+</html>

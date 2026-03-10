@@ -25,89 +25,106 @@ class AppSidebar extends HTMLElement {
 
         if (this.role === 'admin') {
             linksHtml = `
-                <li class="nav-item">
-                    <a href="${basePath}/admin/dashboard" class="nav-link">
-                        <i class="fas fa-home"></i> <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/admin/employees" class="nav-link">
-                        <i class="fas fa-users"></i> <span>Employee Mgt</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/admin/system-config" class="nav-link">
-                        <i class="fas fa-cogs"></i> <span>System Config</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/admin/dashboard" class="nav-link">
-                        <i class="fas fa-file-alt"></i> <span>Audit & Reports</span>
-                    </a>
-                </li>
-            `;
+		        <li class="nav-item">
+		            <a href="${basePath}/admin/dashboard" class="nav-link">
+		                <i class="fas fa-home"></i> <span>Dashboard</span>
+		            </a>
+		        </li>
+		        <li class="nav-item">
+		            <a href="${basePath}/admin/employees" class="nav-link">
+		                <i class="fas fa-users"></i> <span>Employee Mgt</span>
+		            </a>
+		        </li>
+
+		        <li class="nav-item">
+		            <a href="${basePath}/admin/announcements" class="nav-link">
+		                <i class="fas fa-bullhorn"></i> <span>Announcements</span>
+		            </a>
+		        </li>
+
+		        <li class="nav-item">
+		            <a href="${basePath}/admin/system-config" class="nav-link">
+		                <i class="fas fa-cogs"></i> <span>System Config</span>
+		            </a>
+		        </li>
+		        <li class="nav-item">
+		            <a href="${basePath}/admin/audit-reports" class="nav-link">
+		                <i class="fas fa-file-alt"></i> <span>Audit & Reports</span>
+		            </a>
+		        </li>
+		    `;
         } else if (this.role === 'manager') {
             linksHtml = `
-                <li class="nav-item">
-                    <a href="${basePath}/manager/dashboard" class="nav-link">
-                        <i class="fas fa-home"></i> <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/manager/team-management" class="nav-link">
-                        <i class="fas fa-users-cog"></i> <span>Team Directory</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/manager/leave-approvals" class="nav-link">
-                        <i class="fas fa-calendar-check"></i> <span>Leave Approvals</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/manager/performance" class="nav-link">
-                        <i class="fas fa-chart-line"></i> <span>Performance</span>
-                    </a>
-                </li>
-            `;
+		        <li class="nav-item">
+		            <a href="${basePath}/manager/dashboard" class="nav-link">
+		                <i class="fas fa-home"></i> <span>Dashboard</span>
+		            </a>
+		        </li>
+
+		        <li class="nav-item">
+		            <a href="${basePath}/manager/announcements" class="nav-link">
+		                <i class="fas fa-bullhorn"></i> <span>Announcements</span>
+		            </a>
+		        </li>
+
+		        <li class="nav-item">
+		            <a href="${basePath}/manager/team-management" class="nav-link">
+		                <i class="fas fa-users-cog"></i> <span>Team Directory</span>
+		            </a>
+		        </li>
+		        <li class="nav-item">
+		            <a href="${basePath}/manager/leave-approvals" class="nav-link">
+		                <i class="fas fa-calendar-check"></i> <span>Leave Approvals</span>
+		            </a>
+		        </li>
+		        <li class="nav-item">
+		            <a href="${basePath}/manager/performance" class="nav-link">
+		                <i class="fas fa-chart-line"></i> <span>Performance</span>
+		            </a>
+		        </li>
+		    `;
         } else {
-            // Employee
             linksHtml = `
-                <li class="nav-item">
-                    <a href="${basePath}/employee/dashboard" class="nav-link">
-                        <i class="fas fa-home"></i> <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/employee/directory" class="nav-link">
-                        <i class="fas fa-id-card"></i> <span>Profile & Directory</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/employee/leave-management" class="nav-link">
-                        <i class="fas fa-calendar-alt"></i> <span>Leave Management</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/employee/performance" class="nav-link">
-                        <i class="fas fa-bullseye"></i> <span>Performance Goals</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="${basePath}/announcements" class="nav-link">
-                        <i class="fas fa-bullhorn"></i> <span>Announcements</span>
-                    </a>
-                </li>
-            `;
+		        <li class="nav-item">
+		            <a href="${basePath}/employee/dashboard" class="nav-link">
+		                <i class="fas fa-home"></i> <span>Dashboard</span>
+		            </a>
+		        </li>
+
+		        <li class="nav-item">
+		            <a href="${basePath}/employee/announcements" class="nav-link">
+		                <i class="fas fa-bullhorn"></i> <span>Announcements</span>
+		            </a>
+		        </li>
+
+		        <li class="nav-item">
+		            <a href="${basePath}/employee/directory" class="nav-link">
+		                <i class="fas fa-id-card"></i> <span>Profile & Directory</span>
+		            </a>
+		        </li>
+		        <li class="nav-item">
+		            <a href="${basePath}/employee/leave-management" class="nav-link">
+		                <i class="fas fa-calendar-alt"></i> <span>Leave Management</span>
+		            </a>
+		        </li>
+		        <li class="nav-item">
+		            <a href="${basePath}/employee/performance" class="nav-link">
+		                <i class="fas fa-bullseye"></i> <span>Performance Goals</span>
+		            </a>
+		        </li>
+		    `;
         }
 
         this.innerHTML = `
             <style>
                 aside {
                     width: 260px;
-                    height: 100vh;
+                    height: 100%;
+                    min-height: 100vh;
                     position: fixed;
                     left: 0;
                     top: 0;
+                    bottom: 0;
                     background: var(--bg-white);
                     border-right: 1px solid var(--border-color);
                     display: flex;
@@ -116,21 +133,21 @@ class AppSidebar extends HTMLElement {
                     box-shadow: var(--shadow-sm);
                 }
                 .logo-container {
-                    padding: 1.2rem 1.5rem;
+                    padding: 1rem;
+                    margin: 0;
                     display: flex;
                     align-items: center;
-                    gap: 12px;
+                    justify-content: center;
                     border-bottom: 1px solid var(--border-color);
                 }
-                .logo-img {
-                    height: 38px;
+                .logo-complete {
+                    height: 67.5px;
                     width: auto;
+                    max-width: 100%;
                     object-fit: contain;
-                }
-                .title-img {
-                    height: 24px;
-                    width: auto;
-                    object-fit: contain;
+                    display: block;
+                    margin: 0.5rem 0;
+                    padding: 0;
                 }
                 .nav-menu {
                     list-style: none;
@@ -154,12 +171,12 @@ class AppSidebar extends HTMLElement {
                     text-decoration: none;
                 }
                 .nav-link:hover {
-                    background-color: rgba(255, 140, 0, 0.08);
-                    color: var(--primary);
+                    background-color: rgba(0, 0, 0, 0.8);
+                    color: white;
                 }
                 .nav-link.active {
-                    background: linear-gradient(135deg, rgba(255,140,0,0.1), rgba(255,160,122,0.1));
-                    color: var(--primary);
+                    background: #222;
+                    color: white;
                     border-left: 4px solid var(--primary);
                 }
                 .nav-link i {
@@ -215,8 +232,7 @@ class AppSidebar extends HTMLElement {
             </style>
             <aside>
                 <div class="logo-container">
-                    <img src="${basePath}/assets/logo.PNG" alt="Logo" class="logo-img">
-                    <img src="${basePath}/assets/title.PNG" alt="RevWorkForce" class="title-img">
+                    <img src="${basePath}/assets/logocomplete.png" alt="RevWorkForce Logo" class="logo-complete">
                 </div>
                 <ul class="nav-menu">
                     ${linksHtml}
@@ -238,51 +254,58 @@ class AppSidebar extends HTMLElement {
 
         this.highlightActiveLink();
 
-        // Initial attempt to populate user name/role from injected meta tags
-        this.populateFromMeta();
-
-        // If meta tags are missing (as on many pages), try to load from API
-        const nameEl = this.querySelector('#sidebarUserName');
-        if (nameEl && nameEl.textContent === 'Loading...') {
-            this.loadUserInfo();
-        }
-    }
-
-    populateFromMeta() {
+        // Populate user name/role from meta tags (local or global) or localStorage or fetch
         const nameEl = this.querySelector('#sidebarUserName');
         const roleEl = this.querySelector('#sidebarUserRole');
-        const metaName = document.querySelector('meta[name="user-fullname"]');
-        const metaRole = document.querySelector('meta[name="user-role"]');
 
-        if (nameEl && metaName && metaName.content !== 'User') {
-            nameEl.textContent = metaName.content;
-        }
-        if (roleEl && metaRole && metaRole.content !== 'User') {
-            roleEl.textContent = metaRole.content;
+        const metaName = document.querySelector('meta[name="user-fullname"]') || document.querySelector('meta[name="global-user-fullname"]');
+        const metaRole = document.querySelector('meta[name="user-role"]') || document.querySelector('meta[name="global-user-role"]');
+
+        let nameValue = (metaName && metaName.content && metaName.content !== 'null') ? metaName.content : null;
+        let roleValue = (metaRole && metaRole.content && metaRole.content !== 'null') ? metaRole.content : null;
+
+        if (nameEl && nameValue) {
+            nameEl.textContent = nameValue;
+            localStorage.setItem('userFullName', nameValue);
+            if (roleEl && roleValue) {
+                roleEl.textContent = roleValue;
+                localStorage.setItem('userRole', roleValue);
+            }
+        } else {
+            // Try localStorage as fallback
+            const cachedName = localStorage.getItem('userFullName');
+            const cachedRole = localStorage.getItem('userRole');
+            if (nameEl && cachedName && cachedName !== 'undefined' && cachedName !== 'null') {
+                nameEl.textContent = cachedName;
+                if (roleEl && cachedRole && cachedRole !== 'undefined' && cachedRole !== 'null') {
+                    roleEl.textContent = cachedRole;
+                }
+            }
+            this.fetchUserInfo(nameEl, roleEl);
         }
     }
 
-    async loadUserInfo() {
-        const basePath = window.location.pathname.startsWith('/RevWorkForce') ? '/RevWorkForce' : '';
+    async fetchUserInfo(nameEl, roleEl) {
         try {
-            const response = await fetch(`${basePath}/api/user/info`);
+            const basePath = window.location.pathname.startsWith('/RevWorkForce') ? '/RevWorkForce' : '';
+            const response = await fetch(`${basePath}/api/auth/me`);
             if (response.ok) {
                 const data = await response.json();
-                const nameEl = this.querySelector('#sidebarUserName');
-                const roleEl = this.querySelector('#sidebarUserRole');
-
-                if (nameEl && data.fullName) nameEl.textContent = data.fullName;
-                if (roleEl && data.role) roleEl.textContent = data.role;
+                if (nameEl) nameEl.textContent = data.fullName;
+                if (roleEl) {
+                    roleEl.textContent = data.role;
+                    this.role = data.role.toLowerCase();
+                }
+            } else {
+                if (nameEl) nameEl.textContent = 'Guest';
             }
         } catch (error) {
-            console.error('Failed to load user info:', error);
-            const nameEl = this.querySelector('#sidebarUserName');
+            console.error('Error fetching user info:', error);
             if (nameEl) nameEl.textContent = 'User';
         }
     }
 
     highlightActiveLink() {
-        // Simple highlighting based on current URL path
         const currentPath = window.location.pathname;
         const links = this.querySelectorAll('.nav-link');
         links.forEach(link => {
@@ -356,9 +379,7 @@ class AppNavbar extends HTMLElement {
                     position: relative;
                     transition: color var(--transition-speed);
                 }
-                .icon-btn:hover {
-                    color: var(--primary);
-                }
+                .icon-btn:hover { color: var(--primary); }
                 .notification-badge {
                     position: absolute;
                     top: -5px;
@@ -390,9 +411,7 @@ class AppNavbar extends HTMLElement {
                     z-index: 100;
                     overflow: hidden;
                 }
-                .notification-dropdown.show {
-                    display: flex;
-                }
+                .notification-dropdown.show { display: flex; }
                 .notification-header {
                     padding: 1rem;
                     border-bottom: 1px solid var(--border-color);
@@ -401,10 +420,7 @@ class AppNavbar extends HTMLElement {
                     align-items: center;
                     background: #f8fafc;
                 }
-                .notification-header h3 {
-                    margin: 0;
-                    font-size: 1rem;
-                }
+                .notification-header h3 { margin: 0; font-size: 1rem; }
                 .notification-list {
                     max-height: 300px;
                     overflow-y: auto;
@@ -421,12 +437,8 @@ class AppNavbar extends HTMLElement {
                     gap: 1rem;
                     align-items: flex-start;
                 }
-                .notification-item:hover {
-                    background: #f1f5f9;
-                }
-                .notification-item:last-child {
-                    border-bottom: none;
-                }
+                .notification-item:hover { background: rgba(0, 0, 0, 0.8); color: white; }
+                .notification-item:last-child { border-bottom: none; }
                 .notify-icon {
                     width: 32px;
                     height: 32px;
@@ -438,58 +450,45 @@ class AppNavbar extends HTMLElement {
                     justify-content: center;
                     flex-shrink: 0;
                 }
-                .notify-content p {
-                    margin: 0 0 0.25rem 0;
-                    font-size: 0.9rem;
-                    color: var(--text-dark);
-                }
-                .notify-content span {
-                    font-size: 0.75rem;
-                    color: var(--text-muted);
-                }
+                .notify-content p { margin: 0 0 0.25rem 0; font-size: 0.9rem; color: var(--text-dark); }
+                .notify-content span { font-size: 0.75rem; color: var(--text-muted); }
                 .notification-footer {
                     padding: 0.75rem;
                     text-align: center;
                     border-top: 1px solid var(--border-color);
                     background: #f8fafc;
                 }
-                .notification-footer a {
-                    color: var(--primary);
-                    text-decoration: none;
-                    font-size: 0.85rem;
-                    font-weight: 500;
-                }
+                .notification-footer a { color: var(--primary); text-decoration: none; font-size: 0.85rem; font-weight: 500; }
             </style>
             <header>
                 <h1 class="page-title">${title}</h1>
                 <div class="header-actions">
-                    <div style="position: relative;">
-                        <button class="icon-btn" title="System Notifications" id="notificationBtn">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-badge" id="notificationBadge">0</span>
-                        </button>
-                        
-                        <div class="notification-dropdown" id="notificationDropdown">
-                            <div class="notification-header">
-                                <h3>Notifications</h3>
-								<button id="markAllReadBtn"
-								        style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.8rem;">
-								    Mark all as read
-								</button>
-								  </div>
-                            <ul class="notification-list" id="notificationList">
-                                <!-- Populated dynamically -->
-                            </ul>
-                            <div class="notification-footer">
-                               <a href="/notifications">View All Activity</a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button class="icon-btn" title="Change Password" onclick="window.location.href = '${basePath}/change-password'">
+				<div style="position: relative;">
+				    <button class="icon-btn" title="Notifications" id="notificationBtn">
+				        <i class="fas fa-bell"></i>
+				        <span class="notification-badge" id="notificationBadge" style="display:none;">0</span>
+				    </button>
+
+				    <div class="notification-dropdown" id="notificationDropdown">
+				        <div class="notification-header">
+				            <h3>Notifications</h3>
+				            <button id="markAllReadBtn"
+				                style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.8rem;">
+				                Mark all as read
+				            </button>
+				        </div>
+
+				        <ul class="notification-list" id="notificationList"></ul>
+
+				        <div class="notification-footer">
+				            <a href="/notifications" id="viewAllLink">View All Activity</a>
+				        </div>
+				    </div>
+				</div>
+                    <button class="icon-btn" title="Change Password" onclick="window.location.href='${basePath}/change-password'">
                         <i class="fas fa-key"></i>
                     </button>
-                    <button class="icon-btn" title="Settings" onclick="window.location.href = '${basePath}/employee/profile'">
+                    <button class="icon-btn" title="Settings" onclick="window.location.href='${basePath}/employee/directory'">
                         <i class="fas fa-cog"></i>
                     </button>
                 </div>
@@ -500,122 +499,345 @@ class AppNavbar extends HTMLElement {
     }
 
     setupDropdownLogic() {
+        const basePath = window.location.pathname.startsWith('/RevWorkForce') ? '/RevWorkForce' : '';
         const dropdown = this.querySelector('#notificationDropdown');
         const btn = this.querySelector('#notificationBtn');
         const list = this.querySelector('#notificationList');
         const badge = this.querySelector('#notificationBadge');
         const markAllBtn = this.querySelector('#markAllReadBtn');
+        const viewAllLink = this.querySelector('#viewAllLink');
 
+        if (viewAllLink) {
+            viewAllLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                dropdown.classList.remove('show');
+                window.location.href = `${basePath}/notifications`;
+            });
+        }
         const loadUnreadCount = () => {
-            fetch("/api/notifications/unread-count")
+            fetch(`${basePath}/api/notifications/unread-count`)
                 .then(res => res.text())
                 .then(count => {
-                    const num = parseInt(count);
-                    badge.innerText = num;
-                    badge.style.display = num > 0 ? "flex" : "none";
-                });
-        };
+                    const num = parseInt(count) || 0;
 
-        const markAsRead = (id) => {
-            const token = document.querySelector('meta[name="_csrf"]').content;
-            const header = document.querySelector('meta[name="_csrf_header"]').content;
-
-            fetch(`/api/notifications/mark-read/${id}`, {
-                method: "POST",
-                headers: {
-                    [header]: token
-                }
-            })
-                .then(res => {
-                    if (res.ok) {
-                        loadUnreadCount();
-                        loadNavbarNotifications();
+                    if (badge) {
+                        badge.innerText = num;
+                        badge.style.display = num > 0 ? 'flex' : 'none';
                     }
                 })
-                .catch(err => console.error(err));
+                .catch(() => { });
+        };
+
+        loadUnreadCount();
+        setInterval(loadUnreadCount, 30000);
+
+        const getCSRF = () => {
+            const tokenEl = document.querySelector('meta[name="_csrf"]');
+            const headerEl = document.querySelector('meta[name="_csrf_header"]');
+            return {
+                token: tokenEl ? tokenEl.content : '',
+                header: headerEl ? headerEl.content : 'X-CSRF-TOKEN'
+            };
+        };
+
+        const markAsRead = async (id) => {
+            const { token, header } = getCSRF();
+            fetch(`${basePath}/api/notifications/mark-read/${id}`, {
+                method: 'POST',
+                headers: { [header]: token }
+            }).then(res => {
+                if (res.ok) {
+                    loadUnreadCount();
+                }
+            }).catch(err => console.error(err));
         };
 
         const loadNavbarNotifications = () => {
-            fetch("/api/notifications/recent?limit=5")
+            fetch(`${basePath}/api/notifications/recent?limit=5`)
                 .then(res => res.json())
                 .then(data => {
-                    list.innerHTML = "";
+                    list.innerHTML = '';
                     if (!data || data.length === 0) {
-                        list.innerHTML = `<li class="notification-item">No notifications</li>`;
+                        list.innerHTML = '<li class="notification-item" style="justify-content:center;color:var(--text-muted);">No new notifications</li>';
                         return;
                     }
-
                     data.forEach(n => {
-                        const li = document.createElement("li");
-                        li.className = "notification-item";
-                        if (n.isRead === 'N') li.style.background = "#f8fafc";
+                        const li = document.createElement('li');
+                        li.className = 'notification-item';
+                        if (n.isRead === 'N') li.style.background = '#f8fafc';
+
+                        let icon = 'fa-bell';
+                        if (n.notificationType === 'LEAVE_REQUEST' || n.notificationType === 'LEAVE_APPROVED' || n.notificationType === 'LEAVE_REJECTED') icon = 'fa-calendar-alt';
+                        if (n.notificationType === 'SYSTEM_ALERT') icon = 'fa-exclamation-triangle';
+                        if (n.notificationType === 'PERFORMANCE_REVIEW') icon = 'fa-chart-line';
+                        if (n.notificationType === 'GOAL_ASSIGNED') icon = 'fa-bullseye';
 
                         li.innerHTML = `
-                            <div class="notify-icon" style="background: ${n.isRead === 'N' ? 'rgba(59,130,246,0.1)' : 'rgba(100,116,139,0.1)'}; color: ${n.isRead === 'N' ? '#3b82f6' : '#64748b'}">
-                                <i class="fas fa-bell"></i>
+                            <div class="notify-icon" style="background:${n.isRead === 'N' ? 'rgba(59,130,246,0.1)' : 'rgba(100,116,139,0.1)'};color:${n.isRead === 'N' ? '#3b82f6' : '#64748b'}">
+                                <i class="fas ${icon}"></i>
                             </div>
-                            <div class="notify-content" style="flex-grow: 1;">
-                                <p style="font-weight: ${n.isRead === 'N' ? '600' : '400'}">${n.message}</p>
-                                <span style="font-size: 0.7rem; color: #94a3b8;">${new Date(n.createdAt).toLocaleString()}</span>
+                            <div class="notify-content" style="flex-grow:1;">
+                                <p style="font-weight:${n.isRead === 'N' ? '600' : '400'}">${n.message}</p>
+                                <span>${new Date(n.createdAt).toLocaleString()}</span>
                             </div>
-                            ${n.isRead === 'N' ? `
-                            <button class="mark-single-read" data-id="${n.notificationId}" title="Mark as read" 
-                                    style="background:none; border:none; color:#10b981; cursor:pointer; padding: 4px;">
-                                <i class="fas fa-check-circle"></i>
-                            </button>` : ''}
+                            ${n.isRead === 'N' ? `<button class="mark-single-read" data-id="${n.notificationId}" title="Mark as read" style="background:none;border:none;color:#10b981;cursor:pointer;padding:4px;"><i class="fas fa-check-circle"></i></button>` : ''}
                         `;
+                        li.addEventListener('click', async (e) => {
 
-                        li.addEventListener("click", (e) => {
                             if (e.target.closest('.mark-single-read')) {
                                 e.stopPropagation();
-                                const id = e.target.closest('.mark-single-read').dataset.id;
-                                markAsRead(id);
+                                await markAsRead(e.target.closest('.mark-single-read').dataset.id);
                                 return;
                             }
-                            window.location.href = "/notifications";
-                        });
 
+                            if (n.isRead === 'N') {
+                                await markAsRead(n.notificationId);
+                            }
+
+                            window.location.href = `${basePath}/notifications`;
+
+                        });
                         list.appendChild(li);
                     });
+                })
+                .catch(() => {
+                    list.innerHTML = '<li class="notification-item" style="justify-content:center;color:var(--text-muted);">Could not load notifications</li>';
                 });
+
         };
+        loadNavbarNotifications();
 
         if (markAllBtn) {
-            markAllBtn.addEventListener("click", () => {
-                const token = document.querySelector('meta[name="_csrf"]').content;
-                const header = document.querySelector('meta[name="_csrf_header"]').content;
+            markAllBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
 
-                fetch("/api/notifications/mark-all-read", {
-                    method: "POST",
-                    headers: {
-                        [header]: token
+                const { token, header } = getCSRF();
+
+                fetch(`${basePath}/api/notifications/mark-all-read`, {
+                    method: 'POST',
+                    headers: { [header]: token }
+                }).then(res => {
+
+                    if (res.ok) {
+
+                        loadUnreadCount();
+                        loadNavbarNotifications();
+
                     }
-                })
-                    .then(res => {
-                        if (!res.ok) throw new Error("Failed");
-                        badge.innerText = 0;
-                        badge.style.display = "none";
-                        list.innerHTML = "<li class='notification-item'>No new notifications</li>";
-                    })
-                    .catch(err => console.error(err));
+
+                }).catch(err => console.error(err));
+
             });
         }
 
+
+
         // Toggle dropdown
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdown.classList.toggle('show');
-            loadNavbarNotifications();
-        });
+
+        if (btn) {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('show');
+
+                if (dropdown.classList.contains('show')) {
+                    loadNavbarNotifications();
+                }
+            });
+        }
 
         document.addEventListener('click', (e) => {
-            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+            if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
                 dropdown.classList.remove('show');
             }
         });
 
-        loadUnreadCount();
     }
 }
 
 customElements.define('app-navbar', AppNavbar);
+
+// ======================================================
+// BOOTSTRAP CDN — injected dynamically like FontAwesome
+// ======================================================
+(function injectBootstrap() {
+    // Only add Bootstrap CSS if not already present
+    if (!document.querySelector('link[href*="bootstrap"]')) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css';
+        link.crossOrigin = 'anonymous';
+        // Append BEFORE custom style.css so our styles always win
+        const firstLink = document.querySelector('link[rel="stylesheet"]');
+        if (firstLink) {
+            document.head.insertBefore(link, firstLink);
+        } else {
+            document.head.appendChild(link);
+        }
+    }
+})();
+
+// ======================================================
+// MOBILE SIDEBAR — Hamburger toggle logic
+// ======================================================
+(function setupMobileSidebar() {
+    // Create overlay element
+    const overlay = document.createElement('div');
+    overlay.id = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+
+    function openSidebar() {
+        const sidebar = document.querySelector('app-sidebar');
+        if (sidebar) sidebar.classList.add('sidebar-open');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        const sidebar = document.querySelector('app-sidebar');
+        if (sidebar) sidebar.classList.remove('sidebar-open');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    overlay.addEventListener('click', closeSidebar);
+
+    // Wire toggle button — it's injected by AppNavbar so we use event delegation
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('#sidebarToggle')) {
+            const sidebar = document.querySelector('app-sidebar');
+            if (sidebar && sidebar.classList.contains('sidebar-open')) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        }
+    });
+
+    // Close sidebar on nav-link click on mobile
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.nav-link') && window.innerWidth <= 768) {
+            closeSidebar();
+        }
+    });
+
+    // Close on resize to desktop
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            closeSidebar();
+        }
+    });
+})();
+
+// ======================================================
+// PAGE SKELETON LOADER
+// Shows a shimmer skeleton while the page is loading,
+// then fades it out once everything is ready.
+// ======================================================
+(function initSkeletonLoader() {
+    // Don't show skeleton on login/auth pages
+    const path = window.location.pathname;
+    if (path === '/' || path.includes('/login') || path.includes('/forgot-password') ||
+        path.includes('/auth/') || path.includes('/reset-password')) {
+        return;
+    }
+
+    const isMobile = window.innerWidth <= 768;
+    const sidebarMargin = isMobile ? '0' : '260px';
+
+    const skeleton = document.createElement('div');
+    skeleton.id = 'page-skeleton';
+    skeleton.innerHTML = `
+        <div class="sk-header" style="margin-left: ${sidebarMargin}">
+            <div class="skeleton" style="width: 40px; height: 40px; border-radius: 8px;"></div>
+            <div class="skeleton-text medium" style="height: 1.2rem;"></div>
+            <div style="margin-left: auto; display: flex; gap: 1rem;">
+                <div class="skeleton-circle"></div>
+                <div class="skeleton-circle"></div>
+            </div>
+        </div>
+        <div class="sk-body" style="margin-left: ${sidebarMargin}">
+            <div class="sk-row">
+                <div class="sk-card">
+                    <div class="skeleton-text short"></div>
+                    <div class="skeleton" style="height: 2.5rem; border-radius: 6px;"></div>
+                </div>
+                <div class="sk-card">
+                    <div class="skeleton-text short"></div>
+                    <div class="skeleton" style="height: 2.5rem; border-radius: 6px;"></div>
+                </div>
+                <div class="sk-card">
+                    <div class="skeleton-text short"></div>
+                    <div class="skeleton" style="height: 2.5rem; border-radius: 6px;"></div>
+                </div>
+            </div>
+            <div class="sk-card" style="padding: 1.5rem;">
+                <div class="skeleton-text medium" style="height: 1.2rem; margin-bottom: 1.5rem;"></div>
+                ${[...Array(5)].map(() => `
+                    <div class="sk-table-row">
+                        <div class="skeleton-text" style="flex: 2;"></div>
+                        <div class="skeleton-text" style="flex: 1;"></div>
+                        <div class="skeleton-text" style="flex: 1;"></div>
+                        <div class="skeleton-text" style="flex: 0.5;"></div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(skeleton);
+
+    // Remove skeleton when page is fully loaded
+    function removeSkeleton() {
+        skeleton.classList.add('hidden');
+        setTimeout(() => skeleton.remove(), 450);
+    }
+
+    if (document.readyState === 'complete') {
+        // Already loaded — just remove quickly
+        setTimeout(removeSkeleton, 200);
+    } else {
+        window.addEventListener('load', () => setTimeout(removeSkeleton, 100));
+        // Safety timeout — always remove after 3 seconds
+        setTimeout(removeSkeleton, 3000);
+    }
+})();
+
+// ======================================================
+// HAMBURGER BUTTON — injected into AppNavbar dynamically
+// ======================================================
+// We patch AppNavbar's render to include the hamburger btn.
+// This runs after customElements.define so we wrap via MutationObserver.
+(function patchNavbarWithHamburger() {
+    const observer = new MutationObserver(() => {
+        const navbar = document.querySelector('app-navbar');
+        if (!navbar) return;
+        const header = navbar.querySelector('header');
+        if (!header || header.querySelector('#sidebarToggle')) return;
+
+        // Prepend hamburger to the header
+        const hamburger = document.createElement('button');
+        hamburger.id = 'sidebarToggle';
+        hamburger.setAttribute('aria-label', 'Toggle sidebar');
+        hamburger.style.cssText = `
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            color: var(--text-dark);
+            font-size: 1.4rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius-sm);
+            transition: background 0.2s ease;
+            margin-right: 0.5rem;
+        `;
+        hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+        hamburger.addEventListener('mouseover', () => hamburger.style.background = 'rgba(0,0,0,0.8)');
+        hamburger.addEventListener('mouseout', () => hamburger.style.background = 'transparent');
+
+        header.insertBefore(hamburger, header.firstChild);
+        observer.disconnect();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+})();

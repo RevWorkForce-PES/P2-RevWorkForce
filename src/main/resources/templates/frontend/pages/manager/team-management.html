@@ -19,22 +19,32 @@
                 <div class="card">
                     <div class="tabs">
                         <button class="tab-btn active" data-target="team-profiles">My Team / Profiles</button>
-                                    <button class="tab-btn" data-target="team-goals">Goals / Progress</button>
+                        <button class="tab-btn" data-target="team-goals">Goals / Progress</button>
                     </div>
 
                     <!-- Profiles Tab -->
                     <div id="team-profiles" class="tab-content active">
-                        <form th:action="@{/manager/team-management}" method="get" class="flex-space-between mb-3">
-                            <div class="form-group" style="margin-bottom: 0; width: 400px; display: flex; gap: 0.5rem;">
-                                <input type="text" name="search" th:value="${search}" class="form-control"
-                                    placeholder="Search team members by name, email or ID...">
-                                <button type="submit" class="btn btn-primary btn-sm" title="Search">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                                <a th:href="@{/manager/team-management}" class="btn btn-secondary btn-sm" title="Reset">
-                                    <i class="fas fa-undo"></i>
-                                </a>
-                            </div>
+                        <form th:action="@{/manager/team-management}" method="get" class="animated-search-form mb-3"
+                            style="width: 400px; --width-of-input: 100%;">
+                            <button type="submit">
+                                <svg width="17" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img"
+                                    aria-labelledby="search">
+                                    <path
+                                        d="M7.667 12.667A5.333 5.333 0 107.667 2a5.333 5.333 0 000 10.667zM14.334 14l-2.9-2.9"
+                                        stroke="currentColor" stroke-width="1.333" stroke-linecap="round"
+                                        stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                            <input class="input" name="search" th:value="${search}"
+                                placeholder="Search team members by name, email or ID..." type="text">
+                            <button class="reset" type="button"
+                                onclick="window.location.href='/manager/team-management'">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12">
+                                    </path>
+                                </svg>
+                            </button>
                         </form>
                         <div class="table-responsive">
                             <table class="table">
@@ -71,7 +81,7 @@
                         </div>
                     </div>
 
-                  
+
 
                     <!-- Goals Tab -->
                     <div id="team-goals" class="tab-content">
@@ -105,7 +115,7 @@
                                 <div style="background: var(--primary); width: 80%; height: 100%; border-radius: 4px;">
                                 </div>
                             </div>
-                            <button class="btn btn-secondary btn-sm" onclick="alert('Add feedback form opened')">Add
+                            <button class="btn btn-secondary btn-sm">Add
                                 Feedback</button>
                         </div>
 
@@ -118,7 +128,7 @@
                                 style="background: #e2e8f0; border-radius: 4px; height: 8px; width: 100%; margin-bottom: 1rem;">
                                 <div style="background: #f59e0b; width: 30%; height: 100%; border-radius: 4px;"></div>
                             </div>
-                            <button class="btn btn-secondary btn-sm" onclick="alert('Add feedback form opened')">Add
+                            <button class="btn btn-secondary btn-sm">Add
                                 Feedback</button>
                         </div>
                     </div>
