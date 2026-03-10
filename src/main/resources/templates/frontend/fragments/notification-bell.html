@@ -25,12 +25,18 @@
     <strong>Notifications</strong>
 
     <div>
-        <form th:action="@{/notifications/mark-all-read}" method="post" style="display:inline;">
-            <button type="submit"
-                    class="btn btn-link btn-sm p-0 me-2">
-                Mark all as read
-            </button>
-        </form>
+       <form th:action="@{/notifications/mark-all-read}" method="post" style="display:inline;">
+
+    <input type="hidden"
+           th:name="${_csrf.parameterName}"
+           th:value="${_csrf.token}" />
+
+    <button type="submit"
+            class="btn btn-link btn-sm p-0 me-2">
+        Mark all as read
+    </button>
+
+</form>
 
         <a href="/notifications" class="ms-2">View All Activity</a> 
     </div>
