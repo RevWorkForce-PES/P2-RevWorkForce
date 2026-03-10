@@ -66,15 +66,11 @@ class AuthControllerTest {
         employee.setLastName("User");
     }
 
-    /**
-     * Test login page rendering.
-     */
     @Test
     void testLoginPage() throws Exception {
-
         mockMvc.perform(get("/login"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("pages/auth/index"));
+               .andExpect(status().isOk())
+               .andExpect(view().name("pages/auth/splash"));
     }
 
     /**
