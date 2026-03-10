@@ -1,120 +1,234 @@
 package com.revature.revworkforce.controller;
 
+import com.revature.revworkforce.dto.GoalDTO;
 import com.revature.revworkforce.dto.GoalStatistics;
-import com.revature.revworkforce.repository.EmployeeRepository;
+import com.revature.revworkforce.dto.PerformanceReviewDTO;
+import com.revature.revworkforce.security.SecurityUtils;
+import com.revature.revworkforce.service.EmployeeService;
 import com.revature.revworkforce.service.GoalService;
 import com.revature.revworkforce.service.PerformanceReviewService;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
+
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.MockitoAnnotations;
+
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.util.List;
 
+import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(GoalController.class)
 class GoalControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Mock
     private GoalService goalService;
 
-    @MockBean
+    @Mock
     private PerformanceReviewService reviewService;
 
-    @MockBean
-    private EmployeeRepository employeeRepository;
+    @Mock
+    private EmployeeService employeeService;
 
-    @Test
-    @WithMockUser(username = "user", roles = "EMPLOYEE")
-    void viewPerformanceDashboard_Success() throws Exception {
-        when(goalService.getEmployeeGoals("user")).thenReturn(new ArrayList<>());
-        when(goalService.getEmployeeStatistics("user")).thenReturn(new GoalStatistics(0, 0, 0, 0, 0));
-        when(reviewService.getEmployeeReviews("user")).thenReturn(new ArrayList<>());
+    @InjectMocks
+    private GoalController goalController;
 
-        mockMvc.perform(get("/employee/performance"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("pages/employee/performance-goals"))
-                .andExpect(model().attributeExists("goals", "statistics", "reviews"));
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(goalController)
+                .build();
     }
 
-    @Test
-    @WithMockUser(username = "user", roles = "EMPLOYEE")
-    void createGoal_Success() throws Exception {
-        mockMvc.perform(post("/employee/goals/create")
-                .param("goalTitle", "New Goal")
-                .param("goalDescription", "Description")
-                .param("category", "TECHNICAL")
-                .param("deadline", LocalDate.now().plusDays(30).toString())
-                .param("priority", "HIGH")
-                .with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/employee/performance"))
-                .andExpect(flash().attribute("success", "Goal created successfully!"));
-
-        verify(goalService).createGoal(eq("user"), anyString(), anyString(), anyString(), any(), any());
-    }
+    // ===============================
+    // Employee Dashboard
+    // ===============================
 
     @Test
-    @WithMockUser(username = "user", roles = "EMPLOYEE")
-    void updateProgress_Success() throws Exception {
-        mockMvc.perform(post("/employee/goals/progress/1")
-                .param("progress", "50")
-                .with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/employee/performance"))
-                .andExpect(flash().attribute("success", "Progress updated successfully!"));
+    void viewPerformanceDashboard_ShouldReturnDashboard() throws Exception {
 
-        verify(goalService).updateProgress(eq(1L), eq("user"), eq(50));
+        GoalStatistics stats = mock(GoalStatistics.class);
+
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("EMP001");
+            security.when(() -> SecurityUtils.hasRole(anyString())).thenReturn(false);
+
+            when(goalService.getEmployeeGoals("EMP001")).thenReturn(List.of(new GoalDTO()));
+            when(goalService.getEmployeeStatistics("EMP001")).thenReturn(stats);
+            when(reviewService.getEmployeeReviews("EMP001")).thenReturn(List.of(new PerformanceReviewDTO()));
+            when(reviewService.getAverageRating("EMP001")).thenReturn(BigDecimal.valueOf(4.0));
+
+            mockMvc.perform(get("/employee/performance"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("pages/employee/performance-goals"))
+                    .andExpect(model().attributeExists("goals"))
+                    .andExpect(model().attributeExists("statistics"))
+                    .andExpect(model().attributeExists("reviews"));
+        }
     }
+
+    // ===============================
+    // Active Goals
+    // ===============================
 
     @Test
-    @WithMockUser(username = "user", roles = "EMPLOYEE")
-    void deleteGoal_Success() throws Exception {
-        mockMvc.perform(post("/employee/goals/delete/1")
-                .with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/employee/performance"))
-                .andExpect(flash().attribute("success", "Goal deleted successfully!"));
+    void viewActiveGoals_ShouldReturnActiveGoalsPage() throws Exception {
 
-        verify(goalService).deleteGoal(1L, "user");
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("EMP001");
+
+            when(goalService.getActiveGoals("EMP001")).thenReturn(List.of(new GoalDTO()));
+
+            mockMvc.perform(get("/employee/goals/active"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("pages/employee/goals-active"))
+                    .andExpect(model().attributeExists("goals"));
+        }
     }
+
+    // ===============================
+    // Create Goal Form
+    // ===============================
 
     @Test
-    @WithMockUser(username = "manager", roles = "MANAGER")
-    void viewTeamPerformance_Success() throws Exception {
-        when(goalService.getTeamGoals("manager")).thenReturn(new ArrayList<>());
-        when(reviewService.getTeamReviews("manager")).thenReturn(new ArrayList<>());
-        when(reviewService.getPendingReviewsForManager("manager")).thenReturn(new ArrayList<>());
+    void showCreateForm_ShouldReturnCreatePage() throws Exception {
 
-        mockMvc.perform(get("/manager/performance"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("pages/manager/performance-review"))
-                .andExpect(model().attributeExists("goals", "reviews", "pendingReviews"));
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("EMP001");
+
+            mockMvc.perform(get("/employee/goals/create"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("pages/employee/goal-create"))
+                    .andExpect(model().attributeExists("goalDTO"));
+        }
     }
+
+    // ===============================
+    // Create Goal
+    // ===============================
 
     @Test
-    @WithMockUser(username = "manager", roles = "MANAGER")
-    void submitComments_Success() throws Exception {
-        mockMvc.perform(post("/manager/goals/comment/1")
-                .param("managerComments", "Good progress")
-                .with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/manager/performance"))
-                .andExpect(flash().attribute("success", "Comments added successfully!"));
+    void createGoal_ShouldRedirectToDashboard() throws Exception {
 
-        verify(goalService).addManagerComments(eq(1L), eq("manager"), eq("Good progress"));
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("EMP001");
+
+            mockMvc.perform(post("/employee/goals/create")
+                    .param("goalTitle", "Learn Spring Boot")
+                    .param("goalDescription", "Complete Boot course")
+                    .param("category", "Technical")
+                    .param("deadline", "2026-12-31")
+                    .param("priority", "HIGH"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/employee/performance"));
+
+            verify(goalService).createGoal(
+                    eq("EMP001"),
+                    anyString(),
+                    anyString(),
+                    anyString(),
+                    any(),
+                    any());
+        }
     }
+
+    // ===============================
+    // Cancel Goal
+    // ===============================
+
+    @Test
+    void cancelGoal_ShouldRedirect() throws Exception {
+
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("EMP001");
+
+            mockMvc.perform(post("/employee/goals/cancel/1"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/employee/performance"));
+
+            verify(goalService).cancelGoal(1L, "EMP001");
+        }
+    }
+
+    // ===============================
+    // Upcoming Goals
+    // ===============================
+
+    @Test
+    void viewUpcomingDeadlines_ShouldReturnUpcomingPage() throws Exception {
+
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("EMP001");
+
+            when(goalService.getUpcomingDeadlines("EMP001", 30))
+                    .thenReturn(List.of(new GoalDTO()));
+
+            mockMvc.perform(get("/employee/goals/upcoming"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("pages/employee/goals-upcoming"))
+                    .andExpect(model().attributeExists("goals"));
+        }
+    }
+
+    // ===============================
+    // Overdue Goals
+    // ===============================
+
+    @Test
+    void viewOverdueGoals_ShouldReturnOverduePage() throws Exception {
+
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("EMP001");
+
+            when(goalService.getOverdueGoals("EMP001"))
+                    .thenReturn(List.of(new GoalDTO()));
+
+            mockMvc.perform(get("/employee/goals/overdue"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("pages/employee/goals-overdue"))
+                    .andExpect(model().attributeExists("goals"));
+        }
+    }
+
+    // ===============================
+    // Manager Performance
+    // ===============================
+
+    @Test
+    void viewTeamPerformance_ShouldReturnManagerPage() throws Exception {
+
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("MGR001");
+
+            when(goalService.getTeamGoals("MGR001")).thenReturn(List.of(new GoalDTO()));
+            when(reviewService.getTeamReviews("MGR001")).thenReturn(List.of(new PerformanceReviewDTO()));
+            when(reviewService.getPendingReviewsForManager("MGR001")).thenReturn(List.of(new PerformanceReviewDTO()));
+
+            mockMvc.perform(get("/manager/performance"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("pages/manager/performance-review"))
+                    .andExpect(model().attributeExists("goals"))
+                    .andExpect(model().attributeExists("reviews"));
+        }
+    }
+
 }

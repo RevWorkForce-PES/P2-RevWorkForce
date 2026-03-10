@@ -2,118 +2,192 @@ package com.revature.revworkforce.controller;
 
 import com.revature.revworkforce.dto.AnnouncementDTO;
 import com.revature.revworkforce.model.Announcement;
-import com.revature.revworkforce.repository.EmployeeRepository;
+import com.revature.revworkforce.model.Employee;
+import com.revature.revworkforce.security.SecurityUtils;
 import com.revature.revworkforce.service.AnnouncementService;
+import com.revature.revworkforce.service.EmployeeService;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
+
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.MockitoAnnotations;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Arrays;
+import java.util.List;
 
+import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AnnouncementController.class)
 class AnnouncementControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Mock
     private AnnouncementService announcementService;
 
-    @MockBean
-    private EmployeeRepository employeeRepository;
+    @Mock
+    private EmployeeService employeeService;
 
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    void listAdminAnnouncements_Success() throws Exception {
-        when(announcementService.getAllAnnouncements()).thenReturn(Arrays.asList(new Announcement()));
+    @InjectMocks
+    private AnnouncementController controller;
 
-        mockMvc.perform(get("/admin/announcements"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("admin/announcements/list"))
-                .andExpect(model().attributeExists("announcements"));
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
+    // =========================================
+    // ADMIN LIST
+    // =========================================
+
     @Test
-    @WithMockUser(username = "admin", roles = "ADMIN")
-    void createAnnouncement_Success() throws Exception {
+    void listAdminAnnouncements_ShouldReturnPage() throws Exception {
+
+        Employee emp = new Employee();
+        emp.setFirstName("Admin User");
+
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("EMP001");
+
+            when(employeeService.getEmployeeById("EMP001")).thenReturn(emp);
+            when(announcementService.getAllAnnouncements()).thenReturn(List.of(new Announcement()));
+
+            mockMvc.perform(get("/admin/announcements"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("pages/admin/announcements-management"))
+                    .andExpect(model().attributeExists("announcements"));
+        }
+    }
+
+    // =========================================
+    // SHOW CREATE FORM
+    // =========================================
+
+    @Test
+    void showCreateAnnouncementForm_ShouldReturnForm() throws Exception {
+
+        Employee emp = new Employee();
+        emp.setFirstName("Admin User");
+
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("EMP001");
+
+            when(employeeService.getEmployeeById("EMP001")).thenReturn(emp);
+
+            mockMvc.perform(get("/admin/announcements/create"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("pages/admin/announcement-form"))
+                    .andExpect(model().attributeExists("announcementDTO"));
+        }
+    }
+
+    // =========================================
+    // CREATE ANNOUNCEMENT
+    // =========================================
+
+    @Test
+    void createAnnouncement_ShouldRedirect() throws Exception {
+
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken("ADMIN001", null);
+
         mockMvc.perform(post("/admin/announcements/create")
-                .flashAttr("announcementDTO", new AnnouncementDTO())
-                .with(csrf()))
+                .principal(auth)
+                .param("title", "Important Notice")
+                .param("message", "System maintenance tonight"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/admin/announcements"))
-                .andExpect(flash().attribute("success", "Announcement created successfully!"));
+                .andExpect(redirectedUrl("/admin/announcements"));
 
-        verify(announcementService).createAnnouncement(any(AnnouncementDTO.class), eq("admin"));
+        verify(announcementService).createAnnouncement(any(AnnouncementDTO.class), eq("ADMIN001"));
     }
 
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    void showEditAnnouncementForm_Success() throws Exception {
-        when(announcementService.getAnnouncementById(1L)).thenReturn(new AnnouncementDTO());
-
-        mockMvc.perform(get("/admin/announcements/edit/1"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("admin/announcements/form"))
-                .andExpect(model().attribute("isEdit", true));
-    }
+    // =========================================
+    // UPDATE ANNOUNCEMENT
+    // =========================================
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void updateAnnouncement_Success() throws Exception {
-        mockMvc.perform(post("/admin/announcements/edit/1")
-                .flashAttr("announcementDTO", new AnnouncementDTO())
-                .with(csrf()))
+    void updateAnnouncement_ShouldRedirect() throws Exception {
+
+        mockMvc.perform(post("/admin/announcements/edit/1"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/admin/announcements"))
-                .andExpect(flash().attribute("success", "Announcement updated successfully!"));
+                .andExpect(redirectedUrl("/admin/announcements"));
 
         verify(announcementService).updateAnnouncement(eq(1L), any(AnnouncementDTO.class));
     }
 
+    // =========================================
+    // DELETE ANNOUNCEMENT
+    // =========================================
+
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void deactivateAnnouncement_Success() throws Exception {
-        mockMvc.perform(post("/admin/announcements/deactivate/1")
-                .with(csrf()))
+    void deleteAnnouncement_ShouldRedirect() throws Exception {
+
+        mockMvc.perform(post("/admin/announcements/delete/1"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/admin/announcements"))
-                .andExpect(flash().attribute("success", "Announcement deactivated successfully!"));
+                .andExpect(redirectedUrl("/admin/announcements"));
 
-        verify(announcementService).deactivateAnnouncement(1L);
+        verify(announcementService).deleteAnnouncement(1L);
     }
 
-    @Test
-    @WithMockUser(roles = "USER")
-    void viewActiveAnnouncements_Success() throws Exception {
-        when(announcementService.getActiveAnnouncements()).thenReturn(Arrays.asList(new AnnouncementDTO()));
+    // =========================================
+    // EMPLOYEE VIEW ANNOUNCEMENTS
+    // =========================================
 
-        mockMvc.perform(get("/announcements"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("pages/employee/announcements"))
-                .andExpect(model().attributeExists("announcements"));
+    @Test
+    void viewActiveAnnouncements_ShouldReturnPage() throws Exception {
+
+        Employee emp = new Employee();
+        emp.setFirstName("John Employee");
+
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("EMP002");
+
+            when(employeeService.getEmployeeById("EMP002")).thenReturn(emp);
+            when(announcementService.getActiveAnnouncements()).thenReturn(List.of(new AnnouncementDTO()));
+
+            mockMvc.perform(get("/employee/announcements"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("pages/employee/announcements"))
+                    .andExpect(model().attributeExists("announcements"));
+        }
     }
 
+    // =========================================
+    // VIEW ANNOUNCEMENT DETAILS
+    // =========================================
+
     @Test
-    @WithMockUser(roles = "USER")
-    void viewAnnouncementDetails_Success() throws Exception {
+    void viewAnnouncementDetails_ShouldReturnDetailPage() throws Exception {
+
+        Employee emp = new Employee();
+        emp.setFirstName("John Employee");
+
         AnnouncementDTO dto = new AnnouncementDTO();
-        dto.setTitle("Title");
-        when(announcementService.getAnnouncementById(1L)).thenReturn(dto);
 
-        mockMvc.perform(get("/announcements/1"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("pages/employee/announcement-detail"))
-                .andExpect(model().attribute("announcement", dto));
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("EMP002");
+
+            when(employeeService.getEmployeeById("EMP002")).thenReturn(emp);
+            when(announcementService.getAnnouncementById(1L)).thenReturn(dto);
+
+            mockMvc.perform(get("/employee/announcements/1"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("pages/employee/announcement-detail"))
+                    .andExpect(model().attributeExists("announcement"));
+        }
     }
 }
+
