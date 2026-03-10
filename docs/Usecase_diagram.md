@@ -132,12 +132,20 @@ flowchart LR
     A3([Post Global Announcements])
     A4([Review Security Audits])
     A5([Manage Department Hierarchy])
+    A6([Provision New Employee])
+    A7([Reset User Password])
+    A8([Manage Designations])
+    A9([Manage Leave Types & Quotas])
     
     Adm --> A1
     Adm --> A2
     Adm --> A3
     Adm --> A4
     Adm --> A5
+    Adm --> A6
+    Adm --> A7
+    Adm --> A8
+    Adm --> A9
 ```
 
 ### Specifications

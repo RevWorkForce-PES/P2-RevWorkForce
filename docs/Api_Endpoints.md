@@ -86,4 +86,45 @@ This document tracks all REST API endpoints and MVC mapped routes accessible via
 | `HolidayController` | `GET`/`POST` | `/admin/holidays/add` | ADMIN | Operations to add new dates to the calendar. |
 | `HolidayController` | `GET`/`POST` | `/admin/holidays/edit/{id}` | ADMIN | Edit existing dates and re-calibrate status. |
 | `HolidayController` | `POST` | `/admin/holidays/delete/{id}` | ADMIN | Removes specific holiday records. |
-| `ReportController` | `GET` | `/admin/reports/...` | ADMIN | Collection of REST Endpoints generating `ReportDTO` payloads for Data Visualization dashboards. Features targets like `employees`, `leaves`, `departments`, `goals`, `attendance`, `performance`. |
+## 8. Department Management Mappings
+| Controller | Method | Endpoint Path | Role / Access | Description |
+|---|---|---|---|---|
+| `DepartmentController` | `GET` | `/admin/departments` | ADMIN | Lists all departments. |
+| `DepartmentController` | `GET` | `/admin/departments/add` | ADMIN | Shows form to add a new department. |
+| `DepartmentController` | `POST` | `/admin/departments/add` | ADMIN | Processes new department creation. |
+| `DepartmentController` | `GET` | `/admin/departments/edit/{id}` | ADMIN | Shows form to edit an existing department. |
+| `DepartmentController` | `POST` | `/admin/departments/edit/{id}` | ADMIN | Processes department updates. |
+| `DepartmentController` | `POST` | `/admin/departments/delete/{id}` | ADMIN | Deactivates/Deletes a department. |
+
+## 9. Designation Management Mappings
+| Controller | Method | Endpoint Path | Role / Access | Description |
+|---|---|---|---|---|
+| `DesignationController` | `GET` | `/admin/designations` | ADMIN | Lists all designations. |
+| `DesignationController` | `GET` | `/admin/designations/add` | ADMIN | Shows form to add a new designation. |
+| `DesignationController` | `POST` | `/admin/designations/add` | ADMIN | Processes new designation creation. |
+| `DesignationController` | `GET` | `/admin/designations/edit/{id}` | ADMIN | Shows form to edit an existing designation. |
+| `DesignationController` | `POST` | `/admin/designations/edit/{id}` | ADMIN | Processes designation updates. |
+| `DesignationController` | `POST` | `/admin/designations/delete/{id}` | ADMIN | Deactivates/Deletes a designation. |
+
+## 10. Admin & Employee Account Control
+| Controller | Method | Endpoint Path | Role / Access | Description |
+|---|---|---|---|---|
+| `AdminController` | `GET` | `/admin/settings` | ADMIN | Dashboard for admin-specific settings. |
+| `AdminController` | `GET` | `/admin/user-management` | ADMIN | Central view for managing all system employees. |
+| `AdminController` | `POST` | `/admin/reset-password/{id}` | ADMIN | Force reset of an employee's password. |
+| `AdminController` | `POST` | `/admin/lock-account/{id}` | ADMIN | Manually locks a user's account. |
+| `AdminController` | `POST` | `/admin/unlock-account/{id}` | ADMIN | Manually unlocks a user's account. |
+| `AdminController` | `POST` | `/admin/api/bulk-activate` | ADMIN | Activates multiple accounts in a single batch. |
+| `AdminController` | `POST` | `/admin/api/bulk-deactivate` | ADMIN | Deactivates multiple accounts in a single batch. |
+| `AdminController` | `GET` | `/admin/health` | ADMIN | Database and system health check status. |
+| `AdminController` | `GET` | `/admin/api/stats` | ADMIN | System-wide statistics for dashboards. |
+
+## 11. Leave Type Configuration & Quota
+| Controller | Method | Endpoint Path | Role / Access | Description |
+|---|---|---|---|---|
+| `AdminController` | `GET` | `/admin/leave-quota` | ADMIN | Page to manage annual leave quotas. |
+| `AdminController` | `POST` | `/admin/leave-quota/assign` | ADMIN | Assigns specific day counts to an employee quota. |
+| `AdminController` | `GET` | `/admin/leave-types/add` | ADMIN | Form to create a new leave type category. |
+| `AdminController` | `GET` | `/admin/leave-types/edit/{id}` | ADMIN | Form to modify existing leave type rules. |
+| `AdminController` | `POST` | `/admin/leave-types/save` | ADMIN | Persists leave type changes. |
+| `AdminController` | `GET` | `/admin/leave-types/delete/{id}` | ADMIN | Removes a leave type category. |

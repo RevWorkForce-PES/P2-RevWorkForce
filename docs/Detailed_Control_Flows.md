@@ -388,3 +388,76 @@ flowchart TD
     Sanitize --> JSON(Serialize Object to standard JSON structure)
     JSON --> End([Return 200 HTTP Response])
 ```
+## 16. Department & Designation Management Flow (CRUD)
+
+Tracking the lifecycle of organizational units and roles as defined by the Administrator.
+
+```mermaid
+flowchart TD
+    Start([Admin Submits Dept/Desig DTO]) --> Valid{Validate Name & Constraints}
+    Valid -- Invalid --> Err([Throw Validation/Duplicate Exception])
+    Valid -- Valid --> DB{Check Persistence Mode}
+    
+    DB -- ADD --> Create(Instantiate New Entity)
+    DB -- EDIT --> Load(Fetch Existing by ID)
+    
+    Create --> Attach(Map DTO fields to Entity)
+    Load --> Attach
+    
+    Attach --> Exec[Begin Transaction]
+    Exec --> Save(db.save Entity)
+    Save --> Commit[End Transaction]
+    
+    Commit --> Audit(Log Admin Action in Audit History)
+    Audit --> End([Return Success & Updated List])
+```
+
+## 17. Admin: Account Security Actions (Lock/Unlock/Reset)
+
+Detailed interaction when an Admin forcefully intervenes in user account access.
+
+```mermaid
+flowchart TD
+    Start([Admin Selects User Action]) --> Action{Determine Action Type}
+    
+    Action -- RESET_PASSWORD --> Gen(Generate New Temp Password)
+    Gen --> Hash(BCrypt Hash Password)
+    Hash --> Update(Set Password & FirstLogin = TRUE)
+    
+    Action -- LOCK_ACCOUNT --> Lock(Set Locked = TRUE)
+    Action -- UNLOCK_ACCOUNT --> Unlock(Set Locked = FALSE, reset failedAttempts)
+    
+    Update --> Tx[Begin Transaction]
+    Lock --> Tx
+    Unlock --> Tx
+    
+    Tx --> Save(db.save Employee)
+    Save --> Commit[End Transaction]
+    
+    Commit --> Notify(Dispatch Security Alert to User)
+    Notify --> End([Action Completed])
+```
+
+## 18. Leave Type & Quota Configuration Flow
+
+Managing the global rules for leave and their specific allocation to individuals.
+
+```mermaid
+flowchart TD
+    Start([Admin Updates Leave Config]) --> Target{Update Type or Quota?}
+    
+    Target -- LEAVE_TYPE --> Type(Modifies LeaveType Properties)
+    Type --> SaveType(db.save LeaveType)
+    
+    Target -- ASSIGN_QUOTA --> Search(Search Employee & LeaveType Match)
+    Search --> Exist{Record Exists for Year?}
+    
+    Exist -- No --> New(Create New LeaveBalance)
+    Exist -- Yes --> Update(Update TotalAllocated days)
+    
+    New --> SaveBal(db.save LeaveBalance)
+    Update --> SaveBal
+    
+    SaveType --> End([Reload System Configs])
+    SaveBal --> End
+```
