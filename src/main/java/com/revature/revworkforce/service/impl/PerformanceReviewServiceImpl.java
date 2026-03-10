@@ -3,7 +3,12 @@ package com.revature.revworkforce.service.impl;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.revature.revworkforce.dto.TeamPerformanceStatsDTO;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -296,6 +301,52 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
         return reviewRepository.findTeamReviewsByManagerId(managerId).stream()
                 .map(this::convertToDTO)
                 .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TeamPerformanceStatsDTO getTeamPerformanceStats(String managerId) {
+        List<PerformanceReview> teamReviews = reviewRepository.findTeamReviewsByManagerId(managerId);
+
+        List<PerformanceReview> completedReviews = teamReviews.stream()
+                .filter(r -> r.getStatus() == ReviewStatus.COMPLETED && r.getFinalRating() != null)
+                .collect(Collectors.toList());
+
+        if (completedReviews.isEmpty()) {
+            Map<String, Long> emptyDist = new HashMap<>();
+            emptyDist.put("5.0 (Outstanding)", 0L);
+            emptyDist.put("4.0 (Exceeds)", 0L);
+            emptyDist.put("3.0 (Meets)", 0L);
+            emptyDist.put("Below 3.0", 0L);
+            return new TeamPerformanceStatsDTO(BigDecimal.ZERO, emptyDist, teamReviews.size(), 0);
+        }
+
+        BigDecimal sum = completedReviews.stream()
+                .map(PerformanceReview::getFinalRating)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal average = sum.divide(BigDecimal.valueOf(completedReviews.size()), 1, java.math.RoundingMode.HALF_UP);
+
+        Map<String, Long> distribution = new HashMap<>();
+        distribution.put("5.0 (Outstanding)", 0L);
+        distribution.put("4.0 (Exceeds)", 0L);
+        distribution.put("3.0 (Meets)", 0L);
+        distribution.put("Below 3.0", 0L);
+
+        for (PerformanceReview review : completedReviews) {
+            double rating = review.getFinalRating().doubleValue();
+            if (rating >= 4.5) {
+                distribution.put("5.0 (Outstanding)", distribution.get("5.0 (Outstanding)") + 1);
+            } else if (rating >= 3.5) {
+                distribution.put("4.0 (Exceeds)", distribution.get("4.0 (Exceeds)") + 1);
+            } else if (rating >= 2.5) {
+                distribution.put("3.0 (Meets)", distribution.get("3.0 (Meets)") + 1);
+            } else {
+                distribution.put("Below 3.0", distribution.get("Below 3.0") + 1);
+            }
+        }
+
+        return new TeamPerformanceStatsDTO(average, distribution, teamReviews.size(), completedReviews.size());
     }
 
     @Override

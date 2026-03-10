@@ -7,6 +7,7 @@ import com.revature.revworkforce.model.PerformanceReview;
 import com.revature.revworkforce.security.SecurityUtils;
 import com.revature.revworkforce.service.PerformanceReviewService;
 import com.revature.revworkforce.service.EmployeeService;
+import com.revature.revworkforce.service.GoalService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,6 +36,9 @@ public class PerformanceReviewController {
 
     @Autowired
     private EmployeeService employeeService;
+
+    @Autowired
+    private GoalService goalService;
 
     // ============================================
     // EMPLOYEE ENDPOINTS
@@ -170,6 +174,9 @@ public class PerformanceReviewController {
         List<PerformanceReviewDTO> reviews = reviewService.getTeamReviews(managerId);
 
         model.addAttribute("reviews", reviews);
+        model.addAttribute("goals", goalService.getTeamGoals(managerId));
+        model.addAttribute("performanceStats", reviewService.getTeamPerformanceStats(managerId));
+        model.addAttribute("goalStats", goalService.getTeamStatistics(managerId));
         model.addAttribute("pageTitle", "Team Performance Reviews");
 
         // Sidebar/Navbar details

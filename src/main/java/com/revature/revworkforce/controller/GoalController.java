@@ -414,6 +414,8 @@ public class GoalController {
         List<PerformanceReviewDTO> reviewDTOs = reviewService.getTeamReviews(managerId);
 
         model.addAttribute("reviews", reviewDTOs);
+        model.addAttribute("performanceStats", reviewService.getTeamPerformanceStats(managerId));
+        model.addAttribute("goalStats", goalService.getTeamStatistics(managerId));
 
         List<PerformanceReviewDTO> pendingReviews = reviewService.getPendingReviewsForManager(managerId);
         model.addAttribute("pendingReviews", pendingReviews);
