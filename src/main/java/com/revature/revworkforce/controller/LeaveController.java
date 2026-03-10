@@ -114,13 +114,12 @@ public class LeaveController {
     public String showPendingLeaves(Model model, Authentication auth) {
 
         String managerId = auth.getName();
-
         model.addAttribute("pending",
                 leaveService.getPendingLeavesForManager(managerId));
 
         model.addAttribute("team",
                 leaveService.getTeamLeaves(managerId));
-
+      
         model.addAttribute("holidays",
                 holidayService.getAllActiveHolidays());
 

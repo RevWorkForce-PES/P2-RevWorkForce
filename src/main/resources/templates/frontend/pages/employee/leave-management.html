@@ -181,14 +181,11 @@
                                     </select>
                                 </form>
                             </div>
-                            <button class="btn btn-secondary" onclick="window.print()">
-                                <i class="fas fa-file-pdf"></i> Download PDF
-                            </button>
+                           
                         </div>
 
                         <!-- Visual Calendar Integration -->
-                        <div id="holidayCalendar"></div>
-
+                    
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
@@ -220,49 +217,7 @@
     <!-- Load Scripts -->
     <script th:src="@{/js/components.js}"></script>
     <script th:src="@{/js/app.js}"></script>
-    <script th:inline="javascript">
-        document.addEventListener("DOMContentLoaded", function () {
-            var calendarEl = document.getElementById("holidayCalendar");
-            var events = [];
-
-            /*[# th:each="holiday : ${holidays}"]*/
-            events.push({
-                title: '[[${holiday.holidayName}]]',
-                start: '[[${holiday.holidayDate}]]',
-                allDay: true,
-                backgroundColor: 'rgba(255, 140, 0, 0.1)',
-                borderColor: 'var(--primary)',
-                textColor: 'var(--primary)'
-            });
-            /*[/]*/
-
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                initialDate: '[[${selectedYear}]]-01-01',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,dayGridWeek'
-                },
-                events: events,
-                height: 'auto'
-            });
-
-            // Re-render when tab becomes active
-            const holidayTabBtn = document.querySelector('[data-target="holiday-calendar"]');
-            holidayTabBtn.addEventListener('click', function () {
-                setTimeout(() => {
-                    calendar.render();
-                    calendar.updateSize();
-                }, 100);
-            });
-
-            // If tab is already active (on refresh)
-            if (holidayTabBtn.classList.contains('active')) {
-                calendar.render();
-            }
-        });
-    </script>
+    
 </body>
 
 </html>

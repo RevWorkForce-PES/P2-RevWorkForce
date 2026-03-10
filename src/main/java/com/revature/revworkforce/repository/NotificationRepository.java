@@ -103,6 +103,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
      * @param referenceId the reference ID
      * @return list of notifications
      */
+    long countByEmployeeEmployeeIdAndIsRead(String employeeId, Character isRead);
     List<Notification> findByReferenceTypeAndReferenceId(String referenceType, Long referenceId);
     List<Notification> findByEmployeeAndIsRead(
             Employee employee,
