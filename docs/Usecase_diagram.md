@@ -8,14 +8,12 @@ This document illustrates the precise mapping of features (use cases) against th
 usecaseDiagram
     actor Employee
     
-    package "Identity Module" {
-        usecase "Log In" as UC1
-        usecase "Log Out" as UC2
-        usecase "Change Password" as UC3
-        usecase "View Profile Details" as UC4
-        usecase "Update Security Questions" as UC5
-        usecase "Recover Account" as UC6
-    }
+    usecase "Log In" as UC1
+    usecase "Log Out" as UC2
+    usecase "Change Password" as UC3
+    usecase "View Profile Details" as UC4
+    usecase "Update Security Questions" as UC5
+    usecase "Recover Account" as UC6
     
     Employee --> UC1
     Employee --> UC2
@@ -38,16 +36,13 @@ usecaseDiagram
     actor Employee
     actor Manager
     
-    package "Leave Operations" {
-        usecase "View Leave Balances" as L1
-        usecase "Submit Leave Request" as L2
-        usecase "Cancel Pending Leave" as L3
-        usecase "View Leave History" as L4
-        
-        usecase "Review Team Requests" as L5
-        usecase "Approve Leave" as L6
-        usecase "Reject Leave" as L7
-    }
+    usecase "View Leave Balances" as L1
+    usecase "Submit Leave Request" as L2
+    usecase "Cancel Pending Leave" as L3
+    usecase "View Leave History" as L4
+    usecase "Review Team Requests" as L5
+    usecase "Approve Leave" as L6
+    usecase "Reject Leave" as L7
     
     Employee --> L1
     Employee --> L2
@@ -57,11 +52,6 @@ usecaseDiagram
     Manager --> L5
     Manager --> L6
     Manager --> L7
-    
-    %% Implicit capabilities 
-    L6 .> L5 : extends
-    L7 .> L5 : extends
-    Manager --|> Employee : inherits
 ```
 
 ### Specifications
@@ -78,16 +68,12 @@ usecaseDiagram
     actor Manager
     actor Administrator
     
-    package "Performance Reviews" {
-        usecase "Fill Self-Assessment" as P1
-        usecase "View Past Reviews" as P2
-        
-        usecase "Initiate Review Cycle" as P3
-        usecase "Provide Manager Evaluation" as P4
-        usecase "View Team Matrix" as P5
-        
-        usecase "Delete Stale Records" as P6
-    }
+    usecase "Fill Self-Assessment" as P1
+    usecase "View Past Reviews" as P2
+    usecase "Initiate Review Cycle" as P3
+    usecase "Provide Manager Evaluation" as P4
+    usecase "View Team Matrix" as P5
+    usecase "Delete Stale Records" as P6
     
     Employee --> P1
     Employee --> P2
@@ -95,7 +81,6 @@ usecaseDiagram
     Manager --> P3
     Manager --> P4
     Manager --> P5
-    Manager --|> Employee
     
     Administrator --> P6
 ```
@@ -114,15 +99,12 @@ usecaseDiagram
     actor Employee
     actor Manager
     
-    package "Goal Tracking" {
-        usecase "Create Personal Goal" as G1
-        usecase "Update Progress Percentage" as G2
-        usecase "Cancel Goal" as G3
-        
-        usecase "Assign Team Goal" as G4
-        usecase "Monitor Subordinate Goals" as G5
-        usecase "Leave Goal Feedback" as G6
-    }
+    usecase "Create Personal Goal" as G1
+    usecase "Update Progress Percentage" as G2
+    usecase "Cancel Goal" as G3
+    usecase "Assign Team Goal" as G4
+    usecase "Monitor Subordinate Goals" as G5
+    usecase "Leave Goal Feedback" as G6
     
     Employee --> G1
     Employee --> G2
@@ -131,7 +113,6 @@ usecaseDiagram
     Manager --> G4
     Manager --> G5
     Manager --> G6
-    Manager --|> Employee
 ```
 
 ### Specifications
@@ -146,13 +127,11 @@ usecaseDiagram
 usecaseDiagram
     actor Administrator
     
-    package "Admin Ops" {
-        usecase "Generate Utilization Reports" as A1
-        usecase "Configure Holidays" as A2
-        usecase "Post Global Announcements" as A3
-        usecase "Review Security Audits" as A4
-        usecase "Manage Department Hierarchy" as A5
-    }
+    usecase "Generate Utilization Reports" as A1
+    usecase "Configure Holidays" as A2
+    usecase "Post Global Announcements" as A3
+    usecase "Review Security Audits" as A4
+    usecase "Manage Department Hierarchy" as A5
     
     Administrator --> A1
     Administrator --> A2
