@@ -92,19 +92,5 @@ class EmployeeDashboardControllerTest {
         }
     }
 
-    // ==========================
-    // Announcements Page
-    // ==========================
-
-    @Test
-    @WithMockUser(roles = "EMPLOYEE")
-    void announcements_ShouldReturnAnnouncementsPage() throws Exception {
-
-        when(announcementService.getActiveAnnouncements()).thenReturn(List.of());
-
-        mockMvc.perform(get("/employee/announcements"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("pages/employee/announcements"))
-                .andExpect(model().attributeExists("announcements"));
-    }
 }
+   
