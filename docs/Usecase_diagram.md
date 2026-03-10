@@ -1,99 +1,166 @@
-# Comprehensive Use Case Diagrams
+# Comprehensive Use Case Diagrams and Specifications
 
-This document illustrates the precise mapping of features (use cases) against the specific user roles within the RevWorkForce platform.
+This document illustrates the precise mapping of features (use cases) against the specific user roles within the RevWorkForce platform. It breaks down the system into core functional modules for better readability.
 
-## Global Organization Use Cases
+## 1. Authentication and Profile Management
 
 ```mermaid
 usecaseDiagram
-    actor Employee as EMP
-    actor Manager as MGR
-    actor Administrator as ADM
-
-    %% Structural layout for grouping
-    package "Core Access & Personal Data" {
-        usecase "Authenticate (Login/Logout)" as auth1
-        usecase "Update Password" as prof1
-        usecase "View Personal Information" as prof2
-        usecase "Receive System Notifications" as noti1
+    actor Employee
+    
+    package "Identity Module" {
+        usecase "Log In" as UC1
+        usecase "Log Out" as UC2
+        usecase "Change Password" as UC3
+        usecase "View Profile Details" as UC4
+        usecase "Update Security Questions" as UC5
+        usecase "Recover Account" as UC6
     }
     
-    package "Leave Management Module" {
-        usecase "Apply for Personal Leave" as lev1
-        usecase "Check Available Allowances" as lev2
-        usecase "Review Team Leave Requests" as lev3
-        usecase "Approve/Reject Requests" as lev4
-    }
-
-    package "Performance & Development Module" {
-        usecase "Declare Active Goals" as perf1
-        usecase "Update Goal Checkpoints" as perf2
-        usecase "Submit Personal Evaluation" as perf3
-        usecase "Monitor Subordinate Goals" as perf4
-        usecase "Provide Evaluation Ratings" as perf5
-        usecase "Kickoff Evaluation Cycle" as perf6
-    }
-    
-    package "Administration & Reporting Module" {
-        usecase "Configure Company Holidays" as adm1
-        usecase "Delete Expired Review Cycles" as adm2
-        usecase "Post Organization Announcements" as adm3
-        usecase "Audit Log Reviews" as adm4
-        usecase "Generate Metric Reports" as adm5
-    }
-
-    %% Aligning Employee Access
-    EMP --> auth1
-    EMP --> prof1
-    EMP --> prof2
-    EMP --> noti1
-    EMP --> lev1
-    EMP --> lev2
-    EMP --> perf1
-    EMP --> perf2
-    EMP --> perf3
-
-    %% Aligning Manager Access
-    MGR --> auth1
-    MGR --> prof1
-    MGR --> prof2
-    MGR --> noti1
-    MGR --> lev1
-    MGR --> lev2
-    MGR --> perf1
-    MGR --> perf2
-    MGR --> perf3
-    
-    %% Manager specific extended privileges
-    MGR --> lev3
-    MGR --> lev4
-    MGR --> perf4
-    MGR --> perf5
-    MGR --> perf6
-
-    %% Aligning Admin Access
-    ADM --> auth1
-    ADM --> prof1
-    ADM --> prof2
-    ADM --> adm1
-    ADM --> adm2
-    ADM --> adm3
-    ADM --> adm4
-    ADM --> adm5
-
+    Employee --> UC1
+    Employee --> UC2
+    Employee --> UC3
+    Employee --> UC4
+    Employee --> UC5
+    Employee --> UC6
 ```
 
-## Actor Privileges Matrix
-| Feature Package | Endpoint Path Context | Employee | Manager | Administrator |
-|---|---|---|---|---|
-| Core Details | `/api/user/*` | Read / Edit | Read / Edit | Scope Read / Write |
-| Password Updates | `/api/auth/*` | Edit | Edit | Edit |
-| My Leaves | `/employee/apply`, `/employee/history` | Write | Write | No Access |
-| Team Leaves | `/manager/review/*`, `/manager/pending` | No Access | Write (Approve) | No Access |
-| My Goals | `/employee/goals/*` | Write | Write | No Access |
-| Team Goals | `/manager/goals/*` | No Access | Read / Comment | No Access |
-| My Reviews | `/employee/reviews/*` | Write (Self only) | Write (Self only) | No Access |
-| Team Reviews | `/manager/reviews/*` | No Access | Write | Read / Soft Delete |
-| Organization Data | `/admin/*` | Global View Only | Global View Only | Full Read / Extraction |
-| Alerts & Notices | `/notifications`, API | Subscribed events | Subscribed events | Broad Broadcasts |
+### Specifications
+- **Log In**: Validates credentials against the database. Automatically locks account after 5 failed attempts.
+- **Recover Account**: Triggered when a user forgets their password. Leverages Security Questions.
 
+---
+
+## 2. Leave Management Module
+
+```mermaid
+usecaseDiagram
+    actor Employee
+    actor Manager
+    
+    package "Leave Operations" {
+        usecase "View Leave Balances" as L1
+        usecase "Submit Leave Request" as L2
+        usecase "Cancel Pending Leave" as L3
+        usecase "View Leave History" as L4
+        
+        usecase "Review Team Requests" as L5
+        usecase "Approve Leave" as L6
+        usecase "Reject Leave" as L7
+    }
+    
+    Employee --> L1
+    Employee --> L2
+    Employee --> L3
+    Employee --> L4
+    
+    Manager --> L5
+    Manager --> L6
+    Manager --> L7
+    
+    %% Implicit capabilities 
+    L6 .> L5 : extends
+    L7 .> L5 : extends
+    Manager --|> Employee : inherits
+```
+
+### Specifications
+- **Submit Leave Request**: The system calculates the actual duration excluding configured company holidays. Fails if duration exceeds `LeaveBalance`.
+- **Review Team Requests**: Managers see overlapping team leaves to gauge department impact before approving.
+
+---
+
+## 3. Performance Review Module
+
+```mermaid
+usecaseDiagram
+    actor Employee
+    actor Manager
+    actor Administrator
+    
+    package "Performance Reviews" {
+        usecase "Fill Self-Assessment" as P1
+        usecase "View Past Reviews" as P2
+        
+        usecase "Initiate Review Cycle" as P3
+        usecase "Provide Manager Evaluation" as P4
+        usecase "View Team Matrix" as P5
+        
+        usecase "Delete Stale Records" as P6
+    }
+    
+    Employee --> P1
+    Employee --> P2
+    
+    Manager --> P3
+    Manager --> P4
+    Manager --> P5
+    Manager --|> Employee
+    
+    Administrator --> P6
+```
+
+### Specifications
+- **Initiate Review Cycle**: Generates a new `PerformanceReview` skeleton and alerts the Employee.
+- **Fill Self-Assessment**: Employee fills in subjective achievements and soft-skills ratings.
+- **Provide Manager Evaluation**: Manager inputs final overarching ratings which lock the review as `COMPLETED`.
+
+---
+
+## 4. Goals Tracking Module
+
+```mermaid
+usecaseDiagram
+    actor Employee
+    actor Manager
+    
+    package "Goal Tracking" {
+        usecase "Create Personal Goal" as G1
+        usecase "Update Progress Percentage" as G2
+        usecase "Cancel Goal" as G3
+        
+        usecase "Assign Team Goal" as G4
+        usecase "Monitor Subordinate Goals" as G5
+        usecase "Leave Goal Feedback" as G6
+    }
+    
+    Employee --> G1
+    Employee --> G2
+    Employee --> G3
+    
+    Manager --> G4
+    Manager --> G5
+    Manager --> G6
+    Manager --|> Employee
+```
+
+### Specifications
+- **Update Progress**: Employees shift the integer value from 0 to 100.
+- **Assign Team Goal**: Managers can forcefully drop a goal onto an employee's dashboard with a strict deadline.
+
+---
+
+## 5. Administration and Internal Operations
+
+```mermaid
+usecaseDiagram
+    actor Administrator
+    
+    package "Admin Ops" {
+        usecase "Generate Utilization Reports" as A1
+        usecase "Configure Holidays" as A2
+        usecase "Post Global Announcements" as A3
+        usecase "Review Security Audits" as A4
+        usecase "Manage Department Hierarchy" as A5
+    }
+    
+    Administrator --> A1
+    Administrator --> A2
+    Administrator --> A3
+    Administrator --> A4
+    Administrator --> A5
+```
+
+### Specifications
+- **Generate Utilization Reports**: Aggregates massive data sets across all other modules into JSON summaries suitable for rendering DataTables and Charts.
+- **Review Security Audits**: Admins monitor the `AuditLog` table which tracks every mutation (UPDATE/DELETE/INSERT) committed by any user.

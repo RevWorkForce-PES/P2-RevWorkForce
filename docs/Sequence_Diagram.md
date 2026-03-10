@@ -46,7 +46,7 @@ sequenceDiagram
     LS->>LS: verifyManagerAuthority(manager, application.getEmployee())
     LS->>LBR: updateLeaveBalance(employee, daysToDeduct)
     LBR-->>LS: Updated Balance Persistent Entity
-    LS->>LR: setStatus(APPROVED); save(LeaveApplication)
+    LS->>LR: setStatus APPROVED and save LeaveApplication
     LR-->>LS: Approved Entity
     LS->>NS: triggerNotification(employee, "Leave Approved")
     LS-->>LC: Return Success Payload
