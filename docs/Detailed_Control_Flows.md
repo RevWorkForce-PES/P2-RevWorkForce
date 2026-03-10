@@ -105,6 +105,8 @@ flowchart TD
     Condition -- (n == 100) --> Trig(Trigger Automation)
     Trig --> State(Assign GoalStatus.COMPLETED)
     State --> Time(Assign completedDate = now())
+```
+
 ## 5. Authentication & Login Control Flow
 
 This sequence models the gating checkpoints protecting the application from brute force and unauthorized entry.
@@ -260,6 +262,7 @@ flowchart TD
     Recalc --> Math(Math: Duration -= 1 if Match Holiday)
     Math --> SaveL(db.save updated PENDING duration)
     SaveL --> Next(Loop)
+```
     
 ## 11. Profile Update Flow
 
