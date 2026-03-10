@@ -50,7 +50,7 @@
 					<div class="tabs">
 						<button class="tab-btn" data-target="pending-requests">Pending
 							Requests</button>
-						<button class="tab-btn" data-target="approved-revokes">Approved/Revoke</button>
+						<button class="tab-btn" data-target="approved-revokes">Approved/Rejected</button>
 						<button class="tab-btn" data-target="team-calendar">Team
 							Calendar</button>
 					</div>
@@ -270,7 +270,7 @@ onsubmit="let reason = prompt('Please enter a rejection reason:');
 
 												<td><th:block th:each="b : ${teamBalances}">
 														<span
-															th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'PreL'}"
+															th:if="${b.employee.employeeId == member.employeeId and b.leaveType.leaveCode == 'PRIV'}"
 															th:text="${b.balance}" th:remove="tag"> </span>
 													</th:block></td>
 
