@@ -576,5 +576,99 @@ sequenceDiagram
     ReportService->>ReportService: Construct ReportDTO
     ReportService->>ReportService: Sanitize sensitive mappings
     ReportService->>ReportService: Serialize to JSON
-    ReportService-->>-Client: Return HTTP 200 JSON Response
+## 16. Department & Designation Management Sequence
+
+Tracking the lifecycle of organizational units and roles as defined by the Administrator.
+
+```mermaid
+sequenceDiagram
+    actor Admin
+    participant AdminController
+    participant DeptService as DepartmentServiceImpl
+    participant DesigService as DesignationServiceImpl
+    participant DeptDAO as DepartmentRepository
+    participant DesigDAO as DesignationRepository
+    participant AuditService as AuditLogServiceImpl
+
+    Admin->>+AdminController: Submit Dept/Desig DTO
+    AdminController->>AdminController: Validate Request
+    
+    alt Department Operation
+        AdminController->>+DeptService: create/updateDepartment(DTO)
+        DeptService->>+DeptDAO: save(Entity)
+        DeptDAO-->>-DeptService: Success
+        DeptService-->>-AdminController: Success
+    else Designation Operation
+        AdminController->>+DesigService: create/updateDesignation(DTO)
+        DesigService->>+DesigDAO: save(Entity)
+        DesigDAO-->>-DesigService: Success
+        DesigService-->>-AdminController: Success
+    end
+    
+    AdminController->>+AuditService: Log Admin Action
+    AuditService-->>-AdminController: Success
+    AdminController-->>-Admin: Return Success & Updated List
+```
+
+## 17. Admin: Account Security Actions (Lock/Unlock/Reset)
+
+Detailed interaction when an Admin forcefully intervenes in user account access.
+
+```mermaid
+sequenceDiagram
+    actor Admin
+    participant AdminService as AdminServiceImpl
+    participant EmployeeDAO as EmployeeRepository
+    participant EmailService as EmailServiceImpl
+    participant NotificationService as NotificationServiceImpl
+
+    Admin->>+AdminService: select action (Reset/Lock/Unlock)
+    
+    alt Reset Password
+        AdminService->>AdminService: generate temp password
+        AdminService->>AdminService: BCrypt hash password
+        AdminService->>+EmployeeDAO: update(Password, firstLogin=True)
+        EmployeeDAO-->>-AdminService: Success
+        AdminService->>+EmailService: Send updated credentials
+        EmailService-->>-AdminService: Success
+    else Lock/Unlock
+        AdminService->>+EmployeeDAO: update(isLocked status)
+        EmployeeDAO-->>-AdminService: Success
+    end
+    
+    AdminService->>+NotificationService: triggerSecurityAlert(User)
+    NotificationService-->>-AdminService: Success
+    AdminService-->>-Admin: Action Completed
+```
+
+## 18. Leave Type & Quota Configuration Sequence
+
+Managing the global rules for leave and their specific allocation to individuals.
+
+```mermaid
+sequenceDiagram
+    actor Admin
+    participant AdminService as AdminServiceImpl
+    participant LeaveTypeDAO as LeaveTypeRepository
+    participant BalanceDAO as LeaveBalanceRepository
+
+    Admin->>+AdminService: Update Leave Config
+    
+    alt Manage Leave Type
+        AdminService->>+LeaveTypeDAO: save(LeaveType)
+        LeaveTypeDAO-->>-AdminService: Success
+    else Assign Annual Quota
+        AdminService->>+BalanceDAO: findExisting(Employee, Type, Year)
+        BalanceDAO-->>-AdminService: Record/Null
+        
+        alt Not Exists
+            AdminService->>+BalanceDAO: save(New LeaveBalance)
+            BalanceDAO-->>-AdminService: Success
+        else Exists
+            AdminService->>+BalanceDAO: save(Updated TotalAllocated)
+            BalanceDAO-->>-AdminService: Success
+        end
+    end
+    
+    AdminService-->>-Admin: Configuration Updated
 ```
