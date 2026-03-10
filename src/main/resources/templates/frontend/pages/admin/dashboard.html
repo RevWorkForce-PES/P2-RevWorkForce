@@ -22,8 +22,12 @@
 
 		.stat-card {
 			display: flex;
+			flex-direction: column;
 			align-items: center;
-			gap: 1.5rem;
+			justify-content: center;
+			text-align: center;
+			gap: 1rem;
+			padding: 2rem !important;
 		}
 
 		.stat-icon {
@@ -58,13 +62,15 @@
 		}
 
 		.dashboard-option:hover {
-			background: var(--bg-main);
-			border-left-color: var(--primary) !important;
+			background: rgba(0, 0, 0, 0.8);
+			border-left-color: #000 !important;
+			color: white !important;
 		}
 
 		.dashboard-option.active {
-			background: rgba(255, 140, 0, 0.08);
-			border-left-color: var(--primary) !important;
+			background: #222;
+			border-left-color: #000 !important;
+			color: white !important;
 		}
 
 		.dashboard-option i {
@@ -85,78 +91,6 @@
 		<main class="main-content">
 
 			<app-navbar page-title="Admin Dashboard"></app-navbar>
-
-			<!-- Header -->
-
-			<div class="page-header"
-				style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; background: white; border-bottom: 1px solid var(--border-color);">
-
-				<div>
-					<h1 style="font-size: 1.5rem; margin: 0; color: var(--text-dark);">
-						Admin Dashboard</h1>
-
-					<p style="color: var(--text-muted); margin: 0.25rem 0 0 0; font-size: 0.9rem;">
-						Full system access and management</p>
-				</div>
-
-				<!-- Dashboard Switcher -->
-
-				<div th:if="${#authorization.expression('hasRole(''ADMIN'')')}" style="position: relative;">
-
-					<button id="dashboardSwitcher"
-						style="background: var(--bg-glass); border: 1px solid var(--border-color); padding: 0.65rem 1.25rem; border-radius: var(--border-radius-sm); cursor: pointer; display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: var(--text-dark); transition: all 0.3s; font-weight: 500;">
-
-						<i class="fas fa-chart-line"></i> <span>Switch Dashboard</span> <i
-							class="fas fa-chevron-down"></i>
-
-					</button>
-
-					<div id="dashboardMenu"
-						style="position: absolute; top: calc(100% + 0.5rem); right: 0; background: white; border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); min-width: 240px; display: none; z-index: 1000; overflow: hidden;">
-
-						<a th:href="@{/admin/dashboard}" class="dashboard-option active"
-							style="display: flex; align-items: center; gap: 1rem; padding: 1rem; text-decoration: none; color: var(--text-dark);">
-
-							<i class="fas fa-user-shield"></i>
-
-							<div>
-								<div style="font-weight: 600; font-size: 0.9rem;">Admin
-									Dashboard</div>
-								<div style="font-size: 0.75rem; color: var(--text-muted);">Full
-									system access</div>
-							</div>
-
-						</a> <a th:href="@{/manager/dashboard}" class="dashboard-option"
-							style="display: flex; align-items: center; gap: 1rem; padding: 1rem; text-decoration: none; color: var(--text-dark);">
-
-							<i class="fas fa-user-tie"></i>
-
-							<div>
-								<div style="font-weight: 600; font-size: 0.9rem;">Manager
-									Dashboard</div>
-								<div style="font-size: 0.75rem; color: var(--text-muted);">Team
-									management view</div>
-							</div>
-
-						</a> <a th:href="@{/employee/dashboard}" class="dashboard-option"
-							style="display: flex; align-items: center; gap: 1rem; padding: 1rem; text-decoration: none; color: var(--text-dark);">
-
-							<i class="fas fa-briefcase"></i>
-
-							<div>
-								<div style="font-weight: 600; font-size: 0.9rem;">Employee
-									Dashboard</div>
-								<div style="font-size: 0.75rem; color: var(--text-muted);">Personal
-									workspace</div>
-							</div>
-
-						</a>
-
-					</div>
-
-				</div>
-
-			</div>
 
 			<!-- Stats -->
 
@@ -238,38 +172,7 @@
 	<script th:src="@{/js/app.js}"></script>
 
 	<script>
-		document
-			.addEventListener(
-				'DOMContentLoaded',
-				function () {
-
-					const btn = document
-						.getElementById('dashboardSwitcher');
-					const menu = document
-						.getElementById('dashboardMenu');
-
-					if (btn && menu) {
-
-						btn
-							.addEventListener(
-								'click',
-								function (e) {
-									e.stopPropagation();
-									menu.style.display = menu.style.display === 'block' ? 'none'
-										: 'block';
-								});
-
-						document.addEventListener('click', function () {
-							menu.style.display = 'none';
-						});
-
-						menu.addEventListener('click', function (e) {
-							e.stopPropagation();
-						});
-
-					}
-
-				});
+		// Page specific scripts can go here
 	</script>
 
 </body>

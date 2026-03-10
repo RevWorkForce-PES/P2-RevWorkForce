@@ -23,8 +23,8 @@ class AppSidebar extends HTMLElement {
 
         const basePath = window.location.pathname.startsWith('/RevWorkForce') ? '/RevWorkForce' : '';
 
-		if (this.role === 'admin') {
-		    linksHtml = `
+        if (this.role === 'admin') {
+            linksHtml = `
 		        <li class="nav-item">
 		            <a href="${basePath}/admin/dashboard" class="nav-link">
 		                <i class="fas fa-home"></i> <span>Dashboard</span>
@@ -53,8 +53,8 @@ class AppSidebar extends HTMLElement {
 		            </a>
 		        </li>
 		    `;
-		} 		else if (this.role === 'manager') {
-		    linksHtml = `
+        } else if (this.role === 'manager') {
+            linksHtml = `
 		        <li class="nav-item">
 		            <a href="${basePath}/manager/dashboard" class="nav-link">
 		                <i class="fas fa-home"></i> <span>Dashboard</span>
@@ -83,8 +83,8 @@ class AppSidebar extends HTMLElement {
 		            </a>
 		        </li>
 		    `;
-		} 		else {
-		    linksHtml = `
+        } else {
+            linksHtml = `
 		        <li class="nav-item">
 		            <a href="${basePath}/employee/dashboard" class="nav-link">
 		                <i class="fas fa-home"></i> <span>Dashboard</span>
@@ -98,7 +98,7 @@ class AppSidebar extends HTMLElement {
 		        </li>
 
 		        <li class="nav-item">
-		            <a href="${basePath}" class="nav-link">
+		            <a href="${basePath}/employee/directory" class="nav-link">
 		                <i class="fas fa-id-card"></i> <span>Profile & Directory</span>
 		            </a>
 		        </li>
@@ -113,16 +113,18 @@ class AppSidebar extends HTMLElement {
 		            </a>
 		        </li>
 		    `;
-		}
+        }
 
         this.innerHTML = `
             <style>
                 aside {
                     width: 260px;
-                    height: 100vh;
+                    height: 100%;
+                    min-height: 100vh;
                     position: fixed;
                     left: 0;
                     top: 0;
+                    bottom: 0;
                     background: var(--bg-white);
                     border-right: 1px solid var(--border-color);
                     display: flex;
@@ -131,29 +133,21 @@ class AppSidebar extends HTMLElement {
                     box-shadow: var(--shadow-sm);
                 }
                 .logo-container {
-                    padding: 1.5rem;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    border-bottom: 1px solid var(--border-color);
-                }
-                .logo-icon {
-                    width: 32px;
-                    height: 32px;
-                    background: linear-gradient(135deg, var(--primary), var(--primary-light));
-                    border-radius: 8px;
+                    padding: 1rem;
+                    margin: 0;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    color: white;
-                    font-weight: bold;
-                    font-size: 1.2rem;
+                    border-bottom: 1px solid var(--border-color);
                 }
-                .logo-text {
-                    font-size: 1.25rem;
-                    font-weight: 700;
-                    color: var(--primary-dark);
-                    letter-spacing: -0.5px;
+                .logo-complete {
+                    height: 67.5px;
+                    width: auto;
+                    max-width: 100%;
+                    object-fit: contain;
+                    display: block;
+                    margin: 0.5rem 0;
+                    padding: 0;
                 }
                 .nav-menu {
                     list-style: none;
@@ -238,8 +232,7 @@ class AppSidebar extends HTMLElement {
             </style>
             <aside>
                 <div class="logo-container">
-                    <div class="logo-icon">R</div>
-                    <div class="logo-text">RevWorkForce</div>
+                    <img src="${basePath}/assets/logocomplete.png" alt="RevWorkForce Logo" class="logo-complete">
                 </div>
                 <ul class="nav-menu">
                     ${linksHtml}
@@ -492,6 +485,37 @@ class AppNavbar extends HTMLElement {
 				        </div>
 				    </div>
 				</div>
+
+                <!-- Dashboard Switcher -->
+                <div class="header-dropdown-container">
+                    <button class="icon-btn" title="Switch Dashboard" id="globalDashboardSwitcher" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; font-weight: 500;">
+                        <i class="fas fa-chart-line"></i> <span class="d-none d-md-inline">Switch</span> <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+                    </button>
+
+                    <div class="notification-dropdown" id="globalDashboardMenu" style="width: 250px;">
+                        <a href="${basePath}/admin/dashboard" class="notification-item" style="text-decoration: none;">
+                            <div class="notify-icon" style="background: rgba(0,0,0,0.05); color: var(--text-dark);"><i class="fas fa-user-shield"></i></div>
+                            <div class="notify-content">
+                                <p style="font-weight: 600; margin-bottom: 0;">Admin</p>
+                                <span>Full access</span>
+                            </div>
+                        </a>
+                        <a href="${basePath}/manager/dashboard" class="notification-item" style="text-decoration: none;">
+                            <div class="notify-icon" style="background: rgba(0,0,0,0.05); color: var(--text-dark);"><i class="fas fa-user-tie"></i></div>
+                            <div class="notify-content">
+                                <p style="font-weight: 600; margin-bottom: 0;">Manager</p>
+                                <span>Team view</span>
+                            </div>
+                        </a>
+                        <a href="${basePath}/employee/dashboard" class="notification-item" style="text-decoration: none;">
+                            <div class="notify-icon" style="background: rgba(0,0,0,0.05); color: var(--text-dark);"><i class="fas fa-briefcase"></i></div>
+                            <div class="notify-content">
+                                <p style="font-weight: 600; margin-bottom: 0;">Employee</p>
+                                <span>Workspace</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
                     <button class="icon-btn" title="Change Password" onclick="window.location.href='${basePath}/change-password'">
                         <i class="fas fa-key"></i>
                     </button>
@@ -512,31 +536,31 @@ class AppNavbar extends HTMLElement {
         const list = this.querySelector('#notificationList');
         const badge = this.querySelector('#notificationBadge');
         const markAllBtn = this.querySelector('#markAllReadBtn');
-		const viewAllLink = this.querySelector('#viewAllLink');
+        const viewAllLink = this.querySelector('#viewAllLink');
 
-		if (viewAllLink) {
-		    viewAllLink.addEventListener('click', (e) => {
-		        e.preventDefault();
-		        dropdown.classList.remove('show');
-		        window.location.href = `${basePath}/notifications`;
-		    });
-		}
-		const loadUnreadCount = () => {
-		    fetch(`${basePath}/api/notifications/unread-count`)
-		        .then(res => res.text())
-		        .then(count => {
-		            const num = parseInt(count) || 0;
+        if (viewAllLink) {
+            viewAllLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                dropdown.classList.remove('show');
+                window.location.href = `${basePath}/notifications`;
+            });
+        }
+        const loadUnreadCount = () => {
+            fetch(`${basePath}/api/notifications/unread-count`)
+                .then(res => res.text())
+                .then(count => {
+                    const num = parseInt(count) || 0;
 
-		            if (badge) {
-		                badge.innerText = num;
-		                badge.style.display = num > 0 ? 'flex' : 'none';
-		            }
-		        })
-		        .catch(() => { });
-		};
+                    if (badge) {
+                        badge.innerText = num;
+                        badge.style.display = num > 0 ? 'flex' : 'none';
+                    }
+                })
+                .catch(() => { });
+        };
 
-		loadUnreadCount();
-		setInterval(loadUnreadCount, 30000);
+        loadUnreadCount();
+        setInterval(loadUnreadCount, 30000);
 
         const getCSRF = () => {
             const tokenEl = document.querySelector('meta[name="_csrf"]');
@@ -547,15 +571,15 @@ class AppNavbar extends HTMLElement {
             };
         };
 
-       const markAsRead = async (id) => {
+        const markAsRead = async (id) => {
             const { token, header } = getCSRF();
             fetch(`${basePath}/api/notifications/mark-read/${id}`, {
                 method: 'POST',
                 headers: { [header]: token }
             }).then(res => {
-				if (res.ok) {
-				    loadUnreadCount();
-				}
+                if (res.ok) {
+                    loadUnreadCount();
+                }
             }).catch(err => console.error(err));
         };
 
@@ -589,74 +613,89 @@ class AppNavbar extends HTMLElement {
                             </div>
                             ${n.isRead === 'N' ? `<button class="mark-single-read" data-id="${n.notificationId}" title="Mark as read" style="background:none;border:none;color:#10b981;cursor:pointer;padding:4px;"><i class="fas fa-check-circle"></i></button>` : ''}
                         `;
-						li.addEventListener('click', async (e) => {
+                        li.addEventListener('click', async (e) => {
 
-						    if (e.target.closest('.mark-single-read')) {
-						        e.stopPropagation();
-						        await markAsRead(e.target.closest('.mark-single-read').dataset.id);
-						        return;
-						    }
+                            if (e.target.closest('.mark-single-read')) {
+                                e.stopPropagation();
+                                await markAsRead(e.target.closest('.mark-single-read').dataset.id);
+                                return;
+                            }
 
-						    if (n.isRead === 'N') {
-						        await markAsRead(n.notificationId);
-						    }
+                            if (n.isRead === 'N') {
+                                await markAsRead(n.notificationId);
+                            }
 
-						    window.location.href = `${basePath}/notifications`;
+                            window.location.href = `${basePath}/notifications`;
 
-						});
+                        });
                         list.appendChild(li);
                     });
                 })
                 .catch(() => {
                     list.innerHTML = '<li class="notification-item" style="justify-content:center;color:var(--text-muted);">Could not load notifications</li>';
                 });
-				
+
         };
-		loadNavbarNotifications();
+        loadNavbarNotifications();
 
-		if (markAllBtn) {
-		    markAllBtn.addEventListener('click', (e) => {
-		        e.stopPropagation();
+        if (markAllBtn) {
+            markAllBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
 
-		        const { token, header } = getCSRF();
+                const { token, header } = getCSRF();
 
-		        fetch(`${basePath}/api/notifications/mark-all-read`, {
-		            method: 'POST',
-		            headers: { [header]: token }
-		        }).then(res => {
+                fetch(`${basePath}/api/notifications/mark-all-read`, {
+                    method: 'POST',
+                    headers: { [header]: token }
+                }).then(res => {
 
-		            if (res.ok) {
+                    if (res.ok) {
 
-		                loadUnreadCount();
-		                loadNavbarNotifications();
+                        loadUnreadCount();
+                        loadNavbarNotifications();
 
-		            }
+                    }
 
-		        }).catch(err => console.error(err));
+                }).catch(err => console.error(err));
 
-		    });
-		}
-	
-		
+            });
+        }
+
+
 
         // Toggle dropdown
 
-		if (btn) {
-		    btn.addEventListener('click', (e) => {
-		        e.stopPropagation();
-		        dropdown.classList.toggle('show');
+        if (btn) {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('show');
 
-				if (dropdown.classList.contains('show')) {
-				    loadNavbarNotifications();
-				}
-		    });
-		}
+                if (dropdown.classList.contains('show')) {
+                    loadNavbarNotifications();
+                }
+            });
+        }
 
-		document.addEventListener('click', (e) => {
-		  if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
-			        dropdown.classList.remove('show');
-		    }
-		});
+        const dashSwitcherBtn = this.querySelector('#globalDashboardSwitcher');
+        const dashSwitcherMenu = this.querySelector('#globalDashboardMenu');
+
+        if (dashSwitcherBtn && dashSwitcherMenu) {
+            dashSwitcherBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Close notifications if open
+                dropdown.classList.remove('show');
+                dashSwitcherMenu.classList.toggle('show');
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+            if (dashSwitcherMenu && dashSwitcherBtn && !dashSwitcherMenu.contains(e.target) && !dashSwitcherBtn.contains(e.target)) {
+                dashSwitcherMenu.classList.remove('show');
+            }
+        });
 
     }
 }

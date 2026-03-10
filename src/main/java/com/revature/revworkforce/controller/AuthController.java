@@ -43,7 +43,7 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
-    
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -70,6 +70,7 @@ public class AuthController {
             @RequestParam(value = "error", required = false) String error,
             @RequestParam(value = "logout", required = false) String logout,
             @RequestParam(value = "expired", required = false) String expired,
+            @RequestParam(value = "nosplash", required = false) String nosplash,
             Model model) {
 
         // If already logged in, redirect to dashboard
@@ -90,6 +91,12 @@ public class AuthController {
         }
 
         model.addAttribute("loginRequest", new LoginRequest());
+
+        // If no parameter forces bypassing the splash screen, show the splash screen
+        if (error == null && logout == null && expired == null && nosplash == null) {
+            return "pages/auth/splash";
+        }
+
         return "pages/auth/index";
     }
 
@@ -235,28 +242,28 @@ public class AuthController {
         return "pages/auth/forgot-password";
     }
 
-    //  Verify email
+    // Verify email
     @PostMapping("/forgot-password/verify-email")
     public String verifyEmail(
             @RequestParam("email") String email,
             Model model) {
-        
+
         try {
             Employee employee = employeeRepository.findByEmail(email)
                     .orElseThrow(() -> new ResourceNotFoundException("Employee", "email", email));
-            
+
             if (employee.getSecurityQuestion1() == null || employee.getSecurityQuestion2() == null) {
                 model.addAttribute("error", "Security questions not set. Please contact administrator.");
                 return "pages/auth/forgot-password";
             }
-            
+
             model.addAttribute("email", email);
             model.addAttribute("question1", employee.getSecurityQuestion1());
             model.addAttribute("question2", employee.getSecurityQuestion2());
             model.addAttribute("pageTitle", "Security Questions");
-            
+
             return "pages/auth/security-questions";
-            
+
         } catch (ResourceNotFoundException e) {
             model.addAttribute("error", "Email not found in system.");
             return "pages/auth/forgot-password";
@@ -270,22 +277,20 @@ public class AuthController {
             @RequestParam("answer1") String answer1,
             @RequestParam("answer2") String answer2,
             Model model) {
-        
+
         try {
             Employee employee = employeeRepository.findByEmail(email)
                     .orElseThrow(() -> new ResourceNotFoundException("Employee", "email", email));
-            
+
             // Verify answers (case-insensitive)
             boolean answer1Match = passwordEncoder.matches(
-                answer1.toLowerCase().trim(), 
-                employee.getSecurityAnswer1()
-            );
-            
+                    answer1.toLowerCase().trim(),
+                    employee.getSecurityAnswer1());
+
             boolean answer2Match = passwordEncoder.matches(
-                answer2.toLowerCase().trim(), 
-                employee.getSecurityAnswer2()
-            );
-            
+                    answer2.toLowerCase().trim(),
+                    employee.getSecurityAnswer2());
+
             if (!answer1Match || !answer2Match) {
                 model.addAttribute("error", "Security answers do not match. Please try again.");
                 model.addAttribute("email", email);
@@ -293,12 +298,12 @@ public class AuthController {
                 model.addAttribute("question2", employee.getSecurityQuestion2());
                 return "pages/auth/security-questions";
             }
-            
+
             // Answers correct
             model.addAttribute("email", email);
             model.addAttribute("pageTitle", "Reset Password");
             return "pages/auth/login-reset-password";
-            
+
         } catch (ResourceNotFoundException e) {
             model.addAttribute("error", "Invalid request.");
             return "pages/auth/forgot-password";
@@ -313,40 +318,39 @@ public class AuthController {
             @RequestParam("confirmPassword") String confirmPassword,
             Model model,
             RedirectAttributes redirectAttributes) {
-        
+
         if (!newPassword.equals(confirmPassword)) {
             model.addAttribute("error", "Passwords do not match.");
             model.addAttribute("email", email);
             return "pages/auth/reset-password";
         }
-        
+
         if (newPassword.length() < 8) {
             model.addAttribute("error", "Password must be at least 8 characters long.");
             model.addAttribute("email", email);
             return "pages/auth/reset-password";
         }
-        
+
         try {
             Employee employee = employeeRepository.findByEmail(email)
                     .orElseThrow(() -> new ResourceNotFoundException("Employee", "email", email));
-            
+
             employee.setPasswordHash(passwordEncoder.encode(newPassword));
             employee.setFirstLogin('N');
             employeeRepository.save(employee);
-            
+
             auditService.logAction(
-                employee.getEmployeeId(),
-                AuditAction.PASSWORD_RESET,
-                "EMPLOYEES",
-                employee.getEmployeeId(),
-                null,
-                "Password reset via security questions"
-            );
-            
-            redirectAttributes.addFlashAttribute("success", 
-                "Password reset successfully! Please login with your new password.");
+                    employee.getEmployeeId(),
+                    AuditAction.PASSWORD_RESET,
+                    "EMPLOYEES",
+                    employee.getEmployeeId(),
+                    null,
+                    "Password reset via security questions");
+
+            redirectAttributes.addFlashAttribute("success",
+                    "Password reset successfully! Please login with your new password.");
             return "redirect:/login";
-            
+
         } catch (ResourceNotFoundException e) {
             model.addAttribute("error", "Invalid request.");
             return "pages/auth/forgot-password";

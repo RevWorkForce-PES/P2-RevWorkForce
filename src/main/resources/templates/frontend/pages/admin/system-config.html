@@ -78,8 +78,8 @@
                                                 </td>
                                                 <td>
                                                     <span class="badge"
-                                                        th:classappend="${dept.isActive == 'Y' ? 'bg-success' : 'bg-danger'}"
-                                                        th:text="${dept.isActive == 'Y' ? 'Active' : 'Inactive'}">Active</span>
+                                                        th:classappend="${dept.isActive != null and dept.isActive.toString() == 'Y' ? 'bg-success' : 'bg-danger'}"
+                                                        th:text="${dept.isActive != null and dept.isActive.toString() == 'Y' ? 'Active' : 'Inactive'}">Active</span>
                                                 </td>
                                                 <td>
                                                     <a th:href="@{/admin/departments/edit/{id}(id=${dept.departmentId})}"
@@ -120,8 +120,8 @@
                                                 </td>
                                                 <td>
                                                     <span class="badge"
-                                                        th:classappend="${desig.isActive == 'Y' ? 'bg-success' : 'bg-danger'}"
-                                                        th:text="${desig.isActive == 'Y' ? 'Active' : 'Inactive'}">Active</span>
+                                                        th:classappend="${desig.isActive != null and desig.isActive.toString() == 'Y' ? 'bg-success' : 'bg-danger'}"
+                                                        th:text="${desig.isActive != null and desig.isActive.toString() == 'Y' ? 'Active' : 'Inactive'}">Active</span>
                                                 </td>
                                                 <td>
                                                     <a th:href="@{/admin/designations/edit/{id}(id=${desig.designationId})}"
@@ -147,9 +147,9 @@
                         <div class="flex-space-between mb-2">
                             <h3>Leave Category Config</h3>
                             <a href="/admin/leave-types/add" class="btn btn-primary">
-        <i class="fas fa-plus"></i> New Leave Type
-    </a>
-                   </div>
+                                <i class="fas fa-plus"></i> New Leave Type
+                            </a>
+                        </div>
                         <div class="table-responsive mb-4">
                             <table class="table">
                                 <thead>
@@ -161,29 +161,31 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                <tr th:each="leaveType : ${leaveTypes}">
-    
-    <td th:text="${leaveType.leaveName}"></td>
+                                    <tr th:each="leaveType : ${leaveTypes}">
 
-    <td th:text="${leaveType.defaultDays}"></td>
+                                        <td th:text="${leaveType.leaveName}"></td>
 
-    <td th:text="${leaveType.maxCarryForward != null ? 'Yes (Max ' + leaveType.maxCarryForward + ')' : 'No'}"></td>
+                                        <td th:text="${leaveType.defaultDays}"></td>
 
-    <td>
-        <a th:href="@{/admin/leave-types/edit/{id}(id=${leaveType.leaveTypeId})}"
-           class="btn btn-secondary btn-sm">
-           Edit
-        </a>
-     <a th:href="@{/admin/leave-types/delete/{id}(id=${leaveType.leaveTypeId})}"
-   class="btn btn-danger btn-sm"
-   onclick="return confirm('Are you sure you want to delete this leave type?');">
-   Delete
-</a>
-    </td>
+                                        <td
+                                            th:text="${leaveType.maxCarryForward != null ? 'Yes (Max ' + leaveType.maxCarryForward + ')' : 'No'}">
+                                        </td>
 
-</tr>
-                                   <tr th:if="${#lists.isEmpty(leaveTypes)}">
-                                       <td colspan="4" class="text-center text-muted">No leave types found</td>
+                                        <td>
+                                            <a th:href="@{/admin/leave-types/edit/{id}(id=${leaveType.leaveTypeId})}"
+                                                class="btn btn-secondary btn-sm">
+                                                Edit
+                                            </a>
+                                            <a th:href="@{/admin/leave-types/delete/{id}(id=${leaveType.leaveTypeId})}"
+                                                class="btn btn-danger btn-sm"
+                                                onclick="return confirm('Are you sure you want to delete this leave type?');">
+                                                Delete
+                                            </a>
+                                        </td>
+
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(leaveTypes)}">
+                                        <td colspan="4" class="text-center text-muted">No leave types found</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -191,47 +193,45 @@
 
                         <h3 class="mb-2">Assign Leave Quota</h3>
 
-<form th:action="@{/admin/leave-quota/assign}" method="post"
-style="background:#f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <form th:action="@{/admin/leave-quota/assign}" method="post"
+                            style="background:#f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
 
-<div class="grid-2">
+                            <div class="grid-2">
 
-<div class="form-group">
-<label class="form-label">Employee</label>
-<select class="form-control" name="employeeId">
-<option th:each="emp : ${employees}"
-        th:value="${emp.employeeId}"
-        th:text="${emp.fullName}">
-</option>
-</select>
-</div>
+                                <div class="form-group">
+                                    <label class="form-label">Employee</label>
+                                    <select class="form-control" name="employeeId">
+                                        <option th:each="emp : ${employees}" th:value="${emp.employeeId}"
+                                            th:text="${emp.fullName}">
+                                        </option>
+                                    </select>
+                                </div>
 
-<div class="form-group">
-<label class="form-label">Leave Type</label>
-<select class="form-control" name="leaveTypeId">
-<option th:each="type : ${leaveTypes}"
-        th:value="${type.leaveTypeId}"
-        th:text="${type.leaveName}">
-</option>
-</select>
-</div>
+                                <div class="form-group">
+                                    <label class="form-label">Leave Type</label>
+                                    <select class="form-control" name="leaveTypeId">
+                                        <option th:each="type : ${leaveTypes}" th:value="${type.leaveTypeId}"
+                                            th:text="${type.leaveName}">
+                                        </option>
+                                    </select>
+                                </div>
 
-<div class="form-group">
-<label class="form-label">Year</label>
-<input type="number" name="year" class="form-control" value="2026">
-</div>
+                                <div class="form-group">
+                                    <label class="form-label">Year</label>
+                                    <input type="number" name="year" class="form-control" value="2026">
+                                </div>
 
-<div class="form-group">
-<label class="form-label">Total Quota</label>
-<input type="number" name="days" class="form-control">
-</div>
+                                <div class="form-group">
+                                    <label class="form-label">Total Quota</label>
+                                    <input type="number" name="days" class="form-control">
+                                </div>
 
-</div>
+                            </div>
 
-<button class="btn btn-primary mt-2">Assign Quota</button>
+                            <button class="btn btn-primary mt-2">Assign Quota</button>
 
-</form>
-                      
+                        </form>
+
 
                         <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border-color);">
 
@@ -251,23 +251,23 @@ style="background:#f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid 
                                 </thead>
                                 <tbody>
                                     <tr th:each="holiday : ${holidays}">
-    <td th:text="${#temporals.format(holiday.holidayDate, 'MMM d, yyyy')}"></td>
-    <td th:text="${holiday.holidayName}">New Year's Day</td>
-    <td>
-        <a th:href="@{/admin/holidays/edit/{id}(id=${holiday.holidayId})}"
-           class="btn btn-secondary btn-sm">
-           <i class="fas fa-edit"></i>
-        </a>
+                                        <td th:text="${#temporals.format(holiday.holidayDate, 'MMM d, yyyy')}"></td>
+                                        <td th:text="${holiday.holidayName}">New Year's Day</td>
+                                        <td>
+                                            <a th:href="@{/admin/holidays/edit/{id}(id=${holiday.holidayId})}"
+                                                class="btn btn-secondary btn-sm">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
 
-        <form th:action="@{/admin/holidays/delete/{id}(id=${holiday.holidayId})}"
-              method="POST" style="display:inline;">
-            <button class="btn btn-secondary btn-sm" type="submit"
-                    onclick="return confirm('Are you sure you want to delete this holiday?');">
-                <i class="fas fa-trash"></i>
-            </button>
-        </form>
-    </td>
-</tr>
+                                            <form th:action="@{/admin/holidays/delete/{id}(id=${holiday.holidayId})}"
+                                                method="POST" style="display:inline;">
+                                                <button class="btn btn-secondary btn-sm" type="submit"
+                                                    onclick="return confirm('Are you sure you want to delete this holiday?');">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
                                     <tr th:if="${#lists.isEmpty(holidays)}">
                                         <td colspan="3" class="text-center text-muted">No holidays found</td>
                                     </tr>
@@ -295,8 +295,7 @@ style="background:#f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid 
                                     <input type="date" class="form-control" value="2026-03-15">
                                 </div>
                             </div>
-                            <button class="btn btn-primary"
-                                onclick="event.preventDefault(); alert('Cycle configuration saved.')">Save
+                            <button class="btn btn-primary" onclick="event.preventDefault();">Save
                                 Configuration</button>
                         </form>
                     </div>
@@ -328,49 +327,49 @@ style="background:#f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid 
     <!-- Load Scripts -->
     <script th:src="@{/js/components.js}"></script>
     <script th:src="@{/js/app.js}"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
 
-    const tabs = document.querySelectorAll(".tab-btn");
-    const contents = document.querySelectorAll(".tab-content");
+            const tabs = document.querySelectorAll(".tab-btn");
+            const contents = document.querySelectorAll(".tab-content");
 
-    function hideAllTabs(){
-        contents.forEach(c => {
-            c.style.display = "none";
-            c.classList.remove("active");
-        });
-        tabs.forEach(t => t.classList.remove("active"));
-    }
+            function hideAllTabs() {
+                contents.forEach(c => {
+                    c.style.display = "none";
+                    c.classList.remove("active");
+                });
+                tabs.forEach(t => t.classList.remove("active"));
+            }
 
-    tabs.forEach(tab => {
-        tab.addEventListener("click", function(){
+            tabs.forEach(tab => {
+                tab.addEventListener("click", function () {
 
-            const targetId = this.getAttribute("data-target");
-            const target = document.getElementById(targetId);
+                    const targetId = this.getAttribute("data-target");
+                    const target = document.getElementById(targetId);
 
-            hideAllTabs();
+                    hideAllTabs();
 
-            this.classList.add("active");
+                    this.classList.add("active");
 
-            if(target){
-                target.style.display = "block";
-                target.classList.add("active");
+                    if (target) {
+                        target.style.display = "block";
+                        target.classList.add("active");
+                    }
+
+                });
+            });
+
+            // ensure first tab visible
+            const firstTab = document.querySelector(".tab-btn.active");
+            if (firstTab) {
+                const firstTarget = document.getElementById(firstTab.dataset.target);
+                if (firstTarget) {
+                    firstTarget.style.display = "block";
+                }
             }
 
         });
-    });
-
-    // ensure first tab visible
-    const firstTab = document.querySelector(".tab-btn.active");
-    if(firstTab){
-        const firstTarget = document.getElementById(firstTab.dataset.target);
-        if(firstTarget){
-            firstTarget.style.display = "block";
-        }
-    }
-
-});
-</script>
+    </script>
 </body>
 
 </html>
