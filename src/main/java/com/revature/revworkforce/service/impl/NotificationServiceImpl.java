@@ -149,10 +149,9 @@ private int maxUnread;
     @Override
     public long getUnreadCount(String employeeId) {
 
-        Employee employee = getEmployeeOrThrow(employeeId);
-
         return notificationRepository
-                .countByEmployeeAndIsRead(employee, 'N');
+                .countByEmployeeEmployeeIdAndIsRead(employeeId, 'N');
+
     }
     @Override
     public void markAsRead(Long notificationId, String employeeId) {
@@ -220,5 +219,6 @@ private int maxUnread;
     public void scheduledCleanup() {
         notificationRepository.deleteExpiredNotifications(LocalDateTime.now());
     }
+   
     
 }

@@ -48,5 +48,7 @@ public interface GoalService {
 
         GoalStatistics getEmployeeStatistics(String employeeId);
 
+        GoalStatistics getTeamStatistics(String managerId);
+
         GoalDTO convertToDTO(Goal goal);
 }

@@ -2,70 +2,71 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="global-user-fullname" th:content="${globalFullName}">
-	<meta name="global-user-role" th:content="${globalUserRole}">
-	<meta name="user-fullname" th:content="${fullName} ?: 'Manager'">
-	<meta name="user-role" content="Manager">
-	<title>Manager Dashboard - RevWorkForce</title>
-	<link rel="stylesheet" th:href="@{/css/style.css}">
-	<meta name="user-fullname" th:content="${fullName} ?: 'Manager'">
-	<meta name="user-role" content="Manager">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="global-user-fullname" th:content="${globalFullName}">
+<meta name="global-user-role" th:content="${globalUserRole}">
+<meta name="user-fullname" th:content="${fullName} ?: 'Manager'">
+<meta name="user-role" content="Manager">
+<title>Manager Dashboard - RevWorkForce</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<meta name="user-fullname" th:content="${fullName} ?: 'Manager'">
+<meta name="user-role" content="Manager">
 
-	<title>Manager Dashboard - RevWorkForce</title>
+<title>Manager Dashboard - RevWorkForce</title>
 
-	<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/style.css}">
 
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-	<style>
-		.stats-grid {
-			display: grid;
-			grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-			gap: 1.5rem;
-			margin-bottom: 2rem;
-		}
+<style>
+.stats-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
+}
 
-		.stat-card {
-			display: flex;
-			align-items: center;
-			gap: 1.5rem;
-		}
+.stat-card {
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+}
 
-		.stat-icon {
-			width: 60px;
-			height: 60px;
-			border-radius: 50%;
-			background: rgba(255, 140, 0, 0.1);
-			color: var(--primary);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			font-size: 1.5rem;
-		}
+.stat-icon {
+	width: 60px;
+	height: 60px;
+	border-radius: 50%;
+	background: rgba(255, 140, 0, 0.1);
+	color: var(--primary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.5rem;
+}
 
-		.stat-info h3 {
-			font-size: 1.8rem;
-			margin-bottom: 0.2rem;
-		}
+.stat-info h3 {
+	font-size: 1.8rem;
+	margin-bottom: 0.2rem;
+}
 
-		.stat-info p {
-			color: var(--text-muted);
-			font-size: 0.9rem;
-			margin-bottom: 0;
-		}
+.stat-info p {
+	color: var(--text-muted);
+	font-size: 0.9rem;
+	margin-bottom: 0;
+}
 
-		.dashboard-option {
-			border-left: 3px solid transparent;
-			transition: all .2s;
-		}
+.dashboard-option {
+	border-left: 3px solid transparent;
+	transition: all .2s;
+}
 
-		.dashboard-option:hover {
-			background: var(--bg-main);
-			border-left: 3px solid var(--primary);
-		}
-	</style>
+.dashboard-option:hover {
+	background: var(--bg-main);
+	border-left: 3px solid var(--primary);
+}
+</style>
 
 </head>
 
@@ -86,11 +87,13 @@
 					<h1 style="font-size: 1.5rem; margin: 0; color: var(--text-dark);">
 						Manager Dashboard</h1>
 
-					<p style="color: var(--text-muted); margin: 0.25rem 0 0 0; font-size: 0.9rem;">
+					<p
+						style="color: var(--text-muted); margin: 0.25rem 0 0 0; font-size: 0.9rem;">
 						Team management and approvals</p>
 				</div>
 
-				<div th:if="${#authorization.expression('hasAnyRole(''MANAGER'',''ADMIN'')')}"
+				<div
+					th:if="${#authorization.expression('hasAnyRole(''MANAGER'',''ADMIN'')')}"
 					style="position: relative;">
 
 					<button id="dashboardSwitcher"
@@ -104,11 +107,12 @@
 					<div id="dashboardMenu"
 						style="position: absolute; top: calc(100% + 0.5rem); right: 0; background: white; border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); min-width: 240px; display: none; z-index: 1000;">
 
-						<a th:if="${#authorization.expression('hasRole(''ADMIN'')')}" th:href="@{/admin/dashboard}"
-							class="dashboard-option"
+						<a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
+							th:href="@{/admin/dashboard}" class="dashboard-option"
 							style="display: flex; align-items: center; gap: 1rem; padding: 1rem; text-decoration: none; color: var(--text-dark);">
 
-							<i class="fas fa-user-shield" style="font-size: 1.3rem; width: 24px;"></i>
+							<i class="fas fa-user-shield"
+							style="font-size: 1.3rem; width: 24px;"></i>
 
 							<div>
 								<div style="font-weight: 600; font-size: 0.9rem;">Admin
@@ -120,7 +124,8 @@
 						</a> <a th:href="@{/manager/dashboard}" class="dashboard-option"
 							style="display: flex; align-items: center; gap: 1rem; padding: 1rem; text-decoration: none; color: var(--text-dark);">
 
-							<i class="fas fa-user-tie" style="font-size: 1.3rem; width: 24px;"></i>
+							<i class="fas fa-user-tie"
+							style="font-size: 1.3rem; width: 24px;"></i>
 
 							<div>
 								<div style="font-weight: 600; font-size: 0.9rem;">Manager
@@ -132,7 +137,8 @@
 						</a> <a th:href="@{/employee/dashboard}" class="dashboard-option"
 							style="display: flex; align-items: center; gap: 1rem; padding: 1rem; text-decoration: none; color: var(--text-dark);">
 
-							<i class="fas fa-briefcase" style="font-size: 1.3rem; width: 24px;"></i>
+							<i class="fas fa-briefcase"
+							style="font-size: 1.3rem; width: 24px;"></i>
 
 							<div>
 								<div style="font-weight: 600; font-size: 0.9rem;">Employee
@@ -185,7 +191,8 @@
 					</a>
 
 					<div class="card stat-card">
-						<div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+						<div class="stat-icon"
+							style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
 							<i class="fas fa-calendar-alt"></i>
 						</div>
 						<div class="stat-info">
@@ -196,95 +203,56 @@
 
 				</div>
 
-				<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+				<div
+					style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
 
-					<div class="card">
-
-						<div class="card-header">
-							<h2 class="card-title">Team Attendance Today</h2>
-							<a th:href="@{/employee/directory}" class="btn btn-secondary btn-sm"> View All </a>
-						</div>
-
-						<div class="table-responsive">
-
-							<table class="table">
-
-								<thead>
-									<tr>
-										<th>Employee</th>
-										<th>Check-In</th>
-										<th>Status</th>
-									</tr>
-								</thead>
-
-								<tbody>
-
-									<tr>
-										<td>Alice Smith</td>
-										<td>09:00 AM</td>
-										<td><span class="badge badge-approved">Present</span></td>
-									</tr>
-
-									<tr>
-										<td>Charlie Brown</td>
-										<td>--</td>
-										<td><span class="badge badge-rejected">Absent</span></td>
-									</tr>
-
-									<tr>
-										<td>Diana Prince</td>
-										<td>--</td>
-										<td><span class="badge badge-pending">On Leave</span></td>
-									</tr>
-
-								</tbody>
-
-							</table>
-
-						</div>
+	
 
 					</div>
+					
 
-					<div class="card">
+				</div>
 
-						<div class="card-header">
-							<h2 class="card-title">Pending Approvals</h2>
-						</div>
+				<div class="card">
 
-						<ul style="list-style: none; padding: 0;">
-
-							<li th:each="leave : ${pending}"
-								style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
-
-								<div
-									style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-
-									<span style="font-weight: 500;"
-										th:text="'Leave Request #' + ${leave.applicationId}">
-										Leave Request </span> <span class="badge badge-pending">Pending</span>
-
-								</div>
-
-								<p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;"
-									th:text="${leave.employee.fullName} + ' requested ' + ${leave.leaveType.leaveName}">
-									Leave request</p> <a th:href="@{/manager/leave-approvals}"
-									class="btn btn-primary btn-sm" style="display: block; text-align: center;"> Review
-								</a>
-
-							</li>
-
-							<li th:if="${#lists.isEmpty(pending)}" class="text-muted">
-								No pending approvals.</li>
-
-						</ul>
-
+					<div class="card-header">
+						<h2 class="card-title">Pending Approvals</h2>
 					</div>
+
+					<ul style="list-style: none; padding: 0;">
+
+						<li th:each="leave : ${pending}"
+							style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+
+							<div
+								style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+
+								<span style="font-weight: 500;"
+									th:text="'Leave Request #' + ${leave.applicationId}">
+									Leave Request </span> <span class="badge badge-pending">Pending</span>
+
+							</div>
+
+							<p
+								style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;"
+								th:text="${leave.employee.fullName} + ' requested ' + ${leave.leaveType.leaveName}">
+								Leave request</p> <a th:href="@{/manager/leave-approvals}"
+							class="btn btn-primary btn-sm"
+							style="display: block; text-align: center;"> Review </a>
+
+						</li>
+
+						<li th:if="${#lists.isEmpty(pending)}" class="text-muted">No
+							pending approvals.</li>
+
+					</ul>
 
 				</div>
 
 			</div>
+	</div>
 
-		</main>
+	</main>
 
 	</div>
 

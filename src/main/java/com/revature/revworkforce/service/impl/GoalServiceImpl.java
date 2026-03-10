@@ -455,6 +455,25 @@ public class GoalServiceImpl implements GoalService {
     }
 
     /**
+     * Get statistics for team (manager view)
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public GoalStatistics getTeamStatistics(String managerId) {
+        List<Goal> teamGoals = goalRepository.findTeamGoalsByManagerId(managerId);
+
+        long total = teamGoals.size();
+        long completed = teamGoals.stream().filter(g -> g.getStatus() == GoalStatus.COMPLETED).count();
+        long inProgress = teamGoals.stream().filter(g -> g.getStatus() == GoalStatus.IN_PROGRESS).count();
+        long notStarted = teamGoals.stream().filter(g -> g.getStatus() == GoalStatus.NOT_STARTED).count();
+        long active = teamGoals.stream()
+                .filter(g -> g.getStatus() == GoalStatus.NOT_STARTED || g.getStatus() == GoalStatus.IN_PROGRESS)
+                .count();
+
+        return new GoalStatistics(total, completed, inProgress, notStarted, active);
+    }
+
+    /**
      * Convert Goal entity to DTO
      */
     @Transactional(readOnly = true)

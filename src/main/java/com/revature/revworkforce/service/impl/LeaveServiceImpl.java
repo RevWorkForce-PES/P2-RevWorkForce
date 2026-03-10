@@ -505,10 +505,8 @@ public class LeaveServiceImpl implements LeaveService {
         @Override
         public List<LeaveApplication> getTeamLeaves(String managerId) {
 
-                return leaveApplicationRepository
-                                .findTeamLeavesByManagerIdAndStatus(
-                                                managerId,
-                                                LeaveStatus.APPROVED);
+            return leaveApplicationRepository
+                    .findTeamLeavesByManagerId(managerId);
         }
 
         @Override

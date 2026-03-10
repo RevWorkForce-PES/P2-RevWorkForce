@@ -116,43 +116,29 @@
                                     Track and view goals for your direct reports.</p>
                             </div>
                         </div>
-
-                        <div th:each="goal : ${goals}"
-                            style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <h3 class="mb-3">Team Goal Progress</h3>
+                        <div th:each="goal : ${goals}" class="card mb-3"
+                            style="box-shadow: none; border-color: var(--border-color);">
+                            <div class="flex-space-between mb-2">
+                                <h4 style="margin: 0;" th:text="${goal.employeeName} + ' - ' + ${goal.goalTitle}">
+                                    Employee - Goal Title</h4>
+                                <span class="badge"
+                                    th:classappend="${goal.progress >= 70 ? 'badge-approved' : (goal.progress >= 30 ? 'badge-pending' : 'badge-warning')}"
+                                    th:text="${goal.progress} + '%'">80%</span>
+                            </div>
                             <div
-                                style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                                <div>
-                                    <h4 th:text="${goal.goalTitle}"
-                                        style="margin: 0 0 0.5rem 0; color: var(--text-dark);">Goal Title</h4>
-                                    <p class="text-muted" style="margin: 0; font-size: 0.9rem;">
-                                        <strong>Employee:</strong> <span th:text="${goal.employeeName}">Employee
-                                            Name</span>
-                                        (<span th:text="${goal.employeeId}">EMP</span>)
-                                    </p>
-                                    <p class="text-muted" th:text="${goal.goalDescription}"
-                                        style="margin: 0.5rem 0 0 0; font-size: 0.95rem;">Description</p>
-                                </div>
-                                <div style="text-align: right;">
-                                    <span class="badge" style="background: rgba(245, 158, 11, 0.1); color: #d97706;"
-                                        th:text="${goal.progress} + '% Complete'">0% Complete</span>
+                                style="background: #e2e8f0; border-radius: 4px; height: 8px; width: 100%; margin-bottom: 1rem;">
+                                <div
+                                    th:style="'background: ' + (${goal.progress >= 80 ? 'var(--primary)' : (goal.progress >= 40 ? '#f59e0b' : '#ef4444')}) + '; width: ' + ${goal.progress} + '%; height: 100%; border-radius: 4px;'">
                                 </div>
                             </div>
-
-                            <div
-                                style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 1rem;">
-                                <div th:style="'background: #f59e0b; height: 100%; width: ' + ${goal.progress} + '%'">
-                                </div>
-                            </div>
-
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem;">
-                                <div class="text-muted" style="font-size: 0.85rem;">
-                                    <i class="far fa-calendar-alt"></i> Deadline: <span
-                                        th:text="${#temporals.format(goal.deadline, 'MMM dd, yyyy')}">Date</span>
-                                </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="text-muted" style="font-size: 0.85rem;"
+                                    th:text="'Category: ' + ${goal.category}">Category</div>
+                                <a th:href="@{/manager/goals/comment/{id}(id=${goal.goalId})}"
+                                    class="btn btn-secondary btn-sm">Add Feedback</a>
                             </div>
                         </div>
-
                         <div th:if="${#lists.isEmpty(goals)}" class="text-center text-muted"
                             style="padding: 3rem; border: 1px dashed var(--border-color); border-radius: 8px;">
                             <i class="fas fa-bullseye" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem;"></i>
@@ -160,7 +146,6 @@
                         </div>
                     </div>
 
-                    <!-- Summary Report Tab -->
                     <div id="summary-report" class="tab-content">
                         <h3 class="mb-3">Q4 2025 Summary</h3>
 
@@ -168,25 +153,35 @@
                             <div style="border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 8px;">
                                 <h4>Overall Team Rating</h4>
                                 <div style="display:flex; align-items:flex-end; gap:0.5rem; margin-top: 1rem;">
-                                    <h2 style="font-size: 3rem; margin:0; line-height:1; color: var(--primary);">4.2
-                                    </h2>
+                                    <h2 style="font-size: 3rem; margin:0; line-height:1; color: var(--primary);"
+                                        th:text="${performanceStats.overallRating}">4.2</h2>
                                     <span class="text-muted mb-1">/ 5.0</span>
                                 </div>
-                                <p class="text-muted mt-2" style="font-size: 0.85rem;">Exceeds Expectations</p>
+                                <p class="text-muted mt-2" style="font-size: 0.85rem;">
+                                    <span
+                                        th:if="${performanceStats.overallRating.doubleValue() >= 4.5}">Outstanding</span>
+                                    <span
+                                        th:if="${performanceStats.overallRating.doubleValue() >= 3.5 && performanceStats.overallRating.doubleValue() < 4.5}">Exceeds
+                                        Expectations</span>
+                                    <span
+                                        th:if="${performanceStats.overallRating.doubleValue() >= 2.5 && performanceStats.overallRating.doubleValue() < 3.5}">Meets
+                                        Expectations</span>
+                                    <span
+                                        th:if="${performanceStats.overallRating.doubleValue() > 0 && performanceStats.overallRating.doubleValue() < 2.5}">Below
+                                        Expectations</span>
+                                    <span th:if="${performanceStats.overallRating.doubleValue() == 0}">No completed
+                                        reviews yet</span>
+                                </p>
                             </div>
                             <div style="border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 8px;">
                                 <h4>Rating Distribution</h4>
                                 <ul style="list-style: none; padding: 0; margin-top: 1rem;">
-                                    <li style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span
-                                            style="color:var(--text-muted);">5.0 (Outstanding)</span> <strong>2</strong>
+                                    <li th:each="entry : ${performanceStats.ratingDistribution}"
+                                        style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                                        <span style="color:var(--text-muted);" th:text="${entry.key}">Rating
+                                            Level</span>
+                                        <strong th:text="${entry.value}">0</strong>
                                     </li>
-                                    <li style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span
-                                            style="color:var(--text-muted);">4.0 (Exceeds)</span> <strong>8</strong>
-                                    </li>
-                                    <li style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span
-                                            style="color:var(--text-muted);">3.0 (Meets)</span> <strong>3</strong></li>
-                                    <li style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span
-                                            style="color:var(--text-muted);">Below 3.0</span> <strong>1</strong></li>
                                 </ul>
                             </div>
                         </div>

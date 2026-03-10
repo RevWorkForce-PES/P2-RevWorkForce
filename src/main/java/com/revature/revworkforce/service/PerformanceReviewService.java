@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.revature.revworkforce.dto.PerformanceReviewDTO;
+import com.revature.revworkforce.dto.TeamPerformanceStatsDTO;
 import com.revature.revworkforce.enums.ReviewStatus;
 import com.revature.revworkforce.model.PerformanceReview;
 
@@ -30,6 +31,8 @@ public interface PerformanceReviewService {
         List<PerformanceReviewDTO> getPendingReviewsForManager(String managerId);
 
         List<PerformanceReviewDTO> getTeamReviews(String managerId);
+
+        TeamPerformanceStatsDTO getTeamPerformanceStats(String managerId);
 
         List<PerformanceReviewDTO> getReviewsByStatus(ReviewStatus status);
 

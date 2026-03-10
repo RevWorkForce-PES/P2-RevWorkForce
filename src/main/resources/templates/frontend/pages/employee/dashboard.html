@@ -67,7 +67,8 @@
 	border-left: 3px solid var(--primary);
 }
 
-@keyframes fadeInScale {from { opacity:0;
+@
+keyframes fadeInScale {from { opacity:0;
 	transform: scale(0.95);
 }
 
@@ -77,7 +78,8 @@ to {
 }
 
 }
-@keyframes textAppear {from { opacity:0;
+@
+keyframes textAppear {from { opacity:0;
 	transform: translateY(10px);
 }
 
@@ -117,248 +119,246 @@ to {
 
 			<app-navbar page-title="My Dashboard"></app-navbar>
 
-			
-
-					<div class="page-wrapper">
-
-						<!-- Welcome -->
-
-						<div class="card bg-light mb-4"
-							style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border: none;">
-
-							<div
-								style="display: flex; justify-content: space-between; align-items: center;">
-
-								<div>
-
-									<h2 class="animate-text"
-										style="color: white; margin-bottom: 0.5rem;"
-										th:text="'Welcome back, ' + ${fullName} + '!'">Welcome
-										back, John!</h2>
-
-									<p class="animate-text"
-										style="opacity: 0.9; margin-bottom: 0; animation-delay: 0.2s;"
-										th:text="${designation} + ' • ' + ${department}">Employee
-										Information</p>
-
-								</div>
 
 
+			<div class="page-wrapper">
 
-							</div>
+				<!-- Welcome -->
+
+				<div class="card bg-light mb-4"
+					style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border: none;">
+
+					<div
+						style="display: flex; justify-content: space-between; align-items: center;">
+
+						<div>
+
+							<h2 class="animate-text"
+								style="color: white; margin-bottom: 0.5rem;"
+								th:text="'Welcome back, ' + ${fullName} + '!'">Welcome
+								back, John!</h2>
+
+							<p class="animate-text"
+								style="opacity: 0.9; margin-bottom: 0; animation-delay: 0.2s;"
+								th:text="${designation} + ' • ' + ${department}">Employee
+								Information</p>
 
 						</div>
 
-						<!-- Stats -->
 
-						<div class="stats-grid">
 
-							<div class="card stat-card">
+					</div>
 
-								<div class="stat-icon">
-									<i class="fas fa-calendar-check"></i>
+				</div>
+
+				<!-- Stats -->
+
+				<div class="stats-grid">
+
+					<div class="card stat-card">
+
+						<div class="stat-icon">
+							<i class="fas fa-calendar-check"></i>
+						</div>
+
+						<div class="stat-info">
+							<h3 th:text="${leaveBalance}">12</h3>
+							<p>Available Leaves</p>
+						</div>
+
+					</div>
+
+					<div class="card stat-card">
+
+						<div class="stat-icon">
+							<i class="fas fa-bullseye"></i>
+						</div>
+
+						<div class="stat-info">
+							<h3 th:text="${activeGoals}">3</h3>
+							<p>Active Goals</p>
+						</div>
+
+					</div>
+
+					<div class="card stat-card">
+
+						<div class="stat-icon"
+							style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+							<i class="fas fa-exclamation-circle"></i>
+						</div>
+
+						<div class="stat-info">
+							<h3 th:text="${pendingActions}">1</h3>
+							<p>Pending Action</p>
+						</div>
+
+					</div>
+
+				</div>
+				<!-- Activity + Announcements Grid -->
+				<div
+					style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+
+					<!-- Recent Activity -->
+					<div class="card">
+
+						<div class="card-header">
+							<h2 class="card-title">My Recent Activity</h2>
+						</div>
+
+						<ul style="list-style: none; padding: 0;">
+
+							<li th:each="leave,iterStat:${recentLeaves}"
+								th:if="${iterStat.index < 2}"
+								style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; display: flex; gap: 1rem;">
+
+								<div
+									style="width: 40px; height: 40px; border-radius: 50%; background: #d1fae5; color: #059669; display: flex; align-items: center; justify-content: center;">
+									<i class="fas fa-check"></i>
 								</div>
 
-								<div class="stat-info">
-									<h3 th:text="${leaveBalance}">12</h3>
-									<p>Available Leaves</p>
+								<div>
+									<h4 style="margin-bottom: 0.25rem;"
+										th:text="'Leave ' + ${leave.status}">Leave Approved</h4>
+
+									<p
+										style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0;">
+										Leave activity</p>
 								</div>
 
-							</div>
+							</li>
 
-							<div class="card stat-card">
 
-								<div class="stat-icon">
+							<li th:each="goal,iterStat:${recentGoals}"
+								th:if="${iterStat.index < 2}"
+								style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; display: flex; gap: 1rem;">
+
+								<div
+									style="width: 40px; height: 40px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center;">
 									<i class="fas fa-bullseye"></i>
 								</div>
 
-								<div class="stat-info">
-									<h3 th:text="${activeGoals}">3</h3>
-									<p>Active Goals</p>
+								<div>
+									<h4 style="margin-bottom: 0.25rem;">Goal Assigned</h4>
+
+									<p
+										style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0;"
+										th:text="${goal.goalTitle}">Goal Title</p>
 								</div>
 
-							</div>
+							</li>
 
-							<div class="card stat-card">
+						</ul>
 
-								<div class="stat-icon"
-									style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
-									<i class="fas fa-exclamation-circle"></i>
-								</div>
-
-								<div class="stat-info">
-									<h3 th:text="${pendingActions}">1</h3>
-									<p>Pending Action</p>
-								</div>
-
-							</div>
-
-						</div>
-						<!-- Activity + Announcements Grid -->
-						<div
-							style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
-
-							<!-- Recent Activity -->
-							<div class="card">
-
-								<div class="card-header">
-									<h2 class="card-title">My Recent Activity</h2>
-								</div>
-
-								<ul style="list-style: none; padding: 0;">
-
-									<li th:each="leave,iterStat:${recentLeaves}"
-										th:if="${iterStat.index < 2}"
-										style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; display: flex; gap: 1rem;">
-
-										<div
-											style="width: 40px; height: 40px; border-radius: 50%; background: #d1fae5; color: #059669; display: flex; align-items: center; justify-content: center;">
-											<i class="fas fa-check"></i>
-										</div>
-
-										<div>
-											<h4 style="margin-bottom: 0.25rem;"
-												th:text="'Leave ' + ${leave.status}">Leave Approved</h4>
-
-											<p
-												style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0;">
-												Leave activity</p>
-										</div>
-
-									</li>
-
-
-									<li th:each="goal,iterStat:${recentGoals}"
-										th:if="${iterStat.index < 2}"
-										style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; display: flex; gap: 1rem;">
-
-										<div
-											style="width: 40px; height: 40px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center;">
-											<i class="fas fa-bullseye"></i>
-										</div>
-
-										<div>
-											<h4 style="margin-bottom: 0.25rem;">Goal Assigned</h4>
-
-											<p
-												style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0;"
-												th:text="${goal.goalTitle}">Goal Title</p>
-										</div>
-
-									</li>
-
-								</ul>
-
-							</div>
+					</div>
 
 
 
-							<!-- Announcements -->
-							<div class="card">
+					<!-- Announcements -->
+					<div class="card">
 
-								<div class="card-header"
-									style="display: flex; justify-content: space-between; align-items: center;">
+						<div class="card-header"
+							style="display: flex; justify-content: space-between; align-items: center;">
 
-									<h2 class="card-title">Latest Announcements</h2>
+							<h2 class="card-title">Latest Announcements</h2>
 
-									<a href="/employee/announcements" class="btn btn-secondary"
-										style="padding: 4px 10px; font-size: 0.85rem;"> View All </a>
-
-								</div>
-
-								<div style="display: flex; flex-direction: column; gap: 1rem;">
-
-									<div th:each="ann : ${recentAnnouncements}"
-										style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color);">
-
-										<h4 style="margin-bottom: 4px; font-size: 0.95rem;">
-
-											<a th:href="@{/employee/announcements/{id}(id=${ann.id})}"
-												th:text="${ann.title}"
-												style="text-decoration: none; color: var(--text-primary);">
-												Announcement Title </a>
-
-										</h4>
-
-										<p
-											style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;"
-											th:text="${#strings.abbreviate(ann.message, 80)}">Message
-											preview...</p>
-
-										<span class="priority-badge"
-											th:classappend="'priority-' + ${ann.priority}"
-											th:text="${ann.priority}"> MEDIUM </span>
-
-									</div>
-
-									<div th:if="${#lists.isEmpty(recentAnnouncements)}"
-										style="text-align: center; color: var(--text-muted);">No
-										recent announcements</div>
-
-								</div>
-
-							</div>
+							<a href="/employee/announcements" class="btn btn-secondary"
+								style="padding: 4px 10px; font-size: 0.85rem;"> View All </a>
 
 						</div>
 
+						<div style="display: flex; flex-direction: column; gap: 1rem;">
 
-						<!-- Leave Balance + Quick Links -->
-						<div class="bottom-grid">
-							<!-- Leave Balance -->
-							<div class="card">
-								<div class="card-header">
-									<h2 class="card-title">Leave Balance Details</h2>
-								</div>
-								<table class="table">
-									<thead>
-										<tr>
-											<th>Leave Type</th>
-											<th>Remaining Balance</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr th:each="balance : ${leaveBalances}">
-											<td th:text="${balance.leaveTypeName}"></td>
-											<td th:text="${balance.remainingBalance}"></td>
-										</tr>
-										<tr th:if="${#lists.isEmpty(leaveBalances)}">
-											<td colspan="2" class="text-center text-muted">No leave
-												balances found</td>
-										</tr>
-									</tbody>
-								</table>
+							<div th:each="ann : ${recentAnnouncements}"
+								style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color);">
+
+								<h4 style="margin-bottom: 4px; font-size: 0.95rem;">
+
+									<a th:href="@{/employee/announcements/{id}(id=${ann.id})}"
+										th:text="${ann.title}"
+										style="text-decoration: none; color: var(--text-primary);">
+										Announcement Title </a>
+
+								</h4>
+
+								<p
+									style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;"
+									th:text="${#strings.abbreviate(ann.message, 80)}">Message
+									preview...</p>
+
+								<span class="priority-badge"
+									th:classappend="'priority-' + ${ann.priority}"
+									th:text="${ann.priority}"> MEDIUM </span>
+
 							</div>
-							<!-- Quick Links -->
-							<div class="card">
-								<div class="card-header">
-									<h2 class="card-title">Quick Links</h2>
-								</div>
-								<div
-									style="display: flex; flex-direction: column; gap: 0.75rem;">
-									<a th:href="@{/employee/leave-management}"
-										class="btn btn-secondary"> <i class="fas fa-calendar-plus"></i>
-										Apply Leave
-									</a> <a th:href="@{/employee/performance}"
-										class="btn btn-secondary"> <i class="fas fa-bullseye"></i>
-										Update OKRs
-									</a> <a th:href="@{/employee/directory}" class="btn btn-secondary">
-										<i class="fas fa-address-book"></i> Directory
-									</a>
-								</div>
-							</div>
-						</div>
 
-						<!-- Sidebar -->
-
-						<div style="display: flex; flex-direction: column; gap: 1.5rem;">
-
-
+							<div th:if="${#lists.isEmpty(recentAnnouncements)}"
+								style="text-align: center; color: var(--text-muted);">No
+								recent announcements</div>
 
 						</div>
 
 					</div>
+
 				</div>
-		</main>
+
+
+				<!-- Leave Balance + Quick Links -->
+				<div class="bottom-grid">
+					<!-- Leave Balance -->
+					<div class="card">
+						<div class="card-header">
+							<h2 class="card-title">Leave Balance Details</h2>
+						</div>
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Leave Type</th>
+									<th>Remaining Balance</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="balance : ${leaveBalances}">
+									<td th:text="${balance.leaveTypeName}"></td>
+									<td th:text="${balance.remainingBalance}"></td>
+								</tr>
+								<tr th:if="${#lists.isEmpty(leaveBalances)}">
+									<td colspan="2" class="text-center text-muted">No leave
+										balances found</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<!-- Quick Links -->
+					<div class="card">
+						<div class="card-header">
+							<h2 class="card-title">Quick Links</h2>
+						</div>
+						<div style="display: flex; flex-direction: column; gap: 0.75rem;">
+							<a th:href="@{/employee/leave-management}"
+								class="btn btn-secondary"> <i class="fas fa-calendar-plus"></i>
+								Apply Leave
+							</a> <a th:href="@{/employee/performance}" class="btn btn-secondary">
+								<i class="fas fa-bullseye"></i> Update OKRs
+							</a> <a th:href="@{/employee/directory}" class="btn btn-secondary">
+								<i class="fas fa-address-book"></i> Directory
+							</a>
+						</div>
+					</div>
+				</div>
+
+				<!-- Sidebar -->
+
+				<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+
+
+				</div>
+
+			</div>
+	</div>
+	</main>
 
 	</div>
 
