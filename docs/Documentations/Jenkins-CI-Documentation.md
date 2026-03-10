@@ -351,11 +351,11 @@ Script Path     →  Jenkinsfile
 
 ### Expected Successful Output:
 ```
-✅ Checkout              - Code pulled from GitHub
-✅ Build                 - mvn clean compile passed
-✅ Test                  - All JUnit tests passed
-✅ Code Coverage-JaCoCo  - Coverage report generated
-✅ Package               - JAR file created
+ Checkout              - Code pulled from GitHub
+ Build                 - mvn clean compile passed
+ Test                  - All JUnit tests passed
+ Code Coverage-JaCoCo  - Coverage report generated
+ Package               - JAR file created
 
 Finished: SUCCESS
 ```
@@ -423,32 +423,32 @@ Started RevWorkForceApplication in 3.456 seconds ✅
 
 ## Common Errors & Fixes
 
-### ❌ `Tool type "maven" does not have an install of "Maven-3.9" configured`
+###  `Tool type "maven" does not have an install of "Maven-3.9" configured`
 **Fix:** Go to **Manage Jenkins → Tools** and add Maven with name exactly `Maven-3.9`
 
 ---
 
-### ❌ `Cannot run program "sh": CreateProcess error=2`
+###  `Cannot run program "sh": CreateProcess error=2`
 **Fix:** You're on Windows. Replace all `sh` with `bat` in your Jenkinsfile.
 
 ---
 
-### ❌ `Tool type "jdk" does not have an install of "JDK-17" configured`
+###  `Tool type "jdk" does not have an install of "JDK-17" configured`
 **Fix:** Go to **Manage Jenkins → Tools** and add JDK with name exactly `JDK-17`
 
 ---
 
-### ❌ `no main manifest attribute` when running JAR
+### `no main manifest attribute` when running JAR
 **Fix:** Add `spring-boot-maven-plugin` to your `pom.xml` (see pom.xml section above)
 
 ---
 
-### ❌ JaCoCo report not showing
+###  JaCoCo report not showing
 **Fix:** Make sure `jacoco-maven-plugin` is in `pom.xml` and `JaCoCo` + `Code Coverage API` plugins are installed in Jenkins
 
 ---
 
-### ❌ Build fails at Test stage
+###  Build fails at Test stage
 **Fix:** Check that your test files exist at `src/test/java` and `pom.xml` has correct test dependencies
 
 ---
@@ -468,7 +468,3 @@ Started RevWorkForceApplication in 3.456 seconds ✅
 | Download JAR | Build → Build Artifacts |
 | JAR Location | `...\.jenkins\workspace\<jobname>\target\` |
 | Run JAR | `java -jar filename.jar` |
-
----
-
-*Documentation created for RevWorkForce Team — P2 Project*
