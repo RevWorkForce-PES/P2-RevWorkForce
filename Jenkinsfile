@@ -1,5 +1,4 @@
 // Jenkins Pipeline file
-
 pipeline {
     agent any
     
@@ -20,14 +19,14 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building...'
-                sh 'mvn clean compile'
+                bat 'mvn clean compile'
             }
         }
         
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                sh 'mvn test'
+                bat 'mvn test'
             }
             post {
                 always {
@@ -39,7 +38,7 @@ pipeline {
         stage('Code Coverage - JaCoCo') {
             steps {
                 echo 'Generating JaCoCo coverage report...'
-                sh 'mvn jacoco:report'
+                bat 'mvn jacoco:report'
             }
             post {
                 always {
@@ -55,7 +54,7 @@ pipeline {
         stage('Package') {
             steps {
                 echo 'Packaging...'
-                sh 'mvn package -DskipTests'
+                bat 'mvn package -DskipTests'
             }
             post {
                 success {
