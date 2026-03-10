@@ -24,19 +24,24 @@ public enum Priority {
     LOW("Low", "Can be addressed when time permits", "success", 1),
 
     /**
+     * Normal priority - standard importance level
+     */
+    NORMAL("Normal", "Standard importance level", "info", 2),
+
+    /**
      * Medium priority - should be addressed in normal timeframe
      */
-    MEDIUM("Medium", "Should be addressed in normal timeframe", "warning", 2),
+    MEDIUM("Medium", "Should be addressed in normal timeframe", "warning", 3),
 
     /**
      * High priority - requires immediate attention
      */
-    HIGH("High", "Requires immediate attention", "danger", 3),
+    HIGH("High", "Requires immediate attention", "danger", 4),
 
     /**
      * Urgent priority - critical, must be addressed immediately
      */
-    URGENT("Urgent", "Critical, must be addressed immediately", "dark", 4);
+    URGENT("Urgent", "Critical, must be addressed immediately", "dark", 5);
 
     private final String displayName;
     private final String description;

@@ -122,6 +122,7 @@ public class PerformanceReviewController {
             RedirectAttributes redirectAttributes) {
 
         if (result.hasErrors()) {
+            model.addAttribute("error", "Please correct the errors below and try again.");
             model.addAttribute("pageTitle", "Employee Self-Assessment");
             String employeeId = SecurityUtils.getCurrentUsername();
             try {
@@ -141,6 +142,7 @@ public class PerformanceReviewController {
             redirectAttributes.addFlashAttribute("success", "Self-assessment submitted successfully!");
             return "redirect:/employee/reviews";
         } catch (Exception e) {
+            model.addAttribute("reviewDTO", dto); // Explicitly ensure it's there
             model.addAttribute("error", e.getMessage());
             model.addAttribute("pageTitle", "Employee Self-Assessment");
             try {

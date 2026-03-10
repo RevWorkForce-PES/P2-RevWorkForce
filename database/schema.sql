@@ -505,7 +505,7 @@ COMMENT ON COLUMN HOLIDAYS.updated_by IS 'User who last updated record';
     goal_description VARCHAR2(1000) NOT NULL,
     category VARCHAR2(50),
     deadline DATE,
-    priority VARCHAR2(20) CHECK (priority IN ('HIGH', 'MEDIUM', 'LOW')),
+    priority VARCHAR2(20) CHECK (priority IN ('HIGH', 'MEDIUM', 'NORMAL', 'LOW')),
     progress NUMBER DEFAULT 0,
     status VARCHAR2(20) DEFAULT 'NOT_STARTED'
         CHECK (status IN ('NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'DEFERRED')),
@@ -568,7 +568,7 @@ CREATE INDEX idx_goal_deadline ON GOALS(deadline);
         title VARCHAR2(200) NOT NULL,
         message CLOB NOT NULL,
         announcement_type VARCHAR2(50) DEFAULT 'General',
-        priority VARCHAR2(20) DEFAULT 'NORMAL' CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')),
+        priority VARCHAR2(20) DEFAULT 'MEDIUM' CHECK (priority IN ('LOW', 'NORMAL', 'MEDIUM', 'HIGH', 'URGENT')),
         target_audience VARCHAR2(50) DEFAULT 'ALL',
         is_active CHAR(1) DEFAULT 'Y' CHECK (is_active IN ('Y', 'N')),
         publish_date DATE DEFAULT SYSDATE,

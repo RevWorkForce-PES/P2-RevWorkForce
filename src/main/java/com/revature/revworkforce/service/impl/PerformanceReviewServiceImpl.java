@@ -105,20 +105,21 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
             throw new ValidationException("Can only submit self-assessment in PENDING_SELF_ASSESSMENT status");
         }
 
-        if (dto.getSelfAssessmentText() != null && dto.getSelfAssessmentText().length() < 100) {
-            throw new ValidationException("Self-assessment must be at least 100 characters");
+        if (dto.getSelfAssessmentText() != null && dto.getSelfAssessmentText().length() < 10) {
+            throw new ValidationException("Self-assessment must be at least 10 characters");
         }
-        if (dto.getAchievements() != null && dto.getAchievements().length() < 50) {
-            throw new ValidationException("Achievements must be at least 50 characters");
+        if (dto.getAchievements() != null && dto.getAchievements().length() < 10) {
+            throw new ValidationException("Achievements must be at least 10 characters");
         }
-        if (dto.getImprovementAreas() != null && dto.getImprovementAreas().length() < 50) {
-            throw new ValidationException("Improvement areas must be at least 50 characters");
+        if (dto.getImprovementAreas() != null && dto.getImprovementAreas().length() < 10) {
+            throw new ValidationException("Improvement areas must be at least 10 characters");
         }
 
         review.setAchievements(dto.getAchievements());
         review.setImprovementAreas(dto.getImprovementAreas());
         review.setSelfAssessmentRating(dto.getSelfAssessmentRating());
-        review.setSelfAssessmentComments(dto.getSelfAssessmentComments());
+        review.setSelfAssessmentComments(dto.getSelfAssessmentText()); // Combined into comments for now as model lacks
+                                                                       // separate field
         review.setSubmittedDate(LocalDate.now());
         review.setStatus(ReviewStatus.PENDING_MANAGER_REVIEW);
         review.setUpdatedAt(LocalDateTime.now());
@@ -176,7 +177,10 @@ public class PerformanceReviewServiceImpl implements PerformanceReviewService {
 
         validateRatings(dto);
 
-        if (dto.getManagerFeedback() != null && dto.getManagerFeedback().length() < 50) {
+        if (dto.getManagerFeedback() == null || dto.getManagerFeedback().trim().isEmpty()) {
+            throw new ValidationException("Manager feedback is required");
+        }
+        if (dto.getManagerFeedback().length() < 50) {
             throw new ValidationException("Manager feedback must be at least 50 characters");
         }
 
