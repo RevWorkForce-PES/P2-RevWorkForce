@@ -576,6 +576,9 @@ sequenceDiagram
     ReportService->>ReportService: Construct ReportDTO
     ReportService->>ReportService: Sanitize sensitive mappings
     ReportService->>ReportService: Serialize to JSON
+    ReportService-->>-Client: Return HTTP 200 JSON Response
+```
+
 ## 16. Department & Designation Management Sequence
 
 Tracking the lifecycle of organizational units and roles as defined by the Administrator.
@@ -671,4 +674,5 @@ sequenceDiagram
     end
     
     AdminService-->>-Admin: Configuration Updated
+```
 ```
