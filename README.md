@@ -562,6 +562,7 @@ mvn clean verify sonar:sonar \
 - [README.md](https://github.com/RevWorkForce-PES/P2-RevWorkForce/blob/main/README.md) - *Project overview*
 - [Project Report](https://github.com/RevWorkForce-PES/P2-RevWorkForce/tree/main/docs/Documentations) - *Project report including objectives, methodology, and outcomes*
 - [User Manual](https://github.com/RevWorkForce-PES/P2-RevWorkForce/blob/main/docs/Documentations/User_Manual.md) - *Step-by-step project build and usage guide Instructions*
+- [Jenkins Ci Documentations](https://github.com/RevWorkForce-PES/P2-RevWorkForce/blob/main/docs/Documentations/Jenkins-CI-Documentation.md) - *complete CI (Continuous Integration) setup*
 - [PPT Slides](https://github.com/RevWorkForce-PES/P2-RevWorkForce/blob/main/docs/P2_RevWorkForce_PPT.pdf) - *Project presentation slides*
 - [API Documentation](https://github.com/RevWorkForce-PES/P2-RevWorkForce/blob/main/docs/Documentations/Api_Endpoints.md) - *Application workflows and module interactions*
 - [Diagrams & Charts](https://github.com/RevWorkForce-PES/P2-RevWorkForce/tree/main/docs/Diagrams) - *Architecture and UML diagrams, ERD, and system design visuals*
