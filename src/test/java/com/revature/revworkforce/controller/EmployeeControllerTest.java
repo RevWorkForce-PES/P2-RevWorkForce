@@ -8,234 +8,359 @@ import com.revature.revworkforce.repository.DepartmentRepository;
 import com.revature.revworkforce.repository.DesignationRepository;
 import com.revature.revworkforce.repository.EmployeeRepository;
 import com.revature.revworkforce.repository.RoleRepository;
+import com.revature.revworkforce.security.SecurityUtils;
 import com.revature.revworkforce.service.EmployeeService;
+import com.revature.revworkforce.exception.ResourceNotFoundException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.MockitoAnnotations;
 
-import org.springframework.security.test.context.support.WithMockUser;
-
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-
+import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.containsString;
 
-@ExtendWith(SpringExtension.class)
-@WebMvcTest(EmployeeController.class)
 class EmployeeControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Mock
     private EmployeeService employeeService;
 
-    @MockBean
+    @Mock
     private DepartmentRepository departmentRepository;
 
-    @MockBean
+    @Mock
     private DesignationRepository designationRepository;
 
-    @MockBean
+    @Mock
     private EmployeeRepository employeeRepository;
 
-    @MockBean
+    @Mock
     private RoleRepository roleRepository;
 
-    private Employee employee;
-    private EmployeeDTO employeeDTO;
+    @InjectMocks
+    private EmployeeController controller;
 
     @BeforeEach
-    void setUp() {
-
-        employee = new Employee();
-        employee.setEmployeeId("EMP001");
-        employee.setFirstName("John");
-        employee.setLastName("Doe");
-        employee.setStatus(EmployeeStatus.ACTIVE);
-        employee.setDateOfBirth(LocalDate.of(1990, 1, 1));
-
-        employeeDTO = new EmployeeDTO();
-        employeeDTO.setEmployeeId("EMP001");
-        employeeDTO.setFirstName("John");
-        employeeDTO.setLastName("Doe");
-        employeeDTO.setEmail("john@example.com");
-        employeeDTO.setDateOfBirth(LocalDate.of(1990, 1, 1));
+    void setup() {
+        MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    // ===========================
-    // ADD EMPLOYEE
-    // ===========================
+    private EmployeeDTO createValidEmployeeDTO() {
+        EmployeeDTO dto = new EmployeeDTO();
+        dto.setEmployeeId("EMP001");
+        dto.setFirstName("John");
+        dto.setLastName("Doe");
+        dto.setEmail("john.doe@example.com");
+        dto.setAddress("123 Street");
+        dto.setDateOfBirth(LocalDate.of(1990, 1, 1));
+        dto.setDepartmentId(1L);
+        dto.setDesignationId(1L);
+        dto.setJoiningDate(LocalDate.now());
+        dto.setSalary(BigDecimal.valueOf(50000));
+        return dto;
+    }
+
+    // ============================================
+    // ADMIN API ENDPOINTS
+    // ============================================
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    void getNextEmployeeId_Success() throws Exception {
+        when(employeeService.generateEmployeeId("EMP")).thenReturn("EMP002");
+        mockMvc.perform(get("/admin/api/next-employee-id").param("prefix", "EMP"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("EMP002"));
+    }
+
+    @Test
+    void getNextEmployeeId_Exception() throws Exception {
+        when(employeeService.generateEmployeeId("EMP")).thenThrow(new RuntimeException("Error"));
+        mockMvc.perform(get("/admin/api/next-employee-id").param("prefix", "EMP"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("EMP001"));
+    }
+
+    // ============================================
+    // ADMIN ENDPOINTS - Employee Management
+    // ============================================
+
+    @Test
+    void listEmployees_Success() throws Exception {
+        when(employeeService.searchEmployeesAsDTO(any())).thenReturn(Collections.emptyList());
+        when(departmentRepository.findAllByOrderByDepartmentNameAsc()).thenReturn(Collections.emptyList());
+        when(designationRepository.findAllByOrderByDesignationNameAsc()).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/admin/employees")
+                .param("keyword", "test")
+                .param("departmentId", "1")
+                .param("designationId", "1")
+                .param("status", "ACTIVE"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("pages/admin/employee-management"))
+                .andExpect(model().attributeExists("employees"));
+    }
+
+    @Test
+    void showAddEmployeeForm_Success() throws Exception {
+        mockMvc.perform(get("/admin/employees/add"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("pages/admin/employee-form"))
+                .andExpect(model().attributeExists("employeeDTO"));
+    }
+
+    @Test
+    void addEmployee_ValidationError() throws Exception {
+        mockMvc.perform(post("/admin/employees/add")
+                .flashAttr("employeeDTO", new EmployeeDTO()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("pages/admin/employee-form"))
+                .andExpect(model().attributeExists("error"));
+    }
+
+    @Test
     void addEmployee_Success() throws Exception {
+        Employee emp = new Employee();
+        emp.setFirstName("John");
+        emp.setLastName("Doe");
+        emp.setEmployeeId("EMP001");
+
+        when(employeeService.createEmployee(any())).thenReturn(emp);
 
         mockMvc.perform(post("/admin/employees/add")
-                .with(csrf())
-                .param("firstName", "John")
-                .param("lastName", "Doe")
-                .param("email", "john@example.com")
-                .param("dateOfBirth", "1990-01-01"))
-                .andExpect(status().isOk());
+                .flashAttr("employeeDTO", createValidEmployeeDTO()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/employees"));
     }
 
-    // ===========================
-    // DELETE EMPLOYEE
-    // ===========================
+    @Test
+    void addEmployee_ServiceException() throws Exception {
+        when(employeeService.createEmployee(any())).thenThrow(new RuntimeException("fail"));
+
+        mockMvc.perform(post("/admin/employees/add")
+                .flashAttr("employeeDTO", createValidEmployeeDTO()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("pages/admin/employee-form"))
+                .andExpect(model().attribute("error", "fail"));
+    }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void deleteEmployee_RedirectsToList() throws Exception {
+    void showEditEmployeeForm_Success() throws Exception {
+        when(employeeService.getEmployeeDTOById("EMP001")).thenReturn(new EmployeeDTO());
 
-        when(employeeService.getEmployeeById("EMP001")).thenReturn(employee);
-        doNothing().when(employeeService).deleteEmployee("EMP001");
+        mockMvc.perform(get("/admin/employees/edit/EMP001"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("pages/admin/employee-form"))
+                .andExpect(model().attribute("isEdit", true));
+    }
 
-        mockMvc.perform(post("/admin/employees/delete/EMP001")
-                .with(csrf()))
+    @Test
+    void editEmployee_Success() throws Exception {
+        Employee emp = new Employee();
+        emp.setFirstName("John");
+        emp.setLastName("Doe");
+
+        when(employeeService.updateEmployee(eq("EMP001"), any())).thenReturn(emp);
+
+        mockMvc.perform(post("/admin/employees/edit/EMP001")
+                .flashAttr("employeeDTO", createValidEmployeeDTO()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/employees"));
+    }
+
+    @Test
+    void editEmployee_ValidationError() throws Exception {
+        mockMvc.perform(post("/admin/employees/edit/EMP001")
+                .flashAttr("employeeDTO", new EmployeeDTO()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("pages/admin/employee-form"));
+    }
+
+    @Test
+    void viewEmployee_Success() throws Exception {
+        when(employeeService.getEmployeeDTOById("EMP001")).thenReturn(new EmployeeDTO());
+        when(employeeService.getTeamMembers("EMP001")).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/admin/employees/view/EMP001"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("pages/admin/employee-view"));
+    }
+
+    @Test
+    void deactivateEmployee_Success() throws Exception {
+        Employee emp = new Employee();
+        emp.setFirstName("John");
+        emp.setLastName("Doe");
+        when(employeeService.getEmployeeById("EMP001")).thenReturn(emp);
+
+        mockMvc.perform(post("/admin/employees/deactivate/EMP001"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/employees"));
+
+        verify(employeeService).deactivateEmployee("EMP001");
+    }
+
+    @Test
+    void deactivateEmployee_Exception() throws Exception {
+        doThrow(new RuntimeException("fail")).when(employeeService).deactivateEmployee("EMP001");
+
+        mockMvc.perform(post("/admin/employees/deactivate/EMP001"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(flash().attribute("error", "fail"));
+    }
+
+    @Test
+    void reactivateEmployee_Success() throws Exception {
+        Employee emp = new Employee();
+        emp.setFirstName("John");
+        emp.setLastName("Doe");
+        when(employeeService.getEmployeeById("EMP001")).thenReturn(emp);
+
+        mockMvc.perform(post("/admin/employees/reactivate/EMP001"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/employees"));
+
+        verify(employeeService).reactivateEmployee("EMP001");
+    }
+
+    @Test
+    void deleteEmployee_Success() throws Exception {
+        Employee emp = new Employee();
+        emp.setFirstName("John");
+        emp.setLastName("Doe");
+        when(employeeService.getEmployeeById("EMP001")).thenReturn(emp);
+
+        mockMvc.perform(post("/admin/employees/delete/EMP001"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin/employees"));
 
         verify(employeeService).deleteEmployee("EMP001");
     }
 
-    // ===========================
-    // VIEW EMPLOYEE DETAILS
-    // ===========================
+    // ============================================
+    // EMPLOYEE ENDPOINTS - Profile Management
+    // ============================================
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void viewEmployee_Success() throws Exception {
+    void viewProfile_Success() throws Exception {
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("EMP001");
+            when(employeeService.getEmployeeDTOById("EMP001")).thenReturn(new EmployeeDTO());
 
-        when(employeeService.getEmployeeDTOById("EMP001")).thenReturn(employeeDTO);
-        when(employeeService.getTeamMembers("EMP001")).thenReturn(Collections.emptyList());
-
-        mockMvc.perform(get("/admin/employees/view/EMP001"))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeExists("employee"))
-                .andExpect(view().name("pages/admin/employee-view"));
+            mockMvc.perform(get("/employee/profile"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("pages/employee/profile-directory"));
+        }
     }
 
-    // ===========================
-    // EDIT EMPLOYEE FORM
-    // ===========================
-
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void showEditEmployeeForm_Success() throws Exception {
+    void showEditProfileForm_Success() throws Exception {
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("EMP001");
+            Employee emp = new Employee();
+            when(employeeService.getEmployeeById("EMP001")).thenReturn(emp);
+            when(employeeService.convertToDTO(emp)).thenReturn(new EmployeeDTO());
 
-        when(employeeService.getEmployeeDTOById("EMP001")).thenReturn(employeeDTO);
-
-        mockMvc.perform(get("/admin/employees/edit/EMP001"))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeExists("employeeDTO"))
-                .andExpect(view().name("pages/admin/employee-form"));
+            mockMvc.perform(get("/employee/profile/edit"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("pages/employee/profile-edit"));
+        }
     }
 
-    // ===========================
-    // LIST EMPLOYEES
-    // ===========================
+    @Test
+    void updateProfile_ValidationErrors() throws Exception {
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("EMP001");
+
+            mockMvc.perform(post("/employee/profile/update")
+                    .param("phone", "123") // Invalid
+                    .param("postalCode", "abc") // Invalid
+                    .param("emergencyContactPhone", "456") // Invalid
+                    .param("address", "a".repeat(501))) // Long
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("pages/employee/profile-edit"))
+                    .andExpect(model().attributeExists("error"));
+        }
+    }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void listEmployees_ReturnsPage() throws Exception {
+    void updateProfile_Success() throws Exception {
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("EMP001");
+            Employee emp = new Employee();
+            when(employeeService.getEmployeeById("EMP001")).thenReturn(emp);
+            when(employeeService.convertToDTO(emp)).thenReturn(new EmployeeDTO());
 
-        when(employeeService.searchEmployees(any(EmployeeSearchCriteria.class)))
-                .thenReturn(List.of(employee));
+            mockMvc.perform(post("/employee/profile/update")
+                    .param("phone", "9876543210")
+                    .param("postalCode", "123456")
+                    .param("emergencyContactPhone", "8876543210")
+                    .param("address", "Valid Address"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/employee/profile"));
+        }
+    }
 
-        when(employeeService.convertToDTO(any(Employee.class)))
-                .thenReturn(employeeDTO);
+    @Test
+    void viewDirectory_WithSearch() throws Exception {
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("EMP001");
 
-        mockMvc.perform(get("/admin/employees"))
+            Employee emp = new Employee();
+            when(employeeService.getEmployeeById("EMP001")).thenReturn(emp);
+            when(employeeService.convertToDTO(emp)).thenReturn(new EmployeeDTO());
+
+            mockMvc.perform(get("/employee/directory")
+                    .param("search", "John")
+                    .param("departmentId", "1")
+                    .param("designationId", "1"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("pages/employee/profile-directory"))
+                    .andExpect(model().attribute("search", "John"));
+
+            verify(employeeService).searchEmployeesAsDTO(any());
+        }
+    }
+
+    @Test
+    void viewDirectory_NoEmployeeRecord() throws Exception {
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+            security.when(SecurityUtils::getCurrentUsername).thenReturn("ADMIN");
+            when(employeeService.getEmployeeById("ADMIN")).thenThrow(new ResourceNotFoundException("Not found"));
+
+            mockMvc.perform(get("/employee/directory"))
+                    .andExpect(status().isOk())
+                    .andExpect(model().attributeDoesNotExist("currentUser"));
+        }
+    }
+
+    @Test
+    void searchEmployeesAlias_Success() throws Exception {
+        mockMvc.perform(get("/admin/employees/search"))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("employees"))
                 .andExpect(view().name("pages/admin/employee-management"));
     }
 
-    // ===========================
-    // EMPLOYEE PROFILE VIEW
-    // ===========================
-
     @Test
-    @WithMockUser(username = "EMP001", roles = "EMPLOYEE")
-    void viewProfile_Success() throws Exception {
-
-        when(employeeService.getEmployeeDTOById("EMP001")).thenReturn(employeeDTO);
-        when(employeeService.getActiveEmployeesAsDTO()).thenReturn(List.of(employeeDTO));
-
-        mockMvc.perform(get("/employee/profile"))
+    void filterByDepartment_Success() throws Exception {
+        mockMvc.perform(get("/admin/employees/department/1"))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("currentUser"))
-                .andExpect(view().name("pages/employee/profile-directory"));
-    }
-
-    // ===========================
-    // EDIT PROFILE FORM
-    // ===========================
-
-    @Test
-    @WithMockUser(username = "EMP001", roles = "EMPLOYEE")
-    void showEditProfileForm_Success() throws Exception {
-
-        when(employeeService.getEmployeeById("EMP001")).thenReturn(employee);
-        when(employeeService.convertToDTO(employee)).thenReturn(employeeDTO);
-
-        mockMvc.perform(get("/employee/profile/edit"))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeExists("employeeDTO"))
-                .andExpect(view().name("pages/employee/profile-edit"));
-    }
-
-    // ===========================
-    // UPDATE PROFILE
-    // ===========================
-
-    @Test
-    @WithMockUser(username = "EMP001", roles = "EMPLOYEE")
-    void updateProfile_Success() throws Exception {
-
-        when(employeeService.getEmployeeById("EMP001")).thenReturn(employee);
-        when(employeeService.convertToDTO(employee)).thenReturn(employeeDTO);
-        when(employeeService.updateEmployee(eq("EMP001"), any(EmployeeDTO.class))).thenReturn(employee);
-
-        mockMvc.perform(post("/employee/profile/update")
-                .with(csrf())
-                .param("phone", "9876543210")
-                .param("address", "123 Street"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/employee/profile"));
-    }
-
-    // ===========================
-    // EMPLOYEE DIRECTORY
-    // ===========================
-
-    @Test
-    @WithMockUser(username = "EMP001", roles = "EMPLOYEE")
-    void viewDirectory_Success() throws Exception {
-
-        when(employeeService.getActiveEmployeesAsDTO()).thenReturn(List.of(employeeDTO));
-        when(employeeService.getEmployeeById("EMP001")).thenReturn(employee);
-
-        mockMvc.perform(get("/employee/directory"))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeExists("employees"))
-                .andExpect(view().name("pages/employee/profile-directory"));
+                .andExpect(view().name("pages/admin/employee-management"));
     }
 }

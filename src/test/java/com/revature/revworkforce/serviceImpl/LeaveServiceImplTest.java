@@ -450,7 +450,7 @@ class LeaveServiceImplTest {
 
         @Test
         void getTeamLeaves_Success() {
-                when(leaveApplicationRepository.findTeamLeavesByManagerIdAndStatus("M001", LeaveStatus.APPROVED))
+                when(leaveApplicationRepository.findTeamLeavesByManagerId("M001"))
                                 .thenReturn(List.of(new LeaveApplication()));
 
                 List<LeaveApplication> result = leaveService.getTeamLeaves("M001");

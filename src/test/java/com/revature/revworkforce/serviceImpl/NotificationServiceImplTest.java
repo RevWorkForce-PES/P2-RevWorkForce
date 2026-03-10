@@ -36,243 +36,236 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceImplTest {
 
-    @Mock
-    private NotificationRepository notificationRepository;
+        @Mock
+        private NotificationRepository notificationRepository;
 
-    @Mock
-    private EmployeeRepository employeeRepository;
+        @Mock
+        private EmployeeRepository employeeRepository;
 
-    @InjectMocks
-    private NotificationServiceImpl notificationService;
+        @InjectMocks
+        private NotificationServiceImpl notificationService;
 
-    private Employee employee;
-    private Notification notification;
-    private Announcement announcement;
+        private Employee employee;
+        private Notification notification;
+        private Announcement announcement;
 
-    @BeforeEach
-    void setUp() {
+        @BeforeEach
+        void setUp() {
 
-        ReflectionTestUtils.setField(notificationService, "expiryDays", 90);
-        ReflectionTestUtils.setField(notificationService, "maxUnread", 50);
+                ReflectionTestUtils.setField(notificationService, "expiryDays", 90);
+                ReflectionTestUtils.setField(notificationService, "maxUnread", 50);
 
-        employee = new Employee();
-        employee.setEmployeeId("EMP001");
-        employee.setFirstName("John");
-        employee.setLastName("Doe");
+                employee = new Employee();
+                employee.setEmployeeId("EMP001");
+                employee.setFirstName("John");
+                employee.setLastName("Doe");
 
-        notification = new Notification();
-        notification.setNotificationId(1L);
-        notification.setEmployee(employee);
-        notification.setTitle("Test Notification");
-        notification.setMessage("Test message");
-        notification.setNotificationType(NotificationType.SYSTEM);
-        notification.setPriority(NotificationPriority.NORMAL);
-        notification.setIsRead('N');
-        notification.setCreatedAt(LocalDateTime.now());
+                notification = new Notification();
+                notification.setNotificationId(1L);
+                notification.setEmployee(employee);
+                notification.setTitle("Test Notification");
+                notification.setMessage("Test message");
+                notification.setNotificationType(NotificationType.SYSTEM);
+                notification.setPriority(NotificationPriority.NORMAL);
+                notification.setIsRead('N');
+                notification.setCreatedAt(LocalDateTime.now());
 
-        announcement = new Announcement();
-        announcement.setAnnouncementId(1L);
-        announcement.setTitle("Test Announcement");
-        announcement.setMessage("Announcement message");
-    }
+                announcement = new Announcement();
+                announcement.setAnnouncementId(1L);
+                announcement.setTitle("Test Announcement");
+                announcement.setMessage("Announcement message");
+        }
 
-    // =========================================================
-    // GET EMPLOYEE NOTIFICATIONS
-    // =========================================================
+        // =========================================================
+        // GET EMPLOYEE NOTIFICATIONS
+        // =========================================================
 
-    @Test
-    void getEmployeeNotifications_Success() {
+        @Test
+        void getEmployeeNotifications_Success() {
 
-        when(employeeRepository.findById("EMP001"))
-                .thenReturn(Optional.of(employee));
+                when(employeeRepository.findById("EMP001"))
+                                .thenReturn(Optional.of(employee));
 
-        when(notificationRepository.findByEmployeeOrderByCreatedAtDesc(employee))
-                .thenReturn(Arrays.asList(notification));
+                when(notificationRepository.findByEmployeeOrderByCreatedAtDesc(employee))
+                                .thenReturn(Arrays.asList(notification));
 
-        List<NotificationDTO> result =
-                notificationService.getEmployeeNotifications("EMP001");
+                List<NotificationDTO> result = notificationService.getEmployeeNotifications("EMP001");
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getTitle()).isEqualTo("Test Notification");
-    }
+                assertThat(result).hasSize(1);
+                assertThat(result.get(0).getTitle()).isEqualTo("Test Notification");
+        }
 
-    // =========================================================
-    // GET UNREAD COUNT
-    // =========================================================
+        // =========================================================
+        // GET UNREAD COUNT
+        // =========================================================
 
-    @Test
-    void getUnreadCount_ReturnsCount() {
+        @Test
+        void getUnreadCount_ReturnsCount() {
 
-        when(employeeRepository.findById("EMP001"))
-                .thenReturn(Optional.of(employee));
+                when(notificationRepository.countByEmployeeEmployeeIdAndIsRead("EMP001", 'N'))
+                                .thenReturn(3L);
 
-        when(notificationRepository.countByEmployeeAndIsRead(employee, 'N'))
-                .thenReturn(3L);
+                long count = notificationService.getUnreadCount("EMP001");
 
-        long count = notificationService.getUnreadCount("EMP001");
+                assertThat(count).isEqualTo(3);
+        }
 
-        assertThat(count).isEqualTo(3);
-    }
+        // =========================================================
+        // MARK AS READ
+        // =========================================================
 
-    // =========================================================
-    // MARK AS READ
-    // =========================================================
+        @Test
+        void markAsRead_Success() {
 
-    @Test
-    void markAsRead_Success() {
+                when(notificationRepository.findById(1L))
+                                .thenReturn(Optional.of(notification));
 
-        when(notificationRepository.findById(1L))
-                .thenReturn(Optional.of(notification));
+                notificationService.markAsRead(1L, "EMP001");
 
-        notificationService.markAsRead(1L, "EMP001");
+                assertThat(notification.getIsRead()).isEqualTo('Y');
+                verify(notificationRepository).save(notification);
+        }
 
-        assertThat(notification.getIsRead()).isEqualTo('Y');
-        verify(notificationRepository).save(notification);
-    }
+        @Test
+        void markAsRead_NotFound() {
 
-    @Test
-    void markAsRead_NotFound() {
+                when(notificationRepository.findById(1L))
+                                .thenReturn(Optional.empty());
 
-        when(notificationRepository.findById(1L))
-                .thenReturn(Optional.empty());
+                assertThrows(ResourceNotFoundException.class,
+                                () -> notificationService.markAsRead(1L, "EMP001"));
+        }
 
-        assertThrows(ResourceNotFoundException.class,
-                () -> notificationService.markAsRead(1L, "EMP001"));
-    }
+        @Test
+        void markAsRead_Unauthorized() {
 
-    @Test
-    void markAsRead_Unauthorized() {
+                Employee other = new Employee();
+                other.setEmployeeId("EMP999");
+                notification.setEmployee(other);
 
-        Employee other = new Employee();
-        other.setEmployeeId("EMP999");
-        notification.setEmployee(other);
+                when(notificationRepository.findById(1L))
+                                .thenReturn(Optional.of(notification));
 
-        when(notificationRepository.findById(1L))
-                .thenReturn(Optional.of(notification));
+                assertThrows(UnauthorizedException.class,
+                                () -> notificationService.markAsRead(1L, "EMP001"));
+        }
 
-        assertThrows(UnauthorizedException.class,
-                () -> notificationService.markAsRead(1L, "EMP001"));
-    }
+        // =========================================================
+        // DELETE NOTIFICATION
+        // =========================================================
 
-    // =========================================================
-    // DELETE NOTIFICATION
-    // =========================================================
+        @Test
+        void deleteNotification_Success() {
 
-    @Test
-    void deleteNotification_Success() {
+                when(notificationRepository.findById(1L))
+                                .thenReturn(Optional.of(notification));
 
-        when(notificationRepository.findById(1L))
-                .thenReturn(Optional.of(notification));
+                notificationService.deleteNotification(1L, "EMP001");
 
-        notificationService.deleteNotification(1L, "EMP001");
+                verify(notificationRepository).delete(notification);
+        }
 
-        verify(notificationRepository).delete(notification);
-    }
+        // =========================================================
+        // CREATE ANNOUNCEMENT
+        // =========================================================
 
-    // =========================================================
-    // CREATE ANNOUNCEMENT
-    // =========================================================
+        @Test
+        void createAnnouncementForAll_Success() {
 
-    @Test
-    void createAnnouncementForAll_Success() {
+                when(employeeRepository
+                                .findByStatusOrderByFirstNameAsc(EmployeeStatus.ACTIVE))
+                                .thenReturn(Arrays.asList(employee));
 
-        when(employeeRepository
-                .findByStatusOrderByFirstNameAsc(EmployeeStatus.ACTIVE))
-                .thenReturn(Arrays.asList(employee));
+                notificationService.createAnnouncementForAll(announcement);
 
-        notificationService.createAnnouncementForAll(announcement);
+                verify(notificationRepository).saveAll(anyList());
+        }
 
-        verify(notificationRepository).saveAll(anyList());
-    }
+        // =========================================================
+        // CREATE NOTIFICATION
+        // =========================================================
 
-    // =========================================================
-    // CREATE NOTIFICATION
-    // =========================================================
+        @Test
+        void createNotification_Success() {
 
-    @Test
-    void createNotification_Success() {
+                when(notificationRepository.countByEmployeeAndIsRead(employee, 'N'))
+                                .thenReturn(10L);
 
-        when(notificationRepository.countByEmployeeAndIsRead(employee, 'N'))
-                .thenReturn(10L);
+                notificationService.createNotification(
+                                employee,
+                                NotificationType.GOAL,
+                                "Title",
+                                "Message",
+                                NotificationPriority.NORMAL);
 
-        notificationService.createNotification(
-                employee,
-                NotificationType.GOAL,
-                "Title",
-                "Message",
-                NotificationPriority.NORMAL
-        );
+                verify(notificationRepository).save(any(Notification.class));
+        }
 
-        verify(notificationRepository).save(any(Notification.class));
-    }
+        @Test
+        void createNotification_MaxUnreadReached() {
 
-    @Test
-    void createNotification_MaxUnreadReached() {
+                when(notificationRepository.countByEmployeeAndIsRead(employee, 'N'))
+                                .thenReturn(100L);
 
-        when(notificationRepository.countByEmployeeAndIsRead(employee, 'N'))
-                .thenReturn(100L);
+                when(notificationRepository.findByEmployeeAndIsRead(eq(employee), eq('N'), any()))
+                                .thenReturn(Arrays.asList(notification));
 
-        when(notificationRepository.findByEmployeeAndIsRead(eq(employee), eq('N'), any()))
-                .thenReturn(Arrays.asList(notification));
+                notificationService.createNotification(
+                                employee,
+                                NotificationType.GOAL,
+                                "Title",
+                                "Message",
+                                NotificationPriority.NORMAL);
 
-        notificationService.createNotification(
-                employee,
-                NotificationType.GOAL,
-                "Title",
-                "Message",
-                NotificationPriority.NORMAL
-        );
+                verify(notificationRepository).delete(notification);
+                verify(notificationRepository).save(any(Notification.class));
+        }
 
-        verify(notificationRepository).delete(notification);
-        verify(notificationRepository).save(any(Notification.class));
-    }
+        // =========================================================
+        // DELETE EXPIRED NOTIFICATIONS
+        // =========================================================
 
-    // =========================================================
-    // DELETE EXPIRED NOTIFICATIONS
-    // =========================================================
+        @Test
+        void deleteExpiredNotifications_Success() {
 
-    @Test
-    void deleteExpiredNotifications_Success() {
+                notificationService.deleteExpiredNotifications();
 
-        notificationService.deleteExpiredNotifications();
+                verify(notificationRepository)
+                                .deleteExpiredNotifications(any(LocalDateTime.class));
+        }
 
-        verify(notificationRepository)
-                .deleteExpiredNotifications(any(LocalDateTime.class));
-    }
+        // =========================================================
+        // GET UNREAD NOTIFICATIONS
+        // =========================================================
 
-    // =========================================================
-    // GET UNREAD NOTIFICATIONS
-    // =========================================================
+        @Test
+        void getUnreadNotifications_Success() {
 
-    @Test
-    void getUnreadNotifications_Success() {
+                when(employeeRepository.findById("EMP001"))
+                                .thenReturn(Optional.of(employee));
 
-        when(employeeRepository.findById("EMP001"))
-                .thenReturn(Optional.of(employee));
+                when(notificationRepository
+                                .findByEmployeeAndIsReadOrderByCreatedAtDesc(employee, 'N'))
+                                .thenReturn(Arrays.asList(notification));
 
-        when(notificationRepository
-                .findByEmployeeAndIsReadOrderByCreatedAtDesc(employee, 'N'))
-                .thenReturn(Arrays.asList(notification));
+                List<NotificationDTO> result = notificationService.getUnreadNotifications("EMP001");
 
-        List<NotificationDTO> result =
-                notificationService.getUnreadNotifications("EMP001");
+                assertThat(result).hasSize(1);
+        }
 
-        assertThat(result).hasSize(1);
-    }
+        // =========================================================
+        // MARK ALL AS READ
+        // =========================================================
 
-    // =========================================================
-    // MARK ALL AS READ
-    // =========================================================
+        @Test
+        void markAllAsRead_Success() {
 
-    @Test
-    void markAllAsRead_Success() {
+                when(employeeRepository.findById("EMP001"))
+                                .thenReturn(Optional.of(employee));
 
-        when(employeeRepository.findById("EMP001"))
-                .thenReturn(Optional.of(employee));
+                notificationService.markAllAsRead("EMP001");
 
-        notificationService.markAllAsRead("EMP001");
-
-        verify(notificationRepository)
-                .markAllAsRead(eq(employee), any(LocalDateTime.class));
-    }
+                verify(notificationRepository)
+                                .markAllAsRead(eq(employee), any(LocalDateTime.class));
+        }
 }
