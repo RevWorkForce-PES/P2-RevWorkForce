@@ -529,12 +529,16 @@ mvn clean verify sonar:sonar \
 
 ## CI/CD Pipeline
 
+<img src="https://github.com/RevWorkForce-PES/P2-RevWorkForce/blob/main/jenkins/Jenkins-Pipeline-Passed.png" />
+
+
 ### Pipeline Stages
+<img src="https://github.com/RevWorkForce-PES/P2-RevWorkForce/blob/main/jenkins/Jenkins-Pipeline-Workflow.png" />
 
 1. **Checkout** - Pull latest code from repository
 2. **Build** - Compile source code
 3. **Test** - Run unit tests (60%+ coverage required)
-4. **SonarQube** - Code quality analysis
+4. **SonarQube** - Code quality analysis (optional)
 5. **Quality Gate** - Enforce quality standards
 6. **Package** - Create deployable JAR
 7. **Deploy** - Deploy to staging/production
@@ -548,7 +552,6 @@ mvn clean verify sonar:sonar \
 > This includes project execution metrics such as **burn-up charts**, **timeline-based contribution analysis**, and **sprint workflow visualization** for monitoring progress and productivity.
 
 <img src="https://github.com/RevWorkForce-PES/P2-RevWorkForce/blob/main/docs/Burn_Up_Chart.png" />
-
 
 
 
