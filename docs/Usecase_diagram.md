@@ -5,22 +5,22 @@ This document illustrates the precise mapping of features (use cases) against th
 ## 1. Authentication and Profile Management
 
 ```mermaid
-usecaseDiagram
-    actor Employee
+flowchart LR
+    Actor((Employee))
     
-    usecase "Log In" as UC1
-    usecase "Log Out" as UC2
-    usecase "Change Password" as UC3
-    usecase "View Profile Details" as UC4
-    usecase "Update Security Questions" as UC5
-    usecase "Recover Account" as UC6
+    UC1([Log In])
+    UC2([Log Out])
+    UC3([Change Password])
+    UC4([View Profile Details])
+    UC5([Update Security Questions])
+    UC6([Recover Account])
     
-    Employee --> UC1
-    Employee --> UC2
-    Employee --> UC3
-    Employee --> UC4
-    Employee --> UC5
-    Employee --> UC6
+    Actor --> UC1
+    Actor --> UC2
+    Actor --> UC3
+    Actor --> UC4
+    Actor --> UC5
+    Actor --> UC6
 ```
 
 ### Specifications
@@ -32,26 +32,26 @@ usecaseDiagram
 ## 2. Leave Management Module
 
 ```mermaid
-usecaseDiagram
-    actor Employee
-    actor Manager
+flowchart LR
+    Emp((Employee))
+    Mgr((Manager))
     
-    usecase "View Leave Balances" as L1
-    usecase "Submit Leave Request" as L2
-    usecase "Cancel Pending Leave" as L3
-    usecase "View Leave History" as L4
-    usecase "Review Team Requests" as L5
-    usecase "Approve Leave" as L6
-    usecase "Reject Leave" as L7
+    L1([View Leave Balances])
+    L2([Submit Leave Request])
+    L3([Cancel Pending Leave])
+    L4([View Leave History])
+    L5([Review Team Requests])
+    L6([Approve Leave])
+    L7([Reject Leave])
     
-    Employee --> L1
-    Employee --> L2
-    Employee --> L3
-    Employee --> L4
+    Emp --> L1
+    Emp --> L2
+    Emp --> L3
+    Emp --> L4
     
-    Manager --> L5
-    Manager --> L6
-    Manager --> L7
+    Mgr --> L5
+    Mgr --> L6
+    Mgr --> L7
 ```
 
 ### Specifications
@@ -63,26 +63,26 @@ usecaseDiagram
 ## 3. Performance Review Module
 
 ```mermaid
-usecaseDiagram
-    actor Employee
-    actor Manager
-    actor Administrator
+flowchart LR
+    Emp((Employee))
+    Mgr((Manager))
+    Adm((Administrator))
     
-    usecase "Fill Self-Assessment" as P1
-    usecase "View Past Reviews" as P2
-    usecase "Initiate Review Cycle" as P3
-    usecase "Provide Manager Evaluation" as P4
-    usecase "View Team Matrix" as P5
-    usecase "Delete Stale Records" as P6
+    P1([Fill Self-Assessment])
+    P2([View Past Reviews])
+    P3([Initiate Review Cycle])
+    P4([Provide Manager Evaluation])
+    P5([View Team Matrix])
+    P6([Delete Stale Records])
     
-    Employee --> P1
-    Employee --> P2
+    Emp --> P1
+    Emp --> P2
     
-    Manager --> P3
-    Manager --> P4
-    Manager --> P5
+    Mgr --> P3
+    Mgr --> P4
+    Mgr --> P5
     
-    Administrator --> P6
+    Adm --> P6
 ```
 
 ### Specifications
@@ -95,24 +95,24 @@ usecaseDiagram
 ## 4. Goals Tracking Module
 
 ```mermaid
-usecaseDiagram
-    actor Employee
-    actor Manager
+flowchart LR
+    Emp((Employee))
+    Mgr((Manager))
     
-    usecase "Create Personal Goal" as G1
-    usecase "Update Progress Percentage" as G2
-    usecase "Cancel Goal" as G3
-    usecase "Assign Team Goal" as G4
-    usecase "Monitor Subordinate Goals" as G5
-    usecase "Leave Goal Feedback" as G6
+    G1([Create Personal Goal])
+    G2([Update Progress Percentage])
+    G3([Cancel Goal])
+    G4([Assign Team Goal])
+    G5([Monitor Subordinate Goals])
+    G6([Leave Goal Feedback])
     
-    Employee --> G1
-    Employee --> G2
-    Employee --> G3
+    Emp --> G1
+    Emp --> G2
+    Emp --> G3
     
-    Manager --> G4
-    Manager --> G5
-    Manager --> G6
+    Mgr --> G4
+    Mgr --> G5
+    Mgr --> G6
 ```
 
 ### Specifications
@@ -124,20 +124,20 @@ usecaseDiagram
 ## 5. Administration and Internal Operations
 
 ```mermaid
-usecaseDiagram
-    actor Administrator
+flowchart LR
+    Adm((Administrator))
     
-    usecase "Generate Utilization Reports" as A1
-    usecase "Configure Holidays" as A2
-    usecase "Post Global Announcements" as A3
-    usecase "Review Security Audits" as A4
-    usecase "Manage Department Hierarchy" as A5
+    A1([Generate Utilization Reports])
+    A2([Configure Holidays])
+    A3([Post Global Announcements])
+    A4([Review Security Audits])
+    A5([Manage Department Hierarchy])
     
-    Administrator --> A1
-    Administrator --> A2
-    Administrator --> A3
-    Administrator --> A4
-    Administrator --> A5
+    Adm --> A1
+    Adm --> A2
+    Adm --> A3
+    Adm --> A4
+    Adm --> A5
 ```
 
 ### Specifications
