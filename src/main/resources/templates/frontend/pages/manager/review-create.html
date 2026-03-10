@@ -14,7 +14,7 @@
     <div class="app-container">
         <app-sidebar></app-sidebar>
         <main class="main-content">
-            <app-navbar th:attribute="page-title=${pageTitle}"></app-navbar>
+            <app-navbar th:attr="page-title=${pageTitle}"></app-navbar>
             <div class="page-wrapper">
                 <div class="flex-space-between mb-4">
                     <a th:href="@{/manager/reviews}" class="btn btn-secondary">

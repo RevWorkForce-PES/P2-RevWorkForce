@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="global-user-fullname" th:content="${globalFullName}">
-    <meta name="global-user-role" th:content="${globalUserRole}">
+    <meta name="user-id" th:content="${#authentication.name}">
+    <meta name="user-role" th:content="${userRole}">
+    <meta name="user-fullname" th:content="${fullName}">
     <title>Employee Self-Assessment - RevWorkForce</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
@@ -68,8 +69,17 @@
     <div class="app-container">
         <app-sidebar></app-sidebar>
         <main class="main-content">
-            <app-navbar th:attribute="page-title=${pageTitle}"></app-navbar>
-            <div class="page-wrapper">
+            <app-navbar th:attr="page-title=${pageTitle}"></app-navbar>
+            <div class="page-wrapper" th:object="${reviewDTO}">
+                <!-- Global Messages -->
+                <div th:if="${error}" class="alert alert-danger mb-4">
+                    <p th:text="${error}" style="margin-bottom: 0.5rem; font-weight: 700;"></p>
+                    <ul th:if="${#fields.hasAnyErrors()}" style="padding-left: 1.5rem; margin-top: 0;">
+                        <li th:each="err : ${#fields.allErrors()}" th:text="${err}" class="small"></li>
+                    </ul>
+                </div>
+                <div th:if="${success}" class="alert alert-success mb-4" th:text="${success}"></div>
+
                 <div class="flex-space-between mb-4">
                     <a th:href="@{/employee/reviews}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back to Dashboard
@@ -79,8 +89,13 @@
                     </div>
                 </div>
 
-                <form th:action="@{/employee/reviews/self-assessment/{id}(id=${reviewDTO.reviewId})}"
-                    th:object="${reviewDTO}" method="POST">
+                <form th:action="@{/employee/reviews/self-assessment/{id}(id=${reviewDTO.reviewId})}" method="POST">
+                    <!-- Hidden Required Fields -->
+                    <input type="hidden" th:field="*{reviewId}">
+                    <input type="hidden" th:field="*{employeeId}">
+                    <input type="hidden" th:field="*{reviewYear}">
+                    <input type="hidden" th:field="*{status}">
+
                     <!-- Achievements Section -->
                     <div class="section-card">
                         <div class="section-title">
@@ -89,7 +104,7 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">What were your major accomplishments during this review period?
-                                (Min. 50 characters)</label>
+                                (Min. 10 characters)</label>
                             <textarea class="form-control" th:field="*{achievements}" rows="5"
                                 placeholder="Describe your wins, projects completed, and value added..."
                                 required></textarea>
@@ -106,7 +121,7 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Identify areas where you'd like to improve or skills you want to
-                                develop. (Min. 50 characters)</label>
+                                develop. (Min. 10 characters)</label>
                             <textarea class="form-control" th:field="*{improvementAreas}" rows="5"
                                 placeholder="Be honest about challenges and where you need support..."
                                 required></textarea>
@@ -123,7 +138,7 @@
                         </div>
                         <div class="form-group mb-4">
                             <label class="form-label">Detailed self-reflection on your overall performance and alignment
-                                with company goals. (Min. 100 characters)</label>
+                                with company goals. (Min. 10 characters)</label>
                             <textarea class="form-control" th:field="*{selfAssessmentText}" rows="6"
                                 placeholder="Summarize your performance, alignment with core values, and future aspirations..."
                                 required></textarea>
@@ -137,8 +152,8 @@
                                 Exceptional</p>
                             <div class="rating-group">
                                 <label class="rating-option" th:each="r : ${#numbers.sequence(1, 5)}">
-                                    <input type="radio" th:field="*{selfAssessmentRating}" th:value="${r}.0">
-                                    <span th:text="${r}.0">1.0</span>
+                                    <input type="radio" th:field="*{selfAssessmentRating}" th:value="${r}">
+                                    <span th:text="${r + '.0'}">1.0</span>
                                 </label>
                             </div>
                             <div class="text-danger" th:if="${#fields.hasErrors('selfAssessmentRating')}"

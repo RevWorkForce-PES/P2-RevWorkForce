@@ -58,31 +58,25 @@ public class PerformanceReviewDTO {
     // MANAGER REVIEW FIELDS
     // ========================================
 
-    @NotBlank(message = "Manager feedback is required")
     @Size(min = 50, max = 2000, message = "Manager feedback must be at least 50 characters")
     private String managerFeedback;
 
-    @NotNull(message = "Technical skills rating is required")
     @DecimalMin(value = "1.0")
     @DecimalMax(value = "5.0")
     private BigDecimal technicalSkills;
 
-    @NotNull(message = "Communication rating is required")
     @DecimalMin(value = "1.0")
     @DecimalMax(value = "5.0")
     private BigDecimal communication;
 
-    @NotNull(message = "Teamwork rating is required")
     @DecimalMin(value = "1.0")
     @DecimalMax(value = "5.0")
     private BigDecimal teamwork;
 
-    @NotNull(message = "Leadership rating is required")
     @DecimalMin(value = "1.0")
     @DecimalMax(value = "5.0")
     private BigDecimal leadership;
 
-    @NotNull(message = "Punctuality rating is required")
     @DecimalMin(value = "1.0")
     @DecimalMax(value = "5.0")
     private BigDecimal punctuality;
