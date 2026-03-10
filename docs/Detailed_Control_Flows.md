@@ -104,7 +104,7 @@ flowchart TD
     
     Condition -- (n == 100) --> Trig(Trigger Automation)
     Trig --> State(Assign GoalStatus.COMPLETED)
-    State --> Time(Assign completedDate = now())
+    State --> Time("Assign completedDate = now()")
 ```
 
 ## 5. Authentication & Login Control Flow
