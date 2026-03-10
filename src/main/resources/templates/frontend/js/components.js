@@ -98,7 +98,7 @@ class AppSidebar extends HTMLElement {
 		        </li>
 
 		        <li class="nav-item">
-		            <a href="${basePath}/employee/directory" class="nav-link">
+		            <a href="${basePath}" class="nav-link">
 		                <i class="fas fa-id-card"></i> <span>Profile & Directory</span>
 		            </a>
 		        </li>
@@ -495,7 +495,7 @@ class AppNavbar extends HTMLElement {
                     <button class="icon-btn" title="Change Password" onclick="window.location.href='${basePath}/change-password'">
                         <i class="fas fa-key"></i>
                     </button>
-                    <button class="icon-btn" title="Settings" onclick="window.location.href='${basePath}/employee/profile'">
+                    <button class="icon-btn" title="Settings" onclick="window.location.href='${basePath}/employee/directory'">
                         <i class="fas fa-cog"></i>
                     </button>
                 </div>
