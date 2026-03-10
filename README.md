@@ -108,7 +108,7 @@ The system supports **three user roles**:
 <img src="https://github.com/Aishwarya6362.png" width="50" height="50" style="border-radius:50%;">
 </td>
 <td align="center"><strong>Aishwarya MS</strong></td>
-<td align="center">Backend Lead Leave Module, Notification Module, Holiday Module, Testing</td>
+<td align="center">Backend Lead, Ui, Leave Module, Notification Module, Holiday Module, Testing</td>
 <td align="center">
 <a href="https://github.com/Aishwarya6362">
 <img src="https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white">
