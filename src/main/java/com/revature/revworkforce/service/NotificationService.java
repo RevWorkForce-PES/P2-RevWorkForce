@@ -38,5 +38,4 @@ public interface NotificationService {
     void deleteNotification(Long notificationId, String employeeId);
 
     void deleteExpiredNotifications();
-     
-}
+   }

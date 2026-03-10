@@ -470,24 +470,28 @@ class AppNavbar extends HTMLElement {
             <header>
                 <h1 class="page-title">${title}</h1>
                 <div class="header-actions">
-                    <div style="position: relative;">
-                        <button class="icon-btn" title="Notifications" id="notificationBtn">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-badge" id="notificationBadge">0</span>
-                        </button>
-                        <div class="notification-dropdown" id="notificationDropdown">
-                            <div class="notification-header">
-                                <h3>Notifications</h3>
-                                <button id="markAllReadBtn" style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.8rem;">
-                                    Mark all as read
-                                </button>
-                            </div>
-                            <ul class="notification-list" id="notificationList"></ul>
-                            <div class="notification-footer">
-                                <a href="/notifications" id="viewAllLink">View All Activity</a>
-                            </div>
-                        </div>
-                    </div>
+				<div style="position: relative;">
+				    <button class="icon-btn" title="Notifications" id="notificationBtn">
+				        <i class="fas fa-bell"></i>
+				        <span class="notification-badge" id="notificationBadge" style="display:none;">0</span>
+				    </button>
+
+				    <div class="notification-dropdown" id="notificationDropdown">
+				        <div class="notification-header">
+				            <h3>Notifications</h3>
+				            <button id="markAllReadBtn"
+				                style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.8rem;">
+				                Mark all as read
+				            </button>
+				        </div>
+
+				        <ul class="notification-list" id="notificationList"></ul>
+
+				        <div class="notification-footer">
+				            <a href="/notifications" id="viewAllLink">View All Activity</a>
+				        </div>
+				    </div>
+				</div>
                     <button class="icon-btn" title="Change Password" onclick="window.location.href='${basePath}/change-password'">
                         <i class="fas fa-key"></i>
                     </button>
@@ -508,18 +512,31 @@ class AppNavbar extends HTMLElement {
         const list = this.querySelector('#notificationList');
         const badge = this.querySelector('#notificationBadge');
         const markAllBtn = this.querySelector('#markAllReadBtn');
-        const viewAllLink = this.querySelector('#viewAllLink');
+		const viewAllLink = this.querySelector('#viewAllLink');
 
-        const loadUnreadCount = () => {
-            fetch(`${basePath}/api/notifications/unread-count`)
-                .then(res => res.text())
-                .then(count => {
-                    const num = parseInt(count) || 0;
-                    badge.innerText = num;
-                    badge.style.display = num > 0 ? 'flex' : 'none';
-                })
-                .catch(() => { });
-        };
+		if (viewAllLink) {
+		    viewAllLink.addEventListener('click', (e) => {
+		        e.preventDefault();
+		        dropdown.classList.remove('show');
+		        window.location.href = `${basePath}/notifications`;
+		    });
+		}
+		const loadUnreadCount = () => {
+		    fetch(`${basePath}/api/notifications/unread-count`)
+		        .then(res => res.text())
+		        .then(count => {
+		            const num = parseInt(count) || 0;
+
+		            if (badge) {
+		                badge.innerText = num;
+		                badge.style.display = num > 0 ? 'flex' : 'none';
+		            }
+		        })
+		        .catch(() => { });
+		};
+
+		loadUnreadCount();
+		setInterval(loadUnreadCount, 30000);
 
         const getCSRF = () => {
             const tokenEl = document.querySelector('meta[name="_csrf"]');
@@ -530,16 +547,15 @@ class AppNavbar extends HTMLElement {
             };
         };
 
-        const markAsRead = (id) => {
+       const markAsRead = async (id) => {
             const { token, header } = getCSRF();
             fetch(`${basePath}/api/notifications/mark-read/${id}`, {
                 method: 'POST',
                 headers: { [header]: token }
             }).then(res => {
-                if (res.ok) {
-                    loadUnreadCount();
-                    loadNavbarNotifications();
-                }
+				if (res.ok) {
+				    loadUnreadCount();
+				}
             }).catch(err => console.error(err));
         };
 
@@ -573,60 +589,74 @@ class AppNavbar extends HTMLElement {
                             </div>
                             ${n.isRead === 'N' ? `<button class="mark-single-read" data-id="${n.notificationId}" title="Mark as read" style="background:none;border:none;color:#10b981;cursor:pointer;padding:4px;"><i class="fas fa-check-circle"></i></button>` : ''}
                         `;
-                        li.addEventListener('click', (e) => {
-                            if (e.target.closest('.mark-single-read')) {
-                                e.stopPropagation();
-                                markAsRead(e.target.closest('.mark-single-read').dataset.id);
-                                return;
-                            }
-                            window.location.href = `${basePath}/notifications`;
-                        });
+						li.addEventListener('click', async (e) => {
+
+						    if (e.target.closest('.mark-single-read')) {
+						        e.stopPropagation();
+						        await markAsRead(e.target.closest('.mark-single-read').dataset.id);
+						        return;
+						    }
+
+						    if (n.isRead === 'N') {
+						        await markAsRead(n.notificationId);
+						    }
+
+						    window.location.href = `${basePath}/notifications`;
+
+						});
                         list.appendChild(li);
                     });
                 })
                 .catch(() => {
                     list.innerHTML = '<li class="notification-item" style="justify-content:center;color:var(--text-muted);">Could not load notifications</li>';
                 });
+				
         };
+		loadNavbarNotifications();
 
-        if (markAllBtn) {
-            markAllBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const { token, header } = getCSRF();
-                fetch(`${basePath}/api/notifications/mark-all-read`, {
-                    method: 'POST',
-                    headers: { [header]: token }
-                }).then(res => {
-                    if (res.ok) {
-                        badge.innerText = '0';
-                        badge.style.display = 'none';
-                        list.innerHTML = '<li class="notification-item" style="justify-content:center;color:var(--text-muted);">No new notifications</li>';
-                    }
-                }).catch(err => console.error(err));
-            });
-        }
+		if (markAllBtn) {
+		    markAllBtn.addEventListener('click', (e) => {
+		        e.stopPropagation();
 
-        if (viewAllLink) {
-            viewAllLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                dropdown.classList.remove('show');
-                window.location.href = `${basePath}/notifications`;
-            });
-        }
+		        const { token, header } = getCSRF();
+
+		        fetch(`${basePath}/api/notifications/mark-all-read`, {
+		            method: 'POST',
+		            headers: { [header]: token }
+		        }).then(res => {
+
+		            if (res.ok) {
+
+		                loadUnreadCount();
+		                loadNavbarNotifications();
+
+		            }
+
+		        }).catch(err => console.error(err));
+
+		    });
+		}
+	
+		
 
         // Toggle dropdown
 
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdown.classList.toggle('show');
-            loadNavbarNotifications();
-        });
+		if (btn) {
+		    btn.addEventListener('click', (e) => {
+		        e.stopPropagation();
+		        dropdown.classList.toggle('show');
 
-        document.addEventListener('click', (e) => {
-            if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
-                dropdown.classList.remove('show');
-            }
-        });
+				if (dropdown.classList.contains('show')) {
+				    loadNavbarNotifications();
+				}
+		    });
+		}
+
+		document.addEventListener('click', (e) => {
+		  if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+			        dropdown.classList.remove('show');
+		    }
+		});
 
     }
 }

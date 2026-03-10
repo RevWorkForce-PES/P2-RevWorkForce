@@ -82,22 +82,28 @@
 										<td th:text="${leave.reason}">Flu symptoms</td>
 										<td style="display: flex; gap: 0.5rem;">
 											<form
-												th:action="@{/leave/manager/approve/{id}(id=${leave.applicationId})}"
-												method="POST" style="margin: 0;">
-												<button type="submit" class="btn btn-success btn-sm">
-													<i class="fas fa-check"></i> Approve
-												</button>
-											</form>
-											<form
-												th:action="@{/manager/reject/{id}(id=${leave.applicationId})}"
-												method="POST" style="margin: 0;"
-												onsubmit="let reason = prompt('Please enter a rejection reason:'); if(reason){this.rejectionReason.value = reason; return true;} else return false;">
-												<input type="hidden" name="rejectionReason" value="">
-												<button type="submit" class="btn btn-danger btn-sm">
-													<i class="fas fa-times"></i> Reject
-												</button>
-											</form>
-										</td>
+ th:action="@{/manager/approve/{id}(id=${leave.applicationId})}"
+ method="POST" style="margin: 0;">
+<button type="submit" class="btn btn-success btn-sm">
+<i class="fas fa-check"></i> Approve
+</button>
+</form>
+										<form
+ th:action="@{/manager/reject/{id}(id=${leave.applicationId})}"
+ method="POST"
+ style="margin: 0;"
+onsubmit="let reason = prompt('Please enter a rejection reason:'); 
+      if(reason){ this.querySelector('[name=rejectionReason]').value = reason; return true;} 
+      else return false;">
+
+<input type="hidden"  name="rejectionReason">
+
+<button type="submit" class="btn btn-danger btn-sm">
+<i class="fas fa-times"></i> Reject
+</button>
+
+</form>
+</td>
 									</tr>
 									<tr th:if="${#lists.isEmpty(pending)}">
 										<td colspan="6" class="text-center text-muted"
@@ -134,11 +140,15 @@
 										<td><span class="badge"
 											th:classappend="${leave.status.name() == 'APPROVED' ? 'badge-approved' : 'badge-rejected'}"
 											th:text="${leave.status}">Approved</span></td>
-										<td><span th:if="${leave.status.name() == 'REJECTED'}"
-											class="text-muted" th:text="${leave.rejectionReason}"></span>
-											<span th:if="${leave.status.name() == 'APPROVED'}"
-											class="text-muted">Approved via Manager</span></td>
-									</tr>
+										<td>
+<span th:switch="${leave.status.name()}">
+
+<span th:case="'REJECTED'" th:text="${leave.rejectionReason}" class="text-muted"></span>
+
+<span th:case="'APPROVED'" class="text-muted">Approved via Manager</span>
+
+</span>
+</td>	</tr>
 									<tr th:if="${#lists.isEmpty(team)}">
 										<td colspan="5" class="text-center text-muted"
 											style="padding: 1.5rem;">No past requests found for your
@@ -189,10 +199,7 @@
 												<td
 													th:text="${#temporals.format(leave.endDate,'dd MMM yyyy')}"></td>
 
-												<td
-													th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(leave.startDate, leave.endDate) + 1} + ' days'"></td>
-
-											</tr>
+											<td th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(leave.startDate, leave.endDate) + 1} + ' Days'"></td></tr>
 
 											<tr th:if="${#lists.isEmpty(team)}">
 												<td colspan="5" class="text-center text-muted">No team

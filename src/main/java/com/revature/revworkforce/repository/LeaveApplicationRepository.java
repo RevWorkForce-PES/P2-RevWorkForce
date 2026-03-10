@@ -81,9 +81,13 @@ public interface LeaveApplicationRepository extends JpaRepository<LeaveApplicati
         * @param managerId the manager's employee ID
         * @return list of leave applications
         */
-       @Query("SELECT la FROM LeaveApplication la WHERE la.employee.manager.employeeId = :managerId ORDER BY la.appliedOn DESC")
-       List<LeaveApplication> findTeamLeavesByManagerId(@Param("managerId") String managerId);
-
+       @Query("""
+    		   SELECT l
+    		   FROM LeaveApplication l
+    		   WHERE l.employee.manager.employeeId = :managerId
+    		   ORDER BY l.appliedOn DESC
+    		   """)
+    		   List<LeaveApplication> findTeamLeavesByManagerId(String managerId);
        /**
         * Check for overlapping leave applications.
         * 
