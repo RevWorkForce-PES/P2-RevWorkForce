@@ -239,7 +239,7 @@ RevWorkForce
 
 
 ##  ER Diagram
-<img src="https://github.com/RevWorkForce-PES/P2-RevWorkForce/blob/main/docs/ER-Diagram.png" />
+<img src="https://github.com/RevWorkForce-PES/P2-RevWorkForce/blob/main/docs/P2-RevWorkForce-ER-Diagram.png" />
 
 
 
